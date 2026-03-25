@@ -186,6 +186,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-002",
     measure_id: "CMS125",
+    domain: "Preventive Care",
+    financial_impact: "High ROI: HRSA Quality Tier",
     title: "CMS125: Breast Cancer Screening",
     description: "Systematic approach to improving mammography screening rates for women aged 50-74.",
     ehr_workflow_steps: [
