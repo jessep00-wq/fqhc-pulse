@@ -1,57 +1,44 @@
 
-# FQHC Quality Management Platform
 
-## Overview
-A multi-tenant B2B SaaS application for Federally Qualified Health Centers to manage Quality Improvement, UDS reporting, and HRSA compliance.
+# Dashboard Clinical Accuracy & UX Improvements
 
-## Navigation & Layout
-- Sidebar navigation with org name, links to: Dashboard, PDSA Lab, Playbook Library, AI Assistant, Staff Tasks
-- Top bar with user avatar and notifications bell
+## 1. Fix CMS122 Inverse Measure on Chart
+CMS122 (HbA1c Poor Control) is currently plotted on a 40-80 Y-axis alongside screening measures, which is clinically incorrect — it's an inverse measure where lower is better and typical values are 20-35%.
 
-## Pages & Features
+**Approach:** Add a secondary right-side Y-axis (`yAxisId="right"`) for CMS122 with a 15-45 domain. Update mock data to use realistic values (e.g., 38→28 trending down). Add a subtle label or legend note indicating "↓ Lower is better" for the inverse measure. Bind CMS122's `Line` to the right axis.
 
-### 1. Dashboard ("The Operating System")
-- Three metric cards: Active PDSA Cycles, UDS Measures at Risk, Tasks Due
-- Financial Impact widget showing estimated ACO shared savings with a dollar figure and trend arrow
-- Mini charts for UDS measure trends (line/bar charts using Recharts)
-- Recent activity feed
+**Files:** `src/data/mockData.ts` (fix CMS122 values), `src/pages/Index.tsx` (add second YAxis, ReferenceLine)
 
-### 2. PDSA Lab & OSV Audit Binder
-- Kanban board with columns: Plan → Do → Study → Act → Completed
-- Draggable cards showing PDSA title, assigned measure, progress
-- "New PDSA" dialog with structured form: Title, Root Cause Analysis (textarea), Target UDS Measure (dropdown), Clinical Workflow Impact, Assigned Staff (multi-select by role)
-- On completed PDSAs: prominent "Generate HRSA OSV Audit Binder" button that opens a compiled report view (simulated) linking PDSA details, tasks, and metric improvement
+## 2. Add HRSA/ACO Target Reference Lines
+Add `<ReferenceLine>` components inside the `<LineChart>` for key benchmarks — e.g., HRSA benchmark at 65% for CMS124/CMS125, 60% for CMS165, and a target at 25% on the right axis for CMS122. Styled as dashed lines with labels.
 
-### 3. UDS & ACO Playbook Library
-- Grid of template cards (CMS124, CMS125, AWV Optimization, etc.) with icons and descriptions
-- Clicking a card opens a modal with pre-populated PDSA plan, athenaOne EHR template changes, and Azara DRVS reporting cadences
-- "Deploy as PDSA" button to create a new cycle from the template
+**Files:** `src/pages/Index.tsx`
 
-### 4. AI Root Cause Analysis Assistant
-- Chat-style interface with message bubbles
-- System prompt area: "Describe your failing metric..."
-- Suggestion chips: "Clinical documentation issue", "Patient outreach issue", "Referral loop failure"
-- Simulated AI responses for demo purposes
+## 3. Make Metric Cards Clickable
+Add `onClick` / navigation props to `MetricCard`. Clicking "Active PDSA Cycles" navigates to `/pdsa-lab`, "Tasks Due" to `/staff-tasks`, "Measures at Risk" highlights the chart. Add `cursor-pointer hover:bg-accent transition-colors` styling.
 
-### 5. Staff Accountability & Task Routing
-- Data table with columns: Task, PDSA Cycle, Assigned Role (Front Desk/MA-RN/Provider), Status, Due Date
-- Filters by role and status
-- Compliance status ring/progress bar per PDSA showing % of staff who acknowledged workflow changes
-- Inline status updates
+**Files:** `src/pages/Index.tsx` (update MetricCard component, add `useNavigate`)
 
-## Database Schema (Supabase)
-- `organizations` (id, name, npi)
-- `profiles` (id, user_id, org_id, role, full_name)
-- `pdsa_cycles` (id, org_id, title, status, uds_measure, root_cause, target_goal, created_at)
-- `tasks` (id, org_id, pdsa_id, assigned_role, status, title, due_date)
-- `uds_playbooks` (id, measure_id, title, description, ehr_workflow_steps)
-- RLS policies using a security definer function to check org membership
+## 4. Dynamic Organization Name
+Replace hardcoded "Sunrise Community Health" with a value from a context provider. Create an `OrgContext` that currently provides mock data but is ready for Supabase session integration.
 
-## Mock Data
-All views populated with realistic FQHC mock data (measure names, role assignments, sample PDSAs) so the UI is immediately visualizable.
+**Files:** New `src/contexts/OrgContext.tsx`, update `src/pages/Index.tsx`, `src/App.tsx` (wrap with provider), `src/components/AppSidebar.tsx` (consume context for footer)
 
-## Tech
-- React + TypeScript + Tailwind + shadcn/ui
-- Recharts for dashboard charts
-- React Router for page navigation
-- Supabase client boilerplate (connection ready but using mock data initially)
+## 5. Split Financial Impact Card
+Redesign the Financial Impact card into two visually equal sections:
+- **Value-Based Care (ACO):** Shared savings amount + trend
+- **Fee-for-Service / Grant Protection:** HRSA Quality Award amount + revenue protected
+
+Add a `Separator` between blocks. Update mock data to include `hrsaQualityAward` field.
+
+**Files:** `src/data/mockData.ts` (add hrsaQualityAward), `src/pages/Index.tsx` (redesign card layout)
+
+## Summary of Changes
+| File | Changes |
+|------|---------|
+| `src/contexts/OrgContext.tsx` | New — org context provider |
+| `src/data/mockData.ts` | Fix CMS122 values, add hrsaQualityAward, add benchmark targets |
+| `src/pages/Index.tsx` | Dual Y-axis, reference lines, clickable cards, dynamic org name, split financial card |
+| `src/App.tsx` | Wrap with OrgProvider |
+| `src/components/AppSidebar.tsx` | Consume org context for footer |
+
