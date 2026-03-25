@@ -89,9 +89,9 @@ export function AppSidebar() {
           <div className="rounded-lg bg-sidebar-accent/50 p-3">
             <p className="text-xs text-sidebar-foreground/60">Organization</p>
             <p className="text-sm font-medium text-sidebar-foreground">
-              Sunrise Community Health
+              {organization.name}
             </p>
-            <p className="text-xs text-sidebar-foreground/40">NPI: 1234567890</p>
+            <p className="text-xs text-sidebar-foreground/40">NPI: {organization.npi}</p>
           </div>
         )}
       </SidebarFooter>

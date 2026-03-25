@@ -16,22 +16,24 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AppLayout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/pdsa-lab" element={<PDSALab />} />
-            <Route path="/playbooks" element={<PlaybookLibrary />} />
-            <Route path="/ai-assistant" element={<AIAssistant />} />
-            <Route path="/staff-tasks" element={<StaffTasks />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </AppLayout>
-      </BrowserRouter>
-    </TooltipProvider>
+    <OrgProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AppLayout>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/pdsa-lab" element={<PDSALab />} />
+              <Route path="/playbooks" element={<PlaybookLibrary />} />
+              <Route path="/ai-assistant" element={<AIAssistant />} />
+              <Route path="/staff-tasks" element={<StaffTasks />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AppLayout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </OrgProvider>
   </QueryClientProvider>
 );
 
