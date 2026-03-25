@@ -1,10 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
-import { mockPlaybooks, type UDSPlaybook } from "@/data/mockData";
-import { BookOpen, ArrowRight, Stethoscope, BarChart3, FlaskConical } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
+import { mockPlaybooks, type UDSPlaybook, type PlaybookDomain, type PDSACycle } from "@/data/mockData";
+import { BookOpen, ArrowRight, Stethoscope, BarChart3, FlaskConical, TrendingUp } from "lucide-react";
+import { toast } from "sonner";
 
 const ICONS: Record<string, React.ElementType> = {
   CMS124: Stethoscope,
@@ -13,8 +17,90 @@ const ICONS: Record<string, React.ElementType> = {
   CMS165: Stethoscope,
 };
 
+const DOMAINS: { value: string; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "Preventive Care", label: "Preventive Care" },
+  { value: "Chronic Disease", label: "Chronic Disease" },
+  { value: "Behavioral Health", label: "Behavioral Health" },
+  { value: "Financial/ACO", label: "Financial / ACO" },
+];
+
+function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSelect: (pb: UDSPlaybook) => void }) {
+  if (playbooks.length === 0) {
+    return (
+      <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
+        No playbooks in this category yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {playbooks.map((pb) => {
+        const Icon = ICONS[pb.measure_id] || BookOpen;
+        return (
+          <Card
+            key={pb.id}
+            className="cursor-pointer hover:shadow-md transition-shadow group"
+            onClick={() => onSelect(pb)}
+          >
+            <CardHeader>
+              <div className="flex items-center gap-3 mb-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Icon className="h-5 w-5 text-primary" />
+                </div>
+                <Badge variant="outline">{pb.measure_id}</Badge>
+              </div>
+              <CardTitle className="text-base">{pb.title}</CardTitle>
+              <CardDescription className="line-clamp-2">{pb.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <div className="flex items-center text-sm text-primary font-medium group-hover:gap-2 transition-all">
+                View Playbook <ArrowRight className="h-4 w-4 ml-1" />
+              </div>
+              {/* Required Roles */}
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {pb.pdsa_template.assigned_staff.map((role) => (
+                  <Badge key={role} variant="secondary" className="text-[10px] px-1.5 py-0">
+                    {role}
+                  </Badge>
+                ))}
+              </div>
+              {/* Financial Impact */}
+              <Badge className="bg-success/10 text-success border-success/20 text-[10px]">
+                <TrendingUp className="h-3 w-3 mr-1" />
+                {pb.financial_impact}
+              </Badge>
+            </CardContent>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function PlaybookLibrary() {
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<UDSPlaybook | null>(null);
+
+  const handleDeploy = (pb: UDSPlaybook) => {
+    const newCycle: PDSACycle = {
+      id: `pdsa-${Date.now()}`,
+      org_id: "org-001",
+      title: pb.pdsa_template.title,
+      status: "plan",
+      uds_measure: `${pb.measure_id}: ${pb.title.split(": ").slice(1).join(": ") || pb.title}`,
+      root_cause: pb.pdsa_template.root_cause,
+      target_goal: pb.pdsa_template.target_goal,
+      clinical_workflow_impact: pb.pdsa_template.clinical_workflow_impact,
+      assigned_staff: pb.pdsa_template.assigned_staff,
+      created_at: new Date().toISOString().split("T")[0],
+    };
+    localStorage.setItem("deployed-playbook", JSON.stringify(newCycle));
+    setSelected(null);
+    toast.success(`${pb.title} deployed to PDSA Lab`);
+    navigate("/pdsa-lab");
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -23,34 +109,22 @@ export default function PlaybookLibrary() {
         <p className="text-muted-foreground">Pre-mapped workflow templates for common FQHC challenges</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {mockPlaybooks.map((pb) => {
-          const Icon = ICONS[pb.measure_id] || BookOpen;
-          return (
-            <Card
-              key={pb.id}
-              className="cursor-pointer hover:shadow-md transition-shadow group"
-              onClick={() => setSelected(pb)}
-            >
-              <CardHeader>
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                    <Icon className="h-5 w-5 text-primary" />
-                  </div>
-                  <Badge variant="outline">{pb.measure_id}</Badge>
-                </div>
-                <CardTitle className="text-base">{pb.title}</CardTitle>
-                <CardDescription className="line-clamp-2">{pb.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center text-sm text-primary font-medium group-hover:gap-2 transition-all">
-                  View Playbook <ArrowRight className="h-4 w-4 ml-1" />
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+      <Tabs defaultValue="all">
+        <TabsList>
+          {DOMAINS.map((d) => (
+            <TabsTrigger key={d.value} value={d.value}>{d.label}</TabsTrigger>
+          ))}
+        </TabsList>
+
+        {DOMAINS.map((d) => (
+          <TabsContent key={d.value} value={d.value}>
+            <PlaybookGrid
+              playbooks={d.value === "all" ? mockPlaybooks : mockPlaybooks.filter((pb) => pb.domain === d.value)}
+              onSelect={setSelected}
+            />
+          </TabsContent>
+        ))}
+      </Tabs>
 
       <Dialog open={!!selected} onOpenChange={() => setSelected(null)}>
         {selected && (
@@ -65,16 +139,14 @@ export default function PlaybookLibrary() {
                   <Stethoscope className="h-4 w-4 text-primary" />
                   athenaOne EHR Workflow Changes
                 </h3>
-                <ol className="space-y-2">
+                <div className="space-y-2">
                   {selected.ehr_workflow_steps.map((step, i) => (
-                    <li key={i} className="flex gap-3 text-sm">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary">
-                        {i + 1}
-                      </span>
+                    <label key={i} className="flex items-start gap-3 text-sm cursor-default">
+                      <Checkbox disabled className="mt-0.5" />
                       <span className="text-muted-foreground">{step}</span>
-                    </li>
+                    </label>
                   ))}
-                </ol>
+                </div>
               </section>
 
               <section className="space-y-2">
@@ -118,7 +190,7 @@ export default function PlaybookLibrary() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => setSelected(null)}>Close</Button>
-              <Button>
+              <Button onClick={() => handleDeploy(selected)}>
                 <FlaskConical className="h-4 w-4 mr-1" /> Deploy as PDSA Cycle
               </Button>
             </DialogFooter>

@@ -30,11 +30,15 @@ export interface Task {
   acknowledged: boolean;
 }
 
+export type PlaybookDomain = "Preventive Care" | "Chronic Disease" | "Behavioral Health" | "Financial/ACO";
+
 export interface UDSPlaybook {
   id: string;
   measure_id: string;
   title: string;
   description: string;
+  domain: PlaybookDomain;
+  financial_impact: string;
   ehr_workflow_steps: string[];
   azara_cadence: string;
   pdsa_template: {
@@ -159,6 +163,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-001",
     measure_id: "CMS124",
+    domain: "Preventive Care",
+    financial_impact: "High ROI: HRSA Quality Tier",
     title: "CMS124: Cervical Cancer Screening",
     description: "Workflow optimization for increasing cervical cancer screening rates among eligible women aged 21-65.",
     ehr_workflow_steps: [
@@ -180,6 +186,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-002",
     measure_id: "CMS125",
+    domain: "Preventive Care",
+    financial_impact: "High ROI: HRSA Quality Tier",
     title: "CMS125: Breast Cancer Screening",
     description: "Systematic approach to improving mammography screening rates for women aged 50-74.",
     ehr_workflow_steps: [
@@ -201,6 +209,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-003",
     measure_id: "AWV",
+    domain: "Financial/ACO",
+    financial_impact: "High ROI: ACO Shared Savings",
     title: "Annual Wellness Visit (AWV) Optimization",
     description: "Comprehensive workflow to maximize AWV completion rates and proper documentation/coding.",
     ehr_workflow_steps: [
@@ -222,6 +232,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-004",
     measure_id: "CMS165",
+    domain: "Chronic Disease",
+    financial_impact: "High ROI: HRSA Quality Tier",
     title: "CMS165: Controlling High Blood Pressure",
     description: "Evidence-based workflow for improving hypertension control rates across the patient population.",
     ehr_workflow_steps: [

@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -441,6 +441,23 @@ export default function PDSALab() {
   const [cycles, setCycles] = useState<PDSACycle[]>(mockPDSACycles);
   const [binderCycle, setBinderCycle] = useState<PDSACycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+
+  // Consume deployed playbook from PlaybookLibrary
+  useEffect(() => {
+    const stored = localStorage.getItem("deployed-playbook");
+    if (stored) {
+      try {
+        const cycle = JSON.parse(stored) as PDSACycle;
+        setCycles((prev) => {
+          if (prev.some((c) => c.id === cycle.id)) return prev;
+          return [...prev, cycle];
+        });
+        localStorage.removeItem("deployed-playbook");
+      } catch {
+        localStorage.removeItem("deployed-playbook");
+      }
+    }
+  }, []);
 
   const handleDragEnd = (result: DropResult) => {
     const { draggableId, destination } = result;
