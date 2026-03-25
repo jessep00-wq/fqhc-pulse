@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, type ReactNode } from "react";
 
 interface Organization {
   id: string;
