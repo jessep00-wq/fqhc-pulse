@@ -35,6 +35,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { organization } = useOrg();
 
   return (
     <Sidebar collapsible="icon">
