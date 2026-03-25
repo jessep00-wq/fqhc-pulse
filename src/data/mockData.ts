@@ -249,7 +249,9 @@ export const dashboardMetrics = {
   financialImpact: {
     sharedSavings: 285000,
     revenueProtected: 142000,
+    hrsaQualityAward: 98000,
     trend: 12.5,
+    grantTrend: 8.2,
   },
   udsTrends: [
     { month: "Jul", CMS124: 48, CMS125: 55, CMS165: 58, CMS122: 62 },
