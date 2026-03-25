@@ -209,6 +209,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-003",
     measure_id: "AWV",
+    domain: "Financial/ACO",
+    financial_impact: "High ROI: ACO Shared Savings",
     title: "Annual Wellness Visit (AWV) Optimization",
     description: "Comprehensive workflow to maximize AWV completion rates and proper documentation/coding.",
     ehr_workflow_steps: [
