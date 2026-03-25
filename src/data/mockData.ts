@@ -254,12 +254,12 @@ export const dashboardMetrics = {
     grantTrend: 8.2,
   },
   udsTrends: [
-    { month: "Jul", CMS124: 48, CMS125: 55, CMS165: 58, CMS122: 62 },
-    { month: "Aug", CMS124: 50, CMS125: 56, CMS165: 59, CMS122: 60 },
-    { month: "Sep", CMS124: 52, CMS125: 58, CMS165: 61, CMS122: 58 },
-    { month: "Oct", CMS124: 55, CMS125: 60, CMS165: 63, CMS122: 55 },
-    { month: "Nov", CMS124: 58, CMS125: 62, CMS165: 66, CMS122: 52 },
-    { month: "Dec", CMS124: 60, CMS125: 64, CMS165: 68, CMS122: 50 },
+    { month: "Jul", CMS124: 48, CMS125: 55, CMS165: 58, CMS122: 38 },
+    { month: "Aug", CMS124: 50, CMS125: 56, CMS165: 59, CMS122: 36 },
+    { month: "Sep", CMS124: 52, CMS125: 58, CMS165: 61, CMS122: 34 },
+    { month: "Oct", CMS124: 55, CMS125: 60, CMS165: 63, CMS122: 32 },
+    { month: "Nov", CMS124: 58, CMS125: 62, CMS165: 66, CMS122: 30 },
+    { month: "Dec", CMS124: 60, CMS125: 64, CMS165: 68, CMS122: 28 },
   ],
   recentActivity: [
     { id: "a1", text: "PDSA 'Depression Screening' moved to Completed", time: "2 hours ago", type: "success" as const },
