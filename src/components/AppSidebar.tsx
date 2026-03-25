@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useOrg } from "@/contexts/OrgContext";
 import {
   Sidebar,
   SidebarContent,
