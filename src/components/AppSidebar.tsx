@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
+import { useOrg } from "@/contexts/OrgContext";
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +35,7 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
   const location = useLocation();
+  const { organization } = useOrg();
 
   return (
     <Sidebar collapsible="icon">
@@ -87,9 +89,9 @@ export function AppSidebar() {
           <div className="rounded-lg bg-sidebar-accent/50 p-3">
             <p className="text-xs text-sidebar-foreground/60">Organization</p>
             <p className="text-sm font-medium text-sidebar-foreground">
-              Sunrise Community Health
+              {organization.name}
             </p>
-            <p className="text-xs text-sidebar-foreground/40">NPI: 1234567890</p>
+            <p className="text-xs text-sidebar-foreground/40">NPI: {organization.npi}</p>
           </div>
         )}
       </SidebarFooter>
