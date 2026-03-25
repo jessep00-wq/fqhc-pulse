@@ -30,11 +30,15 @@ export interface Task {
   acknowledged: boolean;
 }
 
+export type PlaybookDomain = "Preventive Care" | "Chronic Disease" | "Behavioral Health" | "Financial/ACO";
+
 export interface UDSPlaybook {
   id: string;
   measure_id: string;
   title: string;
   description: string;
+  domain: PlaybookDomain;
+  financial_impact: string;
   ehr_workflow_steps: string[];
   azara_cadence: string;
   pdsa_template: {
