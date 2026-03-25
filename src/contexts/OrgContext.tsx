@@ -1,4 +1,6 @@
-import React, { createContext, useContext, type ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Organization {
   id: string;
@@ -8,19 +10,52 @@ interface Organization {
 
 interface OrgContextType {
   organization: Organization;
+  loading: boolean;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
-const mockOrg: Organization = {
-  id: "org-001",
-  name: "Sunrise Community Health",
-  npi: "1234567890",
-};
+const fallbackOrg: Organization = { id: "", name: "Loading...", npi: "" };
 
-export function OrgProvider({ children }: { children: React.ReactNode }) {
+export function OrgProvider({ children }: { children: ReactNode }) {
+  const { user } = useAuth();
+  const [organization, setOrganization] = useState<Organization>(fallbackOrg);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) {
+      setOrganization(fallbackOrg);
+      setLoading(false);
+      return;
+    }
+
+    const fetchOrg = async () => {
+      setLoading(true);
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.organization_id) {
+        const { data: org } = await supabase
+          .from("organizations")
+          .select("*")
+          .eq("id", profile.organization_id)
+          .single();
+
+        if (org) {
+          setOrganization({ id: org.id, name: org.name, npi: org.npi || "" });
+        }
+      }
+      setLoading(false);
+    };
+
+    fetchOrg();
+  }, [user]);
+
   return (
-    <OrgContext.Provider value={{ organization: mockOrg }}>
+    <OrgContext.Provider value={{ organization, loading }}>
       {children}
     </OrgContext.Provider>
   );
