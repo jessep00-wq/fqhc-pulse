@@ -442,6 +442,23 @@ export default function PDSALab() {
   const [binderCycle, setBinderCycle] = useState<PDSACycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
 
+  // Consume deployed playbook from PlaybookLibrary
+  useEffect(() => {
+    const stored = localStorage.getItem("deployed-playbook");
+    if (stored) {
+      try {
+        const cycle = JSON.parse(stored) as PDSACycle;
+        setCycles((prev) => {
+          if (prev.some((c) => c.id === cycle.id)) return prev;
+          return [...prev, cycle];
+        });
+        localStorage.removeItem("deployed-playbook");
+      } catch {
+        localStorage.removeItem("deployed-playbook");
+      }
+    }
+  }, []);
+
   const handleDragEnd = (result: DropResult) => {
     const { draggableId, destination } = result;
     if (!destination) return;
