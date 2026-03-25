@@ -1,44 +1,66 @@
 
 
-# Dashboard Clinical Accuracy & UX Improvements
+# PDSA Lab: Market-Ready Improvements
 
-## 1. Fix CMS122 Inverse Measure on Chart
-CMS122 (HbA1c Poor Control) is currently plotted on a 40-80 Y-axis alongside screening measures, which is clinically incorrect — it's an inverse measure where lower is better and typical values are 20-35%.
+## 1. Drag-and-Drop Kanban Board
+Install `@hello-pangea/dnd` and wrap the Kanban board with `DragDropContext`, each column as a `Droppable`, and each card as a `Draggable`. On drop, update the cycle's `status` in local state via `setCycles`.
 
-**Approach:** Add a secondary right-side Y-axis (`yAxisId="right"`) for CMS122 with a 15-45 domain. Update mock data to use realistic values (e.g., 38→28 trending down). Add a subtle label or legend note indicating "↓ Lower is better" for the inverse measure. Bind CMS122's `Line` to the right axis.
+**Files:** `package.json` (add dep), `src/pages/PDSALab.tsx` (refactor board)
 
-**Files:** `src/data/mockData.ts` (fix CMS122 values), `src/pages/Index.tsx` (add second YAxis, ReferenceLine)
+## 2. AI Root Cause Assistant in Create Modal
+Add a "Help me analyze" button below the Root Cause textarea. Clicking it opens a collapsible section with a mini chat interface (text input + message list). This will call a Supabase Edge Function (`supabase/functions/ai-root-cause/index.ts`) that uses the Lovable AI Gateway to generate root cause suggestions based on the selected UDS measure. The form fields need to become controlled (useState for each field).
 
-## 2. Add HRSA/ACO Target Reference Lines
-Add `<ReferenceLine>` components inside the `<LineChart>` for key benchmarks — e.g., HRSA benchmark at 65% for CMS124/CMS125, 60% for CMS165, and a target at 25% on the right axis for CMS122. Styled as dashed lines with labels.
+**Files:** `src/pages/PDSALab.tsx` (add collapsible AI section in modal), `supabase/functions/ai-root-cause/index.ts` (new edge function)
 
-**Files:** `src/pages/Index.tsx`
+## 3. Playbook Template Pre-fill
+Add a "Use Playbook Template" button at the top of the Create PDSA modal. When a UDS measure is selected that matches a playbook, show a banner offering to auto-fill. Clicking it populates the Root Cause, Workflow Impact, and Target Goal fields from `mockPlaybooks`.
 
-## 3. Make Metric Cards Clickable
-Add `onClick` / navigation props to `MetricCard`. Clicking "Active PDSA Cycles" navigates to `/pdsa-lab`, "Tasks Due" to `/staff-tasks`, "Measures at Risk" highlights the chart. Add `cursor-pointer hover:bg-accent transition-colors` styling.
+**Files:** `src/pages/PDSALab.tsx` (add template lookup + pre-fill logic)
 
-**Files:** `src/pages/Index.tsx` (update MetricCard component, add `useNavigate`)
+## 4. Working PDF Export for Audit Binder
+Install `jspdf` and `html2canvas`. Add a hidden print-layout div inside `AuditBinderDialog` with letter-sized formatting. The "Export PDF" button captures this div and downloads a PDF.
 
-## 4. Dynamic Organization Name
-Replace hardcoded "Sunrise Community Health" with a value from a context provider. Create an `OrgContext` that currently provides mock data but is ready for Supabase session integration.
+**Files:** `package.json` (add jspdf, html2canvas), `src/pages/PDSALab.tsx` (implement export)
 
-**Files:** New `src/contexts/OrgContext.tsx`, update `src/pages/Index.tsx`, `src/App.tsx` (wrap with provider), `src/components/AppSidebar.tsx` (consume context for footer)
+## 5. Enhanced Card UI
+Replace the "3 roles" text with an `AvatarGroup` component showing overlapping role initials (FD, MA, PR, CC, QI). Add a small `Progress` bar showing task completion percentage (computed from `mockTasks` filtered by `pdsa_id`).
 
-## 5. Split Financial Impact Card
-Redesign the Financial Impact card into two visually equal sections:
-- **Value-Based Care (ACO):** Shared savings amount + trend
-- **Fee-for-Service / Grant Protection:** HRSA Quality Award amount + revenue protected
+**Files:** `src/pages/PDSALab.tsx` (update `PDSACard` with avatars + progress bar, import mockTasks)
 
-Add a `Separator` between blocks. Update mock data to include `hrsaQualityAward` field.
+## Technical Details
 
-**Files:** `src/data/mockData.ts` (add hrsaQualityAward), `src/pages/Index.tsx` (redesign card layout)
+### Drag-and-Drop Structure
+```text
+DragDropContext (onDragEnd → update cycle status)
+├── Droppable (column: "plan")
+│   └── Draggable (PDSACard)
+├── Droppable (column: "do")
+│   └── Draggable (PDSACard)
+└── ...
+```
 
-## Summary of Changes
-| File | Changes |
-|------|---------|
-| `src/contexts/OrgContext.tsx` | New — org context provider |
-| `src/data/mockData.ts` | Fix CMS122 values, add hrsaQualityAward, add benchmark targets |
-| `src/pages/Index.tsx` | Dual Y-axis, reference lines, clickable cards, dynamic org name, split financial card |
-| `src/App.tsx` | Wrap with OrgProvider |
-| `src/components/AppSidebar.tsx` | Consume org context for footer |
+### AI Edge Function
+- Endpoint: `supabase/functions/ai-root-cause/index.ts`
+- Uses `LOVABLE_API_KEY` with Lovable AI Gateway
+- System prompt: FQHC quality improvement expert, generates root cause analysis based on UDS measure context
+- Non-streaming response (simple invoke)
+
+### Playbook Pre-fill Logic
+- Match selected UDS measure string against `mockPlaybooks[].title` prefix
+- If match found, show "Template available" banner with "Apply" button
+- Fills: root_cause, clinical_workflow_impact, target_goal, title
+
+### PDF Export
+- Use `jspdf` with `html2canvas` to capture a ref'd div
+- Format: Letter size, margins, clinic branding header
+- Sections mirror the dialog: PDSA summary, RCA, goals, staff log, workflow impact
+
+### Avatar Mapping
+```text
+Front Desk → FD (blue)
+MA/RN → MA (green)
+Provider → PR (purple)
+Care Coordinator → CC (orange)
+QI Manager → QI (teal)
+```
 
