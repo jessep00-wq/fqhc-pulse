@@ -232,6 +232,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-004",
     measure_id: "CMS165",
+    domain: "Chronic Disease",
+    financial_impact: "High ROI: HRSA Quality Tier",
     title: "CMS165: Controlling High Blood Pressure",
     description: "Evidence-based workflow for improving hypertension control rates across the patient population.",
     ehr_workflow_steps: [
