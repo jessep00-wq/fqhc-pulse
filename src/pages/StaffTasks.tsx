@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { mockTasks, mockPDSACycles, type Task, type StaffRole, type TaskStatus } from "@/data/mockData";
-import { CheckCircle2, Clock, AlertCircle, CircleDot } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useOrg } from "@/contexts/OrgContext";
+import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2 } from "lucide-react";
+
+type TaskStatus = "pending" | "in_progress" | "completed" | "overdue";
+type StaffRole = "Front Desk" | "MA/RN" | "Provider" | "Care Coordinator" | "QI Manager";
 
 const STATUS_CONFIG: Record<TaskStatus, { label: string; icon: React.ElementType; className: string }> = {
   completed: { label: "Completed", icon: CheckCircle2, className: "text-success" },
@@ -17,33 +21,42 @@ const STATUS_CONFIG: Record<TaskStatus, { label: string; icon: React.ElementType
 
 const ROLES: StaffRole[] = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
 
-function ComplianceRing({ pdsaId, pdsaTitle }: { pdsaId: string; pdsaTitle: string }) {
-  const tasks = mockTasks.filter((t) => t.pdsa_id === pdsaId);
-  const acked = tasks.filter((t) => t.acknowledged).length;
-  const pct = tasks.length > 0 ? Math.round((acked / tasks.length) * 100) : 0;
-
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-medium truncate">{pdsaTitle}</span>
-        <span className="text-xs text-muted-foreground">{acked}/{tasks.length} acknowledged</span>
-      </div>
-      <Progress value={pct} className="h-2" />
-    </div>
-  );
-}
-
 export default function StaffTasks() {
+  const { organization } = useOrg();
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
 
-  const filtered = mockTasks.filter((t) => {
+  const { data: tasks = [], isLoading: tasksLoading } = useQuery({
+    queryKey: ["tasks", organization.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("tasks").select("*, pdsa_cycles(title)");
+      return data || [];
+    },
+    enabled: !!organization.id,
+  });
+
+  const { data: cycles = [] } = useQuery({
+    queryKey: ["pdsa_cycles_active", organization.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").neq("status", "completed");
+      return data || [];
+    },
+    enabled: !!organization.id,
+  });
+
+  const filtered = tasks.filter((t: any) => {
     if (roleFilter !== "all" && t.assigned_role !== roleFilter) return false;
     if (statusFilter !== "all" && t.status !== statusFilter) return false;
     return true;
   });
 
-  const activePDSAs = mockPDSACycles.filter((c) => c.status !== "completed");
+  if (tasksLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -58,9 +71,20 @@ export default function StaffTasks() {
             <CardTitle className="text-base">Compliance Status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {activePDSAs.map((pdsa) => (
-              <ComplianceRing key={pdsa.id} pdsaId={pdsa.id} pdsaTitle={pdsa.title} />
-            ))}
+            {cycles.map((pdsa: any) => {
+              const pdsaTasks = tasks.filter((t: any) => t.pdsa_cycle_id === pdsa.id);
+              const acked = pdsaTasks.filter((t: any) => t.acknowledged).length;
+              const pct = pdsaTasks.length > 0 ? Math.round((acked / pdsaTasks.length) * 100) : 0;
+              return (
+                <div key={pdsa.id} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium truncate">{pdsa.title}</span>
+                    <span className="text-xs text-muted-foreground">{acked}/{pdsaTasks.length} acknowledged</span>
+                  </div>
+                  <Progress value={pct} className="h-2" />
+                </div>
+              );
+            })}
           </CardContent>
         </Card>
 
@@ -70,18 +94,14 @@ export default function StaffTasks() {
               <CardTitle className="text-base">Task Board</CardTitle>
               <div className="flex gap-2">
                 <Select value={roleFilter} onValueChange={setRoleFilter}>
-                  <SelectTrigger className="w-[160px] h-9">
-                    <SelectValue placeholder="Filter by role" />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Filter by role" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Roles</SelectItem>
                     {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                   </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[160px] h-9">
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
+                  <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Filter by status" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
@@ -105,13 +125,14 @@ export default function StaffTasks() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((task) => {
-                  const cfg = STATUS_CONFIG[task.status];
+                {filtered.map((task: any) => {
+                  const cfg = STATUS_CONFIG[task.status as TaskStatus] || STATUS_CONFIG.pending;
                   const StatusIcon = cfg.icon;
+                  const pdsaTitle = task.pdsa_cycles?.title || "—";
                   return (
                     <TableRow key={task.id}>
                       <TableCell className="font-medium text-sm">{task.title}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{task.pdsa_title}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{pdsaTitle}</TableCell>
                       <TableCell><Badge variant="secondary" className="text-xs">{task.assigned_role}</Badge></TableCell>
                       <TableCell className="text-sm text-muted-foreground">{task.due_date}</TableCell>
                       <TableCell>

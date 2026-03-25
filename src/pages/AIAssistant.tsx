@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Send, User, Sparkles } from "lucide-react";
+import { Bot, Send, User, Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -19,55 +21,6 @@ const SUGGESTIONS = [
   "Care coordination gap",
 ];
 
-const MOCK_RESPONSES: Record<string, string> = {
-  default: `Based on common FQHC quality patterns, here's my analysis:
-
-**Potential Root Causes:**
-1. **Documentation Gap** — The measure may not be failing clinically, but rather the documentation isn't capturing the care being delivered in the required structured fields.
-2. **Workflow Bottleneck** — Check if the screening/intervention is part of the MA rooming workflow or if it relies solely on provider action during the visit.
-3. **Patient Population Factor** — Review your Azara DRVS data to see if the gap is concentrated in a specific payer mix, age group, or site.
-
-**Recommended Next Steps:**
-- Run a chart audit on 20 random patients in the denominator
-- Compare athenaOne template fields against UDS reporting logic
-- Schedule a workflow observation day with your MA team`,
-  "Clinical documentation issue": `**Clinical Documentation Root Cause Analysis:**
-
-This is one of the most common issues at FQHCs. Here's what I typically find:
-
-1. **Structured vs. Free-Text** — Providers are documenting the intervention in progress notes (free text) but not in the structured fields that Azara DRVS pulls from. Solution: Update your athenaOne templates to include required structured data elements.
-
-2. **Code Mapping Errors** — The CPT/ICD codes being used may not align with the UDS measure specifications. Cross-reference your billing codes against the UDS 2024 manual.
-
-3. **Historical Data Not Imported** — If patients received care externally, ensure your Health Information Exchange (HIE) data is flowing into the correct fields.
-
-**Action Plan:** Start with an athenaOne template audit for this specific measure.`,
-  "Patient outreach issue": `**Patient Outreach Root Cause Analysis:**
-
-Low outreach effectiveness is often multi-factorial at FQHCs:
-
-1. **Contact Information** — Many FQHC patients have frequently changing phone numbers. Implement a "verify contact info" step at every visit.
-
-2. **Language Barriers** — Ensure outreach materials are available in your top 3 patient languages. Check if your outreach staff mirrors your patient demographics.
-
-3. **Outreach Timing** — Analyze when your patients are most responsive. Many working patients can only respond during evening hours.
-
-4. **No-Show Patterns** — Cross-reference your no-show data with the patients in your care gap list. You may need to implement a different engagement strategy for chronic no-show patients.
-
-**Action Plan:** Deploy a multi-channel outreach strategy: text message first, phone call follow-up, then mailed letter.`,
-  "Referral loop failure": `**Referral Loop Failure Analysis:**
-
-This is critical for screening measures like CMS124 and CMS125. Here's the breakdown:
-
-1. **Order Placed but Not Completed** — Track the referral completion rate in athenaOne. If orders are placed but patients don't follow through, you need a care coordinator follow-up workflow.
-
-2. **Results Not Returned** — Even when patients complete the referral, results may not flow back to the ordering provider. Establish a closed-loop referral tracking process.
-
-3. **External Provider Data** — If patients get screenings done at external facilities, those results may not be captured. Leverage your HIE connection and train front desk to ask about external care at check-in.
-
-**Action Plan:** Implement a weekly "open referrals" scrub with your care coordination team.`,
-};
-
 export default function AIAssistant() {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -77,17 +30,54 @@ export default function AIAssistant() {
     },
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = (text?: string) => {
+  const handleSend = async (text?: string) => {
     const msg = text || input;
-    if (!msg.trim()) return;
+    if (!msg.trim() || loading) return;
 
     const userMsg: Message = { id: `u-${Date.now()}`, role: "user", content: msg };
-    const response = MOCK_RESPONSES[msg] || MOCK_RESPONSES.default;
-    const assistantMsg: Message = { id: `a-${Date.now()}`, role: "assistant", content: response };
-
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setMessages((prev) => [...prev, userMsg]);
     setInput("");
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-root-cause", {
+        body: {
+          uds_measure: msg,
+          context: messages
+            .filter((m) => m.id !== "welcome")
+            .map((m) => `${m.role}: ${m.content}`)
+            .join("\n"),
+        },
+      });
+
+      if (error) throw error;
+
+      const assistantMsg: Message = {
+        id: `a-${Date.now()}`,
+        role: "assistant",
+        content: data?.analysis || "Unable to generate analysis. Please try again.",
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
+    } catch (err: any) {
+      console.error("AI error:", err);
+      const status = err?.status || err?.code;
+      if (status === 429) {
+        toast.error("Rate limited — please wait a moment and try again.");
+      } else if (status === 402) {
+        toast.error("AI credits exhausted. Please add funds in Settings.");
+      } else {
+        toast.error("Failed to get AI response. Please try again.");
+      }
+      // Add error message inline
+      setMessages((prev) => [
+        ...prev,
+        { id: `e-${Date.now()}`, role: "assistant", content: "Sorry, I couldn't generate an analysis right now. Please try again." },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -110,9 +100,7 @@ export default function AIAssistant() {
                 </div>
               )}
               <div className={`rounded-lg p-3 max-w-[80%] text-sm whitespace-pre-wrap ${
-                msg.role === "user"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted"
+                msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
               }`}>
                 {msg.content}
               </div>
@@ -123,6 +111,16 @@ export default function AIAssistant() {
               )}
             </div>
           ))}
+          {loading && (
+            <div className="flex gap-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                <Bot className="h-4 w-4 text-primary" />
+              </div>
+              <div className="rounded-lg p-3 bg-muted">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+              </div>
+            </div>
+          )}
         </CardContent>
 
         <div className="border-t p-4 space-y-3">
@@ -152,7 +150,7 @@ export default function AIAssistant() {
                 }
               }}
             />
-            <Button size="icon" className="h-auto" onClick={() => handleSend()}>
+            <Button size="icon" className="h-auto" onClick={() => handleSend()} disabled={loading}>
               <Send className="h-4 w-4" />
             </Button>
           </div>
