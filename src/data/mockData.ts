@@ -163,6 +163,8 @@ export const mockPlaybooks: UDSPlaybook[] = [
   {
     id: "pb-001",
     measure_id: "CMS124",
+    domain: "Preventive Care",
+    financial_impact: "High ROI: HRSA Quality Tier",
     title: "CMS124: Cervical Cancer Screening",
     description: "Workflow optimization for increasing cervical cancer screening rates among eligible women aged 21-65.",
     ehr_workflow_steps: [
