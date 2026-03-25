@@ -14,13 +14,233 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_log: {
+        Row: {
+          created_at: string
+          id: string
+          organization_id: string
+          text: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organization_id: string
+          text: string
+          type?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organization_id?: string
+          text?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          npi: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          npi?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          npi?: string | null
+        }
+        Relationships: []
+      }
+      pdsa_cycles: {
+        Row: {
+          assigned_staff: string[] | null
+          clinical_workflow_impact: string | null
+          created_at: string
+          id: string
+          improvement_pct: number | null
+          organization_id: string
+          root_cause: string | null
+          status: string
+          target_goal: string | null
+          title: string
+          uds_measure: string | null
+        }
+        Insert: {
+          assigned_staff?: string[] | null
+          clinical_workflow_impact?: string | null
+          created_at?: string
+          id?: string
+          improvement_pct?: number | null
+          organization_id: string
+          root_cause?: string | null
+          status?: string
+          target_goal?: string | null
+          title: string
+          uds_measure?: string | null
+        }
+        Update: {
+          assigned_staff?: string[] | null
+          clinical_workflow_impact?: string | null
+          created_at?: string
+          id?: string
+          improvement_pct?: number | null
+          organization_id?: string
+          root_cause?: string | null
+          status?: string
+          target_goal?: string | null
+          title?: string
+          uds_measure?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pdsa_cycles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          organization_id: string | null
+          staff_role: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          organization_id?: string | null
+          staff_role?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          organization_id?: string | null
+          staff_role?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tasks: {
+        Row: {
+          acknowledged: boolean
+          assigned_role: string | null
+          created_at: string
+          due_date: string | null
+          id: string
+          organization_id: string
+          pdsa_cycle_id: string | null
+          status: string
+          title: string
+        }
+        Insert: {
+          acknowledged?: boolean
+          assigned_role?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          organization_id: string
+          pdsa_cycle_id?: string | null
+          status?: string
+          title: string
+        }
+        Update: {
+          acknowledged?: boolean
+          assigned_role?: string | null
+          created_at?: string
+          due_date?: string | null
+          id?: string
+          organization_id?: string
+          pdsa_cycle_id?: string | null
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tasks_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_pdsa_cycle_id_fkey"
+            columns: ["pdsa_cycle_id"]
+            isOneToOne: false
+            referencedRelation: "pdsa_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      uds_trends: {
+        Row: {
+          created_at: string
+          id: string
+          measure_id: string
+          month: string
+          organization_id: string
+          value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          measure_id: string
+          month: string
+          organization_id: string
+          value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          measure_id?: string
+          month?: string
+          organization_id?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "uds_trends_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_user_org_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
