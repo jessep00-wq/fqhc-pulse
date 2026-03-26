@@ -40,33 +40,20 @@ export default function Auth() {
 
   const handleSignUp = async () => {
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
+        data: { full_name: fullName, staff_role: staffRole },
         emailRedirectTo: window.location.origin,
       },
     });
+    setLoading(false);
     if (error) {
       toast.error(error.message);
-      setLoading(false);
-      return;
+    } else {
+      toast.success("Check your email to verify your account before signing in.");
     }
-
-    // Update profile with staff_role and org
-    if (data.user) {
-      const ORG_ID = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11";
-      // Wait a moment for trigger to create profile
-      await new Promise((r) => setTimeout(r, 500));
-      await supabase
-        .from("profiles")
-        .update({ staff_role: staffRole, organization_id: ORG_ID, full_name: fullName })
-        .eq("id", data.user.id);
-    }
-
-    setLoading(false);
-    toast.success("Check your email to verify your account before signing in.");
   };
 
   const handleForgotPassword = async () => {
