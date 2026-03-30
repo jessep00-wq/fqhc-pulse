@@ -1,56 +1,60 @@
 
-# Fix: Profile Not Linked to Organization on Signup
 
-## Problem
-When a user signs up, the `handle_new_user` trigger creates a profile row with only `id` and `full_name`. The subsequent client-side PATCH to set `organization_id` and `staff_role` silently fails because the user isn't authenticated yet (email verification is required, so RLS blocks the update).
+# Make PDSA Cards Clickable with Detail/Edit View
 
-Result: user logs in, profile has `organization_id = null`, dashboard shows "Loading..." forever, and all data queries return empty (RLS filters by org).
+## What We're Building
+A detail dialog that opens when you click any PDSA cycle card on the Kanban board. The dialog lets you view and edit the cycle, add tasks, record study results (what worked / what didn't), and manage the cycle end-to-end.
 
-## Fix (2 changes)
+## Database Changes
 
-### 1. Update the database trigger to capture signup metadata
-Modify `handle_new_user()` to read `staff_role` and a default org ID from `raw_user_meta_data`, so the profile is fully populated at creation time — before RLS matters.
+**Add columns to `pdsa_cycles`:**
+- `study_results text` — what was observed
+- `what_worked text` — successes
+- `what_didnt_work text` — failures / barriers
+- `act_next_steps text` — next steps from the Act phase
 
-```sql
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path TO 'public' AS $$
-BEGIN
-  INSERT INTO public.profiles (id, full_name, staff_role, organization_id)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'staff_role', 'QI Manager'),
-    'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'::uuid
-  );
-  RETURN NEW;
-END;
-$$;
-```
+No new tables needed. Tasks already exist and link via `pdsa_cycle_id`.
 
-### 2. Update Auth.tsx to pass staff_role in signup metadata
-Pass `staff_role` in the `options.data` object during `signUp` so the trigger can read it. Remove the post-signup PATCH call since the trigger handles everything.
+## UI: PDSA Detail Dialog
 
-```typescript
-const { data, error } = await supabase.auth.signUp({
-  email, password,
-  options: {
-    data: { full_name: fullName, staff_role: staffRole },
-    emailRedirectTo: window.location.origin,
-  },
-});
-// Remove the setTimeout + PATCH block entirely
-```
+A new `PDSADetailDialog` component that opens on card click. Contains tabs matching the PDSA phases:
 
-### 3. Fix the existing user (Jessica Smith)
-Run a migration to update the existing profile so the current user can log in and see data immediately:
+**Plan tab:**
+- Edit title, UDS measure, root cause, target goal, clinical workflow impact
+- View/edit assigned staff roles
 
-```sql
-UPDATE public.profiles
-SET organization_id = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
-    staff_role = 'QI Manager'
-WHERE organization_id IS NULL;
-```
+**Do tab:**
+- List of tasks linked to this cycle (from `tasks` table)
+- "Add Task" inline form: title, assigned role, due date
+- Toggle task status (pending → in_progress → completed)
+- Acknowledge checkbox per task
 
-## Files Changed
-- **Migration**: Update `handle_new_user` function + fix existing profile
-- **`src/pages/Auth.tsx`**: Pass `staff_role` in signup metadata, remove PATCH block
+**Study tab:**
+- Textarea for "Results / Observations"
+- Textarea for "What Worked"
+- Textarea for "What Didn't Work"
+- Improvement percentage input
+
+**Act tab:**
+- Textarea for "Next Steps"
+- Button to mark cycle as completed
+- Button to "Start New Cycle" (clones into a new plan-phase cycle)
+
+All fields auto-save on blur via `useMutation` updating `pdsa_cycles` or `tasks`.
+
+## Code Changes
+
+| File | Change |
+|------|--------|
+| **Migration** | Add `study_results`, `what_worked`, `what_didnt_work`, `act_next_steps` columns to `pdsa_cycles` |
+| **`src/pages/PDSALab.tsx`** | Add `PDSADetailDialog` component. Add `selectedCycle` state. Pass `onClick` to `PDSACard`. Wire mutations for updating cycle fields and creating/updating tasks. |
+| **`PDSACard`** | Add `onClick` prop, call it on card click (distinguish from drag via a click-vs-drag check) |
+
+## Click vs. Drag Handling
+The card is both draggable and clickable. We'll track mouse movement in `onMouseDown`/`onMouseUp` — if the mouse moved less than 5px, treat it as a click and open the detail dialog. Otherwise let the drag handler take over.
+
+## Task Management in Detail Dialog
+- Uses existing `tasks` table with `INSERT` and `UPDATE` via Supabase client
+- New tasks get `organization_id` from context and `pdsa_cycle_id` from the selected cycle
+- Status toggle cycles through: pending → in_progress → completed
+
