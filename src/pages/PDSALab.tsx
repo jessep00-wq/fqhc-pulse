@@ -453,7 +453,7 @@ export default function PDSALab() {
                                 dragStartPos.current = null;
                               }}
                             >
-                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} />
+                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
                             </div>
                           )}
                         </Draggable>
