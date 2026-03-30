@@ -220,17 +220,18 @@ export default function Dashboard() {
             <CardTitle className="text-base">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {activity?.map((a) => (
-              <div key={a.id} className="flex items-start gap-3">
-                <ArrowUpRight className={`h-4 w-4 mt-0.5 shrink-0 ${
-                  a.type === "success" ? "text-success" : a.type === "warning" ? "text-warning" : "text-primary"
-                }`} />
-                <div className="min-w-0">
-                  <p className="text-sm leading-tight">{a.text}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{formatTime(a.created_at)}</p>
+            {activity?.map((a) => {
+              const dotColor = a.type === "success" ? "bg-success" : a.type === "warning" ? "bg-warning" : "bg-primary";
+              return (
+                <div key={a.id} className="flex items-start gap-3">
+                  <div className={`h-2.5 w-2.5 rounded-full mt-1.5 shrink-0 ${dotColor}`} />
+                  <div className="min-w-0">
+                    <p className="text-sm leading-tight">{a.text}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{formatTime(a.created_at)}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {(!activity || activity.length === 0) && (
               <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
             )}
