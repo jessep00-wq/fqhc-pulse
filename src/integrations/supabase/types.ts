@@ -170,6 +170,7 @@ export type Database = {
           id: string
           organization_id: string
           pdsa_cycle_id: string | null
+          priority: string
           status: string
           title: string
         }
@@ -181,6 +182,7 @@ export type Database = {
           id?: string
           organization_id: string
           pdsa_cycle_id?: string | null
+          priority?: string
           status?: string
           title: string
         }
@@ -192,6 +194,7 @@ export type Database = {
           id?: string
           organization_id?: string
           pdsa_cycle_id?: string | null
+          priority?: string
           status?: string
           title?: string
         }

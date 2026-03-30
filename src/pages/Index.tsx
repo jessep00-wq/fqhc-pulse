@@ -6,6 +6,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import { FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp, ArrowUpRight, Award, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
+import SPCChart from "@/components/SPCChart";
 
 const FINANCIAL = {
   sharedSavings: 285000,
@@ -15,13 +16,19 @@ const FINANCIAL = {
   grantTrend: 8.2,
 };
 
+const VARIANT_BORDER: Record<string, string> = {
+  default: "border-l-4 border-l-primary",
+  warning: "border-l-4 border-l-warning",
+  success: "border-l-4 border-l-success",
+};
+
 const MetricCard = ({
   title, value, icon: Icon, description, variant = "default", onClick,
 }: {
   title: string; value: string | number; icon: React.ElementType; description: string;
   variant?: "default" | "warning" | "success"; onClick?: () => void;
 }) => (
-  <Card className={onClick ? "cursor-pointer hover:bg-accent/50 transition-colors" : ""} onClick={onClick}>
+  <Card className={`${onClick ? "cursor-pointer hover:bg-accent/50 transition-colors" : ""} ${VARIANT_BORDER[variant]}`} onClick={onClick}>
     <CardHeader className="flex flex-row items-center justify-between pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       <Icon className={`h-5 w-5 ${variant === "warning" ? "text-warning" : variant === "success" ? "text-success" : "text-primary"}`} />
@@ -213,23 +220,26 @@ export default function Dashboard() {
             <CardTitle className="text-base">Recent Activity</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {activity?.map((a) => (
-              <div key={a.id} className="flex items-start gap-3">
-                <ArrowUpRight className={`h-4 w-4 mt-0.5 shrink-0 ${
-                  a.type === "success" ? "text-success" : a.type === "warning" ? "text-warning" : "text-primary"
-                }`} />
-                <div className="min-w-0">
-                  <p className="text-sm leading-tight">{a.text}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{formatTime(a.created_at)}</p>
+            {activity?.map((a) => {
+              const dotColor = a.type === "success" ? "bg-success" : a.type === "warning" ? "bg-warning" : "bg-primary";
+              return (
+                <div key={a.id} className="flex items-start gap-3">
+                  <div className={`h-2.5 w-2.5 rounded-full mt-1.5 shrink-0 ${dotColor}`} />
+                  <div className="min-w-0">
+                    <p className="text-sm leading-tight">{a.text}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{formatTime(a.created_at)}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {(!activity || activity.length === 0) && (
               <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <SPCChart trends={trends || []} />
     </div>
   );
 }

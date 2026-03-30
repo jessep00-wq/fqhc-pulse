@@ -1,0 +1,1 @@
+ALTER TABLE public.tasks ADD COLUMN priority text NOT NULL DEFAULT 'medium';

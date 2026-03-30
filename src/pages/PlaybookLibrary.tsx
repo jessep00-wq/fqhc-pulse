@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -16,6 +17,17 @@ import { toast } from "sonner";
 const ICONS: Record<string, React.ElementType> = {
   CMS124: Stethoscope, CMS125: Stethoscope, AWV: BarChart3, CMS165: Stethoscope, CMS2v12: Brain,
 };
+
+const DOMAIN_COLORS: Record<string, string> = {
+  "Preventive Care": "bg-primary/15 text-primary border-primary/30",
+  "Chronic Disease": "bg-warning/15 text-warning border-warning/30",
+  "Behavioral Health": "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,50%)] border-[hsl(270,60%,50%)]/30",
+  "Financial/ACO": "bg-success/15 text-success border-success/30",
+};
+
+function getDomainColor(domain: string) {
+  return DOMAIN_COLORS[domain] || "bg-muted text-muted-foreground";
+}
 
 const DOMAINS: { value: string; label: string }[] = [
   { value: "all", label: "All" },
@@ -49,6 +61,9 @@ function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSel
                 {pb.pdsa_template.assigned_staff.map((role) => (
                   <Badge key={role} variant="secondary" className="text-[10px] px-1.5 py-0">{role}</Badge>
                 ))}
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className={cn("text-[10px]", getDomainColor(pb.domain))}>{pb.domain}</Badge>
               </div>
               <Badge className="bg-success/10 text-success border-success/20 text-[10px]"><TrendingUp className="h-3 w-3 mr-1" />{pb.financial_impact}</Badge>
             </CardContent>

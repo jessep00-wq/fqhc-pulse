@@ -37,12 +37,12 @@ interface DBCycle {
   created_at: string;
 }
 
-const STATUS_COLUMNS: { key: PDSAStatus; label: string; color: string }[] = [
-  { key: "plan", label: "Plan", color: "bg-primary/10 text-primary" },
-  { key: "do", label: "Do", color: "bg-info/10 text-info" },
-  { key: "study", label: "Study", color: "bg-warning/10 text-warning" },
-  { key: "act", label: "Act", color: "bg-accent/10 text-accent" },
-  { key: "completed", label: "Completed", color: "bg-success/10 text-success" },
+const STATUS_COLUMNS: { key: PDSAStatus; label: string; color: string; borderColor: string }[] = [
+  { key: "plan", label: "Plan", color: "bg-primary/10 text-primary", borderColor: "border-l-4 border-l-primary" },
+  { key: "do", label: "Do", color: "bg-info/10 text-info", borderColor: "border-l-4 border-l-info" },
+  { key: "study", label: "Study", color: "bg-warning/10 text-warning", borderColor: "border-l-4 border-l-warning" },
+  { key: "act", label: "Act", color: "bg-accent/10 text-accent", borderColor: "border-l-4 border-l-accent" },
+  { key: "completed", label: "Completed", color: "bg-success/10 text-success", borderColor: "border-l-4 border-l-success" },
 ];
 
 const ROLE_INITIALS: Record<string, { initials: string; className: string }> = {
@@ -73,7 +73,7 @@ function AvatarGroup({ roles }: { roles: string[] }) {
   );
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder, onClick }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void }) {
+function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
@@ -81,7 +81,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick }: { cycle: DBCycle;
   const staff = cycle.assigned_staff || [];
 
   return (
-    <Card className="mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow" onClick={onClick}>
+    <Card className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${borderColor}`} onClick={onClick}>
       <CardContent className="p-4">
         <h4 className="text-sm font-semibold leading-tight mb-2">{cycle.title}</h4>
         <Badge variant="outline" className="text-xs mb-2">{cycle.uds_measure?.split(":")[0]}</Badge>
@@ -99,7 +99,12 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick }: { cycle: DBCycle;
             <div className="flex items-center justify-between text-[10px] text-muted-foreground">
               <span>Tasks</span><span>{completedTasks}/{totalTasks}</span>
             </div>
-            <Progress value={progressPct} className="h-1.5" />
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${progressPct < 30 ? "bg-destructive" : progressPct < 70 ? "bg-warning" : "bg-success"}`}
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
           </div>
         )}
         {cycle.status === "completed" && (
@@ -453,7 +458,7 @@ export default function PDSALab() {
                                 dragStartPos.current = null;
                               }}
                             >
-                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} />
+                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
                             </div>
                           )}
                         </Draggable>
