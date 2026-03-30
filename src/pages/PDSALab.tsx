@@ -81,7 +81,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick }: { cycle: DBCycle;
   const staff = cycle.assigned_staff || [];
 
   return (
-    <Card className="mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow">
+    <Card className="mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow" onClick={onClick}>
       <CardContent className="p-4">
         <h4 className="text-sm font-semibold leading-tight mb-2">{cycle.title}</h4>
         <Badge variant="outline" className="text-xs mb-2">{cycle.uds_measure?.split(":")[0]}</Badge>
