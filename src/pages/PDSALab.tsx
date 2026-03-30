@@ -19,6 +19,7 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-p
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import PDSADetailDialog from "@/components/PDSADetailDialog";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
