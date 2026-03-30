@@ -438,8 +438,22 @@ export default function PDSALab() {
                       {colCycles.map((cycle, index) => (
                         <Draggable key={cycle.id} draggableId={cycle.id} index={index}>
                           {(provided, snapshot) => (
-                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}>
-                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} />
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}
+                              onMouseDown={(e) => { dragStartPos.current = { x: e.clientX, y: e.clientY }; }}
+                              onMouseUp={(e) => {
+                                if (dragStartPos.current) {
+                                  const dx = Math.abs(e.clientX - dragStartPos.current.x);
+                                  const dy = Math.abs(e.clientY - dragStartPos.current.y);
+                                  if (dx < 5 && dy < 5) setSelectedCycle(cycle);
+                                }
+                                dragStartPos.current = null;
+                              }}
+                            >
+                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} />
                             </div>
                           )}
                         </Draggable>
