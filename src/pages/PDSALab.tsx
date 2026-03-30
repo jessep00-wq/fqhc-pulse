@@ -352,6 +352,8 @@ export default function PDSALab() {
   const queryClient = useQueryClient();
   const [binderCycle, setBinderCycle] = useState<DBCycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
