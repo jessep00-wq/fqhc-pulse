@@ -99,7 +99,12 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
             <div className="flex items-center justify-between text-[10px] text-muted-foreground">
               <span>Tasks</span><span>{completedTasks}/{totalTasks}</span>
             </div>
-            <Progress value={progressPct} className="h-1.5" />
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${progressPct < 30 ? "bg-destructive" : progressPct < 70 ? "bg-warning" : "bg-success"}`}
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
           </div>
         )}
         {cycle.status === "completed" && (
