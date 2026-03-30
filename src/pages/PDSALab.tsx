@@ -37,12 +37,12 @@ interface DBCycle {
   created_at: string;
 }
 
-const STATUS_COLUMNS: { key: PDSAStatus; label: string; color: string }[] = [
-  { key: "plan", label: "Plan", color: "bg-primary/10 text-primary" },
-  { key: "do", label: "Do", color: "bg-info/10 text-info" },
-  { key: "study", label: "Study", color: "bg-warning/10 text-warning" },
-  { key: "act", label: "Act", color: "bg-accent/10 text-accent" },
-  { key: "completed", label: "Completed", color: "bg-success/10 text-success" },
+const STATUS_COLUMNS: { key: PDSAStatus; label: string; color: string; borderColor: string }[] = [
+  { key: "plan", label: "Plan", color: "bg-primary/10 text-primary", borderColor: "border-l-4 border-l-primary" },
+  { key: "do", label: "Do", color: "bg-info/10 text-info", borderColor: "border-l-4 border-l-info" },
+  { key: "study", label: "Study", color: "bg-warning/10 text-warning", borderColor: "border-l-4 border-l-warning" },
+  { key: "act", label: "Act", color: "bg-accent/10 text-accent", borderColor: "border-l-4 border-l-accent" },
+  { key: "completed", label: "Completed", color: "bg-success/10 text-success", borderColor: "border-l-4 border-l-success" },
 ];
 
 const ROLE_INITIALS: Record<string, { initials: string; className: string }> = {
