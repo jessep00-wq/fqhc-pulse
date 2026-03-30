@@ -19,6 +19,7 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-p
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import PDSADetailDialog from "@/components/PDSADetailDialog";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
@@ -72,7 +73,7 @@ function AvatarGroup({ roles }: { roles: string[] }) {
   );
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void }) {
+function PDSACard({ cycle, tasks, onGenerateBinder, onClick }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
@@ -80,7 +81,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder }: { cycle: DBCycle; tasks: a
   const staff = cycle.assigned_staff || [];
 
   return (
-    <Card className="mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow">
+    <Card className="mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow" onClick={onClick}>
       <CardContent className="p-4">
         <h4 className="text-sm font-semibold leading-tight mb-2">{cycle.title}</h4>
         <Badge variant="outline" className="text-xs mb-2">{cycle.uds_measure?.split(":")[0]}</Badge>
@@ -351,6 +352,8 @@ export default function PDSALab() {
   const queryClient = useQueryClient();
   const [binderCycle, setBinderCycle] = useState<DBCycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+  const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
@@ -435,8 +438,22 @@ export default function PDSALab() {
                       {colCycles.map((cycle, index) => (
                         <Draggable key={cycle.id} draggableId={cycle.id} index={index}>
                           {(provided, snapshot) => (
-                            <div ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}>
-                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} />
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}
+                              onMouseDown={(e) => { dragStartPos.current = { x: e.clientX, y: e.clientY }; }}
+                              onMouseUp={(e) => {
+                                if (dragStartPos.current) {
+                                  const dx = Math.abs(e.clientX - dragStartPos.current.x);
+                                  const dy = Math.abs(e.clientY - dragStartPos.current.y);
+                                  if (dx < 5 && dy < 5) setSelectedCycle(cycle);
+                                }
+                                dragStartPos.current = null;
+                              }}
+                            >
+                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} />
                             </div>
                           )}
                         </Draggable>
@@ -456,6 +473,7 @@ export default function PDSALab() {
 
       <CreatePDSADialog open={newOpen} onClose={() => setNewOpen(false)} onCreate={(data) => createCycle.mutate(data)} />
       <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} />
+      <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
     </div>
   );
 }
