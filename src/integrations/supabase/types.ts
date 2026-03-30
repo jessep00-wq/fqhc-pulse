@@ -69,6 +69,7 @@ export type Database = {
       }
       pdsa_cycles: {
         Row: {
+          act_next_steps: string | null
           assigned_staff: string[] | null
           clinical_workflow_impact: string | null
           created_at: string
@@ -77,11 +78,15 @@ export type Database = {
           organization_id: string
           root_cause: string | null
           status: string
+          study_results: string | null
           target_goal: string | null
           title: string
           uds_measure: string | null
+          what_didnt_work: string | null
+          what_worked: string | null
         }
         Insert: {
+          act_next_steps?: string | null
           assigned_staff?: string[] | null
           clinical_workflow_impact?: string | null
           created_at?: string
@@ -90,11 +95,15 @@ export type Database = {
           organization_id: string
           root_cause?: string | null
           status?: string
+          study_results?: string | null
           target_goal?: string | null
           title: string
           uds_measure?: string | null
+          what_didnt_work?: string | null
+          what_worked?: string | null
         }
         Update: {
+          act_next_steps?: string | null
           assigned_staff?: string[] | null
           clinical_workflow_impact?: string | null
           created_at?: string
@@ -103,9 +112,12 @@ export type Database = {
           organization_id?: string
           root_cause?: string | null
           status?: string
+          study_results?: string | null
           target_goal?: string | null
           title?: string
           uds_measure?: string | null
+          what_didnt_work?: string | null
+          what_worked?: string | null
         }
         Relationships: [
           {
