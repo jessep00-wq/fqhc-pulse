@@ -6,6 +6,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import { FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp, ArrowUpRight, Award, Loader2 } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
+import SPCChart from "@/components/SPCChart";
 
 const FINANCIAL = {
   sharedSavings: 285000,

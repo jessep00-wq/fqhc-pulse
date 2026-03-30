@@ -50,6 +50,9 @@ function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSel
                   <Badge key={role} variant="secondary" className="text-[10px] px-1.5 py-0">{role}</Badge>
                 ))}
               </div>
+              <div className="flex items-center gap-1.5">
+                <Badge variant="outline" className={cn("text-[10px]", getDomainColor(pb.domain))}>{pb.domain}</Badge>
+              </div>
               <Badge className="bg-success/10 text-success border-success/20 text-[10px]"><TrendingUp className="h-3 w-3 mr-1" />{pb.financial_impact}</Badge>
             </CardContent>
           </Card>
