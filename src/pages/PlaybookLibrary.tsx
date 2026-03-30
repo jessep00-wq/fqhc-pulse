@@ -18,6 +18,17 @@ const ICONS: Record<string, React.ElementType> = {
   CMS124: Stethoscope, CMS125: Stethoscope, AWV: BarChart3, CMS165: Stethoscope, CMS2v12: Brain,
 };
 
+const DOMAIN_COLORS: Record<string, string> = {
+  "Preventive Care": "bg-primary/15 text-primary border-primary/30",
+  "Chronic Disease": "bg-warning/15 text-warning border-warning/30",
+  "Behavioral Health": "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,50%)] border-[hsl(270,60%,50%)]/30",
+  "Financial/ACO": "bg-success/15 text-success border-success/30",
+};
+
+function getDomainColor(domain: string) {
+  return DOMAIN_COLORS[domain] || "bg-muted text-muted-foreground";
+}
+
 const DOMAINS: { value: string; label: string }[] = [
   { value: "all", label: "All" },
   { value: "Preventive Care", label: "Preventive Care" },
