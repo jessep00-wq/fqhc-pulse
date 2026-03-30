@@ -73,7 +73,7 @@ function AvatarGroup({ roles }: { roles: string[] }) {
   );
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void }) {
+function PDSACard({ cycle, tasks, onGenerateBinder, onClick }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
