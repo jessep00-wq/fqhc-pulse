@@ -10,11 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { mockPlaybooks, type UDSPlaybook, type PlaybookDomain } from "@/data/mockData";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, ArrowRight, Stethoscope, BarChart3, FlaskConical, TrendingUp } from "lucide-react";
+import { BookOpen, ArrowRight, Stethoscope, BarChart3, FlaskConical, TrendingUp, Brain } from "lucide-react";
 import { toast } from "sonner";
 
 const ICONS: Record<string, React.ElementType> = {
-  CMS124: Stethoscope, CMS125: Stethoscope, AWV: BarChart3, CMS165: Stethoscope,
+  CMS124: Stethoscope, CMS125: Stethoscope, AWV: BarChart3, CMS165: Stethoscope, CMS2v12: Brain,
 };
 
 const DOMAINS: { value: string; label: string }[] = [
