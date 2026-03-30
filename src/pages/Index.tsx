@@ -16,13 +16,19 @@ const FINANCIAL = {
   grantTrend: 8.2,
 };
 
+const VARIANT_BORDER: Record<string, string> = {
+  default: "border-l-4 border-l-primary",
+  warning: "border-l-4 border-l-warning",
+  success: "border-l-4 border-l-success",
+};
+
 const MetricCard = ({
   title, value, icon: Icon, description, variant = "default", onClick,
 }: {
   title: string; value: string | number; icon: React.ElementType; description: string;
   variant?: "default" | "warning" | "success"; onClick?: () => void;
 }) => (
-  <Card className={onClick ? "cursor-pointer hover:bg-accent/50 transition-colors" : ""} onClick={onClick}>
+  <Card className={`${onClick ? "cursor-pointer hover:bg-accent/50 transition-colors" : ""} ${VARIANT_BORDER[variant]}`} onClick={onClick}>
     <CardHeader className="flex flex-row items-center justify-between pb-2">
       <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
       <Icon className={`h-5 w-5 ${variant === "warning" ? "text-warning" : variant === "success" ? "text-success" : "text-primary"}`} />
