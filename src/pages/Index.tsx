@@ -238,6 +238,8 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
+
+      <SPCChart trends={trends || []} />
     </div>
   );
 }
