@@ -1,60 +1,44 @@
 
 
-# Make PDSA Cards Clickable with Detail/Edit View
+# Add Behavioral Health Playbook
 
 ## What We're Building
-A detail dialog that opens when you click any PDSA cycle card on the Kanban board. The dialog lets you view and edit the cycle, add tasks, record study results (what worked / what didn't), and manage the cycle end-to-end.
+A new playbook entry for the Behavioral Health domain, covering depression screening (PHQ-9) — one of the most common UDS behavioral health measures for FQHCs.
 
-## Database Changes
+## Change
+**File: `src/data/mockData.ts`** — Add a new entry to `mockPlaybooks` array:
 
-**Add columns to `pdsa_cycles`:**
-- `study_results text` — what was observed
-- `what_worked text` — successes
-- `what_didnt_work text` — failures / barriers
-- `act_next_steps text` — next steps from the Act phase
+```typescript
+{
+  id: "pb-005",
+  measure_id: "CMS2v12",
+  domain: "Behavioral Health",
+  financial_impact: "High ROI: HRSA Quality Tier + ACO Bonus",
+  title: "CMS2v12: Preventive Care & Screening for Depression (PHQ-9)",
+  description: "Systematic workflow to ensure universal depression screening with PHQ-9, appropriate follow-up plans, and closed-loop referral tracking for behavioral health services.",
+  ehr_workflow_steps: [
+    "Add PHQ-2/PHQ-9 screening questionnaire to MA rooming workflow in athenaOne",
+    "Configure auto-scoring and threshold alerts for PHQ-9 ≥ 10",
+    "Create behavioral health referral order set with warm handoff protocol",
+    "Set up follow-up task for positive screens requiring a documented plan",
+    "Implement closed-loop tracking for behavioral health referrals and appointments",
+  ],
+  azara_cadence: "Monthly DRVS depression screening rate review, quarterly outcome tracking with BH team",
+  pdsa_template: {
+    title: "Depression Screening & Follow-Up Improvement",
+    root_cause: "PHQ-9 not consistently administered during visits. Positive screens lack documented follow-up plans. No tracking of BH referral completion.",
+    target_goal: "Achieve 85% PHQ-9 screening rate with documented follow-up for all positive screens within 6 months",
+    clinical_workflow_impact: "MA screening protocol, provider follow-up documentation, BH warm handoff workflow, care coordinator referral tracking",
+    assigned_staff: ["MA/RN", "Provider", "Care Coordinator"],
+  },
+}
+```
 
-No new tables needed. Tasks already exist and link via `pdsa_cycle_id`.
+## Also Update
+**`ICONS` map in `src/pages/PlaybookLibrary.tsx`** — Add an icon mapping for the new measure:
+```typescript
+"CMS2v12": Bot  // or Brain icon from lucide-react
+```
 
-## UI: PDSA Detail Dialog
-
-A new `PDSADetailDialog` component that opens on card click. Contains tabs matching the PDSA phases:
-
-**Plan tab:**
-- Edit title, UDS measure, root cause, target goal, clinical workflow impact
-- View/edit assigned staff roles
-
-**Do tab:**
-- List of tasks linked to this cycle (from `tasks` table)
-- "Add Task" inline form: title, assigned role, due date
-- Toggle task status (pending → in_progress → completed)
-- Acknowledge checkbox per task
-
-**Study tab:**
-- Textarea for "Results / Observations"
-- Textarea for "What Worked"
-- Textarea for "What Didn't Work"
-- Improvement percentage input
-
-**Act tab:**
-- Textarea for "Next Steps"
-- Button to mark cycle as completed
-- Button to "Start New Cycle" (clones into a new plan-phase cycle)
-
-All fields auto-save on blur via `useMutation` updating `pdsa_cycles` or `tasks`.
-
-## Code Changes
-
-| File | Change |
-|------|--------|
-| **Migration** | Add `study_results`, `what_worked`, `what_didnt_work`, `act_next_steps` columns to `pdsa_cycles` |
-| **`src/pages/PDSALab.tsx`** | Add `PDSADetailDialog` component. Add `selectedCycle` state. Pass `onClick` to `PDSACard`. Wire mutations for updating cycle fields and creating/updating tasks. |
-| **`PDSACard`** | Add `onClick` prop, call it on card click (distinguish from drag via a click-vs-drag check) |
-
-## Click vs. Drag Handling
-The card is both draggable and clickable. We'll track mouse movement in `onMouseDown`/`onMouseUp` — if the mouse moved less than 5px, treat it as a click and open the detail dialog. Otherwise let the drag handler take over.
-
-## Task Management in Detail Dialog
-- Uses existing `tasks` table with `INSERT` and `UPDATE` via Supabase client
-- New tasks get `organization_id` from context and `pdsa_cycle_id` from the selected cycle
-- Status toggle cycles through: pending → in_progress → completed
+This is a single data addition — no database or structural changes needed.
 
