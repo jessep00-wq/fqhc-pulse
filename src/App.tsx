@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import PDSALab from "./pages/PDSALab";
 import PlaybookLibrary from "./pages/PlaybookLibrary";
@@ -14,6 +15,8 @@ import AIAssistant from "./pages/AIAssistant";
 import StaffTasks from "./pages/StaffTasks";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,10 +30,13 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
+              <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route
-                path="/*"
+                path="/dashboard/*"
                 element={
                   <ProtectedRoute>
                     <AppLayout>
@@ -46,6 +52,7 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>

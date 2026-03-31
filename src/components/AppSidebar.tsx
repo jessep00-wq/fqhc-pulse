@@ -24,11 +24,11 @@ import {
 } from "@/components/ui/sidebar";
 
 const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "PDSA Lab", url: "/pdsa-lab", icon: FlaskConical },
-  { title: "Playbook Library", url: "/playbooks", icon: BookOpen },
-  { title: "AI Assistant", url: "/ai-assistant", icon: Bot },
-  { title: "Staff Tasks", url: "/staff-tasks", icon: Users },
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+  { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical },
+  { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
+  { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
+  { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
 ];
 
 export function AppSidebar() {
@@ -69,7 +69,7 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      end={item.url === "/"}
+                      end={item.url === "/dashboard"}
                       className="hover:bg-sidebar-accent/50"
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
                     >
