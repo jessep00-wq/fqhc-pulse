@@ -1,86 +1,74 @@
 
 
-# Fix Data Isolation, Org Onboarding, Trend Seeding & AI Context Cap
+# Dashboard Financials, PDF Export Fix, Priority Column, Landing CTA Cleanup & Profile Settings
 
-## 1. Add org filter to all unfiltered queries
+## 1. Replace hardcoded financial card with org-configurable data
 
-Several queries in `Index.tsx`, `PDSALab.tsx`, and `StaffTasks.tsx` call `.select("*")` without `.eq("organization_id", orgId)`. While RLS currently prevents cross-org reads, adding explicit filters is defense-in-depth and ensures correct behavior if RLS policies change.
+**Current:** `FINANCIAL` is a static const in `Index.tsx`.
 
-**Files:** `src/pages/Index.tsx`, `src/pages/PDSALab.tsx`, `src/pages/StaffTasks.tsx`
-
-Add `.eq("organization_id", orgId)` to every query that lacks it:
-- `Index.tsx`: pdsa_cycles, tasks, uds_trends, activity_log (4 queries)
-- `PDSALab.tsx`: pdsa_cycles, tasks (2 queries)
-- `StaffTasks.tsx`: tasks, pdsa_cycles (2 queries)
-
-## 2. Organization onboarding flow after signup
-
-Currently `handle_new_user()` hardcodes a default org UUID. New users land on an empty dashboard with no way to set up their health center.
-
-**Approach:**
-- Create a new page `src/pages/Onboarding.tsx` with a simple form: Organization Name + NPI (optional)
-- On submit: insert into `organizations`, then update the user's `profiles.organization_id`
-- Add an INSERT policy on `organizations` for authenticated users
-- Add route `/onboarding` in `App.tsx`
-- In `ProtectedRoute`, if `organization.id` is the default placeholder UUID or empty, redirect to `/onboarding`
-- Update `handle_new_user()` trigger to set `organization_id = NULL` instead of hardcoding — new migration
+**Change:** Create a new `org_financials` table to store per-org financial metrics. On the dashboard, query this table; if no data exists, show a placeholder state with a "Configure Financials" button that opens a dialog to enter values.
 
 **Database migration:**
 ```sql
--- Allow authenticated users to create organizations
-CREATE POLICY "Users can create orgs"
-  ON public.organizations FOR INSERT
-  TO authenticated
-  WITH CHECK (true);
-
--- Replace trigger to stop hardcoding org id
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
-SET search_path TO 'public' AS $$
-BEGIN
-  INSERT INTO public.profiles (id, full_name, staff_role, organization_id)
-  VALUES (
-    NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
-    COALESCE(NEW.raw_user_meta_data->>'staff_role', 'QI Manager'),
-    NULL
-  );
-  RETURN NEW;
-END;
-$$;
+CREATE TABLE public.org_financials (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id uuid NOT NULL,
+  shared_savings numeric NOT NULL DEFAULT 0,
+  revenue_protected numeric NOT NULL DEFAULT 0,
+  hrsa_quality_award numeric NOT NULL DEFAULT 0,
+  trend numeric NOT NULL DEFAULT 0,
+  grant_trend numeric NOT NULL DEFAULT 0,
+  period text NOT NULL DEFAULT 'Q1 2026',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.org_financials ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can read org financials" ON public.org_financials FOR SELECT TO authenticated USING (organization_id = get_user_org_id(auth.uid()));
+CREATE POLICY "Users can insert org financials" ON public.org_financials FOR INSERT TO authenticated WITH CHECK (organization_id = get_user_org_id(auth.uid()));
+CREATE POLICY "Users can update org financials" ON public.org_financials FOR UPDATE TO authenticated USING (organization_id = get_user_org_id(auth.uid()));
 ```
 
-**Files:** New `src/pages/Onboarding.tsx`, edit `src/App.tsx`, edit `src/components/ProtectedRoute.tsx`
+**Files:** `src/pages/Index.tsx` — replace `FINANCIAL` const with query + edit dialog.
 
-## 3. UDS trend data seeding
+## 2. Fix OSV Audit Binder PDF pagination
 
-Add a "Seed Demo Data" button on the dashboard (visible when uds_trends is empty) that inserts ~6 months of sample trend data for common UDS measures (Diabetes HbA1c, Cervical Cancer Screening, Depression Screening, etc.) scoped to the user's org.
+**Current bug (lines 138-143 of PDSALab.tsx):** When content exceeds one page, it deletes page 1 and re-adds a scaled-down single page — content gets squished or cut off.
 
-**File:** `src/pages/Index.tsx` — add seed button + mutation when trends are empty
+**Fix:** Replace with proper multi-page slicing. Loop through the image in `pageContentHeight`-sized vertical chunks, adding a new page for each slice using the `sy` (source-y) parameter of `addImage`, or by using canvas cropping.
 
-## 4. Cap AI assistant context to last 10 messages
+**File:** `src/pages/PDSALab.tsx` — rewrite `handleExportPDF` with page-chunking logic.
 
-In `src/pages/AIAssistant.tsx`, change the context construction to only send the last 10 non-welcome messages instead of the entire history.
+## 3. StaffTasks priority column — already implemented
 
-**File:** `src/pages/AIAssistant.tsx` — `.slice(-10)` before mapping to context string
+The StaffTasks page already surfaces the `priority` field in the table (line 377) with color-coded badges and includes priority in both the Add Task and Edit Task dialogs. No change needed.
 
-## 5. Fix OrgContext for null org
+## 4. Remove Google SSO button from Landing hero
 
-Update `OrgContext.tsx` to expose whether org is set, so `ProtectedRoute` can redirect to onboarding.
+**Current:** Hero has two CTAs — "Start Free" link and "Sign in with Google" button (lines 93-125).
 
-**File:** `src/contexts/OrgContext.tsx` — add `hasOrg: boolean` to context value
+**Change:** Remove the Google button from the hero. Keep only "Start Free" and optionally a "Sign In" ghost button. Google SSO remains on the Auth page.
+
+**File:** `src/pages/Landing.tsx` — remove the Google button and `handleGoogleSignIn` function.
+
+## 5. User profile settings page
+
+Create `src/pages/Settings.tsx` with:
+- **Profile section:** Edit full name and staff role (updates `profiles` table)
+- **Password section:** Change password (calls `supabase.auth.updateUser({ password })`)
+- **Organization info:** Read-only display of org name and NPI
+
+Add route `/dashboard/settings` and a Settings nav item in the sidebar.
+
+**Files:** New `src/pages/Settings.tsx`, edit `src/App.tsx` (route), edit `src/components/AppSidebar.tsx` (nav item).
 
 ## Technical Summary
 
 | File | Change |
 |------|--------|
-| `src/pages/Index.tsx` | Add `.eq("organization_id", orgId)` to 4 queries; add seed demo data button |
-| `src/pages/PDSALab.tsx` | Add `.eq("organization_id", orgId)` to 2 queries |
-| `src/pages/StaffTasks.tsx` | Add `.eq("organization_id", orgId)` to 2 queries |
-| `src/pages/AIAssistant.tsx` | Cap context to last 10 messages |
-| `src/pages/Onboarding.tsx` | New — org creation form (name + NPI) |
-| `src/contexts/OrgContext.tsx` | Expose `hasOrg` boolean |
-| `src/components/ProtectedRoute.tsx` | Redirect to `/onboarding` if no org |
-| `src/App.tsx` | Add `/onboarding` route |
-| Migration | Update `handle_new_user()` to set org NULL; add INSERT policy on organizations |
+| `src/pages/Index.tsx` | Replace hardcoded `FINANCIAL` with DB query + edit dialog |
+| `src/pages/PDSALab.tsx` | Fix PDF export with multi-page slicing |
+| `src/pages/Landing.tsx` | Remove Google SSO button from hero |
+| `src/pages/Settings.tsx` | New — profile & password settings |
+| `src/App.tsx` | Add `/dashboard/settings` route |
+| `src/components/AppSidebar.tsx` | Add Settings nav item |
+| Migration | Create `org_financials` table with RLS |
 
