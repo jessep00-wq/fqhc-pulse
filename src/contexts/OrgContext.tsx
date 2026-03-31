@@ -11,6 +11,7 @@ interface Organization {
 interface OrgContextType {
   organization: Organization;
   loading: boolean;
+  hasOrg: boolean;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
