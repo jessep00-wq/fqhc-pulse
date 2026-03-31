@@ -77,7 +77,8 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Check your email to verify your account before signing in.");
+      toast.success("Account created! Redirecting…");
+      navigate("/onboarding");
     }
   };
 
