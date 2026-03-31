@@ -6,11 +6,10 @@ import {
   BarChart3,
   LineChart,
   BookOpen,
-  Building2,
   ArrowRight,
-  CheckCircle2,
   Shield,
 } from "lucide-react";
+import qualityosLogo from "@/assets/qualityos_logo_v1.png";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
