@@ -185,7 +185,7 @@ export default function Dashboard() {
         .eq("organization_id", orgId)
         .order("created_at", { ascending: false })
         .limit(1);
-      const rows = data as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string }[];
+      const rows = (data as unknown) as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string }[];
       return rows?.[0] || null;
     },
     enabled: !!orgId,
