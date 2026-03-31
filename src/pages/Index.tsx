@@ -66,7 +66,7 @@ export default function Dashboard() {
   const { data: trends } = useQuery({
     queryKey: ["uds_trends", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("uds_trends").select("*").order("month");
+      const { data } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
       return data || [];
     },
     enabled: !!orgId,
