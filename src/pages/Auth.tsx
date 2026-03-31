@@ -113,13 +113,11 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Building2 className="h-6 w-6" />
-            </div>
+            <img src={qualityosLogo} alt="QualityOS" className="h-10" />
           </div>
           <CardTitle className="text-xl">QualityOS</CardTitle>
           <CardDescription>
-            {showForgot ? "Reset your password" : isLogin ? "Sign in to your account" : "Create your account"}
+            {showForgot ? "Reset your password" : "Quality operations, simplified for FQHCs"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
