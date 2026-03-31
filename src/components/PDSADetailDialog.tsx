@@ -37,6 +37,20 @@ interface DBCycle {
   act_next_steps?: string | null;
 }
 
+type TaskStatus = "pending" | "in_progress" | "completed";
+
+interface DialogTask {
+  id: string;
+  title: string;
+  status: TaskStatus;
+  assigned_role: string | null;
+  due_date: string | null;
+  acknowledged: boolean;
+}
+
+type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure";
+type CycleNumberField = "improvement_pct";
+
 const STAFF_ROLES = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
 const TASK_STATUSES = ["pending", "in_progress", "completed"] as const;
 
@@ -81,8 +95,10 @@ export default function PDSADetailDialog({
     enabled: !!cycle?.id && !!organization.id,
   });
 
+  type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at">>;
+
   const updateCycle = useMutation({
-    mutationFn: async (updates: Record<string, any>) => {
+    mutationFn: async (updates: CycleUpdate) => {
       const { error } = await supabase
         .from("pdsa_cycles")
         .update(updates)
@@ -90,7 +106,7 @@ export default function PDSADetailDialog({
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] }),
-    onError: (err: any) => toast.error(err.message || "Failed to update"),
+    onError: (err: Error) => toast.error(err.message || "Failed to update"),
   });
 
   const createTask = useMutation({
@@ -109,11 +125,13 @@ export default function PDSADetailDialog({
       setNewTaskDate(undefined);
       toast.success("Task added");
     },
-    onError: (err: any) => toast.error(err.message || "Failed to add task"),
+    onError: (err: Error) => toast.error(err.message || "Failed to add task"),
   });
 
+  type TaskUpdate = Partial<Omit<DialogTask, "id">>;
+
   const updateTask = useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Record<string, any> }) => {
+    mutationFn: async ({ id, updates }: { id: string; updates: TaskUpdate }) => {
       const { error } = await supabase.from("tasks").update(updates).eq("id", id);
       if (error) throw error;
     },
@@ -143,8 +161,8 @@ export default function PDSADetailDialog({
 
   if (!cycle) return null;
 
-  const handleBlurUpdate = (field: string, value: any) => {
-    if ((cycle as any)[field] !== value) {
+  const handleBlurUpdate = (field: CycleStringField | CycleNumberField, value: string | number | null) => {
+    if (cycle[field] !== value) {
       updateCycle.mutate({ [field]: value });
     }
   };
@@ -261,7 +279,7 @@ export default function PDSADetailDialog({
               {cycleTasks.length === 0 && (
                 <p className="text-sm text-muted-foreground">No tasks yet. Add one below.</p>
               )}
-              {cycleTasks.map((task: any) => (
+              {(cycleTasks as DialogTask[]).map((task) => (
                 <div
                   key={task.id}
                   className="flex items-center gap-3 rounded-lg border p-3"

@@ -12,8 +12,14 @@ const MEASURES = [
 
 const MONTH_ORDER = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
+interface UDSTrend {
+  measure_id: string;
+  month: string;
+  value: number | string;
+}
+
 interface SPCChartProps {
-  trends: any[];
+  trends: UDSTrend[];
 }
 
 export default function SPCChart({ trends }: SPCChartProps) {
@@ -103,7 +109,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
                 dataKey="value"
                 stroke="hsl(var(--primary))"
                 strokeWidth={2}
-                dot={(props: any) => {
+                dot={(props: { cx: number; cy: number; payload: { month: string; value: number; outOfControl: boolean } }) => {
                   const { cx, cy, payload } = props;
                   return (
                     <circle
