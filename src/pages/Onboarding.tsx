@@ -1,16 +1,31 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, Building2 } from "lucide-react";
 import logo from "@/assets/qualityos_logo_v1.png";
 
 export default function Onboarding() {
   const { user } = useAuth();
+  const { hasOrg, loading: orgLoading } = useOrg();
+
+  if (orgLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (hasOrg) {
+    return <Navigate to="/dashboard" replace />;
+  }
   const [name, setName] = useState("");
   const [npi, setNpi] = useState("");
   const [loading, setLoading] = useState(false);
