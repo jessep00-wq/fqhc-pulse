@@ -48,7 +48,7 @@ export default function Dashboard() {
   const { data: cycles } = useQuery({
     queryKey: ["pdsa_cycles", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*");
+      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
       return data || [];
     },
     enabled: !!orgId,
