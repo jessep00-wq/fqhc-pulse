@@ -4,6 +4,7 @@ import {
   BookOpen,
   Bot,
   Users,
+  Settings,
 } from "lucide-react";
 import qualityosLogo from "@/assets/qualityos_logo_v1.png";
 import { NavLink } from "@/components/NavLink";
