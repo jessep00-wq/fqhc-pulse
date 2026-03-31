@@ -47,6 +47,7 @@ export default function AIAssistant() {
           uds_measure: msg,
           context: messages
             .filter((m) => m.id !== "welcome")
+            .slice(-10)
             .map((m) => `${m.role}: ${m.content}`)
             .join("\n"),
         },

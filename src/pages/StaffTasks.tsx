@@ -264,7 +264,7 @@ export default function StaffTasks() {
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ["tasks", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("tasks").select("*, pdsa_cycles(title)");
+      const { data } = await supabase.from("tasks").select("*, pdsa_cycles(title)").eq("organization_id", organization.id);
       return data || [];
     },
     enabled: !!organization.id,
@@ -273,7 +273,7 @@ export default function StaffTasks() {
   const { data: cycles = [] } = useQuery({
     queryKey: ["pdsa_cycles_active", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").neq("status", "completed");
+      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").eq("organization_id", organization.id).neq("status", "completed");
       return data || [];
     },
     enabled: !!organization.id,

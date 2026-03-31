@@ -11,6 +11,7 @@ interface Organization {
 interface OrgContextType {
   organization: Organization;
   loading: boolean;
+  hasOrg: boolean;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -54,8 +55,10 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     fetchOrg();
   }, [user]);
 
+  const hasOrg = !!organization.id && organization.id !== "";
+
   return (
-    <OrgContext.Provider value={{ organization, loading }}>
+    <OrgContext.Provider value={{ organization, loading, hasOrg }}>
       {children}
     </OrgContext.Provider>
   );

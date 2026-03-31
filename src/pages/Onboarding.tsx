@@ -1,0 +1,106 @@
+import { useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
+import { Loader2, Building2 } from "lucide-react";
+import logo from "@/assets/qualityos_logo_v1.png";
+
+export default function Onboarding() {
+  const { user } = useAuth();
+  const [name, setName] = useState("");
+  const [npi, setNpi] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!name.trim()) {
+      toast.error("Organization name is required");
+      return;
+    }
+    if (!user) return;
+
+    setLoading(true);
+    try {
+      // Create organization
+      const { data: org, error: orgError } = await supabase
+        .from("organizations")
+        .insert({ name: name.trim(), npi: npi.trim() || null })
+        .select("id")
+        .single();
+
+      if (orgError) throw orgError;
+
+      // Link user profile to the new org
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ organization_id: org.id })
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      toast.success("Organization created! Redirecting…");
+      // Force full reload so OrgContext picks up the new org
+      window.location.href = "/dashboard";
+    } catch (err: any) {
+      console.error("Onboarding error:", err);
+      toast.error(err.message || "Failed to create organization");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center space-y-3">
+          <img src={logo} alt="QualityOS" className="h-10 mx-auto" />
+          <CardTitle className="text-xl">Set Up Your Health Center</CardTitle>
+          <CardDescription>
+            Tell us about your organization to get started with QualityOS.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="org-name">Organization Name *</Label>
+              <Input
+                id="org-name"
+                placeholder="e.g., Community Health Center of Springfield"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="org-npi">NPI (optional)</Label>
+              <Input
+                id="org-npi"
+                placeholder="10-digit NPI number"
+                value={npi}
+                onChange={(e) => setNpi(e.target.value)}
+                maxLength={10}
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Creating…
+                </>
+              ) : (
+                <>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Create Organization
+                </>
+              )}
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

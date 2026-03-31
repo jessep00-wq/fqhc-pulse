@@ -48,7 +48,7 @@ export default function Dashboard() {
   const { data: cycles } = useQuery({
     queryKey: ["pdsa_cycles", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*");
+      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
       return data || [];
     },
     enabled: !!orgId,
@@ -57,7 +57,7 @@ export default function Dashboard() {
   const { data: tasks } = useQuery({
     queryKey: ["tasks", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("tasks").select("*");
+      const { data } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
       return data || [];
     },
     enabled: !!orgId,
@@ -66,7 +66,7 @@ export default function Dashboard() {
   const { data: trends } = useQuery({
     queryKey: ["uds_trends", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("uds_trends").select("*").order("month");
+      const { data } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
       return data || [];
     },
     enabled: !!orgId,
@@ -75,7 +75,7 @@ export default function Dashboard() {
   const { data: activity } = useQuery({
     queryKey: ["activity_log", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("activity_log").select("*").order("created_at", { ascending: false }).limit(5);
+      const { data } = await supabase.from("activity_log").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(5);
       return data || [];
     },
     enabled: !!orgId,
