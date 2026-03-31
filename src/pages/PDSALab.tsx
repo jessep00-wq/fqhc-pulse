@@ -122,25 +122,46 @@ function AuditBinderDialog({ cycle, open, onClose }: { cycle: DBCycle | null; op
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
 
-  const handleExportPDF = useCallback(async () => {
+    const handleExportPDF = useCallback(async () => {
     if (!printRef.current || !cycle) return;
     setExporting(true);
     try {
       const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
-      const imgData = canvas.toDataURL("image/png");
       const pdf = new jsPDF("p", "in", "letter");
       const pdfWidth = 8.5;
       const pdfHeight = 11;
-      const imgWidth = pdfWidth - 1;
-      const imgHeight = (canvas.height / canvas.width) * imgWidth;
-      const pageContentHeight = pdfHeight - 1;
-      pdf.addImage(imgData, "PNG", 0.5, 0.5, imgWidth, imgHeight, undefined, "FAST", 0);
-      if (imgHeight > pageContentHeight) {
-        const scale = pageContentHeight / imgHeight;
-        pdf.deletePage(1);
-        pdf.addPage("letter", "p");
-        pdf.addImage(imgData, "PNG", 0.5, 0.5, imgWidth * scale + (imgWidth * (1 - scale)) / 2, pageContentHeight, undefined, "FAST", 0);
+      const margin = 0.5;
+      const imgWidth = pdfWidth - margin * 2;
+      const pageContentHeight = pdfHeight - margin * 2;
+
+      // Scale factor: how many inches per canvas pixel
+      const scale = imgWidth / canvas.width;
+      const totalImgHeight = canvas.height * scale;
+      const pageHeightInPx = pageContentHeight / scale;
+
+      let yOffset = 0;
+      let pageIndex = 0;
+
+      while (yOffset < canvas.height) {
+        if (pageIndex > 0) pdf.addPage("letter", "p");
+
+        const sliceHeight = Math.min(pageHeightInPx, canvas.height - yOffset);
+        // Create a sub-canvas for this page slice
+        const pageCanvas = document.createElement("canvas");
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = sliceHeight;
+        const ctx = pageCanvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+        }
+        const pageImg = pageCanvas.toDataURL("image/png");
+        const drawHeight = sliceHeight * scale;
+        pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, drawHeight, undefined, "FAST");
+
+        yOffset += sliceHeight;
+        pageIndex++;
       }
+
       pdf.save(`HRSA_OSV_Audit_Binder_${cycle.id.slice(0, 8)}.pdf`);
       toast.success("PDF exported successfully");
     } catch (err) {
