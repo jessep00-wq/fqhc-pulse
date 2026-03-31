@@ -1,22 +1,21 @@
 
 
-# Fix: Enable Auto-Confirm for Email Signups
+# Fix: Onboarding Page Stuck After Org Creation
 
-## Root Cause
+## Problem
 
-The "violates row-level security" error occurs because new users sign up but never confirm their email (verification emails aren't being delivered). Without confirmation, they can't establish an authenticated session, and the RLS policy on `organizations` requires the `authenticated` role.
+After creating an organization, `window.location.href = "/dashboard"` triggers a full reload. The `ProtectedRoute` wrapping `/dashboard` uses `OrgContext` which re-fetches the profile — but during the brief loading window, `hasOrg` is `false`, causing an immediate redirect back to `/onboarding`. The onboarding page has no guard to detect the user already has an org, so it shows the form again in a loop.
 
-Your existing user (Jessica) works fine because she was confirmed earlier. New signups are stuck.
+## Fix (2 changes)
 
-## Fix
+### 1. Onboarding page: redirect if user already has an org
+Import `useOrg` and `Navigate`. If `hasOrg` is true, redirect to `/dashboard`. Show a loading spinner while org data is loading.
 
-Use the `configure_auth` tool to enable auto-confirm for email signups. This skips the email verification step, allowing users to sign in immediately after signup.
+### 2. ProtectedRoute: don't redirect to onboarding while org is still loading
+The current code already waits for `orgLoading` before rendering children, but the issue is that after a full page reload, OrgContext briefly shows `hasOrg=false` before the fetch completes. The existing loading guard should handle this — but the onboarding guard in step 1 is the critical fix to break the loop.
 
-No code changes or migrations needed — just a single auth configuration update.
+### Files to modify
+- **`src/pages/Onboarding.tsx`** — Add `useOrg()` check at top: if `loading`, show spinner; if `hasOrg`, `<Navigate to="/dashboard" replace />`.
 
-## Impact
-
-- New users will be able to sign up and immediately proceed to onboarding
-- Existing users are unaffected
-- Google SSO continues to work as before
+This single change breaks the redirect loop — even if `ProtectedRoute` briefly bounces to `/onboarding`, the onboarding page will immediately bounce back to `/dashboard` once OrgContext confirms the org exists.
 
