@@ -363,7 +363,7 @@ export default function PDSALab() {
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*").order("created_at");
+      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).order("created_at");
       return (data || []) as DBCycle[];
     },
     enabled: !!organization.id,
