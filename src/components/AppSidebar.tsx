@@ -4,8 +4,8 @@ import {
   BookOpen,
   Bot,
   Users,
-  Building2,
 } from "lucide-react";
+import qualityosLogo from "@/assets/qualityos_logo_v1.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useOrg } from "@/contexts/OrgContext";
