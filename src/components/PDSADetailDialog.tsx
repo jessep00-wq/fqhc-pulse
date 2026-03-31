@@ -60,8 +60,8 @@ const STATUS_ICON = {
   completed: <CheckCircle2 className="h-4 w-4 text-success" />,
 };
 
-function nextStatus(current: string) {
-  const order = ["pending", "in_progress", "completed"];
+function nextStatus(current: TaskStatus): TaskStatus {
+  const order: TaskStatus[] = ["pending", "in_progress", "completed"];
   const idx = order.indexOf(current);
   return order[(idx + 1) % order.length];
 }
