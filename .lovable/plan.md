@@ -1,49 +1,86 @@
 
 
-# Branding Overhaul: Logo, Colors, Tagline & Badge Removal
+# Fix Data Isolation, Org Onboarding, Trend Seeding & AI Context Cap
 
-## 1. Add QualityOS Logo
+## 1. Add org filter to all unfiltered queries
 
-Copy the uploaded logo to `src/assets/qualityos_logo_v1.png` and use it in three locations:
-- **Landing page nav** — replace the `Building2` icon + text with an `<img>` logo
-- **Auth card header** — replace the icon square with the logo image
-- **Sidebar header** — replace the `Building2` icon with the logo (small version)
+Several queries in `Index.tsx`, `PDSALab.tsx`, and `StaffTasks.tsx` call `.select("*")` without `.eq("organization_id", orgId)`. While RLS currently prevents cross-org reads, adding explicit filters is defense-in-depth and ensures correct behavior if RLS policies change.
 
-## 2. Remove "Edit with Lovable" Badge
+**Files:** `src/pages/Index.tsx`, `src/pages/PDSALab.tsx`, `src/pages/StaffTasks.tsx`
 
-Use the `set_badge_visibility` tool to hide the badge.
+Add `.eq("organization_id", orgId)` to every query that lacks it:
+- `Index.tsx`: pdsa_cycles, tasks, uds_trends, activity_log (4 queries)
+- `PDSALab.tsx`: pdsa_cycles, tasks (2 queries)
+- `StaffTasks.tsx`: tasks, pdsa_cycles (2 queries)
 
-## 3. Auth Card Tagline
+## 2. Organization onboarding flow after signup
 
-Update the `CardDescription` in `Auth.tsx` to include a value statement:
-- Sign in: "Quality operations, simplified for FQHCs"
-- Sign up: "Quality operations, simplified for FQHCs"
-- Forgot password: "Reset your password"
+Currently `handle_new_user()` hardcodes a default org UUID. New users land on an empty dashboard with no way to set up their health center.
 
-## 4. Branded Color Palette — Healthcare Teal
+**Approach:**
+- Create a new page `src/pages/Onboarding.tsx` with a simple form: Organization Name + NPI (optional)
+- On submit: insert into `organizations`, then update the user's `profiles.organization_id`
+- Add an INSERT policy on `organizations` for authenticated users
+- Add route `/onboarding` in `App.tsx`
+- In `ProtectedRoute`, if `organization.id` is the default placeholder UUID or empty, redirect to `/onboarding`
+- Update `handle_new_user()` trigger to set `organization_id = NULL` instead of hardcoding — new migration
 
-Update CSS variables in `src/index.css` to shift from generic blue to the teal from the logo (approximately `hsl(192, 70%, 35%)`):
+**Database migration:**
+```sql
+-- Allow authenticated users to create organizations
+CREATE POLICY "Users can create orgs"
+  ON public.organizations FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
 
-**Light mode primary changes:**
-- `--primary`: `192 70% 35%` (teal matching logo)
-- `--ring`: `192 70% 35%`
-- `--sidebar-primary`: `192 70% 45%`
-- `--sidebar-ring`: `192 70% 45%`
-- `--info` / `--info-foreground`: align to same teal
+-- Replace trigger to stop hardcoding org id
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER
+SET search_path TO 'public' AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, staff_role, organization_id)
+  VALUES (
+    NEW.id,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'staff_role', 'QI Manager'),
+    NULL
+  );
+  RETURN NEW;
+END;
+$$;
+```
 
-**Dark mode:**
-- `--primary`: `192 65% 45%`
-- `--ring`: `192 65% 45%`
-- `--sidebar-primary` / `--sidebar-ring`: `192 65% 45%`
+**Files:** New `src/pages/Onboarding.tsx`, edit `src/App.tsx`, edit `src/components/ProtectedRoute.tsx`
 
-## Files Changed
+## 3. UDS trend data seeding
+
+Add a "Seed Demo Data" button on the dashboard (visible when uds_trends is empty) that inserts ~6 months of sample trend data for common UDS measures (Diabetes HbA1c, Cervical Cancer Screening, Depression Screening, etc.) scoped to the user's org.
+
+**File:** `src/pages/Index.tsx` — add seed button + mutation when trends are empty
+
+## 4. Cap AI assistant context to last 10 messages
+
+In `src/pages/AIAssistant.tsx`, change the context construction to only send the last 10 non-welcome messages instead of the entire history.
+
+**File:** `src/pages/AIAssistant.tsx` — `.slice(-10)` before mapping to context string
+
+## 5. Fix OrgContext for null org
+
+Update `OrgContext.tsx` to expose whether org is set, so `ProtectedRoute` can redirect to onboarding.
+
+**File:** `src/contexts/OrgContext.tsx` — add `hasOrg: boolean` to context value
+
+## Technical Summary
 
 | File | Change |
 |------|--------|
-| `src/assets/qualityos_logo_v1.png` | New — copied from upload |
-| `src/pages/Landing.tsx` | Replace icon with logo image in nav |
-| `src/pages/Auth.tsx` | Replace icon with logo, add tagline |
-| `src/components/AppSidebar.tsx` | Replace icon with logo |
-| `src/index.css` | Update primary/ring/sidebar-primary HSL values to branded teal |
-| Badge tool | Hide "Edit with Lovable" badge |
+| `src/pages/Index.tsx` | Add `.eq("organization_id", orgId)` to 4 queries; add seed demo data button |
+| `src/pages/PDSALab.tsx` | Add `.eq("organization_id", orgId)` to 2 queries |
+| `src/pages/StaffTasks.tsx` | Add `.eq("organization_id", orgId)` to 2 queries |
+| `src/pages/AIAssistant.tsx` | Cap context to last 10 messages |
+| `src/pages/Onboarding.tsx` | New — org creation form (name + NPI) |
+| `src/contexts/OrgContext.tsx` | Expose `hasOrg` boolean |
+| `src/components/ProtectedRoute.tsx` | Redirect to `/onboarding` if no org |
+| `src/App.tsx` | Add `/onboarding` route |
+| Migration | Update `handle_new_user()` to set org NULL; add INSERT policy on organizations |
 
