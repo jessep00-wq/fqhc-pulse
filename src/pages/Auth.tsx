@@ -8,7 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Loader2, Check, Circle } from "lucide-react";
+import { Loader2, Check, Circle } from "lucide-react";
+import qualityosLogo from "@/assets/qualityos_logo_v1.png";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
@@ -112,13 +113,11 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Building2 className="h-6 w-6" />
-            </div>
+            <img src={qualityosLogo} alt="QualityOS" className="h-10" />
           </div>
           <CardTitle className="text-xl">QualityOS</CardTitle>
           <CardDescription>
-            {showForgot ? "Reset your password" : isLogin ? "Sign in to your account" : "Create your account"}
+            {showForgot ? "Reset your password" : "Quality operations, simplified for FQHCs"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

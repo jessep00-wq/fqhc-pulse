@@ -6,11 +6,10 @@ import {
   BarChart3,
   LineChart,
   BookOpen,
-  Building2,
   ArrowRight,
-  CheckCircle2,
   Shield,
 } from "lucide-react";
+import qualityosLogo from "@/assets/qualityos_logo_v1.png";
 import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
@@ -62,12 +61,7 @@ export default function Landing() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Building2 className="h-5 w-5" />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              QualityOS
-            </span>
+            <img src={qualityosLogo} alt="QualityOS" className="h-9" />
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
