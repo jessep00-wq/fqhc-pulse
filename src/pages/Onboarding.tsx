@@ -45,9 +45,9 @@ export default function Onboarding() {
       toast.success("Organization created! Redirecting…");
       // Force full reload so OrgContext picks up the new org
       window.location.href = "/dashboard";
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Onboarding error:", err);
-      toast.error(err.message || "Failed to create organization");
+      toast.error((err as { message?: string })?.message || "Failed to create organization");
     } finally {
       setLoading(false);
     }

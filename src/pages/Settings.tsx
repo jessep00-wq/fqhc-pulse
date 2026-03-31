@@ -50,7 +50,7 @@ export default function Settings() {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       toast.success("Profile updated");
     },
-    onError: (err: any) => toast.error(err.message || "Failed to update profile"),
+    onError: (err: Error) => toast.error(err.message || "Failed to update profile"),
   });
 
   const [newPassword, setNewPassword] = useState("");

@@ -73,7 +73,14 @@ function AvatarGroup({ roles }: { roles: string[] }) {
   );
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: any[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
+interface DBTask {
+  id: string;
+  pdsa_cycle_id: string | null;
+  status: string;
+  acknowledged?: boolean;
+}
+
+function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
@@ -233,8 +240,18 @@ function AuditBinderDialog({ cycle, open, onClose }: { cycle: DBCycle | null; op
   );
 }
 
+interface NewCycleData {
+  title: string;
+  status: string;
+  uds_measure: string;
+  root_cause: string;
+  target_goal: string;
+  clinical_workflow_impact: string;
+  assigned_staff: string[];
+}
+
 function CreatePDSADialog({ open, onClose, onCreate }: {
-  open: boolean; onClose: () => void; onCreate: (data: any) => void;
+  open: boolean; onClose: () => void; onCreate: (data: NewCycleData) => void;
 }) {
   const [title, setTitle] = useState("");
   const [measure, setMeasure] = useState("");
@@ -274,9 +291,9 @@ function CreatePDSADialog({ open, onClose, onCreate }: {
       if (error) throw error;
       setAiResult(data.analysis || "No analysis returned.");
       setAiOpen(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("AI assist error:", err);
-      toast.error(err?.message || "Failed to get AI analysis");
+      toast.error((err as { message?: string })?.message || "Failed to get AI analysis");
     } finally {
       setAiLoading(false);
     }
@@ -390,11 +407,11 @@ export default function PDSALab() {
     enabled: !!organization.id,
   });
 
-  const { data: tasks = [] } = useQuery({
+  const { data: tasks = [] } = useQuery<DBTask[]>({
     queryKey: ["tasks", organization.id],
     queryFn: async () => {
       const { data } = await supabase.from("tasks").select("*").eq("organization_id", organization.id);
-      return data || [];
+      return (data || []) as DBTask[];
     },
     enabled: !!organization.id,
   });
@@ -408,7 +425,7 @@ export default function PDSALab() {
   });
 
   const createCycle = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: NewCycleData) => {
       const { error } = await supabase.from("pdsa_cycles").insert({
         ...data,
         organization_id: organization.id,
@@ -419,7 +436,7 @@ export default function PDSALab() {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
       toast.success("PDSA Cycle created!");
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create cycle"),
+    onError: (err: Error) => toast.error(err.message || "Failed to create cycle"),
   });
 
   const handleDragEnd = (result: DropResult) => {

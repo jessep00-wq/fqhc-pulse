@@ -61,9 +61,9 @@ export default function AIAssistant() {
         content: data?.analysis || "Unable to generate analysis. Please try again.",
       };
       setMessages((prev) => [...prev, assistantMsg]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("AI error:", err);
-      const status = err?.status || err?.code;
+      const status = (err as { status?: number; code?: number })?.status ?? (err as { status?: number; code?: number })?.code;
       if (status === 429) {
         toast.error("Rate limited — please wait a moment and try again.");
       } else if (status === 402) {

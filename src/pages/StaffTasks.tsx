@@ -37,11 +37,31 @@ const PRIORITY_CONFIG: Record<TaskPriority, { label: string; badgeClass: string 
   low: { label: "Low", badgeClass: "bg-success/15 text-success border-success/30" },
 };
 
+interface DBTask {
+  id: string;
+  title: string;
+  assigned_role: string | null;
+  status: string;
+  priority: string;
+  due_date: string | null;
+  acknowledged: boolean;
+  pdsa_cycle_id: string | null;
+  organization_id: string;
+  created_at: string;
+  pdsa_cycles?: { title: string } | null;
+}
+
+interface DBCycleRef {
+  id: string;
+  title: string;
+  status: string;
+}
+
 const ROLES: StaffRole[] = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
 const STATUSES: TaskStatus[] = ["pending", "in_progress", "completed", "overdue"];
 const PRIORITIES: TaskPriority[] = ["low", "medium", "high"];
 
-function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () => void; cycles: any[] }) {
+function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () => void; cycles: DBCycleRef[] }) {
   const { organization } = useOrg();
   const queryClient = useQueryClient();
   const [title, setTitle] = useState("");
@@ -68,7 +88,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
       toast.success("Task created");
       resetAndClose();
     },
-    onError: (err: any) => toast.error(err.message || "Failed to create task"),
+    onError: (err: Error) => toast.error(err.message || "Failed to create task"),
   });
 
   const resetAndClose = () => {
@@ -126,7 +146,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
               <SelectTrigger><SelectValue placeholder="None" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">None</SelectItem>
-                {cycles.map((c: any) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+                {cycles.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
@@ -140,7 +160,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
   );
 }
 
-function TaskDetailDialog({ task, open, onClose, cycles }: { task: any; open: boolean; onClose: () => void; cycles: any[] }) {
+function TaskDetailDialog({ task, open, onClose, cycles }: { task: DBTask; open: boolean; onClose: () => void; cycles: DBCycleRef[] }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [title, setTitle] = useState(task?.title || "");
@@ -151,7 +171,7 @@ function TaskDetailDialog({ task, open, onClose, cycles }: { task: any; open: bo
   const [dueDate, setDueDate] = useState<Date | undefined>(task?.due_date ? new Date(task.due_date) : undefined);
 
   const updateTask = useMutation({
-    mutationFn: async (updates: any) => {
+    mutationFn: async (updates: Partial<DBTask>) => {
       const { error } = await supabase.from("tasks").update(updates).eq("id", task.id);
       if (error) throw error;
     },
@@ -159,7 +179,7 @@ function TaskDetailDialog({ task, open, onClose, cycles }: { task: any; open: bo
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       toast.success("Task updated");
     },
-    onError: (err: any) => toast.error(err.message || "Failed to update"),
+    onError: (err: Error) => toast.error(err.message || "Failed to update"),
   });
 
   const handleSave = () => {
@@ -259,7 +279,7 @@ export default function StaffTasks() {
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [addOpen, setAddOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [selectedTask, setSelectedTask] = useState<DBTask | null>(null);
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ["tasks", organization.id],
@@ -279,7 +299,7 @@ export default function StaffTasks() {
     enabled: !!organization.id,
   });
 
-  const filtered = tasks.filter((t: any) => {
+  const filtered = (tasks as DBTask[]).filter((t) => {
     if (roleFilter !== "all" && t.assigned_role !== roleFilter) return false;
     if (statusFilter !== "all" && t.status !== statusFilter) return false;
     return true;
@@ -309,9 +329,9 @@ export default function StaffTasks() {
             <CardTitle className="text-base">Compliance Status</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {cycles.map((pdsa: any) => {
-              const pdsaTasks = tasks.filter((t: any) => t.pdsa_cycle_id === pdsa.id);
-              const acked = pdsaTasks.filter((t: any) => t.acknowledged).length;
+            {(cycles as DBCycleRef[]).map((pdsa) => {
+              const pdsaTasks = (tasks as DBTask[]).filter((t) => t.pdsa_cycle_id === pdsa.id);
+              const acked = pdsaTasks.filter((t) => t.acknowledged).length;
               const pct = pdsaTasks.length > 0 ? Math.round((acked / pdsaTasks.length) * 100) : 0;
               return (
                 <div key={pdsa.id} className="space-y-1.5">
@@ -364,7 +384,7 @@ export default function StaffTasks() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((task: any) => {
+                {filtered.map((task) => {
                   const cfg = STATUS_CONFIG[task.status as TaskStatus] || STATUS_CONFIG.pending;
                   const StatusIcon = cfg.icon;
                   const pdsaTitle = task.pdsa_cycles?.title || "—";

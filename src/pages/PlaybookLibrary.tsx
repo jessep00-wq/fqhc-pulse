@@ -100,7 +100,7 @@ export default function PlaybookLibrary() {
       toast.success("Playbook deployed to PDSA Lab");
       navigate("/pdsa-lab");
     },
-    onError: (err: any) => toast.error(err.message || "Failed to deploy playbook"),
+    onError: (err: Error) => toast.error(err.message || "Failed to deploy playbook"),
   });
 
   return (

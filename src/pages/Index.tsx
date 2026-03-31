@@ -83,7 +83,7 @@ function FinancialsDialog({
       toast.success("Financial data saved");
       onClose();
     },
-    onError: (err: any) => toast.error(err.message || "Failed to save"),
+    onError: (err: Error) => toast.error(err.message || "Failed to save"),
   });
 
   return (
@@ -179,12 +179,13 @@ export default function Dashboard() {
     queryKey: ["org_financials", orgId],
     queryFn: async () => {
       const { data } = await supabase
-        .from("org_financials" as any)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .from("org_financials" as string as any)
         .select("*")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: false })
         .limit(1);
-      const rows = data as any[];
+      const rows = data as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string }[];
       return rows?.[0] || null;
     },
     enabled: !!orgId,
@@ -237,7 +238,8 @@ export default function Dashboard() {
     );
   }
 
-  const fin = financials as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string } | null;
+  type OrgFinancials = { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string };
+  const fin = financials as OrgFinancials | null;
 
   return (
     <div className="p-6 space-y-6">
