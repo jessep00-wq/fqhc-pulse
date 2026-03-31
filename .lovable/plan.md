@@ -1,54 +1,49 @@
 
 
-# Public Landing Page, Password UX, Legal Links & Google SSO
+# Branding Overhaul: Logo, Colors, Tagline & Badge Removal
 
-## 1. Public Landing Page (`src/pages/Landing.tsx`)
+## 1. Add QualityOS Logo
 
-New page shown to unauthenticated visitors at `/`. Sections:
+Copy the uploaded logo to `src/assets/qualityos_logo_v1.png` and use it in three locations:
+- **Landing page nav** — replace the `Building2` icon + text with an `<img>` logo
+- **Auth card header** — replace the icon square with the logo image
+- **Sidebar header** — replace the `Building2` icon with the logo (small version)
 
-- **Hero**: "QualityOS" headline, tagline ("The QI operating system for FQHCs"), CTA buttons (Sign Up / Sign In)
-- **Features grid** (3-4 cards): PDSA Cycle Management, UDS Measure Tracking, SPC Analytics, Playbook Library — each with icon, title, one-liner
-- **Social proof / stats strip**: e.g. "Track 20+ UDS measures", "Built for HRSA compliance"
-- **Footer**: Links to Terms of Service, Privacy Policy, Sign In
+## 2. Remove "Edit with Lovable" Badge
 
-**Routing change in `src/App.tsx`:**
-- Move `/` to render `Landing` for unauthenticated users
-- Authenticated dashboard moves to `/dashboard`
-- Update all nav links (`AppSidebar`) to use `/dashboard` as home
-- Update `ProtectedRoute` redirect target from `/auth` to `/` (landing has auth CTAs)
+Use the `set_badge_visibility` tool to hide the badge.
 
-## 2. Password Requirements on Signup (`src/pages/Auth.tsx`)
+## 3. Auth Card Tagline
 
-- Add a password requirements checklist below the password field (visible only during signup):
-  - At least 8 characters
-  - Contains uppercase, lowercase, number
-- Show each requirement with green check / gray circle as user types
-- Disable submit until all requirements met
+Update the `CardDescription` in `Auth.tsx` to include a value statement:
+- Sign in: "Quality operations, simplified for FQHCs"
+- Sign up: "Quality operations, simplified for FQHCs"
+- Forgot password: "Reset your password"
 
-## 3. Terms of Service & Privacy Policy
+## 4. Branded Color Palette — Healthcare Teal
 
-- Add placeholder pages: `src/pages/TermsOfService.tsx` and `src/pages/PrivacyPolicy.tsx` with boilerplate text noting the app handles QI data and outlining standard terms
-- Add public routes `/terms` and `/privacy` in `App.tsx`
-- Add checkbox on signup form: "I agree to the Terms of Service and Privacy Policy" (links open in new tab)
-- Disable signup button until checkbox is checked
+Update CSS variables in `src/index.css` to shift from generic blue to the teal from the logo (approximately `hsl(192, 70%, 35%)`):
 
-## 4. Google SSO
+**Light mode primary changes:**
+- `--primary`: `192 70% 35%` (teal matching logo)
+- `--ring`: `192 70% 35%`
+- `--sidebar-primary`: `192 70% 45%`
+- `--sidebar-ring`: `192 70% 45%`
+- `--info` / `--info-foreground`: align to same teal
 
-- Use Lovable Cloud's managed Google OAuth via `lovable.auth.signInWithOAuth("google")`
-- Run the Configure Social Auth tool to generate the lovable module
-- Add a "Sign in with Google" button on the Auth page (both login and signup views)
-- Add the same button on the Landing page hero
+**Dark mode:**
+- `--primary`: `192 65% 45%`
+- `--ring`: `192 65% 45%`
+- `--sidebar-primary` / `--sidebar-ring`: `192 65% 45%`
 
-## Technical Summary
+## Files Changed
 
 | File | Change |
 |------|--------|
-| `src/pages/Landing.tsx` | New — public landing page |
-| `src/pages/TermsOfService.tsx` | New — placeholder ToS |
-| `src/pages/PrivacyPolicy.tsx` | New — placeholder Privacy Policy |
-| `src/pages/Auth.tsx` | Password strength indicators, ToS checkbox, Google SSO button |
-| `src/App.tsx` | New public routes (`/`, `/terms`, `/privacy`), dashboard route change to `/dashboard` |
-| `src/components/AppSidebar.tsx` | Update home link to `/dashboard` |
-| `src/components/ProtectedRoute.tsx` | Redirect to `/` instead of `/auth` |
-| `src/components/NavLink.tsx` | Update if referencing `/` |
+| `src/assets/qualityos_logo_v1.png` | New — copied from upload |
+| `src/pages/Landing.tsx` | Replace icon with logo image in nav |
+| `src/pages/Auth.tsx` | Replace icon with logo, add tagline |
+| `src/components/AppSidebar.tsx` | Replace icon with logo |
+| `src/index.css` | Update primary/ring/sidebar-primary HSL values to branded teal |
+| Badge tool | Hide "Edit with Lovable" badge |
 
