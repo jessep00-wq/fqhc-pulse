@@ -75,7 +75,7 @@ export default function Dashboard() {
   const { data: activity } = useQuery({
     queryKey: ["activity_log", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("activity_log").select("*").order("created_at", { ascending: false }).limit(5);
+      const { data } = await supabase.from("activity_log").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(5);
       return data || [];
     },
     enabled: !!orgId,

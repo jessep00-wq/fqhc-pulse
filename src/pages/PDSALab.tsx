@@ -372,7 +372,7 @@ export default function PDSALab() {
   const { data: tasks = [] } = useQuery({
     queryKey: ["tasks", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("tasks").select("*");
+      const { data } = await supabase.from("tasks").select("*").eq("organization_id", organization.id);
       return data || [];
     },
     enabled: !!organization.id,
