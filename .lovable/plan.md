@@ -1,70 +1,54 @@
 
 
-# Enhance Interactivity, Task Detail Views, SPC Charts & Color-Coded Status
+# Public Landing Page, Password UX, Legal Links & Google SSO
 
-## Summary
-Five enhancements across the app: (1) Add/edit tasks and activities from multiple entry points, (2) clickable task rows showing full detail, (3) task progress monitoring with status tracking, (4) SPC (Statistical Process Control) charts for process performance analysis, and (5) color-coded status indicators throughout the UI.
+## 1. Public Landing Page (`src/pages/Landing.tsx`)
 
-## 1. Staff Tasks — Clickable Rows with Detail Panel + Add/Edit Tasks
+New page shown to unauthenticated visitors at `/`. Sections:
 
-**File: `src/pages/StaffTasks.tsx`**
+- **Hero**: "QualityOS" headline, tagline ("The QI operating system for FQHCs"), CTA buttons (Sign Up / Sign In)
+- **Features grid** (3-4 cards): PDSA Cycle Management, UDS Measure Tracking, SPC Analytics, Playbook Library — each with icon, title, one-liner
+- **Social proof / stats strip**: e.g. "Track 20+ UDS measures", "Built for HRSA compliance"
+- **Footer**: Links to Terms of Service, Privacy Policy, Sign In
 
-- Add an "Add Task" button in the header that opens an inline form (title, role, due date, optional PDSA cycle link) and inserts into the `tasks` table.
-- Make each table row clickable → opens a **Task Detail Dialog** showing:
-  - Editable title, assigned role, due date, status toggle, acknowledged checkbox
-  - Link to parent PDSA cycle (click navigates to PDSA Lab and opens that cycle)
-  - Save on blur, same pattern as `PDSADetailDialog`
-- Add color-coded status badges: green (completed), blue (in progress), gray (pending), red (overdue) — replacing plain text with colored `Badge` components.
-- Add a priority column with color indicators (red = high, amber = medium, green = low).
+**Routing change in `src/App.tsx`:**
+- Move `/` to render `Landing` for unauthenticated users
+- Authenticated dashboard moves to `/dashboard`
+- Update all nav links (`AppSidebar`) to use `/dashboard` as home
+- Update `ProtectedRoute` redirect target from `/auth` to `/` (landing has auth CTAs)
 
-**Database migration**: Add `priority` column (`text`, default `'medium'`) to `tasks` table.
+## 2. Password Requirements on Signup (`src/pages/Auth.tsx`)
 
-## 2. Dashboard — Color-Coded Metric Cards & Activity Feed
+- Add a password requirements checklist below the password field (visible only during signup):
+  - At least 8 characters
+  - Contains uppercase, lowercase, number
+- Show each requirement with green check / gray circle as user types
+- Disable submit until all requirements met
 
-**File: `src/pages/Index.tsx`**
+## 3. Terms of Service & Privacy Policy
 
-- Enhance `MetricCard` with colored left border strips based on variant (blue=default, amber=warning, green=success).
-- Activity feed items: add colored dot indicators by type (green=success, amber=warning, blue=info).
+- Add placeholder pages: `src/pages/TermsOfService.tsx` and `src/pages/PrivacyPolicy.tsx` with boilerplate text noting the app handles QI data and outlining standard terms
+- Add public routes `/terms` and `/privacy` in `App.tsx`
+- Add checkbox on signup form: "I agree to the Terms of Service and Privacy Policy" (links open in new tab)
+- Disable signup button until checkbox is checked
 
-## 3. SPC Chart — Process Performance Over Time
+## 4. Google SSO
 
-**File: `src/pages/Index.tsx`** (new section below UDS Trends)
+- Use Lovable Cloud's managed Google OAuth via `lovable.auth.signInWithOAuth("google")`
+- Run the Configure Social Auth tool to generate the lovable module
+- Add a "Sign in with Google" button on the Auth page (both login and signup views)
+- Add the same button on the Landing page hero
 
-Add an SPC (Statistical Process Control) chart component:
-- Line chart plotting individual data points for a selected UDS measure over time.
-- Calculate and display: **Center Line** (mean), **Upper Control Limit** (UCL = mean + 3σ), **Lower Control Limit** (LCL = mean - 3σ).
-- Use `ReferenceLine` from recharts for UCL, CL, LCL with distinct colors (red dashed for limits, green solid for center).
-- Measure selector dropdown to switch between CMS124, CMS125, CMS165, CMS122.
-- Data points outside control limits highlighted in red to flag special cause variation.
+## Technical Summary
 
-No database changes needed — uses existing `uds_trends` data.
-
-## 4. PDSA Cards — Enhanced Color Communication
-
-**File: `src/pages/PDSALab.tsx`**
-
-- Add a colored left border to each PDSA card based on its column status:
-  - Plan = blue, Do = indigo, Study = amber, Act = teal, Completed = green
-- Show task progress bar with color coding: red (<30%), amber (30-70%), green (>70%).
-
-## 5. Playbook Cards — Color-Coded Domain Badges
-
-**File: `src/pages/PlaybookLibrary.tsx`**
-
-- Color-code domain badges: Preventive Care = blue, Chronic Disease = amber, Behavioral Health = purple, Financial/ACO = green.
-
----
-
-## Technical Details
-
-| File | Changes |
-|------|---------|
-| **Migration** | Add `priority text default 'medium'` to `tasks` |
-| `src/pages/StaffTasks.tsx` | Add Task dialog, Task Detail dialog, clickable rows, color badges, priority column |
-| `src/pages/Index.tsx` | SPC chart section with control limit calculations, colored metric card borders, colored activity dots |
-| `src/pages/PDSALab.tsx` | Colored left borders on cards, color-coded progress bars |
-| `src/pages/PlaybookLibrary.tsx` | Domain-colored badges |
-| `src/components/PDSADetailDialog.tsx` | No changes needed |
-
-All mutations use existing RLS policies (tasks table has INSERT, SELECT, UPDATE for authenticated users). SPC calculations are done client-side from `uds_trends` data.
+| File | Change |
+|------|--------|
+| `src/pages/Landing.tsx` | New — public landing page |
+| `src/pages/TermsOfService.tsx` | New — placeholder ToS |
+| `src/pages/PrivacyPolicy.tsx` | New — placeholder Privacy Policy |
+| `src/pages/Auth.tsx` | Password strength indicators, ToS checkbox, Google SSO button |
+| `src/App.tsx` | New public routes (`/`, `/terms`, `/privacy`), dashboard route change to `/dashboard` |
+| `src/components/AppSidebar.tsx` | Update home link to `/dashboard` |
+| `src/components/ProtectedRoute.tsx` | Redirect to `/` instead of `/auth` |
+| `src/components/NavLink.tsx` | Update if referencing `/` |
 
