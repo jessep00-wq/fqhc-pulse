@@ -1,16 +1,22 @@
 
 
-# Fix Build Error in Index.tsx
+# Fix: Enable Auto-Confirm for Email Signups
 
-## Problem
-Line 188 casts `data` to a typed array, but TypeScript rejects it because the `org_financials` table is accessed via `as string as any` workaround, producing a `SelectQueryError` type that can't be directly cast.
+## Root Cause
+
+The "violates row-level security" error occurs because new users sign up but never confirm their email (verification emails aren't being delivered). Without confirmation, they can't establish an authenticated session, and the RLS policy on `organizations` requires the `authenticated` role.
+
+Your existing user (Jessica) works fine because she was confirmed earlier. New signups are stuck.
 
 ## Fix
-Change line 188 to cast through `unknown` first:
 
-```typescript
-const rows = (data as unknown) as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string }[];
-```
+Use the `configure_auth` tool to enable auto-confirm for email signups. This skips the email verification step, allowing users to sign in immediately after signup.
 
-This is a single-line fix in `src/pages/Index.tsx` at line 188.
+No code changes or migrations needed — just a single auth configuration update.
+
+## Impact
+
+- New users will be able to sign up and immediately proceed to onboarding
+- Existing users are unaffected
+- Google SSO continues to work as before
 
