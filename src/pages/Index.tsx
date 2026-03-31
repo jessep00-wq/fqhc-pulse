@@ -57,7 +57,7 @@ export default function Dashboard() {
   const { data: tasks } = useQuery({
     queryKey: ["tasks", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("tasks").select("*");
+      const { data } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
       return data || [];
     },
     enabled: !!orgId,
