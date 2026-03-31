@@ -14,6 +14,9 @@ import logo from "@/assets/qualityos_logo_v1.png";
 export default function Onboarding() {
   const { user } = useAuth();
   const { hasOrg, loading: orgLoading } = useOrg();
+  const [name, setName] = useState("");
+  const [npi, setNpi] = useState("");
+  const [loading, setLoading] = useState(false);
 
   if (orgLoading) {
     return (
