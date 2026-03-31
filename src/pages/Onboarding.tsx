@@ -25,19 +25,20 @@ export default function Onboarding() {
 
     setLoading(true);
     try {
-      // Create organization
-      const { data: org, error: orgError } = await supabase
+      // Generate org ID client-side to avoid needing a SELECT-back
+      // (the SELECT RLS policy requires the user to already belong to the org)
+      const orgId = crypto.randomUUID();
+
+      const { error: orgError } = await supabase
         .from("organizations")
-        .insert({ name: name.trim(), npi: npi.trim() || null })
-        .select("id")
-        .single();
+        .insert({ id: orgId, name: name.trim(), npi: npi.trim() || null });
 
       if (orgError) throw orgError;
 
       // Link user profile to the new org
       const { error: profileError } = await supabase
         .from("profiles")
-        .update({ organization_id: org.id })
+        .update({ organization_id: orgId })
         .eq("id", user.id);
 
       if (profileError) throw profileError;
