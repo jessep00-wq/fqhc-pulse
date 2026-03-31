@@ -29,9 +29,6 @@ export default function Onboarding() {
   if (hasOrg) {
     return <Navigate to="/dashboard" replace />;
   }
-  const [name, setName] = useState("");
-  const [npi, setNpi] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
