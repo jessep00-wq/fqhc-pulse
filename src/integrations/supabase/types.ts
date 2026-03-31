@@ -46,6 +46,42 @@ export type Database = {
           },
         ]
       }
+      org_financials: {
+        Row: {
+          created_at: string
+          grant_trend: number
+          hrsa_quality_award: number
+          id: string
+          organization_id: string
+          period: string
+          revenue_protected: number
+          shared_savings: number
+          trend: number
+        }
+        Insert: {
+          created_at?: string
+          grant_trend?: number
+          hrsa_quality_award?: number
+          id?: string
+          organization_id: string
+          period?: string
+          revenue_protected?: number
+          shared_savings?: number
+          trend?: number
+        }
+        Update: {
+          created_at?: string
+          grant_trend?: number
+          hrsa_quality_award?: number
+          id?: string
+          organization_id?: string
+          period?: string
+          revenue_protected?: number
+          shared_savings?: number
+          trend?: number
+        }
+        Relationships: []
+      }
       organizations: {
         Row: {
           created_at: string

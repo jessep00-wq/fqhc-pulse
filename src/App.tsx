@@ -13,6 +13,7 @@ import PDSALab from "./pages/PDSALab";
 import PlaybookLibrary from "./pages/PlaybookLibrary";
 import AIAssistant from "./pages/AIAssistant";
 import StaffTasks from "./pages/StaffTasks";
+import Settings from "./pages/Settings";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
@@ -48,6 +49,7 @@ const App = () => (
                         <Route path="/playbooks" element={<PlaybookLibrary />} />
                         <Route path="/ai-assistant" element={<AIAssistant />} />
                         <Route path="/staff-tasks" element={<StaffTasks />} />
+                        <Route path="/settings" element={<Settings />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </AppLayout>

@@ -1,20 +1,26 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
-import { FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp, ArrowUpRight, Award, Loader2 } from "lucide-react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, ReferenceLine } from "recharts";
+import {
+  FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
+  ArrowUpRight, Award, Loader2, Settings2,
+} from "lucide-react";
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, Legend, ReferenceLine,
+} from "recharts";
 import SPCChart from "@/components/SPCChart";
-
-const FINANCIAL = {
-  sharedSavings: 285000,
-  revenueProtected: 142000,
-  hrsaQualityAward: 98000,
-  trend: 12.5,
-  grantTrend: 8.2,
-};
+import { toast } from "sonner";
 
 const VARIANT_BORDER: Record<string, string> = {
   default: "border-l-4 border-l-primary",
@@ -40,10 +46,98 @@ const MetricCard = ({
   </Card>
 );
 
+function FinancialsDialog({
+  open, onClose, initial, orgId,
+}: {
+  open: boolean; onClose: () => void;
+  initial: { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string } | null;
+  orgId: string;
+}) {
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState({
+    shared_savings: initial?.shared_savings ?? 0,
+    revenue_protected: initial?.revenue_protected ?? 0,
+    hrsa_quality_award: initial?.hrsa_quality_award ?? 0,
+    trend: initial?.trend ?? 0,
+    grant_trend: initial?.grant_trend ?? 0,
+    period: initial?.period ?? "Q1 2026",
+  });
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      if (initial) {
+        const { error } = await supabase
+          .from("org_financials")
+          .update({ ...form })
+          .eq("organization_id", orgId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("org_financials")
+          .insert({ ...form, organization_id: orgId });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["org_financials", orgId] });
+      toast.success("Financial data saved");
+      onClose();
+    },
+    onError: (err: any) => toast.error(err.message || "Failed to save"),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Configure Financial Impact</DialogTitle>
+          <DialogDescription>Enter your organization's financial metrics for the dashboard.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <Label>Period</Label>
+            <Input value={form.period} onChange={(e) => setForm({ ...form, period: e.target.value })} placeholder="e.g., Q1 2026" />
+          </div>
+          <div className="space-y-1">
+            <Label>Shared Savings (ACO) $</Label>
+            <Input type="number" value={form.shared_savings} onChange={(e) => setForm({ ...form, shared_savings: Number(e.target.value) })} />
+          </div>
+          <div className="space-y-1">
+            <Label>Revenue Protected $</Label>
+            <Input type="number" value={form.revenue_protected} onChange={(e) => setForm({ ...form, revenue_protected: Number(e.target.value) })} />
+          </div>
+          <div className="space-y-1">
+            <Label>HRSA Quality Award $</Label>
+            <Input type="number" value={form.hrsa_quality_award} onChange={(e) => setForm({ ...form, hrsa_quality_award: Number(e.target.value) })} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label>ACO Trend %</Label>
+              <Input type="number" step="0.1" value={form.trend} onChange={(e) => setForm({ ...form, trend: Number(e.target.value) })} />
+            </div>
+            <div className="space-y-1">
+              <Label>Grant Trend %</Label>
+              <Input type="number" step="0.1" value={form.grant_trend} onChange={(e) => setForm({ ...form, grant_trend: Number(e.target.value) })} />
+            </div>
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>Cancel</Button>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+            {mutation.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : null}
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Dashboard() {
   const { organization } = useOrg();
   const navigate = useNavigate();
   const orgId = organization.id;
+  const [finDialogOpen, setFinDialogOpen] = useState(false);
 
   const { data: cycles } = useQuery({
     queryKey: ["pdsa_cycles", orgId],
@@ -81,16 +175,27 @@ export default function Dashboard() {
     enabled: !!orgId,
   });
 
-  // Compute metrics
+  const { data: financials } = useQuery({
+    queryKey: ["org_financials", orgId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("org_financials" as any)
+        .select("*")
+        .eq("organization_id", orgId)
+        .order("created_at", { ascending: false })
+        .limit(1);
+      const rows = data as any[];
+      return rows?.[0] || null;
+    },
+    enabled: !!orgId,
+  });
+
   const activePDSA = cycles?.filter((c) => c.status !== "completed").length ?? 0;
 
-  // Measures at risk: unique measures where latest trend < 65
   const measuresAtRisk = (() => {
     if (!trends?.length) return 0;
     const latest: Record<string, number> = {};
-    for (const t of trends) {
-      latest[t.measure_id] = Number(t.value);
-    }
+    for (const t of trends) latest[t.measure_id] = Number(t.value);
     return Object.values(latest).filter((v) => v < 65).length;
   })();
 
@@ -98,13 +203,10 @@ export default function Dashboard() {
   const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
   const tasksDue = tasks?.filter((t) => {
     if (!t.due_date || t.status === "completed") return false;
-    const d = new Date(t.due_date);
-    return d <= weekFromNow;
+    return new Date(t.due_date) <= weekFromNow;
   }).length ?? 0;
-
   const overdueTasks = tasks?.filter((t) => t.status === "overdue").length ?? 0;
 
-  // Pivot trends for chart
   const MONTH_ORDER = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
   const trendChart = (() => {
     if (!trends?.length) return [];
@@ -113,14 +215,11 @@ export default function Dashboard() {
     );
     return months.map((m) => {
       const row: Record<string, string | number> = { month: m };
-      for (const t of trends.filter((tt) => tt.month === m)) {
-        row[t.measure_id] = Number(t.value);
-      }
+      for (const t of trends.filter((tt) => tt.month === m)) row[t.measure_id] = Number(t.value);
       return row;
     });
   })();
 
-  // Format activity time
   const formatTime = (ts: string) => {
     const diff = Date.now() - new Date(ts).getTime();
     const hours = Math.floor(diff / 3600000);
@@ -138,6 +237,8 @@ export default function Dashboard() {
     );
   }
 
+  const fin = financials as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string } | null;
+
   return (
     <div className="p-6 space-y-6">
       <div>
@@ -146,49 +247,71 @@ export default function Dashboard() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title="Active PDSA Cycles" value={activePDSA} icon={FlaskConical} description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`} onClick={() => navigate("/pdsa-lab")} />
+        <MetricCard title="Active PDSA Cycles" value={activePDSA} icon={FlaskConical} description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`} onClick={() => navigate("/dashboard/pdsa-lab")} />
         <MetricCard title="UDS Measures at Risk" value={measuresAtRisk} icon={AlertTriangle} description="Below target threshold" variant="warning" />
-        <MetricCard title="Tasks Due This Week" value={tasksDue} icon={CheckSquare} description={`${overdueTasks} overdue, ${tasksDue - overdueTasks} upcoming`} variant="warning" onClick={() => navigate("/staff-tasks")} />
-        <Card>
+        <MetricCard title="Tasks Due This Week" value={tasksDue} icon={CheckSquare} description={`${overdueTasks} overdue, ${tasksDue - overdueTasks} upcoming`} variant="warning" onClick={() => navigate("/dashboard/staff-tasks")} />
+
+        {/* Financial Impact Card */}
+        <Card className="relative">
+          <Button
+            variant="ghost" size="icon"
+            className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
+            onClick={() => setFinDialogOpen(true)}
+          >
+            <Settings2 className="h-4 w-4" />
+          </Button>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Financial Impact</CardTitle>
             <DollarSign className="h-5 w-5 text-success" />
           </CardHeader>
           <CardContent className="space-y-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Value-Based Care (ACO)</p>
-              <div className="text-2xl font-bold text-success">${(FINANCIAL.sharedSavings / 1000).toFixed(0)}K</div>
-              <div className="flex items-center gap-1 mt-0.5">
-                <TrendingUp className="h-3 w-3 text-success" />
-                <span className="text-xs font-medium text-success">+{FINANCIAL.trend}%</span>
-                <span className="text-xs text-muted-foreground">vs. last quarter</span>
-              </div>
-            </div>
-            <Separator />
-            <div>
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Grant & FFS Protection</p>
-              <div className="flex items-baseline gap-3">
+            {fin ? (
+              <>
                 <div>
-                  <div className="text-2xl font-bold text-primary">${(FINANCIAL.revenueProtected / 1000).toFixed(0)}K</div>
-                  <p className="text-[10px] text-muted-foreground">Revenue protected</p>
-                </div>
-                <div>
-                  <div className="flex items-center gap-1">
-                    <Award className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-lg font-bold text-primary">${(FINANCIAL.hrsaQualityAward / 1000).toFixed(0)}K</span>
+                  <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Value-Based Care (ACO)</p>
+                  <div className="text-2xl font-bold text-success">${(fin.shared_savings / 1000).toFixed(0)}K</div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <TrendingUp className="h-3 w-3 text-success" />
+                    <span className="text-xs font-medium text-success">+{fin.trend}%</span>
+                    <span className="text-xs text-muted-foreground">vs. last quarter</span>
                   </div>
-                  <p className="text-[10px] text-muted-foreground">HRSA Quality Award</p>
                 </div>
+                <Separator />
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Grant & FFS Protection</p>
+                  <div className="flex items-baseline gap-3">
+                    <div>
+                      <div className="text-2xl font-bold text-primary">${(fin.revenue_protected / 1000).toFixed(0)}K</div>
+                      <p className="text-[10px] text-muted-foreground">Revenue protected</p>
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1">
+                        <Award className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-lg font-bold text-primary">${(fin.hrsa_quality_award / 1000).toFixed(0)}K</span>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">HRSA Quality Award</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    <TrendingUp className="h-3 w-3 text-primary" />
+                    <span className="text-xs font-medium text-primary">+{fin.grant_trend}%</span>
+                    <span className="text-xs text-muted-foreground">vs. last quarter</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-4 text-center">
+                <p className="text-sm text-muted-foreground mb-2">No financial data configured</p>
+                <Button size="sm" variant="outline" onClick={() => setFinDialogOpen(true)}>
+                  <Settings2 className="h-3.5 w-3.5 mr-1" /> Configure
+                </Button>
               </div>
-              <div className="flex items-center gap-1 mt-0.5">
-                <TrendingUp className="h-3 w-3 text-primary" />
-                <span className="text-xs font-medium text-primary">+{FINANCIAL.grantTrend}%</span>
-                <span className="text-xs text-muted-foreground">vs. last quarter</span>
-              </div>
-            </div>
+            )}
           </CardContent>
         </Card>
       </div>
+
+      <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">

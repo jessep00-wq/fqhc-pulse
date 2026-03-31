@@ -4,6 +4,7 @@ import {
   BookOpen,
   Bot,
   Users,
+  Settings,
 } from "lucide-react";
 import qualityosLogo from "@/assets/qualityos_logo_v1.png";
 import { NavLink } from "@/components/NavLink";
@@ -29,6 +30,7 @@ const navItems = [
   { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
   { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
   { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
+  { title: "Settings", url: "/dashboard/settings", icon: Settings },
 ];
 
 export function AppSidebar() {
