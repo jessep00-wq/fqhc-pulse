@@ -24,6 +24,10 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const [organization, setOrganization] = useState<Organization>(fallbackOrg);
   const [loading, setLoading] = useState(true);
 
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refetchOrg = () => setRefreshKey((k) => k + 1);
+
   useEffect(() => {
     if (!user) {
       setOrganization(fallbackOrg);
@@ -54,7 +58,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     };
 
     fetchOrg();
-  }, [user]);
+  }, [user, refreshKey]);
 
   const hasOrg = !!organization.id && organization.id !== "";
 
