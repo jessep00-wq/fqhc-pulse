@@ -738,13 +738,17 @@ export default function PDSALab() {
         </div>
       </div>
 
+      {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
+        <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
+      )}
+
       {cycles.length === 0 ? (
         <EmptyState
           icon={FlaskConical}
           title="No PDSA cycles yet"
           description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
           actionLabel="Create Your First PDSA Cycle"
-          onAction={() => setNewOpen(true)}
+          onAction={handleNewCycle}
         />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
