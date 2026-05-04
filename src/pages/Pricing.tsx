@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -8,62 +9,93 @@ import {
   Infinity,
   Shield,
   ArrowLeft,
+  Lock,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 
-const tiers = [
+interface TierFeature {
+  text: string;
+  locked?: boolean;
+  lockedLabel?: string;
+}
+
+const getTiers = (annual: boolean) => [
+  {
+    name: "Free",
+    price: "$0",
+    period: "",
+    description: "Your first PDSA cycle, on us.",
+    highlight: false,
+    cta: "Start Free",
+    features: [
+      { text: "1 user" },
+      { text: "3 active PDSA cycles" },
+      { text: "1 clinic site" },
+      { text: "UDS measure dashboards" },
+      { text: "HRSA audit binder export (watermarked)" },
+      { text: "Guided PDSA methodology" },
+      { text: "Self-serve onboarding" },
+    ] as TierFeature[],
+  },
   {
     name: "Solo Clinic",
-    price: "$149",
+    price: annual ? "$124" : "$149",
     period: "/month",
+    annualTotal: annual ? "$1,490/yr" : undefined,
     description: "One site, unlimited everything else.",
     highlight: false,
+    cta: "Start Free Trial",
     features: [
-      "1 clinic site",
-      "Unlimited users — MAs, RNs, providers, QI staff",
-      "Unlimited PDSA cycles",
-      "UDS measure dashboards & SPC charts",
-      "HRSA OSV audit binder export",
-      "PCMH Q-PASS evidence tracking",
-      "Email support",
-    ],
+      { text: "1 clinic site" },
+      { text: "Unlimited users — MAs, RNs, providers, QI staff" },
+      { text: "Unlimited PDSA cycles" },
+      { text: "UDS measure dashboards & SPC charts" },
+      { text: "HRSA OSV audit binder export" },
+      { text: "PCMH Q-PASS evidence tracking" },
+      { text: "Email support" },
+      { text: "Financial impact tracking", locked: true, lockedLabel: "Available in Multi-Site" },
+    ] as TierFeature[],
   },
   {
     name: "Multi-Site",
-    price: "$349",
+    price: annual ? "$291" : "$349",
     period: "/month",
+    annualTotal: annual ? "$3,490/yr" : undefined,
     description: "For health centers with 2–5 locations.",
     highlight: true,
     badge: "Most Popular",
+    cta: "Start Free Trial",
     features: [
-      "Up to 5 clinic sites",
-      "Unlimited users — no per-seat fees",
-      "Unlimited PDSA cycles",
-      "Cross-site measure comparison",
-      "UDS dashboards & SPC charts",
-      "HRSA OSV audit binder export",
-      "PCMH Q-PASS evidence tracking",
-      "Financial impact tracking",
-      "Priority support",
-    ],
+      { text: "Up to 5 clinic sites" },
+      { text: "Unlimited users — no per-seat fees" },
+      { text: "Unlimited PDSA cycles" },
+      { text: "Cross-site measure comparison" },
+      { text: "UDS dashboards & SPC charts" },
+      { text: "HRSA OSV audit binder export" },
+      { text: "PCMH Q-PASS evidence tracking" },
+      { text: "Financial impact tracking" },
+      { text: "Priority support" },
+    ] as TierFeature[],
   },
   {
     name: "Health Center Network",
-    price: "$699",
+    price: annual ? "$582" : "$699",
     period: "/month",
+    annualTotal: annual ? "$6,990/yr" : undefined,
     description: "For networks with 6+ sites or PCA/HCCN programs.",
     highlight: false,
+    cta: "Start Free Trial",
     features: [
-      "Unlimited clinic sites",
-      "Unlimited users across the network",
-      "Unlimited PDSA cycles",
-      "Network-wide analytics & benchmarking",
-      "Cross-site measure comparison",
-      "All dashboards, charts & exports",
-      "Financial impact tracking",
-      "Dedicated onboarding",
-      "Priority support & SLA",
-    ],
+      { text: "Unlimited clinic sites" },
+      { text: "Unlimited users across the network" },
+      { text: "Unlimited PDSA cycles" },
+      { text: "Network-wide analytics & benchmarking" },
+      { text: "Cross-site measure comparison" },
+      { text: "All dashboards, charts & exports" },
+      { text: "Financial impact tracking" },
+      { text: "Dedicated onboarding" },
+      { text: "Priority support & SLA" },
+    ] as TierFeature[],
   },
 ];
 
@@ -89,6 +121,9 @@ const differentiators = [
 ];
 
 export default function Pricing() {
+  const [annual, setAnnual] = useState(false);
+  const tiers = getTiers(annual);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -129,18 +164,46 @@ export default function Pricing() {
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
             30-day free trial — no credit card required
           </div>
+
+          {/* Billing toggle */}
+          <div className="flex items-center justify-center gap-3 pt-4">
+            <span className={`text-sm font-medium ${!annual ? "text-foreground" : "text-muted-foreground"}`}>
+              Billed Monthly
+            </span>
+            <button
+              onClick={() => setAnnual(!annual)}
+              className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
+                annual ? "bg-primary" : "bg-muted-foreground/30"
+              }`}
+              aria-label="Toggle annual billing"
+            >
+              <span
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
+                  annual ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+            <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
+              Billed Annually
+            </span>
+            {annual && (
+              <span className="rounded-full bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-0.5 text-xs font-semibold">
+                Save 2 months
+              </span>
+            )}
+          </div>
         </div>
       </section>
 
       {/* Pricing cards */}
       <section className="pb-24 px-6">
-        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {tiers.map((tier) => (
             <Card
               key={tier.name}
               className={`relative flex flex-col border-border ${
                 tier.highlight
-                  ? "border-primary shadow-lg ring-2 ring-primary/20"
+                  ? "border-primary shadow-lg ring-2 ring-primary/20 md:scale-105"
                   : ""
               }`}
             >
@@ -149,20 +212,32 @@ export default function Pricing() {
                   {tier.badge}
                 </div>
               )}
-              <CardHeader className="text-center pb-4">
+              <CardHeader className={`text-center pb-4 ${tier.highlight ? "bg-gradient-to-b from-primary/5 to-transparent rounded-t-lg" : ""}`}>
                 <CardTitle className="text-xl">{tier.name}</CardTitle>
                 <CardDescription className="text-sm">{tier.description}</CardDescription>
                 <div className="pt-4">
                   <span className="text-4xl font-extrabold text-foreground">{tier.price}</span>
-                  <span className="text-muted-foreground text-sm">{tier.period}</span>
+                  {tier.period && <span className="text-muted-foreground text-sm">{tier.period}</span>}
                 </div>
+                {tier.annualTotal && (
+                  <p className="text-xs text-muted-foreground mt-1">{tier.annualTotal} billed annually</p>
+                )}
               </CardHeader>
               <CardContent className="flex flex-col flex-1">
                 <ul className="space-y-3 flex-1">
                   {tier.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                      <span className="text-muted-foreground">{f}</span>
+                    <li key={f.text} className="flex items-start gap-2 text-sm">
+                      {f.locked ? (
+                        <Lock className="h-4 w-4 text-muted-foreground/40 mt-0.5 shrink-0" />
+                      ) : (
+                        <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+                      )}
+                      <span className={f.locked ? "text-muted-foreground/50" : "text-muted-foreground"}>
+                        {f.text}
+                        {f.lockedLabel && (
+                          <span className="block text-xs text-muted-foreground/40 mt-0.5">{f.lockedLabel}</span>
+                        )}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -172,7 +247,7 @@ export default function Pricing() {
                   asChild
                 >
                   <Link to="/auth?signup=true">
-                    Start Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                    {tier.cta} <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
@@ -214,8 +289,16 @@ export default function Pricing() {
           <div className="space-y-8">
             {[
               {
+                q: "What's included in the Free plan?",
+                a: "The Free plan gives you full access to the PDSA tracker with guided methodology, UDS measure dashboards, and HRSA audit binder export (watermarked). It's limited to 1 user, 3 active PDSA cycles, and 1 clinic site — enough to run your first improvement cycle and see real results before upgrading.",
+              },
+              {
                 q: "Do I need a credit card to start?",
-                a: "No. Start your 30-day free trial with just an email address. No credit card, no purchase order, no procurement approval.",
+                a: "No. Start your 30-day free trial on any paid plan with just an email address. No credit card, no purchase order, no procurement approval. The Free plan never requires a card at all.",
+              },
+              {
+                q: "Do you offer annual billing?",
+                a: "Yes. Toggle to annual billing and get 2 months free on every paid plan. Annual contracts are easier to write into HRSA grants and operational budgets — no monthly credit card hassle.",
               },
               {
                 q: "What counts as a 'site'?",
@@ -227,7 +310,7 @@ export default function Pricing() {
               },
               {
                 q: "Can I cancel anytime?",
-                a: "Yes. Month-to-month billing, cancel anytime. No long-term contracts, no early termination fees.",
+                a: "Yes. Monthly plans cancel anytime with no early termination fees. Annual plans run through the end of the billing year — no partial refunds, but no auto-renewal surprises either.",
               },
               {
                 q: "How does this compare to KaiNexus or RLDatix?",

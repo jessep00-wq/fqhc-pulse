@@ -1,35 +1,42 @@
-## Replace Landing Page Dashboard Image
 
-### Problem
-The current `dashboard-preview.jpg` is an AI-generated image with garbled text ("Meuttka kalre", "Aay Jun Nor") that undermines credibility.
+# Pricing Page Overhaul
 
-### Solution
-Create a static mock dashboard component with hardcoded realistic FQHC data, render it at a temporary route, take a real screenshot, then use that screenshot as the landing page hero image.
+## Changes to `src/pages/Pricing.tsx`
 
-### Steps
+### 1. Add Free Tier (first column)
+Add a "Free" tier as the leftmost card:
+- **Price**: $0/month
+- **Description**: "Your first PDSA cycle, on us."
+- **Features**: 1 user, 3 active PDSA cycles, 1 clinic site, UDS measure dashboards, HRSA audit binder export (watermarked), guided PDSA methodology, self-serve onboarding
+- **CTA**: "Start Free" (links to /auth?signup=true)
+- No highlight styling
 
-**1. Create a static mock dashboard page** (`src/pages/DashboardMock.tsx`)
-- Mirror the real dashboard layout from `Index.tsx` but with all data hardcoded (no Supabase queries, no auth)
-- Populate with realistic FQHC metrics:
-  - **Metric cards**: Active PDSA Cycles: 7 (across 4 UDS measures), UDS Measures at Risk: 2 (below target threshold), Tasks Due This Week: 5 (1 overdue, 4 upcoming), Financial Impact: $142K shared savings, +12% trend
-  - **UDS Measure Trends chart**: Real measure names — "Cervical Cancer Screening (CMS124)", "Breast Cancer Screening (CMS125)", "BP Control (CMS165)", "HbA1c Poor Control (CMS122)" with 6 months of realistic trend data
-  - **Recent Activity**: entries like "PDSA Cycle 'Diabetes: HbA1c > 9% Reduction' moved to Study phase", "Task 'Upload Q-PASS evidence for PCMH standard 3' completed", "UDS measure CMS124 crossed HRSA 65% target"
-- No onboarding checklist shown (simulate a mature account)
-- Organization name: "Sunrise Community Health Center"
+### 2. Monthly/Annual Billing Toggle
+Add a toggle above the pricing cards:
+- Default: Monthly
+- Annual shows ~17% discount (2 months free)
+- Annual prices: Free stays $0, Solo Clinic $124/mo ($1,490/yr), Multi-Site $291/mo ($3,490/yr), Network $582/mo ($6,990/yr)
+- Small "Save 2 months" badge next to the Annual option
+- State managed with `useState`
 
-**2. Add temporary route** in `App.tsx`
-- Add `/dashboard-mock` route pointing to the mock page (no auth required)
+### 3. Update Grid to 4 Columns
+Change from `md:grid-cols-3` to `lg:grid-cols-4` (stack on mobile, 2x2 on md, 4 on lg).
 
-**3. Screenshot the mock dashboard**
-- Navigate to `/dashboard-mock` at a wide viewport (1280px)
-- Take a screenshot
-- Process it through the product-shot generator with a teal-complementary preset for a polished look
+### 4. Visual Hierarchy for Multi-Site
+The "Most Popular" badge and ring already exist. Enhance by:
+- Adding `scale-105` transform on the Multi-Site card at md+ breakpoints
+- Adding a subtle gradient background to the card header
 
-**4. Replace the hero image**
-- Save the screenshot as `src/assets/dashboard-preview.jpg` (overwrite existing)
-- Remove the mock route and component
+### 5. Financial Impact Teaser in Lower Tiers
+- Solo Clinic: Add "Financial impact tracking" as a disabled/locked item with a lock icon and muted styling, labeled "Available in Multi-Site"
+- Creates upgrade envy without hiding the feature
 
-### Technical Details
-- The mock component reuses the same card layout, Recharts chart config, and Tailwind classes from `Index.tsx`
-- All data is inline constants — no database dependency
-- The sidebar navigation will be visible in the screenshot, showing the full app chrome
+### 6. Update FAQ
+- Add: "What's included in the Free plan?" explaining the 1-user, 3-cycle limits and full PDSA functionality
+- Add: "Do you offer annual billing?" explaining grant/budget alignment and 2-months-free discount
+- Update the cancel question to mention annual plans
+
+### 7. Hero Pill
+Keep as-is: "30-day free trial — no credit card required"
+
+## No database or backend changes required.
