@@ -1,75 +1,49 @@
 
-# Guided PDSA Methodology: Replace Statistical Literacy with Coaching
+# One-Click HRSA / NCQA Evidence Packet
 
-## Overview
+## Problem
 
-Transform the PDSA creation and detail experience from blank form fields into a step-by-step methodology coach that walks users through **Aim → Prediction → Measurement Plan → Test → Analysis → Decision** with inline coaching tips, plain-language prompts, and pre-built templates by common FQHC use case.
+The current audit binder is a single-cycle summary — it shows one PDSA cycle's metadata. A real QI Director spends two weeks before an HRSA OSV assembling: the cycle log, task completion evidence, baseline-to-result deltas, lessons learned, and next-cycle linkages across ALL completed cycles. No competitor produces this narrative automatically.
 
-## Database Migration
+## Solution
 
-Add new guided-methodology columns to `pdsa_cycles`:
+Replace the per-cycle "Generate OSV Binder" button with a top-level **"Generate Evidence Packet"** action that produces a comprehensive, multi-cycle, print-ready PDF binder covering a selectable date range. Position it as the headline feature: *"Walk into your next HRSA site visit with your PDSA binder already generated."*
 
-- `aim_statement` (text) — "What are we trying to accomplish?"
-- `prediction` (text) — "What do we think will happen?"
-- `measurement_plan` (text) — "How will we know a change is an improvement?"
-- `test_description` (text) — "What are we testing and on what scale?"
-- `analysis_summary` (text) — "What did the data tell us?"
-- `decision` (text) — "Adopt, Adapt, or Abandon?"
-- `template_id` (text) — which pre-built template was used, if any
+## What the Evidence Packet Contains
 
-Existing columns (`root_cause`, `target_goal`, `clinical_workflow_impact`, `study_results`, `what_worked`, `what_didnt_work`, `act_next_steps`) remain for backward compatibility but the UI will guide users through the new structured fields instead.
+1. **Cover Page** — Organization name, NPI, date range, generation date
+2. **Executive Summary** — Total cycles completed, total improvement achieved, measures addressed, staff involved
+3. **QI Activity Log** — Chronological table of all PDSA cycles in range: title, measure, start date, status, decision (Adopt/Adapt/Abandon)
+4. **Cycle Detail Pages** (one per completed cycle) — Aim statement, prediction, root cause, measurement plan, test description, baseline vs. result (improvement %), clinical workflow impact, decision, next steps, staff accountability (acknowledged tasks)
+5. **Task Completion Evidence** — Per cycle: tasks with status, assigned role, due date, acknowledgment status
+6. **Lessons Learned Summary** — Aggregated what-worked / what-didn't across all cycles
+7. **Next-Cycle Linkages** — Shows which cycles spawned follow-up cycles (v2, v3) for continuous improvement narrative
 
 ## UI Changes
 
-### 1. Redesign `CreatePDSADialog` → Guided Wizard
+### 1. Add "Generate Evidence Packet" button to PDSA Lab header
+Next to "New PDSA Cycle" button. Opens a dialog with date range picker and "Generate PDF" action.
 
-Replace the current flat form with a multi-step wizard:
+### 2. Evidence Packet Dialog
+- Date range selector (defaults to current fiscal year Jul 1 – Jun 30)
+- Preview of what will be included (cycle count, measure count)
+- "Generate PDF" button that builds the full binder client-side using jsPDF + html2canvas
 
-- **Step 1 — Choose Template or Start Blank**: Cards for common FQHC use cases (A1C Screening, Depression Screening, No-Show Reduction, Medication Reconciliation, Immunization Rates, Cervical Cancer Screening). Selecting one pre-fills subsequent steps.
-- **Step 2 — Aim**: "What are we trying to accomplish?" with coaching tip and example text.
-- **Step 3 — Prediction**: "What do you think will happen when you make this change?" with coaching.
-- **Step 4 — Measurement Plan**: "How will you know a change is an improvement? What data will you collect?" Auto-links to UDS measure selector.
-- **Step 5 — Test Plan**: "Describe the test. Who, what, when, where? Start small." Includes staff assignment.
-- **Step 6 — Review & Create**: Summary card showing all inputs before creating.
+### 3. Keep per-cycle binder
+The existing per-cycle "Generate OSV Binder" on completed cards stays as a quick single-cycle export. The new top-level packet is the comprehensive version.
 
-Each step has:
-- A plain-language question as the heading
-- A coaching tip in a subtle callout (e.g., "Tip: Keep your aim specific and measurable. Good example: 'Increase A1C screening rate from 52% to 65% by March.'")
-- Pre-filled example text when a template is selected
+### 4. Landing page hook
+Update the CTA and feature card copy to lead with the audit deliverable: *"Walk into your next HRSA site visit with your PDSA binder already generated."*
 
-### 2. Redesign `PDSADetailDialog` tabs
-
-Rename the 4 tabs from Plan/Do/Study/Act to methodology-aligned labels:
-
-- **Aim & Plan** (replaces Plan): Shows aim statement, prediction, measurement plan, UDS measure, staff
-- **Test** (replaces Do): Shows test description, tasks, inline coaching about small-scale testing
-- **Analyze** (replaces Study): Shows analysis summary with coaching prompts ("Did the results match your prediction?"), plus the existing results/what-worked/what-didn't fields
-- **Decide** (replaces Act): Shows decision field with three clear options (Adopt / Adapt / Abandon) as selectable cards with explanations, plus next steps and clone/complete actions
-
-### 3. Pre-built templates
-
-Defined as static data (no DB needed). Each template pre-fills: title, aim statement, prediction, measurement plan, test description, UDS measure, and assigned staff roles.
-
-Templates:
-- A1C Screening (CMS122)
-- Depression Screening (CMS2v12)
-- No-Show Reduction
-- Medication Reconciliation
-- Immunization Rates
-- Cervical Cancer Screening (CMS124)
-
-## Files to modify/create
+## Files to modify
 
 | File | Action |
 |------|--------|
-| `supabase migration` | Add 7 new columns to pdsa_cycles |
-| `src/data/pdsaTemplates.ts` | Create — pre-built PDSA templates |
-| `src/pages/PDSALab.tsx` | Rewrite CreatePDSADialog as guided wizard |
-| `src/components/PDSADetailDialog.tsx` | Redesign tabs with methodology labels and coaching |
+| `src/pages/PDSALab.tsx` | Add Evidence Packet button + dialog with date range, multi-cycle PDF generation |
+| `src/pages/Landing.tsx` | Update hero subtext and feature card to lead with audit binder value |
 
-## What stays the same
+## Technical approach
 
-- Kanban board layout and drag-and-drop
-- Audit binder export
-- Task management within cycles
-- SPC charts (still available on dashboard, just not required during PDSA creation)
+- Query all `pdsa_cycles` and `tasks` for the org within the date range
+- Render a hidden `<div>` with all sections, capture via html2canvas, paginate with jsPDF (same pattern as existing binder but expanded)
+- No new DB tables or migrations needed — all data already exists
