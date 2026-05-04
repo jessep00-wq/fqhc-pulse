@@ -142,6 +142,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
+  const { isFreeTier, cyclesRemaining } = useTierLimits();
 
   const { data: cycles } = useQuery({
     queryKey: ["pdsa_cycles", orgId],
