@@ -63,6 +63,7 @@ function getFiscalYearEnd(): Date {
 
 export default function EvidencePacketDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { organization } = useOrg();
+  const { isFreeTier } = useTierLimits();
   const [startDate, setStartDate] = useState<Date>(getFiscalYearStart());
   const [endDate, setEndDate] = useState<Date>(getFiscalYearEnd());
   const [exporting, setExporting] = useState(false);
