@@ -39,6 +39,9 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
+              <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
+              <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route
