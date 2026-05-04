@@ -14,6 +14,8 @@ import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical } from "lucide-react";
+import { useTierLimits } from "@/hooks/useTierLimits";
+import { UpgradePrompt, UpgradeBanner } from "@/components/UpgradePrompt";
 import { EmptyState } from "@/components/EmptyState";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
@@ -134,7 +136,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
   );
 }
 
-function AuditBinderDialog({ cycle, open, onClose }: { cycle: DBCycle | null; open: boolean; onClose: () => void }) {
+function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle: DBCycle | null; open: boolean; onClose: () => void; isFreeTier?: boolean }) {
   const { organization } = useOrg();
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -169,6 +171,22 @@ function AuditBinderDialog({ cycle, open, onClose }: { cycle: DBCycle | null; op
         const pageImg = pageCanvas.toDataURL("image/png");
         const drawHeight = sliceHeight * scale;
         pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, drawHeight, undefined, "FAST");
+        
+        // Add watermark for free tier
+        if (isFreeTier) {
+          pdf.setFontSize(50);
+          pdf.setTextColor(200, 200, 200);
+          pdf.saveGraphicsState();
+          const centerX = pdfWidth / 2;
+          const centerY = pdfHeight / 2;
+          pdf.text("SAMPLE — UPGRADE TO REMOVE", centerX, centerY, {
+            align: "center",
+            angle: 45,
+          });
+          pdf.restoreGraphicsState();
+          pdf.setTextColor(0, 0, 0);
+        }
+        
         yOffset += sliceHeight;
         pageIndex++;
       }
@@ -645,7 +663,17 @@ export default function PDSALab() {
   const [newOpen, setNewOpen] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const { canCreateCycle, cyclesRemaining, isFreeTier } = useTierLimits();
+
+  const handleNewCycle = () => {
+    if (!canCreateCycle) {
+      setUpgradeOpen(true);
+      return;
+    }
+    setNewOpen(true);
+  };
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
@@ -722,9 +750,13 @@ export default function PDSALab() {
           <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
             <Download className="h-4 w-4 mr-1" /> Evidence Packet
           </Button>
-          <Button onClick={() => setNewOpen(true)}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
+          <Button onClick={handleNewCycle}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
         </div>
       </div>
+
+      {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
+        <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
+      )}
 
       {cycles.length === 0 ? (
         <EmptyState
@@ -732,7 +764,7 @@ export default function PDSALab() {
           title="No PDSA cycles yet"
           description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
           actionLabel="Create Your First PDSA Cycle"
-          onAction={() => setNewOpen(true)}
+          onAction={handleNewCycle}
         />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
@@ -790,9 +822,15 @@ export default function PDSALab() {
       )}
 
       <CreatePDSAWizard open={newOpen} onClose={() => setNewOpen(false)} onCreate={(data) => createCycle.mutate(data)} />
-      <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} />
+      <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
       <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
       <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
+      <UpgradePrompt
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="Free Plan Limit Reached"
+        description={`Your free plan includes up to 3 active PDSA cycles. Upgrade to Solo Clinic or higher for unlimited cycles, watermark-free exports, and more.`}
+      />
     </div>
   );
 }

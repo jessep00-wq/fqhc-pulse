@@ -13,8 +13,10 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import {
   FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2,
+  ArrowUpRight, Award, Loader2, Settings2, Info,
 } from "lucide-react";
+import { UpgradeBanner } from "@/components/UpgradePrompt";
+import { useTierLimits } from "@/hooks/useTierLimits";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, ReferenceLine,
@@ -140,6 +142,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
+  const { isFreeTier, cyclesRemaining } = useTierLimits();
 
   const { data: cycles } = useQuery({
     queryKey: ["pdsa_cycles", orgId],
@@ -181,14 +184,12 @@ export default function Dashboard() {
     queryKey: ["org_financials", orgId],
     queryFn: async () => {
       const { data } = await supabase
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .from("org_financials" as string as any)
+        .from("org_financials")
         .select("*")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: false })
         .limit(1);
-      const rows = (data as unknown) as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string }[];
-      return rows?.[0] || null;
+      return data?.[0] || null;
     },
     enabled: !!orgId,
   });
@@ -240,8 +241,7 @@ export default function Dashboard() {
     );
   }
 
-  type OrgFinancials = { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string };
-  const fin = financials as OrgFinancials | null;
+  const fin = financials;
 
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
@@ -254,6 +254,19 @@ export default function Dashboard() {
       </div>
 
       <OnboardingChecklist />
+
+      {hasTrends && hasCycles && (
+        <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
+          <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Sample data is active.</span> The charts and metrics below include demo data seeded during onboarding. As you add real QI cycles and UDS measures, your actual data will replace these samples.
+          </p>
+        </div>
+      )}
+
+      {isFreeTier && (
+        <UpgradeBanner message={`Free plan: ${cyclesRemaining} PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles and watermark-free exports.`} />
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard title="Active PDSA Cycles" value={activePDSA} icon={FlaskConical} description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`} onClick={() => navigate("/dashboard/pdsa-lab")} />

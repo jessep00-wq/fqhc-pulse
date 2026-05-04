@@ -10,12 +10,16 @@ import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, UserPlus, Mail } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useTierLimits } from "@/hooks/useTierLimits";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 
 export function TeamInviteSection() {
   const { user } = useAuth();
   const { organization } = useOrg();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { canInviteUser } = useTierLimits();
 
   const { data: invitations = [] } = useQuery({
     queryKey: ["team-invitations", organization.id],
@@ -61,6 +65,10 @@ export function TeamInviteSection() {
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canInviteUser) {
+      setUpgradeOpen(true);
+      return;
+    }
     if (!email.trim() || !email.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
@@ -128,6 +136,12 @@ export function TeamInviteSection() {
           </div>
         )}
       </CardContent>
+      <UpgradePrompt
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="Team Member Limit Reached"
+        description="Your free plan includes 1 user. Upgrade to Solo Clinic or higher to invite team members."
+      />
     </Card>
   );
 }

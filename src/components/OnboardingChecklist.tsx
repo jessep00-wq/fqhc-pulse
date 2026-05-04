@@ -75,8 +75,7 @@ export function OnboardingChecklist() {
         supabase.from("tasks").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
         supabase.from("uds_trends").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
         supabase
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .from("org_financials" as string as any)
+          .from("org_financials")
           .select("id", { count: "exact", head: true })
           .eq("organization_id", orgId),
       ]);

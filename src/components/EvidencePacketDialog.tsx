@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTierLimits } from "@/hooks/useTierLimits";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -62,6 +63,7 @@ function getFiscalYearEnd(): Date {
 
 export default function EvidencePacketDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { organization } = useOrg();
+  const { isFreeTier } = useTierLimits();
   const [startDate, setStartDate] = useState<Date>(getFiscalYearStart());
   const [endDate, setEndDate] = useState<Date>(getFiscalYearEnd());
   const [exporting, setExporting] = useState(false);
@@ -137,6 +139,16 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
         const pageImg = pageCanvas.toDataURL("image/png");
         const drawHeight = sliceHeight * scale;
         pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, drawHeight, undefined, "FAST");
+        
+        if (isFreeTier) {
+          pdf.setFontSize(50);
+          pdf.setTextColor(200, 200, 200);
+          pdf.saveGraphicsState();
+          pdf.text("SAMPLE — UPGRADE TO REMOVE", pdfWidth / 2, pdfHeight / 2, { align: "center", angle: 45 });
+          pdf.restoreGraphicsState();
+          pdf.setTextColor(0, 0, 0);
+        }
+        
         yOffset += sliceHeight;
         pageIndex++;
       }
