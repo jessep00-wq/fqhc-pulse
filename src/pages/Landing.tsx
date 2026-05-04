@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import ContactForm from "@/components/ContactForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -386,6 +387,23 @@ export default function Landing() {
               Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
+        </div>
+      </section>
+
+      {/* Contact Form */}
+      <section id="contact" className="py-20 px-6 bg-background">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold text-foreground">
+              Questions? Let's Talk.
+            </h2>
+            <p className="text-muted-foreground">
+              Whether you're exploring QI tools for the first time or switching from spreadsheets, we're here to help.
+            </p>
+          </div>
+          <Card className="p-6">
+            <ContactForm />
+          </Card>
         </div>
       </section>
 

@@ -65,7 +65,7 @@ export default function Auth() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -77,6 +77,32 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
+      // Send welcome email (fire-and-forget)
+      supabase.functions.invoke("send-email", {
+        body: {
+          to: email,
+          subject: "Welcome to MeasureWise — Let's Improve Quality Together",
+          html: `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#f8fafb;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafb;padding:40px 20px;"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+<tr><td style="background:#1a8a8a;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
+<tr><td style="padding:32px;">
+<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${fullName || "there"}!</h2>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.</p>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">Here's what to do next:</p>
+<ol style="color:#374151;line-height:1.8;padding-left:20px;margin:0 0 24px;">
+<li><strong>Complete onboarding</strong> — set up your health center profile</li>
+<li><strong>Start your first PDSA cycle</strong> — pick a UDS measure to improve</li>
+<li><strong>Invite your team</strong> — assign tasks to staff</li>
+</ol>
+<a href="https://measurewise.org/dashboard" style="display:inline-block;background:#1a8a8a;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
+<p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— Jessica R. Smith, BSN | Founder, MeasureWise</p>
+</td></tr>
+<tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;"><p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p></td></tr>
+</table></td></tr></table></body></html>`,
+        },
+      }).catch(() => {}); // Non-blocking
       toast.success("Account created! Redirecting…");
       navigate("/onboarding");
     }
