@@ -12,6 +12,7 @@ interface OrgContextType {
   organization: Organization;
   loading: boolean;
   hasOrg: boolean;
+  refetchOrg: () => void;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
