@@ -1,21 +1,43 @@
 
+# Reposition Landing Page for FQHC/CHC/PCMH Audiences
 
-# Fix: Onboarding Page Stuck After Org Creation
+## Overview
 
-## Problem
+Overhaul the landing page and add three persona-specific landing pages based on the positioning strategy: lead with HRSA Chapter 10, NCQA PCMH Q-PASS, and UDS-reporting language. Target QI Directors, PCMH Coordinators, and CHC Operations Managers.
 
-After creating an organization, `window.location.href = "/dashboard"` triggers a full reload. The `ProtectedRoute` wrapping `/dashboard` uses `OrgContext` which re-fetches the profile — but during the brief loading window, `hasOrg` is `false`, causing an immediate redirect back to `/onboarding`. The onboarding page has no guard to detect the user already has an org, so it shows the form again in a loop.
+## Changes
 
-## Fix (2 changes)
+### 1. Revamp `src/pages/Landing.tsx`
 
-### 1. Onboarding page: redirect if user already has an org
-Import `useOrg` and `Navigate`. If `hasOrg` is true, redirect to `/dashboard`. Show a loading spinner while org data is loading.
+- **Hero**: Change headline to *"The PDSA tracker built for FQHCs, CHCs, and PCMH-recognized clinics"* with subtext: *"HRSA-aligned, audit-ready, and priced for community health budgets."*
+- **Social proof badges**: Add pill badges for "HRSA Chapter 10 Aligned", "NCQA PCMH Q-PASS Ready", "UDS-Friendly Reporting"
+- **Features section**: Rewrite feature cards to lead with regulatory/compliance value (e.g., "HRSA OSV-Ready PDSA Tracking", "NCQA Q-PASS Evidence Collection", "UDS Clinical Measure Dashboards", "Audit Binder Export")
+- **Persona navigation**: Add a "Built for your role" section with three cards linking to persona pages (QI Director, PCMH Coordinator, CHC Ops Manager)
+- **CTA**: Update to *"Start your free PDSA tracker — no enterprise sales call required"*
 
-### 2. ProtectedRoute: don't redirect to onboarding while org is still loading
-The current code already waits for `orgLoading` before rendering children, but the issue is that after a full page reload, OrgContext briefly shows `hasOrg=false` before the fetch completes. The existing loading guard should handle this — but the onboarding guard in step 1 is the critical fix to break the loop.
+### 2. Create three persona landing pages
 
-### Files to modify
-- **`src/pages/Onboarding.tsx`** — Add `useOrg()` check at top: if `loading`, show spinner; if `hasOrg`, `<Navigate to="/dashboard" replace />`.
+Each page follows the same template structure but with persona-specific messaging:
 
-This single change breaks the redirect loop — even if `ProtectedRoute` briefly bounces to `/onboarding`, the onboarding page will immediately bounce back to `/dashboard` once OrgContext confirms the org exists.
+- **`src/pages/PersonaQIDirector.tsx`** — For QI Directors at FQHCs. Emphasizes UDS measure tracking, SPC charts, HRSA Quality Award tier impact, and PDSA cycle management.
+- **`src/pages/PersonaPCMHCoordinator.tsx`** — For PCMH Coordinators. Emphasizes NCQA Q-PASS evidence requirements, documentation workflows, and audit readiness.
+- **`src/pages/PersonaCHCOpsManager.tsx`** — For CHC Operations Managers. Emphasizes cost savings vs. enterprise QI tools, staff task management, and financial impact tracking.
 
+Each page includes: persona-specific hero, 3-4 tailored feature highlights, a "How it works" section, and a CTA to sign up.
+
+### 3. Add routes in `src/App.tsx`
+
+Add three new public routes:
+- `/for/qi-directors`
+- `/for/pcmh-coordinators`  
+- `/for/operations-managers`
+
+### Files to create/modify
+
+| File | Action |
+|------|--------|
+| `src/pages/Landing.tsx` | Rewrite hero, features, add persona section |
+| `src/pages/PersonaQIDirector.tsx` | Create |
+| `src/pages/PersonaPCMHCoordinator.tsx` | Create |
+| `src/pages/PersonaCHCOpsManager.tsx` | Create |
+| `src/App.tsx` | Add 3 new routes |
