@@ -171,6 +171,22 @@ function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle:
         const pageImg = pageCanvas.toDataURL("image/png");
         const drawHeight = sliceHeight * scale;
         pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, drawHeight, undefined, "FAST");
+        
+        // Add watermark for free tier
+        if (isFreeTier) {
+          pdf.setFontSize(50);
+          pdf.setTextColor(200, 200, 200);
+          pdf.saveGraphicsState();
+          const centerX = pdfWidth / 2;
+          const centerY = pdfHeight / 2;
+          pdf.text("SAMPLE — UPGRADE TO REMOVE", centerX, centerY, {
+            align: "center",
+            angle: 45,
+          });
+          pdf.restoreGraphicsState();
+          pdf.setTextColor(0, 0, 0);
+        }
+        
         yOffset += sliceHeight;
         pageIndex++;
       }
