@@ -255,6 +255,19 @@ export default function Dashboard() {
 
       <OnboardingChecklist />
 
+      {hasTrends && hasCycles && (
+        <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
+          <Info className="h-4 w-4 text-muted-foreground shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">Sample data is active.</span> The charts and metrics below include demo data seeded during onboarding. As you add real QI cycles and UDS measures, your actual data will replace these samples.
+          </p>
+        </div>
+      )}
+
+      {isFreeTier && (
+        <UpgradeBanner message={`Free plan: ${cyclesRemaining} PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles and watermark-free exports.`} />
+      )}
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard title="Active PDSA Cycles" value={activePDSA} icon={FlaskConical} description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`} onClick={() => navigate("/dashboard/pdsa-lab")} />
         <MetricCard title="UDS Measures at Risk" value={measuresAtRisk} icon={AlertTriangle} description="Below target threshold" variant="warning" />
