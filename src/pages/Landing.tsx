@@ -149,14 +149,12 @@ export default function Landing() {
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
-            The PDSA Tracker Built for
-            <br />
-            <span className="text-primary">FQHCs, CHCs & PCMH Clinics</span>
+            Walk into your next HRSA site visit with your PDSA binder already generated.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Walk into your next HRSA site visit with your PDSA binder already generated.
-            One-click evidence packets, guided PDSA cycles, and UDS dashboards
-            — built for community health budgets.
+            The only compliance-first PDSA tracker built specifically for FQHCs.
+            One-click evidence packets, guided QI cycles, and UDS dashboards
+            — at a price community health budgets can afford.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" asChild className="text-base px-8">
@@ -193,6 +191,26 @@ export default function Landing() {
               <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Founder Authority */}
+      <section className="py-20 px-6">
+        <div className="max-w-3xl mx-auto text-center space-y-6">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+            Why I Built <span className="text-primary">MeasureWise</span>
+          </h2>
+          <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
+            I'm a BSN-trained clinical operations professional who has spent years inside FQHCs —
+            surviving HRSA site visits, wrestling with UDS reporting deadlines, and watching
+            quality teams drown in spreadsheets that were never designed for PDSA tracking.
+            I built MeasureWise because the enterprise QI tools on the market are overpriced,
+            overcomplicated, and built by people who have never had to defend a PDSA cycle
+            in front of a site-visit reviewer. This is the tool I wish I had.
+          </p>
+          <p className="text-sm text-muted-foreground/70 italic">
+            — The MeasureWise Team
+          </p>
         </div>
       </section>
 
