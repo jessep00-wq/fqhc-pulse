@@ -106,16 +106,23 @@ export type Database = {
       pdsa_cycles: {
         Row: {
           act_next_steps: string | null
+          aim_statement: string | null
+          analysis_summary: string | null
           assigned_staff: string[] | null
           clinical_workflow_impact: string | null
           created_at: string
+          decision: string | null
           id: string
           improvement_pct: number | null
+          measurement_plan: string | null
           organization_id: string
+          prediction: string | null
           root_cause: string | null
           status: string
           study_results: string | null
           target_goal: string | null
+          template_id: string | null
+          test_description: string | null
           title: string
           uds_measure: string | null
           what_didnt_work: string | null
@@ -123,16 +130,23 @@ export type Database = {
         }
         Insert: {
           act_next_steps?: string | null
+          aim_statement?: string | null
+          analysis_summary?: string | null
           assigned_staff?: string[] | null
           clinical_workflow_impact?: string | null
           created_at?: string
+          decision?: string | null
           id?: string
           improvement_pct?: number | null
+          measurement_plan?: string | null
           organization_id: string
+          prediction?: string | null
           root_cause?: string | null
           status?: string
           study_results?: string | null
           target_goal?: string | null
+          template_id?: string | null
+          test_description?: string | null
           title: string
           uds_measure?: string | null
           what_didnt_work?: string | null
@@ -140,16 +154,23 @@ export type Database = {
         }
         Update: {
           act_next_steps?: string | null
+          aim_statement?: string | null
+          analysis_summary?: string | null
           assigned_staff?: string[] | null
           clinical_workflow_impact?: string | null
           created_at?: string
+          decision?: string | null
           id?: string
           improvement_pct?: number | null
+          measurement_plan?: string | null
           organization_id?: string
+          prediction?: string | null
           root_cause?: string | null
           status?: string
           study_results?: string | null
           target_goal?: string | null
+          template_id?: string | null
+          test_description?: string | null
           title?: string
           uds_measure?: string | null
           what_didnt_work?: string | null
