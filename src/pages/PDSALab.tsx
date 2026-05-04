@@ -136,7 +136,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
   );
 }
 
-function AuditBinderDialog({ cycle, open, onClose }: { cycle: DBCycle | null; open: boolean; onClose: () => void }) {
+function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle: DBCycle | null; open: boolean; onClose: () => void; isFreeTier?: boolean }) {
   const { organization } = useOrg();
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
