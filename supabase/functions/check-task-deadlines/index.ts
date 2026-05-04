@@ -87,7 +87,7 @@ serve(async (req) => {
             "X-Connection-Api-Key": RESEND_API_KEY,
           },
           body: JSON.stringify({
-            from: "MeasureWise <onboarding@resend.dev>",
+            from: "MeasureWise <hello@measurewise.org>",
             to: [authUser.user.email],
             subject: email.subject,
             html: email.html,
