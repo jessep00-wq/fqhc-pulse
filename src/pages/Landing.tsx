@@ -87,7 +87,7 @@ export default function Landing() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-12" />
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
