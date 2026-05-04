@@ -353,6 +353,7 @@ export default function Dashboard() {
                 <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" />
               </LineChart>
             </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 
