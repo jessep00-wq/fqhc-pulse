@@ -19,6 +19,7 @@ import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PDSADetailDialog from "@/components/PDSADetailDialog";
+import EvidencePacketDialog from "@/components/EvidencePacketDialog";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
