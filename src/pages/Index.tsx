@@ -13,8 +13,10 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import {
   FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2,
+  ArrowUpRight, Award, Loader2, Settings2, Info,
 } from "lucide-react";
+import { UpgradeBanner } from "@/components/UpgradePrompt";
+import { useTierLimits } from "@/hooks/useTierLimits";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, ReferenceLine,
