@@ -18,6 +18,8 @@ export function TeamInviteSection() {
   const { organization } = useOrg();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const { canInviteUser } = useTierLimits();
 
   const { data: invitations = [] } = useQuery({
     queryKey: ["team-invitations", organization.id],
