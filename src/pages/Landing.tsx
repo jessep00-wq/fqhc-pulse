@@ -149,14 +149,12 @@ export default function Landing() {
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
-            The PDSA Tracker Built for
-            <br />
-            <span className="text-primary">FQHCs, CHCs & PCMH Clinics</span>
+            Walk into your next HRSA site visit with your PDSA binder already generated.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Walk into your next HRSA site visit with your PDSA binder already generated.
-            One-click evidence packets, guided PDSA cycles, and UDS dashboards
-            — built for community health budgets.
+            The only compliance-first PDSA tracker built specifically for FQHCs.
+            One-click evidence packets, guided QI cycles, and UDS dashboards
+            — at a price community health budgets can afford.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" asChild className="text-base px-8">
