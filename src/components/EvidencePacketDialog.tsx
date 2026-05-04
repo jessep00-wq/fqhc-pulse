@@ -139,6 +139,16 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
         const pageImg = pageCanvas.toDataURL("image/png");
         const drawHeight = sliceHeight * scale;
         pdf.addImage(pageImg, "PNG", margin, margin, imgWidth, drawHeight, undefined, "FAST");
+        
+        if (isFreeTier) {
+          pdf.setFontSize(50);
+          pdf.setTextColor(200, 200, 200);
+          pdf.saveGraphicsState();
+          pdf.text("SAMPLE — UPGRADE TO REMOVE", pdfWidth / 2, pdfHeight / 2, { align: "center", angle: 45 });
+          pdf.restoreGraphicsState();
+          pdf.setTextColor(0, 0, 0);
+        }
+        
         yOffset += sliceHeight;
         pageIndex++;
       }
