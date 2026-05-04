@@ -19,7 +19,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-semibold">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              QualityOS ("we", "our", "the Service") is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, and safeguard information when you use our quality improvement management platform.
+              MeasureWise ("we", "our", "the Service") is committed to protecting the privacy of our users. This Privacy Policy explains how we collect, use, and safeguard information when you use our quality improvement management platform.
             </p>
           </section>
 
@@ -39,7 +39,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-semibold">3. PHI Disclaimer</h2>
             <p className="text-muted-foreground leading-relaxed">
-              QualityOS is not designed to store or process Protected Health Information (PHI) as defined by HIPAA. Users must not enter individually identifiable patient data. The platform handles aggregate quality metrics and organizational QI data only. If your workflow requires PHI handling, contact us to discuss appropriate safeguards and a Business Associate Agreement.
+              MeasureWise is not designed to store or process Protected Health Information (PHI) as defined by HIPAA. Users must not enter individually identifiable patient data. The platform handles aggregate quality metrics and organizational QI data only. If your workflow requires PHI handling, contact us to discuss appropriate safeguards and a Business Associate Agreement.
             </p>
           </section>
 
@@ -74,7 +74,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-semibold">8. Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
-              For privacy-related questions or data requests, please contact the QualityOS team through your organization's administrator.
+              For privacy-related questions or data requests, please contact the MeasureWise team through your organization's administrator.
             </p>
           </section>
         </div>

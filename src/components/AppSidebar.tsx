@@ -6,7 +6,7 @@ import {
   Users,
   Settings,
 } from "lucide-react";
-import qualityosLogo from "@/assets/qualityos_logo_v1.png";
+import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
 import { useOrg } from "@/contexts/OrgContext";
@@ -43,11 +43,11 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <img src={qualityosLogo} alt="QualityOS" className="h-8 shrink-0" />
+          <img src={measurewiseLogo} alt="MeasureWise" className="h-8 shrink-0" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-                QualityOS
+                MeasureWise
               </span>
               <span className="text-xs text-sidebar-foreground/60">
                 FQHC Quality Platform

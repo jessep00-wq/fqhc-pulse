@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, Building2 } from "lucide-react";
-import logo from "@/assets/qualityos_logo_v1.png";
+import logo from "@/assets/measurewise-logo.png";
 
 export default function Onboarding() {
   const { user } = useAuth();
@@ -73,10 +73,10 @@ export default function Onboarding() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-3">
-          <img src={logo} alt="QualityOS" className="h-10 mx-auto" />
+          <img src={logo} alt="MeasureWise" className="h-10 mx-auto" />
           <CardTitle className="text-xl">Set Up Your Health Center</CardTitle>
           <CardDescription>
-            Tell us about your organization to get started with QualityOS.
+            Tell us about your organization to get started with MeasureWise.
           </CardDescription>
         </CardHeader>
         <CardContent>

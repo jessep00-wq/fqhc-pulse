@@ -10,7 +10,7 @@ import {
   CheckCircle,
   ArrowLeft,
 } from "lucide-react";
-import qualityosLogo from "@/assets/qualityos_logo_v1.png";
+import measurewiseLogo from "@/assets/measurewise-logo.png";
 
 const features = [
   {
@@ -53,7 +53,7 @@ export default function PersonaQIDirector() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={qualityosLogo} alt="QualityOS" className="h-9" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
@@ -86,7 +86,7 @@ export default function PersonaQIDirector() {
             <span className="text-primary">and Quality Award tracking — unified</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Stop juggling spreadsheets and siloed tools. QualityOS gives you a single view of every
+            Stop juggling spreadsheets and siloed tools. MeasureWise gives you a single view of every
             clinical quality measure, every improvement cycle, and the financial impact of hitting
             your next HRSA Quality Award tier.
           </p>
@@ -145,7 +145,7 @@ export default function PersonaQIDirector() {
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl font-bold">Ready to elevate your QI program?</h2>
           <p className="text-primary-foreground/80 text-lg">
-            Join QI Directors who use QualityOS to move from reactive reporting to proactive improvement.
+            Join QI Directors who use MeasureWise to move from reactive reporting to proactive improvement.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/70">
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free to start</span>
@@ -161,7 +161,7 @@ export default function PersonaQIDirector() {
       {/* Footer */}
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} QualityOS. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>

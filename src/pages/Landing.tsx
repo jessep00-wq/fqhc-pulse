@@ -13,7 +13,7 @@ import {
   DollarSign,
   CheckCircle,
 } from "lucide-react";
-import qualityosLogo from "@/assets/qualityos_logo_v1.png";
+import measurewiseLogo from "@/assets/measurewise-logo.png";
 
 const complianceBadges = [
   { label: "HRSA Chapter 10 Aligned", icon: Shield },
@@ -86,7 +86,7 @@ export default function Landing() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={qualityosLogo} alt="QualityOS" className="h-9" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
           </div>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
@@ -195,7 +195,7 @@ export default function Landing() {
               Built for your role
             </h2>
             <p className="text-muted-foreground mt-3 text-lg">
-              Whether you lead QI, coordinate PCMH, or manage operations — QualityOS speaks your language.
+              Whether you lead QI, coordinate PCMH, or manage operations — MeasureWise speaks your language.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
@@ -252,7 +252,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} QualityOS. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/terms" className="hover:text-foreground transition-colors">
               Terms of Service
