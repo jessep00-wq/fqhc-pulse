@@ -822,7 +822,7 @@ export default function PDSALab() {
       )}
 
       <CreatePDSAWizard open={newOpen} onClose={() => setNewOpen(false)} onCreate={(data) => createCycle.mutate(data)} />
-      <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} />
+      <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
       <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
       <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
       <UpgradePrompt
