@@ -181,14 +181,12 @@ export default function Dashboard() {
     queryKey: ["org_financials", orgId],
     queryFn: async () => {
       const { data } = await supabase
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .from("org_financials" as string as any)
+        .from("org_financials")
         .select("*")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: false })
         .limit(1);
-      const rows = (data as unknown) as { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string }[];
-      return rows?.[0] || null;
+      return data?.[0] || null;
     },
     enabled: !!orgId,
   });
@@ -240,8 +238,7 @@ export default function Dashboard() {
     );
   }
 
-  type OrgFinancials = { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string };
-  const fin = financials as OrgFinancials | null;
+  const fin = financials;
 
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
