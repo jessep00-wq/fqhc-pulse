@@ -8,7 +8,6 @@ import { OrgProvider } from "@/contexts/OrgContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import Landing from "./pages/Landing";
-import DashboardMock from "./pages/DashboardMock";
 import Index from "./pages/Index";
 import PDSALab from "./pages/PDSALab";
 import PlaybookLibrary from "./pages/PlaybookLibrary";
