@@ -245,7 +245,7 @@ export default function Landing() {
             <img
               src={founderPhoto}
               alt="Jessica R. Smith, Founder of MeasureWise"
-              className="h-24 w-24 rounded-full object-cover border-2 border-primary/20 shadow-md"
+              className="h-36 w-36 md:h-44 md:w-44 rounded-full object-cover border-2 border-primary/20 shadow-lg"
             />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
