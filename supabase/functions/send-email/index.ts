@@ -44,7 +44,7 @@ serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: from || "MeasureWise <onboarding@resend.dev>",
+        from: from || "MeasureWise <hello@measurewise.org>",
         to: [to],
         subject,
         html,
