@@ -272,6 +272,41 @@ export type Database = {
           },
         ]
       }
+      team_invitations: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string | null
+          organization_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by?: string | null
+          organization_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string | null
+          organization_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       uds_trends: {
         Row: {
           created_at: string
@@ -313,6 +348,7 @@ export type Database = {
     }
     Functions: {
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
+      seed_demo_data: { Args: { org_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never

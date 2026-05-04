@@ -58,6 +58,9 @@ export default function Onboarding() {
 
       if (profileError) throw profileError;
 
+      // Seed demo data so the dashboard isn't empty
+      await supabase.rpc("seed_demo_data", { org_id: orgId });
+
       toast.success("Organization created! Redirecting…");
       // Force full reload so OrgContext picks up the new org
       window.location.href = "/dashboard";

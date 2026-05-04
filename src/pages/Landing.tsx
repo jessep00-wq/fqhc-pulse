@@ -12,7 +12,10 @@ import {
   Users,
   DollarSign,
   CheckCircle,
+  Menu,
+  X,
 } from "lucide-react";
+import { useState } from "react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 
@@ -81,6 +84,8 @@ const stats = [
 ];
 
 export default function Landing() {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -89,7 +94,8 @@ export default function Landing() {
           <div className="flex items-center gap-3">
             <img src={measurewiseLogo} alt="MeasureWise" className="h-12" />
           </div>
-          <div className="flex items-center gap-3">
+          {/* Desktop nav */}
+          <div className="hidden md:flex items-center gap-3">
             <Button variant="ghost" asChild>
               <Link to="/pricing">Pricing</Link>
             </Button>
@@ -100,7 +106,30 @@ export default function Landing() {
               <Link to="/auth?signup=true">Get Started Free</Link>
             </Button>
           </div>
+          {/* Mobile hamburger */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </Button>
         </div>
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-border bg-card px-6 py-4 space-y-2">
+            <Button variant="ghost" asChild className="w-full justify-start">
+              <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
+            </Button>
+            <Button variant="ghost" asChild className="w-full justify-start">
+              <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
+            </Button>
+            <Button asChild className="w-full">
+              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Get Started Free</Link>
+            </Button>
+          </div>
+        )}
       </header>
 
       {/* Hero */}

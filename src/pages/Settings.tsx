@@ -11,6 +11,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, User, Lock, Building2 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { TeamInviteSection } from "@/components/TeamInviteSection";
 
 const STAFF_ROLES = ["QI Manager", "Provider", "MA/RN", "Front Desk", "Care Coordinator", "Administrator"];
 
@@ -150,6 +151,9 @@ export default function Settings() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Team */}
+      <TeamInviteSection />
     </div>
   );
 }
