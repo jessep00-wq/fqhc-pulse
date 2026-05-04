@@ -19,6 +19,9 @@ import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Onboarding from "./pages/Onboarding";
+import PersonaQIDirector from "./pages/PersonaQIDirector";
+import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
+import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
