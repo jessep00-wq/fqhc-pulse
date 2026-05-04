@@ -137,5 +137,12 @@ export function TeamInviteSection() {
         )}
       </CardContent>
     </Card>
+    <UpgradePrompt
+      open={upgradeOpen}
+      onClose={() => setUpgradeOpen(false)}
+      feature="Team Member Limit Reached"
+      description="Your free plan includes 1 user. Upgrade to Solo Clinic or higher to invite team members."
+    />
+    </>
   );
 }
