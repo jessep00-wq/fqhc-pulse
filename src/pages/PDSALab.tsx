@@ -13,12 +13,13 @@ import { UDS_MEASURES, type StaffRole } from "@/data/mockData";
 import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen } from "lucide-react";
+import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download } from "lucide-react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PDSADetailDialog from "@/components/PDSADetailDialog";
+import EvidencePacketDialog from "@/components/EvidencePacketDialog";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
@@ -642,6 +643,7 @@ export default function PDSALab() {
   const [binderCycle, setBinderCycle] = useState<DBCycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const { data: cycles = [], isLoading } = useQuery({
@@ -712,10 +714,15 @@ export default function PDSALab() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & OSV Audit Binder</h1>
-          <p className="text-muted-foreground">Guided quality improvement cycles — from aim to decision</p>
+          <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & Evidence Packet</h1>
+          <p className="text-muted-foreground">Guided quality improvement cycles — walk into your next site visit ready</p>
         </div>
-        <Button onClick={() => setNewOpen(true)}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
+            <Download className="h-4 w-4 mr-1" /> Evidence Packet
+          </Button>
+          <Button onClick={() => setNewOpen(true)}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
+        </div>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -774,6 +781,7 @@ export default function PDSALab() {
       <CreatePDSAWizard open={newOpen} onClose={() => setNewOpen(false)} onCreate={(data) => createCycle.mutate(data)} />
       <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} />
       <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
+      <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
     </div>
   );
 }
