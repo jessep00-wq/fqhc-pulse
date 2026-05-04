@@ -20,6 +20,8 @@ import {
   ResponsiveContainer, Legend, ReferenceLine,
 } from "recharts";
 import SPCChart from "@/components/SPCChart";
+import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
 
 const VARIANT_BORDER: Record<string, string> = {
@@ -241,12 +243,17 @@ export default function Dashboard() {
   type OrgFinancials = { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string };
   const fin = financials as OrgFinancials | null;
 
+  const hasCycles = (cycles?.length ?? 0) > 0;
+  const hasTrends = (trends?.length ?? 0) > 0;
+
   return (
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
         <p className="text-muted-foreground">Quality improvement operating system for {organization.name}</p>
       </div>
+
+      <OnboardingChecklist />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard title="Active PDSA Cycles" value={activePDSA} icon={FlaskConical} description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`} onClick={() => navigate("/dashboard/pdsa-lab")} />
@@ -321,6 +328,15 @@ export default function Dashboard() {
             <CardTitle className="text-base">UDS Measure Trends</CardTitle>
           </CardHeader>
           <CardContent>
+            {!hasTrends ? (
+              <EmptyState
+                icon={TrendingUp}
+                title="No UDS trend data yet"
+                description="Add your UDS clinical measure data to see trend charts and SPC analysis. Go to Settings to seed demo data or import your own."
+                actionLabel="Go to Settings"
+                onAction={() => navigate("/dashboard/settings")}
+              />
+            ) : (
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={trendChart}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
@@ -337,6 +353,7 @@ export default function Dashboard() {
                 <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" />
               </LineChart>
             </ResponsiveContainer>
+            )}
           </CardContent>
         </Card>
 

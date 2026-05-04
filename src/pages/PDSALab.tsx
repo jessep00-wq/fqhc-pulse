@@ -13,7 +13,8 @@ import { UDS_MEASURES, type StaffRole } from "@/data/mockData";
 import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download } from "lucide-react";
+import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -725,58 +726,68 @@ export default function PDSALab() {
         </div>
       </div>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-5 gap-4 overflow-x-auto">
-          {STATUS_COLUMNS.map((col) => {
-            const colCycles = cycles.filter((c) => c.status === col.key);
-            return (
-              <div key={col.key} className="min-w-[220px]">
-                <div className="flex items-center gap-2 mb-3">
-                  <Badge className={col.color}>{col.label}</Badge>
-                  <span className="text-xs text-muted-foreground">{colCycles.length}</span>
+      {cycles.length === 0 ? (
+        <EmptyState
+          icon={FlaskConical}
+          title="No PDSA cycles yet"
+          description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
+          actionLabel="Create Your First PDSA Cycle"
+          onAction={() => setNewOpen(true)}
+        />
+      ) : (
+        <DragDropContext onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-5 gap-4 overflow-x-auto">
+            {STATUS_COLUMNS.map((col) => {
+              const colCycles = cycles.filter((c) => c.status === col.key);
+              return (
+                <div key={col.key} className="min-w-[220px]">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Badge className={col.color}>{col.label}</Badge>
+                    <span className="text-xs text-muted-foreground">{colCycles.length}</span>
+                  </div>
+                  <Droppable droppableId={col.key}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`min-h-[120px] rounded-lg transition-colors ${snapshot.isDraggingOver ? "bg-primary/5 ring-2 ring-primary/20" : ""}`}
+                      >
+                        {colCycles.map((cycle, index) => (
+                          <Draggable key={cycle.id} draggableId={cycle.id} index={index}>
+                            {(provided, snapshot) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}
+                                onMouseDown={(e) => { dragStartPos.current = { x: e.clientX, y: e.clientY }; }}
+                                onMouseUp={(e) => {
+                                  if (dragStartPos.current) {
+                                    const dx = Math.abs(e.clientX - dragStartPos.current.x);
+                                    const dy = Math.abs(e.clientY - dragStartPos.current.y);
+                                    if (dx < 5 && dy < 5) setSelectedCycle(cycle);
+                                  }
+                                  dragStartPos.current = null;
+                                }}
+                              >
+                                <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                        {provided.placeholder}
+                        {colCycles.length === 0 && !snapshot.isDraggingOver && (
+                          <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">No cycles</div>
+                        )}
+                      </div>
+                    )}
+                  </Droppable>
                 </div>
-                <Droppable droppableId={col.key}>
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`min-h-[120px] rounded-lg transition-colors ${snapshot.isDraggingOver ? "bg-primary/5 ring-2 ring-primary/20" : ""}`}
-                    >
-                      {colCycles.map((cycle, index) => (
-                        <Draggable key={cycle.id} draggableId={cycle.id} index={index}>
-                          {(provided, snapshot) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}
-                              onMouseDown={(e) => { dragStartPos.current = { x: e.clientX, y: e.clientY }; }}
-                              onMouseUp={(e) => {
-                                if (dragStartPos.current) {
-                                  const dx = Math.abs(e.clientX - dragStartPos.current.x);
-                                  const dy = Math.abs(e.clientY - dragStartPos.current.y);
-                                  if (dx < 5 && dy < 5) setSelectedCycle(cycle);
-                                }
-                                dragStartPos.current = null;
-                              }}
-                            >
-                              <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                      {provided.placeholder}
-                      {colCycles.length === 0 && !snapshot.isDraggingOver && (
-                        <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">No cycles</div>
-                      )}
-                    </div>
-                  )}
-                </Droppable>
-              </div>
-            );
-          })}
-        </div>
-      </DragDropContext>
+              );
+            })}
+          </div>
+        </DragDropContext>
+      )}
 
       <CreatePDSAWizard open={newOpen} onClose={() => setNewOpen(false)} onCreate={(data) => createCycle.mutate(data)} />
       <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} />
