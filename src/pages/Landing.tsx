@@ -23,28 +23,28 @@ const complianceBadges = [
 
 const features = [
   {
-    icon: FlaskConical,
-    title: "HRSA OSV-Ready PDSA Tracking",
+    icon: FileCheck,
+    title: "One-Click HRSA / NCQA Evidence Packet",
     description:
-      "Structured Plan-Do-Study-Act cycles with built-in audit binder export — ready for your next Operational Site Visit.",
+      "Generate a print-ready audit binder for any date range: cycle log, task evidence, baseline-to-result deltas, lessons learned, and next-cycle linkages. Two weeks of prep, done in seconds.",
   },
   {
-    icon: ClipboardCheck,
-    title: "NCQA Q-PASS Evidence Collection",
+    icon: FlaskConical,
+    title: "Guided PDSA Methodology",
     description:
-      "Capture and organize the evidence NCQA requires for PCMH recognition, mapped to Q-PASS standards.",
+      "Walk your team through Aim → Prediction → Measurement → Test → Analysis → Decision with coaching prompts and pre-built templates for common FQHC use cases.",
   },
   {
     icon: BarChart3,
     title: "UDS Clinical Measure Dashboards",
     description:
-      "Track 20+ UDS measures with real-time trend analysis and SPC charts that surface special cause variation.",
+      "Track 20+ UDS measures with real-time trend analysis and SPC charts. Run charts are automatic — no chart-type decisions required.",
   },
   {
-    icon: FileCheck,
-    title: "One-Click Audit Binder Export",
+    icon: ClipboardCheck,
+    title: "NCQA Q-PASS Evidence Collection",
     description:
-      "Generate compliance-ready PDF binders for HRSA OSV, PCMH recertification, and board reporting in seconds.",
+      "Capture and organize the evidence NCQA requires for PCMH recognition, mapped directly to Q-PASS standards.",
   },
 ];
 
