@@ -65,6 +65,10 @@ export function TeamInviteSection() {
 
   const handleInvite = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canInviteUser) {
+      setUpgradeOpen(true);
+      return;
+    }
     if (!email.trim() || !email.includes("@")) {
       toast.error("Please enter a valid email address");
       return;
