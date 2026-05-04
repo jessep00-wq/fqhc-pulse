@@ -14,6 +14,7 @@ import {
   CheckCircle,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import dashboardPreview from "@/assets/dashboard-preview.jpg";
 
 const complianceBadges = [
   { label: "HRSA Chapter 10 Aligned", icon: Shield },
@@ -137,6 +138,19 @@ export default function Landing() {
             <Button size="lg" variant="outline" asChild className="text-base px-8">
               <Link to="/auth">Sign In</Link>
             </Button>
+          </div>
+        </div>
+
+        {/* Product Screenshot */}
+        <div className="max-w-5xl mx-auto mt-16">
+          <div className="rounded-xl border border-border shadow-2xl overflow-hidden">
+            <img
+              src={dashboardPreview}
+              alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking"
+              className="w-full"
+              width={1280}
+              height={720}
+            />
           </div>
         </div>
       </section>
