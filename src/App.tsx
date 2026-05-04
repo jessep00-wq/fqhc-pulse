@@ -22,6 +22,7 @@ import Onboarding from "./pages/Onboarding";
 import PersonaQIDirector from "./pages/PersonaQIDirector";
 import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
 import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
+import Pricing from "./pages/Pricing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
               <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
               <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
+              <Route path="/pricing" element={<Pricing />} />
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
               <Route
