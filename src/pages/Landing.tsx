@@ -14,10 +14,14 @@ import {
   CheckCircle,
   Menu,
   X,
+  Lock,
+  Download,
+  Eye,
 } from "lucide-react";
 import { useState } from "react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
+import founderPhoto from "@/assets/founder-jessica.png";
 
 const complianceBadges = [
   { label: "HRSA Chapter 10 Aligned", icon: Shield },
@@ -81,6 +85,15 @@ const stats = [
   { value: "HRSA", label: "Chapter 10 Aligned" },
   { value: "PCMH", label: "Q-PASS Ready" },
   { value: "$0", label: "Enterprise Sales Calls" },
+];
+
+const securityItems = [
+  { icon: Lock, label: "256-bit AES encryption at rest" },
+  { icon: Shield, label: "TLS 1.3 encryption in transit" },
+  { icon: Shield, label: "SOC 2 Type II compliant infrastructure" },
+  { icon: Lock, label: "HIPAA-ready architecture with BAA available" },
+  { icon: Shield, label: "Role-based access controls (RBAC)" },
+  { icon: Lock, label: "No PHI stored — only aggregate QI metrics" },
 ];
 
 export default function Landing() {
@@ -194,9 +207,46 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Sample Export Preview */}
+      <section className="py-20 px-6 bg-muted/30">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
+          <div className="space-y-3">
+            <h2 className="text-3xl font-bold text-foreground">
+              See what MeasureWise produces
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+              Download a sample HRSA audit binder — the same format your health center
+              will generate in one click after completing a PDSA cycle.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <a href="/MeasureWise_Sample_Export.pdf" target="_blank" rel="noopener noreferrer">
+                <Eye className="mr-2 h-4 w-4" /> Preview Sample Export (PDF)
+              </a>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <a href="/MeasureWise_Sample_Export.docx" download>
+                <Download className="mr-2 h-4 w-4" /> Download Sample Export (Word)
+              </a>
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            This is a sample preview binder with example data. Your actual exports will reflect your health center's real QI activity.
+          </p>
+        </div>
+      </section>
+
       {/* Founder Authority */}
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
+          <div className="flex justify-center">
+            <img
+              src={founderPhoto}
+              alt="Jessica R. Smith, Founder of MeasureWise"
+              className="h-24 w-24 rounded-full object-cover border-2 border-primary/20 shadow-md"
+            />
+          </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
             Why I Built <span className="text-primary">MeasureWise</span>
           </h2>
@@ -209,7 +259,7 @@ export default function Landing() {
             in front of a site-visit reviewer. This is the tool I wish I had.
           </p>
           <p className="text-sm text-muted-foreground/70 italic">
-            — The MeasureWise Team
+            — Jessica R. Smith, BSN · Founder, MeasureWise
           </p>
         </div>
       </section>
@@ -248,8 +298,37 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Security & Compliance */}
+      <section className="py-20 px-6 border-y border-border bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground">
+              Your data security is non-negotiable
+            </h2>
+            <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
+              MeasureWise is built on enterprise-grade infrastructure designed for healthcare organizations.
+              We never store protected health information (PHI) — only aggregate quality improvement metrics.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {securityItems.map((item) => (
+              <div
+                key={item.label}
+                className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
+              >
+                <item.icon className="h-5 w-5 text-primary shrink-0" />
+                <span className="text-sm text-foreground">{item.label}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-center text-sm text-muted-foreground mt-8">
+            Need a Business Associate Agreement (BAA)? <Link to="/auth?signup=true" className="text-primary hover:underline">Contact us</Link> after signing up and we'll have one ready within 48 hours.
+          </p>
+        </div>
+      </section>
+
       {/* Persona section */}
-      <section className="py-24 px-6 bg-muted/30">
+      <section className="py-24 px-6">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-foreground">
