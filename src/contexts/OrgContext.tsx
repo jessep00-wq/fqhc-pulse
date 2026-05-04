@@ -12,6 +12,7 @@ interface OrgContextType {
   organization: Organization;
   loading: boolean;
   hasOrg: boolean;
+  refetchOrg: () => void;
 }
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
@@ -22,6 +23,10 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [organization, setOrganization] = useState<Organization>(fallbackOrg);
   const [loading, setLoading] = useState(true);
+
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  const refetchOrg = () => setRefreshKey((k) => k + 1);
 
   useEffect(() => {
     if (!user) {
@@ -53,12 +58,12 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     };
 
     fetchOrg();
-  }, [user]);
+  }, [user, refreshKey]);
 
   const hasOrg = !!organization.id && organization.id !== "";
 
   return (
-    <OrgContext.Provider value={{ organization, loading, hasOrg }}>
+    <OrgContext.Provider value={{ organization, loading, hasOrg, refetchOrg }}>
       {children}
     </OrgContext.Provider>
   );
