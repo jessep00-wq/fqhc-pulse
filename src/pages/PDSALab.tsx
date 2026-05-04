@@ -643,6 +643,7 @@ export default function PDSALab() {
   const [binderCycle, setBinderCycle] = useState<DBCycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
   const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
 
   const { data: cycles = [], isLoading } = useQuery({
