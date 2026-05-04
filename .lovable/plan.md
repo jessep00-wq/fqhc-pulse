@@ -1,43 +1,75 @@
 
-# Reposition Landing Page for FQHC/CHC/PCMH Audiences
+# Guided PDSA Methodology: Replace Statistical Literacy with Coaching
 
 ## Overview
 
-Overhaul the landing page and add three persona-specific landing pages based on the positioning strategy: lead with HRSA Chapter 10, NCQA PCMH Q-PASS, and UDS-reporting language. Target QI Directors, PCMH Coordinators, and CHC Operations Managers.
+Transform the PDSA creation and detail experience from blank form fields into a step-by-step methodology coach that walks users through **Aim → Prediction → Measurement Plan → Test → Analysis → Decision** with inline coaching tips, plain-language prompts, and pre-built templates by common FQHC use case.
 
-## Changes
+## Database Migration
 
-### 1. Revamp `src/pages/Landing.tsx`
+Add new guided-methodology columns to `pdsa_cycles`:
 
-- **Hero**: Change headline to *"The PDSA tracker built for FQHCs, CHCs, and PCMH-recognized clinics"* with subtext: *"HRSA-aligned, audit-ready, and priced for community health budgets."*
-- **Social proof badges**: Add pill badges for "HRSA Chapter 10 Aligned", "NCQA PCMH Q-PASS Ready", "UDS-Friendly Reporting"
-- **Features section**: Rewrite feature cards to lead with regulatory/compliance value (e.g., "HRSA OSV-Ready PDSA Tracking", "NCQA Q-PASS Evidence Collection", "UDS Clinical Measure Dashboards", "Audit Binder Export")
-- **Persona navigation**: Add a "Built for your role" section with three cards linking to persona pages (QI Director, PCMH Coordinator, CHC Ops Manager)
-- **CTA**: Update to *"Start your free PDSA tracker — no enterprise sales call required"*
+- `aim_statement` (text) — "What are we trying to accomplish?"
+- `prediction` (text) — "What do we think will happen?"
+- `measurement_plan` (text) — "How will we know a change is an improvement?"
+- `test_description` (text) — "What are we testing and on what scale?"
+- `analysis_summary` (text) — "What did the data tell us?"
+- `decision` (text) — "Adopt, Adapt, or Abandon?"
+- `template_id` (text) — which pre-built template was used, if any
 
-### 2. Create three persona landing pages
+Existing columns (`root_cause`, `target_goal`, `clinical_workflow_impact`, `study_results`, `what_worked`, `what_didnt_work`, `act_next_steps`) remain for backward compatibility but the UI will guide users through the new structured fields instead.
 
-Each page follows the same template structure but with persona-specific messaging:
+## UI Changes
 
-- **`src/pages/PersonaQIDirector.tsx`** — For QI Directors at FQHCs. Emphasizes UDS measure tracking, SPC charts, HRSA Quality Award tier impact, and PDSA cycle management.
-- **`src/pages/PersonaPCMHCoordinator.tsx`** — For PCMH Coordinators. Emphasizes NCQA Q-PASS evidence requirements, documentation workflows, and audit readiness.
-- **`src/pages/PersonaCHCOpsManager.tsx`** — For CHC Operations Managers. Emphasizes cost savings vs. enterprise QI tools, staff task management, and financial impact tracking.
+### 1. Redesign `CreatePDSADialog` → Guided Wizard
 
-Each page includes: persona-specific hero, 3-4 tailored feature highlights, a "How it works" section, and a CTA to sign up.
+Replace the current flat form with a multi-step wizard:
 
-### 3. Add routes in `src/App.tsx`
+- **Step 1 — Choose Template or Start Blank**: Cards for common FQHC use cases (A1C Screening, Depression Screening, No-Show Reduction, Medication Reconciliation, Immunization Rates, Cervical Cancer Screening). Selecting one pre-fills subsequent steps.
+- **Step 2 — Aim**: "What are we trying to accomplish?" with coaching tip and example text.
+- **Step 3 — Prediction**: "What do you think will happen when you make this change?" with coaching.
+- **Step 4 — Measurement Plan**: "How will you know a change is an improvement? What data will you collect?" Auto-links to UDS measure selector.
+- **Step 5 — Test Plan**: "Describe the test. Who, what, when, where? Start small." Includes staff assignment.
+- **Step 6 — Review & Create**: Summary card showing all inputs before creating.
 
-Add three new public routes:
-- `/for/qi-directors`
-- `/for/pcmh-coordinators`  
-- `/for/operations-managers`
+Each step has:
+- A plain-language question as the heading
+- A coaching tip in a subtle callout (e.g., "Tip: Keep your aim specific and measurable. Good example: 'Increase A1C screening rate from 52% to 65% by March.'")
+- Pre-filled example text when a template is selected
 
-### Files to create/modify
+### 2. Redesign `PDSADetailDialog` tabs
+
+Rename the 4 tabs from Plan/Do/Study/Act to methodology-aligned labels:
+
+- **Aim & Plan** (replaces Plan): Shows aim statement, prediction, measurement plan, UDS measure, staff
+- **Test** (replaces Do): Shows test description, tasks, inline coaching about small-scale testing
+- **Analyze** (replaces Study): Shows analysis summary with coaching prompts ("Did the results match your prediction?"), plus the existing results/what-worked/what-didn't fields
+- **Decide** (replaces Act): Shows decision field with three clear options (Adopt / Adapt / Abandon) as selectable cards with explanations, plus next steps and clone/complete actions
+
+### 3. Pre-built templates
+
+Defined as static data (no DB needed). Each template pre-fills: title, aim statement, prediction, measurement plan, test description, UDS measure, and assigned staff roles.
+
+Templates:
+- A1C Screening (CMS122)
+- Depression Screening (CMS2v12)
+- No-Show Reduction
+- Medication Reconciliation
+- Immunization Rates
+- Cervical Cancer Screening (CMS124)
+
+## Files to modify/create
 
 | File | Action |
 |------|--------|
-| `src/pages/Landing.tsx` | Rewrite hero, features, add persona section |
-| `src/pages/PersonaQIDirector.tsx` | Create |
-| `src/pages/PersonaPCMHCoordinator.tsx` | Create |
-| `src/pages/PersonaCHCOpsManager.tsx` | Create |
-| `src/App.tsx` | Add 3 new routes |
+| `supabase migration` | Add 7 new columns to pdsa_cycles |
+| `src/data/pdsaTemplates.ts` | Create — pre-built PDSA templates |
+| `src/pages/PDSALab.tsx` | Rewrite CreatePDSADialog as guided wizard |
+| `src/components/PDSADetailDialog.tsx` | Redesign tabs with methodology labels and coaching |
+
+## What stays the same
+
+- Kanban board layout and drag-and-drop
+- Audit binder export
+- Task management within cycles
+- SPC charts (still available on dashboard, just not required during PDSA creation)
