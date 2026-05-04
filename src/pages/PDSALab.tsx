@@ -714,10 +714,15 @@ export default function PDSALab() {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & OSV Audit Binder</h1>
-          <p className="text-muted-foreground">Guided quality improvement cycles — from aim to decision</p>
+          <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & Evidence Packet</h1>
+          <p className="text-muted-foreground">Guided quality improvement cycles — walk into your next site visit ready</p>
         </div>
-        <Button onClick={() => setNewOpen(true)}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
+            <Download className="h-4 w-4 mr-1" /> Evidence Packet
+          </Button>
+          <Button onClick={() => setNewOpen(true)}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
+        </div>
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
