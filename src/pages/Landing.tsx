@@ -124,9 +124,9 @@ export default function Landing() {
             <span className="text-primary">FQHCs, CHCs & PCMH Clinics</span>
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            HRSA-aligned, audit-ready, and priced for community health budgets.
-            Track UDS measures, manage PDSA cycles, and export compliance binders
-            — no enterprise sales call required.
+            Walk into your next HRSA site visit with your PDSA binder already generated.
+            One-click evidence packets, guided PDSA cycles, and UDS dashboards
+            — built for community health budgets.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" asChild className="text-base px-8">
