@@ -390,6 +390,23 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Contact Form */}
+      <section id="contact" className="py-20 px-6 bg-background">
+        <div className="max-w-2xl mx-auto space-y-6">
+          <div className="text-center space-y-2">
+            <h2 className="text-3xl font-bold text-foreground">
+              Questions? Let's Talk.
+            </h2>
+            <p className="text-muted-foreground">
+              Whether you're exploring QI tools for the first time or switching from spreadsheets, we're here to help.
+            </p>
+          </div>
+          <Card className="p-6">
+            <ContactForm />
+          </Card>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
