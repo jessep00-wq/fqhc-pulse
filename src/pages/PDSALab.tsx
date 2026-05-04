@@ -809,6 +809,12 @@ export default function PDSALab() {
       <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} />
       <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
       <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
+      <UpgradePrompt
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="Free Plan Limit Reached"
+        description={`Your free plan includes up to 3 active PDSA cycles. Upgrade to Solo Clinic or higher for unlimited cycles, watermark-free exports, and more.`}
+      />
     </div>
   );
 }
