@@ -63,7 +63,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const hasOrg = !!organization.id && organization.id !== "";
 
   return (
-    <OrgContext.Provider value={{ organization, loading, hasOrg }}>
+    <OrgContext.Provider value={{ organization, loading, hasOrg, refetchOrg }}>
       {children}
     </OrgContext.Provider>
   );
