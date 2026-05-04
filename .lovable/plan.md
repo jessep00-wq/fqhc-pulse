@@ -1,50 +1,21 @@
+## Fix: Replace Lovable default branding in index.html
 
-## Two Issues to Fix
+All meta tags currently show "Lovable Generated Project" defaults. This affects link previews on LinkedIn, Slack, Discord, and search results.
 
-### 1. UDS Clinical Measures — No Way to Upload
+### Changes to `index.html`
 
-Currently, UDS trend data only comes from the `seed_demo_data` function. There's no UI to add or manage real measures.
+1. **Remove** the TODO comments and `<meta name="author" content="Lovable" />`
+2. **Update description** to: `"MeasureWise™ — Quality operations, simplified for FQHCs. Link clinical improvements to financial outcomes."`
+3. **Update OG/Twitter descriptions** to match
+4. **Remove** `twitter:site` pointing to `@Lovable`
+5. **Generate a branded OG image** (1200×630) with:
+   - Teal background matching brand palette
+   - MeasureWise™ logo and tagline
+   - Clean, professional layout
+   - Save to `public/og-image.png`
+6. **Point `og:image` and `twitter:image`** to `/og-image.png` (relative, served from the domain)
+7. **Add `og:url`** pointing to `https://measurewise.org`
 
-**Plan:**
-- Add a "Manage UDS Data" section to the Settings page with:
-  - A form to manually add UDS measure entries (measure ID, month, value)
-  - A table showing existing entries with the ability to view them
-  - A CSV upload option so users can bulk-import UDS data (measure_id, month, value columns)
-- Add an UPDATE RLS policy on `uds_trends` so users can edit their org's data
-- Add a DELETE RLS policy on `uds_trends` so users can remove incorrect entries
+### Result
 
-### 2. Organization Name & NPI — Read-Only
-
-The Settings page (line 137) shows org info as read-only text. The `organizations` table also has no UPDATE RLS policy.
-
-**Plan:**
-- Add an UPDATE RLS policy on `organizations` allowing members to update their own org
-- Convert the Organization card in Settings from read-only display to editable fields (name + NPI) with a Save button
-- Update OrgContext to expose a `refetchOrg` function so the sidebar/header reflects changes immediately
-
-### Technical Details
-
-**Migration:**
-```sql
--- Allow org members to update their organization
-CREATE POLICY "Users can update own org"
-  ON public.organizations FOR UPDATE TO authenticated
-  USING (id = get_user_org_id(auth.uid()))
-  WITH CHECK (id = get_user_org_id(auth.uid()));
-
--- Allow org members to update their UDS trends
-CREATE POLICY "Users can update org trends"
-  ON public.uds_trends FOR UPDATE TO authenticated
-  USING (organization_id = get_user_org_id(auth.uid()))
-  WITH CHECK (organization_id = get_user_org_id(auth.uid()));
-
--- Allow org members to delete their UDS trends
-CREATE POLICY "Users can delete org trends"
-  ON public.uds_trends FOR DELETE TO authenticated
-  USING (organization_id = get_user_org_id(auth.uid()));
-```
-
-**Files changed:**
-- `src/pages/Settings.tsx` — Add editable org fields + UDS data management section
-- `src/contexts/OrgContext.tsx` — Add `refetchOrg` to context
-- New migration for RLS policies
+Any shared link will preview with the MeasureWise brand, tagline, and a professional image instead of Lovable defaults.
