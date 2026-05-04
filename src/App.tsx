@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { OrgProvider } from "@/contexts/OrgContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import PDSALab from "./pages/PDSALab";
@@ -35,37 +36,41 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
-              <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
-              <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
-              <Route path="/pricing" element={<Pricing />} />
-              <Route path="/terms" element={<TermsOfService />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route
-                path="/dashboard/*"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Routes>
-                        <Route path="/" element={<Index />} />
-                        <Route path="/pdsa-lab" element={<PDSALab />} />
-                        <Route path="/playbooks" element={<PlaybookLibrary />} />
-                        <Route path="/ai-assistant" element={<AIAssistant />} />
-                        <Route path="/staff-tasks" element={<StaffTasks />} />
-                        <Route path="/settings" element={<Settings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+            <ErrorBoundary>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
+                <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
+                <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
+                <Route path="/pricing" element={<Pricing />} />
+                <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route
+                  path="/dashboard/*"
+                  element={
+                    <ProtectedRoute>
+                      <AppLayout>
+                        <ErrorBoundary>
+                          <Routes>
+                            <Route path="/" element={<Index />} />
+                            <Route path="/pdsa-lab" element={<PDSALab />} />
+                            <Route path="/playbooks" element={<PlaybookLibrary />} />
+                            <Route path="/ai-assistant" element={<AIAssistant />} />
+                            <Route path="/staff-tasks" element={<StaffTasks />} />
+                            <Route path="/settings" element={<Settings />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </ErrorBoundary>
+                      </AppLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ErrorBoundary>
           </BrowserRouter>
         </TooltipProvider>
       </OrgProvider>
