@@ -9,7 +9,7 @@ import {
   Shield,
   ArrowLeft,
 } from "lucide-react";
-import qualityosLogo from "@/assets/qualityos_logo_v1.png";
+import measurewiseLogo from "@/assets/measurewise-logo.png";
 
 const tiers = [
   {
@@ -95,7 +95,7 @@ export default function Pricing() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={qualityosLogo} alt="QualityOS" className="h-9" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild>
@@ -231,7 +231,7 @@ export default function Pricing() {
               },
               {
                 q: "How does this compare to KaiNexus or RLDatix?",
-                a: "Those platforms charge per user and hide pricing behind a sales call. QualityOS publishes transparent per-site pricing that's typically 60-80% less for an FQHC.",
+                a: "Those platforms charge per user and hide pricing behind a sales call. MeasureWise publishes transparent per-site pricing that's typically 60-80% less for an FQHC.",
               },
             ].map((faq) => (
               <div key={faq.q}>
@@ -261,7 +261,7 @@ export default function Pricing() {
       {/* Footer */}
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} QualityOS. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>

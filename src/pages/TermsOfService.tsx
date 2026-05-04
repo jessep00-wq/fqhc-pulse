@@ -19,21 +19,21 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold">1. Acceptance of Terms</h2>
             <p className="text-muted-foreground leading-relaxed">
-              By accessing or using QualityOS ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. QualityOS is a quality improvement management platform designed for Federally Qualified Health Centers (FQHCs) and community health organizations.
+              By accessing or using MeasureWise ("the Service"), you agree to be bound by these Terms of Service. If you do not agree, do not use the Service. MeasureWise is a quality improvement management platform designed for Federally Qualified Health Centers (FQHCs) and community health organizations.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold">2. Description of Service</h2>
             <p className="text-muted-foreground leading-relaxed">
-              QualityOS provides tools for managing PDSA cycles, tracking UDS clinical quality measures, generating SPC analytics, and accessing quality improvement playbooks. The Service is intended for quality improvement (QI) purposes and is not a clinical decision support system or electronic health record (EHR).
+              MeasureWise provides tools for managing PDSA cycles, tracking UDS clinical quality measures, generating SPC analytics, and accessing quality improvement playbooks. The Service is intended for quality improvement (QI) purposes and is not a clinical decision support system or electronic health record (EHR).
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold">3. Data Handling</h2>
             <p className="text-muted-foreground leading-relaxed">
-              QualityOS is designed to handle aggregate quality improvement data, not individual Protected Health Information (PHI). Users must not enter individually identifiable patient data into the platform. If your organization requires handling of PHI-adjacent data, please contact us to discuss a Business Associate Agreement (BAA).
+              MeasureWise is designed to handle aggregate quality improvement data, not individual Protected Health Information (PHI). Users must not enter individually identifiable patient data into the platform. If your organization requires handling of PHI-adjacent data, please contact us to discuss a Business Associate Agreement (BAA).
             </p>
           </section>
 
@@ -54,7 +54,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold">6. Limitation of Liability</h2>
             <p className="text-muted-foreground leading-relaxed">
-              QualityOS is provided "as is" without warranties of any kind. We shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service. The Service does not provide medical advice and should not be used as a substitute for professional clinical judgment.
+              MeasureWise is provided "as is" without warranties of any kind. We shall not be liable for any indirect, incidental, or consequential damages arising from your use of the Service. The Service does not provide medical advice and should not be used as a substitute for professional clinical judgment.
             </p>
           </section>
 
@@ -68,7 +68,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold">8. Contact</h2>
             <p className="text-muted-foreground leading-relaxed">
-              For questions about these Terms, please contact the QualityOS team through your organization's administrator.
+              For questions about these Terms, please contact the MeasureWise team through your organization's administrator.
             </p>
           </section>
         </div>

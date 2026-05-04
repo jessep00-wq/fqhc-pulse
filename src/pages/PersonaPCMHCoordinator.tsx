@@ -10,7 +10,7 @@ import {
   CheckCircle,
   ArrowLeft,
 } from "lucide-react";
-import qualityosLogo from "@/assets/qualityos_logo_v1.png";
+import measurewiseLogo from "@/assets/measurewise-logo.png";
 
 const features = [
   {
@@ -40,7 +40,7 @@ const features = [
 ];
 
 const steps = [
-  { step: "1", title: "Map your Q-PASS requirements", description: "QualityOS knows the NCQA standards — just confirm which apply to your clinic." },
+  { step: "1", title: "Map your Q-PASS requirements", description: "MeasureWise knows the NCQA standards — just confirm which apply to your clinic." },
   { step: "2", title: "Document as you go", description: "Capture evidence within your daily QI workflow instead of retroactive documentation." },
   { step: "3", title: "Track readiness status", description: "See which standards are covered, which need attention, and what's overdue." },
   { step: "4", title: "Export for recertification", description: "One-click audit binder with all evidence organized by NCQA standard." },
@@ -52,7 +52,7 @@ export default function PersonaPCMHCoordinator() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={qualityosLogo} alt="QualityOS" className="h-9" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild><Link to="/auth">Sign In</Link></Button>
@@ -79,7 +79,7 @@ export default function PersonaPCMHCoordinator() {
             <span className="text-primary">every single day</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Stop scrambling before recertification. QualityOS maps your QI activities directly to
+            Stop scrambling before recertification. MeasureWise maps your QI activities directly to
             NCQA Q-PASS evidence requirements so you're always prepared.
           </p>
           <Button size="lg" asChild className="text-base px-8">
@@ -145,7 +145,7 @@ export default function PersonaPCMHCoordinator() {
 
       <footer className="border-t border-border py-8 px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} QualityOS. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
           <div className="flex gap-6">
             <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
             <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
