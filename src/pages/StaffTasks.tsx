@@ -16,7 +16,8 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
-import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2, Plus, CalendarIcon } from "lucide-react";
+import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2, Plus, CalendarIcon, Users } from "lucide-react";
+import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 
@@ -309,6 +310,28 @@ export default function StaffTasks() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if ((tasks as DBTask[]).length === 0) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Staff Accountability & Task Routing</h1>
+            <p className="text-muted-foreground">Track task assignments and workflow acknowledgment compliance</p>
+          </div>
+          <Button onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1" /> Add Task</Button>
+        </div>
+        <EmptyState
+          icon={Users}
+          title="No tasks assigned yet"
+          description="Create tasks and assign them to staff roles. Link tasks to PDSA cycles to track accountability and build audit evidence."
+          actionLabel="Create Your First Task"
+          onAction={() => setAddOpen(true)}
+        />
+        <AddTaskDialog open={addOpen} onClose={() => setAddOpen(false)} cycles={cycles} />
       </div>
     );
   }
