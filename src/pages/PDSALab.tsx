@@ -734,7 +734,7 @@ export default function PDSALab() {
           <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
             <Download className="h-4 w-4 mr-1" /> Evidence Packet
           </Button>
-          <Button onClick={() => setNewOpen(true)}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
+          <Button onClick={handleNewCycle}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
         </div>
       </div>
 
