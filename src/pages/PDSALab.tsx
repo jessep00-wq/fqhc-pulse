@@ -14,6 +14,8 @@ import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical } from "lucide-react";
+import { useTierLimits } from "@/hooks/useTierLimits";
+import { UpgradePrompt, UpgradeBanner } from "@/components/UpgradePrompt";
 import { EmptyState } from "@/components/EmptyState";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
