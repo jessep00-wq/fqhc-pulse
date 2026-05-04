@@ -649,6 +649,15 @@ export default function PDSALab() {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const { canCreateCycle, cyclesRemaining, isFreeTier } = useTierLimits();
+
+  const handleNewCycle = () => {
+    if (!canCreateCycle) {
+      setUpgradeOpen(true);
+      return;
+    }
+    setNewOpen(true);
+  };
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
