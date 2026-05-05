@@ -1,26 +1,25 @@
 
 ## Problem
 
-Google Search Console reports "Sitemap is HTML" because Lovable's hosting serves `sitemap.xml` with a `text/html` Content-Type header. Google cannot parse it, so 0 pages are discovered.
+Google Search Console rejects the sitemap because:
+1. The edge function URL is external — GSC only accepts sitemaps on your own domain
+2. The `.xml` file on measurewise.org is served with `text/html` Content-Type (Lovable hosting limitation)
 
 ## Solution
 
-Create a backend function that serves the sitemap with the correct `application/xml` Content-Type. Then update `robots.txt` to point to the function URL instead.
+Use a **plain text sitemap** (`sitemap.txt`). Google fully supports this format — it's just one URL per line. Text files are served with `text/plain`, which Google accepts without issues.
 
 ### Changes
 
 | File | Change |
 |------|--------|
-| `supabase/functions/sitemap/index.ts` | New edge function that returns the sitemap XML with `Content-Type: application/xml` |
-| `public/robots.txt` | Update Sitemap URL to point to the edge function |
-| `index.html` | Update any sitemap references in JSON-LD or meta tags |
+| `public/sitemap.txt` | New file — one URL per line listing all 9 public pages |
+| `public/robots.txt` | Update Sitemap line to `https://measurewise.org/sitemap.txt` |
 
-### How it works
+### What to do after
 
-1. The edge function returns the same sitemap XML content but with the correct `Content-Type: application/xml` header.
-2. `robots.txt` will point Google to the function URL (e.g., `https://eeyigxcwewdqfeidqbxk.supabase.co/functions/v1/sitemap`).
-3. We keep `public/sitemap.xml` as a fallback but the canonical reference will be the function.
+In Google Search Console:
+1. Delete the old sitemap entries (`/sitemap.xml` and `/sitemap`)
+2. Submit `https://measurewise.org/sitemap.txt`
 
-### Alternative considered
-
-We could also try adding a `_headers` file in `public/`, but Lovable's hosting does not support custom header configuration, so the edge function approach is the reliable fix.
+The existing `sitemap.xml` and edge function can stay as-is — they don't hurt anything.
