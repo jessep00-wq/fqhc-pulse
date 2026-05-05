@@ -47,6 +47,7 @@ const App = () => (
                 <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
                 <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/status" element={<Status />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route
