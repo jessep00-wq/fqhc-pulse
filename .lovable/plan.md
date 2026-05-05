@@ -1,56 +1,26 @@
 
-# SEO Optimization Plan
+## Problem
 
-## What we're building
+Google Search Console reports "Sitemap is HTML" because Lovable's hosting serves `sitemap.xml` with a `text/html` Content-Type header. Google cannot parse it, so 0 pages are discovered.
 
-A complete SEO overhaul so MeasureWise ranks in Google and appears in AI search results (ChatGPT, Perplexity, etc.) for your target FQHC keywords.
+## Solution
 
----
+Create a backend function that serves the sitemap with the correct `application/xml` Content-Type. Then update `robots.txt` to point to the function URL instead.
 
-## 1. Keyword-Rich Meta Tags in `index.html`
-
-Update the `<head>` with your primary keywords baked into the title, description, and a new `<meta name="keywords">` tag:
-
-- **Title**: "MeasureWise™ — FQHC Quality Improvement & UDS Reporting Software"
-- **Description**: Incorporates: fqhc quality improvement, uds reporting software, healthcare quality operations, clinical quality management, pdsa cycles in healthcare, fqhc performance metrics, ai for clinical improvement, value-based care reporting, healthcare compliance software, patient outcomes tracking
-- **OG/Twitter tags**: Updated to match
-
-## 2. JSON-LD Structured Data (Schema.org)
-
-Add a `<script type="application/ld+json">` block in `index.html` with `SoftwareApplication` schema so Google and ChatGPT understand MeasureWise is a SaaS product for FQHCs. Includes:
-- Product name, description, category
-- Target audience (healthcare / FQHCs)
-- Pricing info (freemium)
-- Organization schema with logo
-
-## 3. Sitemap & Robots.txt
-
-- **Create `public/sitemap.xml`** listing all public routes: `/`, `/auth`, `/pricing`, `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/operations-managers`, `/terms`, `/privacy`, `/status`
-- **Update `public/robots.txt`** to reference the sitemap URL and add `Sitemap: https://measurewise.org/sitemap.xml`
-
-## 4. Public Status Page (`/status`)
-
-Create a new `src/pages/Status.tsx` page at route `/status` showing:
-- System health indicators (API, Database, Auth — all showing "Operational")
-- Current uptime percentage
-- A clean, branded design matching MeasureWise's teal theme
-- This satisfies the "CMS status page" gap your report flagged and signals enterprise-readiness to search engines and buyers
-
-## 5. Landing Page Keyword Density
-
-Weave remaining keywords naturally into the Landing page content:
-- Add an "FQHC Solutions" section or adjust existing copy to include: "federally qualified health center solutions", "healthcare data analytics", "clinical operations software", "fqhc consulting services", "uds tracking for fqhcs"
-- These appear as natural text, not keyword stuffing
-
----
-
-## Files changed
+### Changes
 
 | File | Change |
 |------|--------|
-| `index.html` | Meta tags, keywords, JSON-LD structured data |
-| `public/robots.txt` | Add sitemap reference |
-| `public/sitemap.xml` | New file with all public routes |
-| `src/pages/Status.tsx` | New public status page |
-| `src/pages/Landing.tsx` | Keyword-enriched copy in existing sections |
-| `src/App.tsx` | Add `/status` route |
+| `supabase/functions/sitemap/index.ts` | New edge function that returns the sitemap XML with `Content-Type: application/xml` |
+| `public/robots.txt` | Update Sitemap URL to point to the edge function |
+| `index.html` | Update any sitemap references in JSON-LD or meta tags |
+
+### How it works
+
+1. The edge function returns the same sitemap XML content but with the correct `Content-Type: application/xml` header.
+2. `robots.txt` will point Google to the function URL (e.g., `https://eeyigxcwewdqfeidqbxk.supabase.co/functions/v1/sitemap`).
+3. We keep `public/sitemap.xml` as a fallback but the canonical reference will be the function.
+
+### Alternative considered
+
+We could also try adding a `_headers` file in `public/`, but Lovable's hosting does not support custom header configuration, so the edge function approach is the reliable fix.
