@@ -22,4 +22,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://eeyigxcwewdqfeidqbxk.supabase.co/functions/v1/sitemap
+Sitemap: https://measurewise.org/sitemap.txt
