@@ -62,21 +62,21 @@ const personas = [
     icon: LineChart,
     title: "QI Directors",
     description:
-      "Track UDS measures, run PDSA cycles, and quantify your HRSA Quality Award tier impact — all in one view.",
+      "Clinical quality management made simple — track UDS measures, run PDSA cycles, and quantify HRSA Quality Award impact with AI for clinical improvement.",
     link: "/for/qi-directors",
   },
   {
     icon: ClipboardCheck,
     title: "PCMH Coordinators",
     description:
-      "Organize Q-PASS evidence, manage documentation workflows, and stay audit-ready year-round.",
+      "Federally qualified health center solutions for Q-PASS evidence, documentation workflows, and year-round audit readiness.",
     link: "/for/pcmh-coordinators",
   },
   {
     icon: DollarSign,
     title: "CHC Operations Managers",
     description:
-      "Replace expensive enterprise QI tools, manage staff tasks, and track financial impact on community health budgets.",
+      "Replace expensive tools with clinical operations software that tracks value-based care reporting, staff tasks, and financial impact.",
     link: "/for/operations-managers",
   },
 ];
