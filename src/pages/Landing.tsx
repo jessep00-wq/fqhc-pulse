@@ -35,25 +35,25 @@ const features = [
     icon: FileCheck,
     title: "One-Click HRSA / NCQA Evidence Packet",
     description:
-      "Generate a print-ready audit binder for any date range: cycle log, task evidence, baseline-to-result deltas, lessons learned, and next-cycle linkages. Two weeks of prep, done in seconds.",
+      "Generate a print-ready audit binder for healthcare compliance software needs: cycle log, task evidence, baseline-to-result deltas, and next-cycle linkages. Two weeks of prep, done in seconds.",
   },
   {
     icon: FlaskConical,
-    title: "Guided PDSA Methodology",
+    title: "Guided PDSA Cycles in Healthcare",
     description:
-      "Walk your team through Aim → Prediction → Measurement → Test → Analysis → Decision with coaching prompts and pre-built templates for common FQHC use cases.",
+      "Walk your team through Aim → Prediction → Measurement → Test → Analysis → Decision with coaching prompts and pre-built templates for FQHC quality improvement.",
   },
   {
     icon: BarChart3,
-    title: "UDS Clinical Measure Dashboards",
+    title: "UDS Tracking for FQHCs",
     description:
-      "Track 20+ UDS measures with real-time trend analysis and SPC charts. Run charts are automatic — no chart-type decisions required.",
+      "Healthcare data analytics for 20+ UDS measures with real-time trend analysis and SPC charts. FQHC performance metrics and patient outcomes tracking — automated.",
   },
   {
     icon: ClipboardCheck,
     title: "NCQA Q-PASS Evidence Collection",
     description:
-      "Capture and organize the evidence NCQA requires for PCMH recognition, mapped directly to Q-PASS standards.",
+      "Clinical operations software that captures and organizes the evidence NCQA requires for PCMH recognition, mapped directly to Q-PASS standards.",
   },
 ];
 
