@@ -98,7 +98,7 @@ export default function PlaybookLibrary() {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
       setSelected(null);
       toast.success("Playbook deployed to PDSA Lab");
-      navigate("/pdsa-lab");
+      navigate("/dashboard/pdsa-lab");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to deploy playbook"),
   });
