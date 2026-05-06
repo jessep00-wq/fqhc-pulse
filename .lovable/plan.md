@@ -1,49 +1,61 @@
 
-## Three changes across messaging, data model, and retention
+## Add keyword-targeted feature pages and blog for SEO
+
+The app is a client-side SPA — Google must execute JS to see content. While Googlebot can render JS, it's slower and less reliable than static HTML. We'll address this with two approaches: (1) keyword-rich content pages, and (2) a Vite prerender plugin that generates static HTML at build time so crawlers get fully rendered pages.
 
 ---
 
-### 1. Rewrite the hero section (Landing.tsx)
+### 1. Install `vite-plugin-prerender` for static HTML generation
 
-Replace the current headline and sub-headline with sharper, financially-grounded copy:
+Add a Vite plugin that renders key public pages to static HTML at build time. This gives Google real HTML to crawl instead of an empty `<div id="root">`.
 
-- **Headline**: "Every PDSA cycle you run should move a UDS measure. Now you can prove it."
-- **Sub-headline**: "Link your quality improvement work to UDS scores and HRSA funding outcomes — with guided PDSA cycles, real-time measure tracking, and one-click audit binders. Built for FQHCs. No sales call required."
-- Update the `<meta>` description in `index.html` to match
-- Update the static no-JS fallback in `index.html` to match
-
----
-
-### 2. Add UDS measure targets + upgrade weekly digest
-
-**Database migration** — add a `target` column to `uds_trends` (or a new `uds_targets` table with `measure_id`, `organization_id`, `target_value`) so the digest can say "3 points below target" instead of just showing a generic trend arrow.
-
-A lightweight `uds_targets` table is cleaner:
-
-| Column | Type |
-|--------|------|
-| id | uuid PK |
-| organization_id | uuid FK |
-| measure_id | text |
-| target_value | numeric |
-| created_at | timestamptz |
-
-**Upgrade the weekly digest edge function** (`weekly-digest/index.ts`) to:
-- Query `uds_targets` alongside `uds_trends`
-- For each top measure, calculate gap-to-target (e.g., "3 points below target")
-- Link each measure to its active PDSA cycle if one exists
-- Produce subject lines like: "📊 Cervical Cancer Screening is 3 pts below target"
-
-**Upgrade the digest email template** (`_shared/email-templates.ts`) to:
-- Show a "Target" column next to current value
-- Color-code red when below target, green when at/above
-- Add a sentence per below-target measure: "Your [Measure] rate is X points below your Y% target — [PDSA cycle name] is active."
+Pages to prerender:
+- `/` (homepage)
+- `/pricing`
+- `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/operations-managers`
+- All new feature and blog pages below
 
 ---
 
-### 3. Schedule the weekly digest cron job
+### 2. Add `react-helmet-async` for per-page meta tags
 
-The `weekly-digest` edge function exists but has no cron trigger. Add a `pg_cron` + `pg_net` job to invoke it every Monday at 7:00 AM ET (12:00 UTC).
+Each page will set its own `<title>`, `<meta description>`, canonical URL, and JSON-LD structured data. This is critical for keyword targeting.
+
+---
+
+### 3. Create feature pages targeting high-intent FQHC keywords
+
+| Route | Target keyword | H1 |
+|-------|---------------|-----|
+| `/features/pdsa-cycle-manager` | "PDSA cycle manager health center" | "PDSA Cycle Management Built for FQHCs" |
+| `/features/uds-tracking` | "UDS tracking software FQHC" | "UDS Measure Tracking for Federally Qualified Health Centers" |
+| `/features/hrsa-audit-binder` | "HRSA site visit preparation software" | "Generate Your HRSA Audit Binder in One Click" |
+| `/features/spc-charts` | "SPC charts healthcare quality" | "Statistical Process Control Charts for FQHC Quality Teams" |
+| `/features/pcmh-evidence` | "PCMH recertification evidence" | "PCMH Q-PASS Evidence Collection, Automated" |
+
+Each page: ~800 words of keyword-rich copy, feature screenshots, JSON-LD SoftwareApplication schema, CTA to signup.
+
+---
+
+### 4. Create a blog section for long-tail keywords
+
+| Route | Target keyword |
+|-------|---------------|
+| `/blog` | Blog index |
+| `/blog/pdsa-cycle-fqhc-guide` | "how to run PDSA cycle FQHC" |
+| `/blog/uds-clinical-quality-measures-2026` | "UDS clinical quality measures 2026" |
+| `/blog/hrsa-site-visit-checklist` | "HRSA site visit checklist" |
+| `/blog/quality-improvement-fqhc-staff` | "quality improvement FQHC" |
+
+Each post: ~1,200 words, educational content, internal links to feature pages, JSON-LD Article schema, author attribution.
+
+---
+
+### 5. Update sitemap and navigation
+
+- Add all new routes to `sitemap.xml` and `sitemap.txt`
+- Add a "Features" dropdown and "Blog" link to the landing page nav
+- Add internal links between feature pages and blog posts for link equity
 
 ---
 
@@ -51,9 +63,21 @@ The `weekly-digest` edge function exists but has no cron trigger. Add a `pg_cron
 
 | File | Change |
 |------|--------|
-| `src/pages/Landing.tsx` | Rewrite hero headline, sub-headline, and CTA text |
-| `index.html` | Update meta description + static fallback to match new messaging |
-| `supabase/functions/weekly-digest/index.ts` | Query targets, compute gaps, personalize subject line |
-| `supabase/functions/_shared/email-templates.ts` | Add target column, gap messaging, conditional coloring |
-| New migration | Create `uds_targets` table with RLS |
-| SQL insert (non-migration) | Schedule `pg_cron` job for weekly digest |
+| `package.json` | Add `react-helmet-async`, prerender plugin |
+| `vite.config.ts` | Configure prerender for public routes |
+| `src/main.tsx` | Wrap app in `HelmetProvider` |
+| `src/components/SEO.tsx` | Reusable SEO component (title, desc, JSON-LD) |
+| `src/pages/features/*.tsx` | 5 new feature pages |
+| `src/pages/blog/*.tsx` | 4 blog posts + index |
+| `src/App.tsx` | Add routes for features and blog |
+| `src/pages/Landing.tsx` | Add Features dropdown + Blog link to nav |
+| `public/sitemap.xml`, `public/sitemap.txt` | Add new URLs |
+
+---
+
+### Technical notes
+
+- Prerendering runs at build time via headless Chromium — no runtime SSR needed
+- JSON-LD schema (`SoftwareApplication` for features, `Article` for blog) helps rich snippets
+- All pages share the existing header/footer pattern from persona pages
+- Blog content is hardcoded (no CMS) — simple, fast, no backend dependency

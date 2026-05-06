@@ -27,6 +27,20 @@ import Pricing from "./pages/Pricing";
 import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
 
+// Feature pages
+import FeaturePDSA from "./pages/features/FeaturePDSA";
+import FeatureUDSTracking from "./pages/features/FeatureUDSTracking";
+import FeatureHRSAAuditBinder from "./pages/features/FeatureHRSAAuditBinder";
+import FeatureSPCCharts from "./pages/features/FeatureSPCCharts";
+import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
+
+// Blog pages
+import BlogIndex from "./pages/blog/BlogIndex";
+import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
+import BlogUDSMeasures2026 from "./pages/blog/BlogUDSMeasures2026";
+import BlogHRSAChecklist from "./pages/blog/BlogHRSAChecklist";
+import BlogQICulture from "./pages/blog/BlogQICulture";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -50,6 +64,21 @@ const App = () => (
                 <Route path="/status" element={<Status />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+
+                {/* Feature pages */}
+                <Route path="/features/pdsa-cycle-manager" element={<FeaturePDSA />} />
+                <Route path="/features/uds-tracking" element={<FeatureUDSTracking />} />
+                <Route path="/features/hrsa-audit-binder" element={<FeatureHRSAAuditBinder />} />
+                <Route path="/features/spc-charts" element={<FeatureSPCCharts />} />
+                <Route path="/features/pcmh-evidence" element={<FeaturePCMHEvidence />} />
+
+                {/* Blog */}
+                <Route path="/blog" element={<BlogIndex />} />
+                <Route path="/blog/pdsa-cycle-fqhc-guide" element={<BlogPDSAGuide />} />
+                <Route path="/blog/uds-clinical-quality-measures-2026" element={<BlogUDSMeasures2026 />} />
+                <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
+                <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
+
                 <Route
                   path="/dashboard/*"
                   element={
