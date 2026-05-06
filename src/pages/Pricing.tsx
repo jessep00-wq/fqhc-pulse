@@ -51,9 +51,10 @@ const getTiers = (annual: boolean) => [
       { text: "Unlimited PDSA cycles" },
       { text: "UDS measure dashboards & SPC charts" },
       { text: "HRSA OSV audit binder export" },
+      { text: "Board report PDF export" },
       { text: "PCMH Q-PASS evidence tracking" },
       { text: "Email support" },
-      { text: "Financial impact tracking", locked: true, lockedLabel: "Available in Multi-Site" },
+      { text: "Network dashboard", locked: true, lockedLabel: "Available in Multi-Site" },
     ] as TierFeature[],
   },
   {
