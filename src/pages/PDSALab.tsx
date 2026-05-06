@@ -742,7 +742,8 @@ export default function PDSALab() {
     const { draggableId, destination } = result;
     if (!destination) return;
     const newStatus = destination.droppableId;
-    updateStatus.mutate({ id: draggableId, status: newStatus });
+    const cycle = cycles.find((c) => c.id === draggableId);
+    updateStatus.mutate({ id: draggableId, status: newStatus, title: cycle?.title });
     toast.info(`Moved to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
   };
 
