@@ -246,8 +246,8 @@ export default function Pricing() {
                   variant={tier.highlight ? "default" : "outline"}
                   asChild
                 >
-                  <Link to="/auth?signup=true">
-                    {tier.cta} <ArrowRight className="ml-2 h-4 w-4" />
+                  <Link to={tier.name === "Free" ? "/auth?signup=true" : "/#contact"}>
+                    {tier.name === "Free" ? tier.cta : "Contact Us to Upgrade"} <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </CardContent>
