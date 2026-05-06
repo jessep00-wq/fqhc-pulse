@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import { useTierLimits } from "@/hooks/useTierLimits";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { UpgradeBanner } from "@/components/UpgradePrompt";
 import {
   Building2, TrendingUp, FlaskConical, CheckSquare, ArrowRight, BarChart3,
 } from "lucide-react";
