@@ -85,6 +85,11 @@ export function AppSidebar() {
                           {item.accent && (
                             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                           )}
+                          {"badge" in item && item.badge && (
+                            <span className="text-[9px] font-semibold rounded bg-primary/10 text-primary px-1.5 py-0.5 leading-none">
+                              {item.badge}
+                            </span>
+                          )}
                         </span>
                       )}
                     </NavLink>
