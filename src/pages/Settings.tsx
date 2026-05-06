@@ -211,6 +211,8 @@ export default function Settings() {
 
       refetchTrends();
       queryClient.invalidateQueries({ queryKey: ["uds_trends", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(orgId, `Imported ${rows.length} UDS entries via CSV`, "success");
       toast.success(`${rows.length} UDS entries imported`);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "CSV import failed");
