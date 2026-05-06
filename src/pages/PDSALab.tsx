@@ -1,24 +1,29 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { type StaffRole } from "@/data/mockData";
+import { UDS_MEASURES, type StaffRole } from "@/data/mockData";
+import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activityLogger";
-import { Plus, FileText, TrendingUp, Loader2, Download, FlaskConical } from "lucide-react";
+import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical } from "lucide-react";
 import { useTierLimits } from "@/hooks/useTierLimits";
-import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { UpgradePrompt, UpgradeBanner } from "@/components/UpgradePrompt";
 import { EmptyState } from "@/components/EmptyState";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 import PDSADetailDialog from "@/components/PDSADetailDialog";
 import EvidencePacketDialog from "@/components/EvidencePacketDialog";
-import { AuditBinderDialog } from "@/components/AuditBinderDialog";
-import { CreatePDSAWizard, type WizardData } from "@/components/CreatePDSAWizard";
-import { type DBCycle, type DBTask, STATUS_COLUMNS } from "@/types/pdsa";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
