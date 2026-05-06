@@ -68,11 +68,9 @@ export default function NetworkDashboard() {
 
   if (isFreeTier) {
     return (
-      <div className="p-6">
-        <UpgradePrompt
-          feature="Network Dashboard"
-          description="The multi-site network dashboard is available on Multi-Site and Enterprise plans. Compare performance across locations, view aggregate metrics, and identify top-performing sites."
-        />
+      <div className="p-6 space-y-6">
+        <h1 className="text-2xl font-bold tracking-tight">Network Dashboard</h1>
+        <UpgradeBanner message="The multi-site network dashboard is available on Multi-Site and Enterprise plans. Compare performance across locations and identify top-performing sites." />
       </div>
     );
   }
