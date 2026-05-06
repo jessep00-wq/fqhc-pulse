@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
   FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2, Info,
+  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight,
 } from "lucide-react";
 import { UpgradeBanner } from "@/components/UpgradePrompt";
 import { useTierLimits } from "@/hooks/useTierLimits";
@@ -24,6 +25,7 @@ import {
 import SPCChart from "@/components/SPCChart";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { EmptyState } from "@/components/EmptyState";
+import { JargonTooltip } from "@/components/JargonTooltip";
 import { toast } from "sonner";
 
 const VARIANT_BORDER: Record<string, string> = {
@@ -32,10 +34,17 @@ const VARIANT_BORDER: Record<string, string> = {
   success: "border-l-4 border-l-success",
 };
 
+const MEASURE_LABELS: Record<string, string> = {
+  CMS124: "Cervical Cancer Screening",
+  CMS125: "Breast Cancer Screening",
+  CMS165: "BP Control",
+  CMS122: "HbA1c Poor Control",
+};
+
 const MetricCard = ({
   title, value, icon: Icon, description, variant = "default", onClick,
 }: {
-  title: string; value: string | number; icon: React.ElementType; description: string;
+  title: React.ReactNode; value: string | number; icon: React.ElementType; description: string;
   variant?: "default" | "warning" | "success"; onClick?: () => void;
 }) => (
   <Card className={`${onClick ? "cursor-pointer hover:bg-accent/50 transition-colors" : ""} ${VARIANT_BORDER[variant]}`} onClick={onClick}>
@@ -137,11 +146,67 @@ function FinancialsDialog({
   );
 }
 
+function AtRiskDialog({
+  open,
+  onClose,
+  measures,
+}: {
+  open: boolean;
+  onClose: () => void;
+  measures: { id: string; label: string; value: number }[];
+}) {
+  const navigate = useNavigate();
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            <JargonTooltip term="UDS">UDS</JargonTooltip> Measures Below Target
+          </DialogTitle>
+          <DialogDescription>
+            These measures are currently below the <JargonTooltip term="HRSA">HRSA</JargonTooltip> 65% target threshold. Consider starting a <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycle to address them.
+          </DialogDescription>
+        </DialogHeader>
+        {measures.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-4">All measures are on target!</p>
+        ) : (
+          <div className="space-y-3">
+            {measures.map((m) => (
+              <div key={m.id} className="flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <p className="text-sm font-medium">{m.label}</p>
+                  <p className="text-xs text-muted-foreground">{m.id}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-lg font-bold text-warning">{m.value.toFixed(1)}%</span>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      onClose();
+                      navigate("/dashboard/pdsa-lab");
+                    }}
+                  >
+                    Start Cycle <ArrowRight className="h-3 w-3 ml-1" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Dashboard() {
   const { organization } = useOrg();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
+  const [atRiskOpen, setAtRiskOpen] = useState(false);
   const { isFreeTier, cyclesRemaining } = useTierLimits();
 
   const { data: cycles } = useQuery({
@@ -196,11 +261,13 @@ export default function Dashboard() {
 
   const activePDSA = cycles?.filter((c) => c.status !== "completed").length ?? 0;
 
-  const measuresAtRisk = (() => {
-    if (!trends?.length) return 0;
+  const atRiskMeasures = (() => {
+    if (!trends?.length) return [];
     const latest: Record<string, number> = {};
     for (const t of trends) latest[t.measure_id] = Number(t.value);
-    return Object.values(latest).filter((v) => v < 65).length;
+    return Object.entries(latest)
+      .filter(([, v]) => v < 65)
+      .map(([id, value]) => ({ id, label: MEASURE_LABELS[id] || id, value }));
   })();
 
   const now = new Date();
@@ -242,15 +309,23 @@ export default function Dashboard() {
   }
 
   const fin = financials;
-
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
+  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
 
   return (
     <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground">Quality improvement operating system for {organization.name}</p>
+      {/* Value-prop welcome header */}
+      <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5">
+        <h1 className="text-2xl font-bold tracking-tight">
+          Welcome back, {firstName}
+        </h1>
+        <p className="text-base text-muted-foreground mt-1">
+          Your Quality Improvement Command Center for <span className="font-medium text-foreground">{organization.name}</span>
+        </p>
+        <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+          Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
+        </p>
       </div>
 
       <OnboardingChecklist />
@@ -269,9 +344,29 @@ export default function Dashboard() {
       )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard title="Active PDSA Cycles" value={activePDSA} icon={FlaskConical} description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`} onClick={() => navigate("/dashboard/pdsa-lab")} />
-        <MetricCard title="UDS Measures at Risk" value={measuresAtRisk} icon={AlertTriangle} description="Below target threshold" variant="warning" />
-        <MetricCard title="Tasks Due This Week" value={tasksDue} icon={CheckSquare} description={`${overdueTasks} overdue, ${tasksDue - overdueTasks} upcoming`} variant="warning" onClick={() => navigate("/dashboard/staff-tasks")} />
+        <MetricCard
+          title={<>Active <JargonTooltip term="PDSA" showIcon={false}>PDSA</JargonTooltip> Cycles</>}
+          value={activePDSA}
+          icon={FlaskConical}
+          description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`}
+          onClick={() => navigate("/dashboard/pdsa-lab")}
+        />
+        <MetricCard
+          title={<><JargonTooltip term="UDS" showIcon={false}>UDS</JargonTooltip> Measures at Risk</>}
+          value={atRiskMeasures.length}
+          icon={AlertTriangle}
+          description="Below target threshold — click for details"
+          variant="warning"
+          onClick={() => setAtRiskOpen(true)}
+        />
+        <MetricCard
+          title="Tasks Due This Week"
+          value={tasksDue}
+          icon={CheckSquare}
+          description={`${overdueTasks} overdue, ${tasksDue - overdueTasks} upcoming`}
+          variant="warning"
+          onClick={() => navigate("/dashboard/staff-tasks")}
+        />
 
         {/* Financial Impact Card */}
         <Card className="relative">
@@ -290,7 +385,7 @@ export default function Dashboard() {
             {fin ? (
               <>
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Value-Based Care (ACO)</p>
+                  <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Value-Based Care (<JargonTooltip term="ACO" showIcon={false}>ACO</JargonTooltip>)</p>
                   <div className="text-2xl font-bold text-success">${(fin.shared_savings / 1000).toFixed(0)}K</div>
                   <div className="flex items-center gap-1 mt-0.5">
                     <TrendingUp className="h-3 w-3 text-success" />
@@ -311,7 +406,7 @@ export default function Dashboard() {
                         <Award className="h-3.5 w-3.5 text-primary" />
                         <span className="text-lg font-bold text-primary">${(fin.hrsa_quality_award / 1000).toFixed(0)}K</span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">HRSA Quality Award</p>
+                      <p className="text-[10px] text-muted-foreground"><JargonTooltip term="HRSA" showIcon={false}>HRSA</JargonTooltip> Quality Award</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 mt-0.5">
@@ -334,11 +429,12 @@ export default function Dashboard() {
       </div>
 
       <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
+      <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-base">UDS Measure Trends</CardTitle>
+            <CardTitle className="text-base"><JargonTooltip term="UDS">UDS</JargonTooltip> Measure Trends</CardTitle>
           </CardHeader>
           <CardContent>
             {!hasTrends ? (

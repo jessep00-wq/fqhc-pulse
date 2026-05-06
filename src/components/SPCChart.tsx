@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { JargonTooltip } from "@/components/JargonTooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Scatter, ScatterChart } from "recharts";
 
@@ -58,7 +59,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle className="text-base">SPC Chart — Process Performance</CardTitle>
+          <CardTitle className="text-base"><JargonTooltip term="SPC">SPC</JargonTooltip> Chart — Process Performance</CardTitle>
           <Select value={measure} onValueChange={setMeasure}>
             <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
