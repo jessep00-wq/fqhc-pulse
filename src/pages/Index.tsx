@@ -9,6 +9,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
 import { useOrg } from "@/contexts/OrgContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -93,6 +94,8 @@ function FinancialsDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org_financials", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(orgId, "Financial impact data configured", "success");
       toast.success("Financial data saved");
       onClose();
     },
@@ -207,6 +210,9 @@ export default function Dashboard() {
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
+  const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
+    () => localStorage.getItem(`sample_banner_dismissed_${organization.id}`) === "true"
+  );
   const { isFreeTier, cyclesRemaining } = useTierLimits();
 
   const { data: cycles } = useQuery({
@@ -330,12 +336,23 @@ export default function Dashboard() {
 
       <OnboardingChecklist />
 
-      {hasTrends && hasCycles && (
+      {hasTrends && hasCycles && !sampleBannerDismissed && (
         <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
           <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground flex-1">
             <span className="font-medium text-foreground">Sample data is active.</span> The charts and metrics below include demo data seeded during onboarding. As you add real QI cycles and UDS measures, your actual data will replace these samples.
           </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground shrink-0 h-7"
+            onClick={() => {
+              localStorage.setItem(`sample_banner_dismissed_${orgId}`, "true");
+              setSampleBannerDismissed(true);
+            }}
+          >
+            Dismiss
+          </Button>
         </div>
       )}
 

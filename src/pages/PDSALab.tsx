@@ -13,6 +13,7 @@ import { UDS_MEASURES, type StaffRole } from "@/data/mockData";
 import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
 import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical } from "lucide-react";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { UpgradePrompt, UpgradeBanner } from "@/components/UpgradePrompt";
@@ -694,11 +695,19 @@ export default function PDSALab() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status, title }: { id: string; status: string; title?: string }) => {
       const { error } = await supabase.from("pdsa_cycles").update({ status }).eq("id", id);
       if (error) throw error;
+      return { status, title };
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] }),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      if (result.title) {
+        const phase = result.status.charAt(0).toUpperCase() + result.status.slice(1);
+        logActivity(organization.id, `PDSA cycle "${result.title}" moved to ${phase}`, result.status === "completed" ? "success" : "info");
+      }
+    },
   });
 
   const createCycle = useMutation({
@@ -720,8 +729,10 @@ export default function PDSALab() {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(organization.id, `New PDSA cycle created: "${variables.title}"`, "success");
       toast.success("PDSA Cycle created!");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create cycle"),
@@ -731,7 +742,8 @@ export default function PDSALab() {
     const { draggableId, destination } = result;
     if (!destination) return;
     const newStatus = destination.droppableId;
-    updateStatus.mutate({ id: draggableId, status: newStatus });
+    const cycle = cycles.find((c) => c.id === draggableId);
+    updateStatus.mutate({ id: draggableId, status: newStatus, title: cycle?.title });
     toast.info(`Moved to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
   };
 

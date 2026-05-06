@@ -15,6 +15,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
 import { useOrg } from "@/contexts/OrgContext";
 import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2, Plus, CalendarIcon, Users } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
@@ -86,6 +87,8 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(organization.id, `New task created: "${title}"`, "info");
       toast.success("Task created");
       resetAndClose();
     },
@@ -162,6 +165,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
 }
 
 function TaskDetailDialog({ task, open, onClose, cycles }: { task: DBTask; open: boolean; onClose: () => void; cycles: DBCycleRef[] }) {
+  const { organization } = useOrg();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [title, setTitle] = useState(task?.title || "");
@@ -175,9 +179,14 @@ function TaskDetailDialog({ task, open, onClose, cycles }: { task: DBTask; open:
     mutationFn: async (updates: Partial<DBTask>) => {
       const { error } = await supabase.from("tasks").update(updates).eq("id", task.id);
       if (error) throw error;
+      return updates;
     },
-    onSuccess: () => {
+    onSuccess: (updates) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      if (updates.status === "completed") {
+        logActivity(organization.id, `Task completed: "${title}"`, "success");
+      }
       toast.success("Task updated");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to update"),

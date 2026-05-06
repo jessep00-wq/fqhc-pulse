@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
@@ -150,6 +151,8 @@ export default function Settings() {
     onSuccess: () => {
       refetchTrends();
       queryClient.invalidateQueries({ queryKey: ["uds_trends", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(orgId, `UDS measure data added: ${newMeasure}`, "info");
       setNewValue("");
       toast.success("UDS measure added");
     },
@@ -208,6 +211,8 @@ export default function Settings() {
 
       refetchTrends();
       queryClient.invalidateQueries({ queryKey: ["uds_trends", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(orgId, `Imported ${rows.length} UDS entries via CSV`, "success");
       toast.success(`${rows.length} UDS entries imported`);
     } catch (err: unknown) {
       toast.error(err instanceof Error ? err.message : "CSV import failed");
