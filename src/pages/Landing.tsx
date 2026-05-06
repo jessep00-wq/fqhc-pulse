@@ -420,19 +420,46 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-foreground transition-colors">
-              Terms of Service
-            </Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">
-              Privacy Policy
-            </Link>
-            <Link to="/auth" className="hover:text-foreground transition-colors">
-              Sign In
-            </Link>
+      <footer className="border-t border-border bg-card py-12 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+            <div className="col-span-2 md:col-span-1">
+              <div className="flex items-center gap-2 mb-3">
+                <img src={measurewiseLogo} alt="MeasureWise" className="h-8" />
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Quality improvement software built for Federally Qualified Health Centers.
+              </p>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Product</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">PDSA Cycles</Link></li>
+                <li><Link to="/features/uds-tracking" className="hover:text-foreground transition-colors">UDS Tracking</Link></li>
+                <li><Link to="/features/hrsa-audit-binder" className="hover:text-foreground transition-colors">HRSA Audit Binder</Link></li>
+                <li><Link to="/features/spc-charts" className="hover:text-foreground transition-colors">SPC Charts</Link></li>
+                <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Resources</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link to="/status" className="hover:text-foreground transition-colors">System Status</Link></li>
+                <li><a href="#contact" className="hover:text-foreground transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Legal</h4>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
+            <p>© {new Date().getFullYear()} MeasureWise™. All rights reserved.</p>
+            <p>Built on SOC 2 certified infrastructure · No PHI stored</p>
           </div>
         </div>
       </footer>
