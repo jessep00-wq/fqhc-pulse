@@ -90,7 +90,8 @@ const App = () => (
                         <ErrorBoundary>
                           <Routes>
                             <Route path="/" element={<Index />} />
-                            <Route path="/pdsa-lab" element={<PDSALab />} />
+                           <Route path="/pdsa-lab" element={<PDSALab />} />
+                           <Route path="/network" element={<NetworkDashboard />} />
                             <Route path="/playbooks" element={<PlaybookLibrary />} />
                             <Route path="/ai-assistant" element={<AIAssistant />} />
                             <Route path="/staff-tasks" element={<StaffTasks />} />
