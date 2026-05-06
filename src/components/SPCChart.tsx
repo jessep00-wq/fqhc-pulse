@@ -59,7 +59,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle className="text-base">SPC Chart — Process Performance</CardTitle>
+          <CardTitle className="text-base"><JargonTooltip term="SPC">SPC</JargonTooltip> Chart — Process Performance</CardTitle>
           <Select value={measure} onValueChange={setMeasure}>
             <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
             <SelectContent>
