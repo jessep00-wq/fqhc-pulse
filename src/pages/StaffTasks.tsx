@@ -15,6 +15,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
+import { logActivity } from "@/lib/activityLogger";
 import { useOrg } from "@/contexts/OrgContext";
 import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2, Plus, CalendarIcon, Users } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
