@@ -140,6 +140,12 @@ export default function Landing() {
         {mobileMenuOpen && (
           <div className="md:hidden border-t border-border bg-card px-6 py-4 space-y-2">
             <Button variant="ghost" asChild className="w-full justify-start">
+              <Link to="/features/pdsa-cycle-manager" onClick={() => setMobileMenuOpen(false)}>Features</Link>
+            </Button>
+            <Button variant="ghost" asChild className="w-full justify-start">
+              <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+            </Button>
+            <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
             </Button>
             <Button variant="ghost" asChild className="w-full justify-start">
