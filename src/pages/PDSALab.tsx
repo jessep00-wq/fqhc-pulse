@@ -780,7 +780,8 @@ export default function PDSALab() {
         />
       ) : (
         <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-5 gap-4 overflow-x-auto pb-2" style={{ minWidth: "1100px" }}>
+          <div className="overflow-x-auto">
+          <div className="grid grid-cols-5 gap-4 pb-2" style={{ minWidth: "1100px" }}>
             {STATUS_COLUMNS.map((col) => {
               const colCycles = cycles.filter((c) => c.status === col.key);
               return (
