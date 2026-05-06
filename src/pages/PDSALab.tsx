@@ -721,8 +721,10 @@ export default function PDSALab() {
       });
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(organization.id, `New PDSA cycle created: "${variables.title}"`, "success");
       toast.success("PDSA Cycle created!");
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create cycle"),
