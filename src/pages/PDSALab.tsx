@@ -831,6 +831,7 @@ export default function PDSALab() {
               );
             })}
           </div>
+          </div>
         </DragDropContext>
       )}
 
