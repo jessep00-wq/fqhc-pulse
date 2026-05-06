@@ -56,6 +56,7 @@ export type Database = {
           period: string
           revenue_protected: number
           shared_savings: number
+          site_id: string | null
           trend: number
         }
         Insert: {
@@ -67,6 +68,7 @@ export type Database = {
           period?: string
           revenue_protected?: number
           shared_savings?: number
+          site_id?: string | null
           trend?: number
         }
         Update: {
@@ -78,9 +80,18 @@ export type Database = {
           period?: string
           revenue_protected?: number
           shared_savings?: number
+          site_id?: string | null
           trend?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "org_financials_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       organizations: {
         Row: {
@@ -121,6 +132,7 @@ export type Database = {
           organization_id: string
           prediction: string | null
           root_cause: string | null
+          site_id: string | null
           status: string
           study_results: string | null
           target_goal: string | null
@@ -145,6 +157,7 @@ export type Database = {
           organization_id: string
           prediction?: string | null
           root_cause?: string | null
+          site_id?: string | null
           status?: string
           study_results?: string | null
           target_goal?: string | null
@@ -169,6 +182,7 @@ export type Database = {
           organization_id?: string
           prediction?: string | null
           root_cause?: string | null
+          site_id?: string | null
           status?: string
           study_results?: string | null
           target_goal?: string | null
@@ -185,6 +199,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pdsa_cycles_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -221,6 +242,30 @@ export type Database = {
           },
         ]
       }
+      sites: {
+        Row: {
+          address: string | null
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           acknowledged: boolean
@@ -231,6 +276,7 @@ export type Database = {
           organization_id: string
           pdsa_cycle_id: string | null
           priority: string
+          site_id: string | null
           status: string
           title: string
         }
@@ -243,6 +289,7 @@ export type Database = {
           organization_id: string
           pdsa_cycle_id?: string | null
           priority?: string
+          site_id?: string | null
           status?: string
           title: string
         }
@@ -255,6 +302,7 @@ export type Database = {
           organization_id?: string
           pdsa_cycle_id?: string | null
           priority?: string
+          site_id?: string | null
           status?: string
           title?: string
         }
@@ -271,6 +319,13 @@ export type Database = {
             columns: ["pdsa_cycle_id"]
             isOneToOne: false
             referencedRelation: "pdsa_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]
@@ -341,6 +396,7 @@ export type Database = {
           measure_id: string
           month: string
           organization_id: string
+          site_id: string | null
           value: number
         }
         Insert: {
@@ -349,6 +405,7 @@ export type Database = {
           measure_id: string
           month: string
           organization_id: string
+          site_id?: string | null
           value: number
         }
         Update: {
@@ -357,6 +414,7 @@ export type Database = {
           measure_id?: string
           month?: string
           organization_id?: string
+          site_id?: string | null
           value?: number
         }
         Relationships: [
@@ -365,6 +423,13 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "uds_trends_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
             referencedColumns: ["id"]
           },
         ]

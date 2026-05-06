@@ -6,6 +6,7 @@ import {
   Users,
   Settings,
   Sparkles,
+  Building2,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { NavLink } from "@/components/NavLink";
@@ -29,6 +30,7 @@ import {
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
+  { title: "Network", url: "/dashboard/network", icon: Building2, badge: "Enterprise" },
   { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
   { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
   { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
@@ -82,6 +84,11 @@ export function AppSidebar() {
                           {item.title}
                           {item.accent && (
                             <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          )}
+                          {"badge" in item && item.badge && (
+                            <span className="text-[9px] font-semibold rounded bg-primary/10 text-primary px-1.5 py-0.5 leading-none">
+                              {item.badge}
+                            </span>
                           )}
                         </span>
                       )}

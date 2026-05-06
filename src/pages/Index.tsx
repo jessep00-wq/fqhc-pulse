@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
   FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight,
+  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight, FileText,
 } from "lucide-react";
 // UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
@@ -28,6 +28,8 @@ import SPCChart from "@/components/SPCChart";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { EmptyState } from "@/components/EmptyState";
 import { JargonTooltip } from "@/components/JargonTooltip";
+import { BoardReportDialog } from "@/components/BoardReportDialog";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 
 const VARIANT_BORDER: Record<string, string> = {
@@ -211,6 +213,7 @@ export default function Dashboard() {
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
+  const [boardReportOpen, setBoardReportOpen] = useState(false);
   const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
     () => localStorage.getItem(`sample_banner_dismissed_${organization.id}`) === "true"
   );
@@ -324,15 +327,42 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Value-prop welcome header */}
       <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Welcome back, {firstName}
-        </h1>
-        <p className="text-base text-muted-foreground mt-1">
-          Your Quality Improvement Command Center for <span className="font-medium text-foreground">{organization.name}</span>
-        </p>
-        <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
-          Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Welcome back, {firstName}
+            </h1>
+            <p className="text-base text-muted-foreground mt-1">
+              Your Quality Improvement Command Center for <span className="font-medium text-foreground">{organization.name}</span>
+            </p>
+            <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+              Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">Purpose-built for FQHCs</span>
+              <span className="inline-flex items-center gap-1.5">20+ UDS measures</span>
+              <span className="inline-flex items-center gap-1.5">·</span>
+              <span className="inline-flex items-center gap-1.5">HRSA Chapter 10 aligned</span>
+              <span className="inline-flex items-center gap-1.5">·</span>
+              <span className="inline-flex items-center gap-1.5">SPC analytics included</span>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 gap-1.5"
+            onClick={() => {
+              if (isFreeTier) {
+                toast.info("Board Report export is available on paid plans.", { description: "Upgrade to export quarterly board reports as PDF." });
+              } else {
+                setBoardReportOpen(true);
+              }
+            }}
+          >
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Export Board Report</span>
+          </Button>
+        </div>
       </div>
 
       <OnboardingChecklist />
@@ -447,6 +477,14 @@ export default function Dashboard() {
 
       <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
+      <BoardReportDialog
+        open={boardReportOpen}
+        onClose={() => setBoardReportOpen(false)}
+        cycles={cycles || []}
+        tasks={tasks || []}
+        trends={trends || []}
+        financials={fin}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
@@ -463,11 +501,17 @@ export default function Dashboard() {
                 onAction={() => navigate("/dashboard/settings")}
               />
             ) : (
-              <Tabs defaultValue="trends" className="space-y-4">
+              <Tabs defaultValue="spc" className="space-y-4">
                 <TabsList>
+                  <TabsTrigger value="spc" className="gap-1.5">
+                    <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
+                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
+                  </TabsTrigger>
                   <TabsTrigger value="trends">UDS Trends</TabsTrigger>
-                  <TabsTrigger value="spc"><JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis</TabsTrigger>
                 </TabsList>
+                <TabsContent value="spc">
+                  <SPCChart trends={trends || []} />
+                </TabsContent>
                 <TabsContent value="trends" className="space-y-2">
                   <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
                   <ResponsiveContainer width="100%" height={300}>
@@ -486,9 +530,6 @@ export default function Dashboard() {
                       <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
-                </TabsContent>
-                <TabsContent value="spc">
-                  <SPCChart trends={trends || []} />
                 </TabsContent>
               </Tabs>
             )}

@@ -34,6 +34,7 @@ import FeatureUDSTracking from "./pages/features/FeatureUDSTracking";
 import FeatureHRSAAuditBinder from "./pages/features/FeatureHRSAAuditBinder";
 import FeatureSPCCharts from "./pages/features/FeatureSPCCharts";
 import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
+import NetworkDashboard from "./pages/NetworkDashboard";
 
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
@@ -89,7 +90,8 @@ const App = () => (
                         <ErrorBoundary>
                           <Routes>
                             <Route path="/" element={<Index />} />
-                            <Route path="/pdsa-lab" element={<PDSALab />} />
+                           <Route path="/pdsa-lab" element={<PDSALab />} />
+                           <Route path="/network" element={<NetworkDashboard />} />
                             <Route path="/playbooks" element={<PlaybookLibrary />} />
                             <Route path="/ai-assistant" element={<AIAssistant />} />
                             <Route path="/staff-tasks" element={<StaffTasks />} />
