@@ -5,11 +5,13 @@ import {
   Bot,
   Users,
   Settings,
+  Sparkles,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { NavLink } from "@/components/NavLink";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useOrg } from "@/contexts/OrgContext";
+import { useTierLimits } from "@/hooks/useTierLimits";
 import {
   Sidebar,
   SidebarContent,
@@ -26,7 +28,7 @@ import {
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical },
+  { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
   { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
   { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
   { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
@@ -38,6 +40,7 @@ export function AppSidebar() {
   const collapsed = state === "collapsed";
   const location = useLocation();
   const { organization } = useOrg();
+  const { isFreeTier, cyclesRemaining } = useTierLimits();
 
   return (
     <Sidebar collapsible="icon">
@@ -74,7 +77,14 @@ export function AppSidebar() {
                       activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
                     >
                       <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && <span>{item.title}</span>}
+                      {!collapsed && (
+                        <span className="flex items-center gap-2">
+                          {item.title}
+                          {item.accent && (
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          )}
+                        </span>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -84,7 +94,16 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4">
+      <SidebarFooter className="p-4 space-y-3">
+        {!collapsed && isFreeTier && (
+          <Link
+            to="/pricing"
+            className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 transition-colors"
+          >
+            <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span>Free plan · {cyclesRemaining} cycle{cyclesRemaining === 1 ? "" : "s"} left</span>
+          </Link>
+        )}
         {!collapsed && (
           <div className="rounded-lg bg-sidebar-accent/50 p-3">
             <p className="text-xs text-sidebar-foreground/60">Organization</p>
