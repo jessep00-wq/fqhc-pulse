@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
   FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight,
+  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight, FileText,
 } from "lucide-react";
 // UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
@@ -28,6 +28,8 @@ import SPCChart from "@/components/SPCChart";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
 import { EmptyState } from "@/components/EmptyState";
 import { JargonTooltip } from "@/components/JargonTooltip";
+import { BoardReportDialog } from "@/components/BoardReportDialog";
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 
 const VARIANT_BORDER: Record<string, string> = {
