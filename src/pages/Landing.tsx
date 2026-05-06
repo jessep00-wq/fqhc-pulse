@@ -91,7 +91,7 @@ const stats = [
 const securityItems = [
   { icon: Lock, label: "256-bit AES encryption at rest" },
   { icon: Shield, label: "TLS 1.3 encryption in transit" },
-  { icon: Shield, label: "SOC 2 Type II compliant infrastructure" },
+  { icon: Shield, label: "Built on SOC 2 Type II certified infrastructure" },
   { icon: Lock, label: "HIPAA-ready architecture with BAA available" },
   { icon: Shield, label: "Role-based access controls (RBAC)" },
   { icon: Lock, label: "No PHI stored — only aggregate QI metrics" },
