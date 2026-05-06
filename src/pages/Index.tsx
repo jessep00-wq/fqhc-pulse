@@ -471,11 +471,17 @@ export default function Dashboard() {
                 onAction={() => navigate("/dashboard/settings")}
               />
             ) : (
-              <Tabs defaultValue="trends" className="space-y-4">
+              <Tabs defaultValue="spc" className="space-y-4">
                 <TabsList>
+                  <TabsTrigger value="spc" className="gap-1.5">
+                    <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
+                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
+                  </TabsTrigger>
                   <TabsTrigger value="trends">UDS Trends</TabsTrigger>
-                  <TabsTrigger value="spc"><JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis</TabsTrigger>
                 </TabsList>
+                <TabsContent value="spc">
+                  <SPCChart trends={trends || []} />
+                </TabsContent>
                 <TabsContent value="trends" className="space-y-2">
                   <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
                   <ResponsiveContainer width="100%" height={300}>
@@ -494,9 +500,6 @@ export default function Dashboard() {
                       <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
-                </TabsContent>
-                <TabsContent value="spc">
-                  <SPCChart trends={trends || []} />
                 </TabsContent>
               </Tabs>
             )}
