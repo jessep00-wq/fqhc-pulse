@@ -36,6 +36,7 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showVerifyEmail, setShowVerifyEmail] = useState(false);
 
   const passwordValid = useMemo(
     () => passwordRules.every((r) => r.test(password)),
@@ -103,8 +104,7 @@ export default function Auth() {
 </table></td></tr></table></body></html>`,
         },
       }).catch(() => {}); // Non-blocking
-      toast.success("Account created! Redirecting…");
-      navigate("/onboarding");
+      setShowVerifyEmail(true);
     }
   };
 
@@ -148,7 +148,22 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {showForgot ? (
+          {showVerifyEmail ? (
+            <div className="flex flex-col items-center text-center py-6 space-y-4">
+              <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
+                <Check className="h-7 w-7 text-primary" />
+              </div>
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Check your email</h3>
+                <p className="text-sm text-muted-foreground max-w-xs">
+                  We sent a verification link to <span className="font-medium text-foreground">{email}</span>. Click the link to activate your account.
+                </p>
+              </div>
+              <Button variant="outline" onClick={() => { setShowVerifyEmail(false); setIsLogin(true); }}>
+                Back to Sign In
+              </Button>
+            </div>
+          ) : showForgot ? (
             <>
               <div className="space-y-2">
                 <Label>Email</Label>
