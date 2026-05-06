@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, Circle, ChevronDown, ChevronUp, Rocket } from "lucide-react";
+import { CheckCircle2, Circle, ChevronDown, ChevronUp, Rocket, Sparkles } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,6 +10,7 @@ import { useOrg } from "@/contexts/OrgContext";
 
 interface ChecklistItem {
   id: string;
+  step: number;
   label: string;
   description: string;
   route: string;
@@ -25,7 +26,16 @@ interface ChecklistData {
 
 const CHECKLIST_ITEMS: ChecklistItem[] = [
   {
+    id: "trends",
+    step: 1,
+    label: "Add UDS trend data",
+    description: "Seed your UDS measures to see trend charts and SPC analysis on the dashboard.",
+    route: "/dashboard/settings",
+    checkFn: (d) => d.trendCount > 0,
+  },
+  {
     id: "pdsa",
+    step: 2,
     label: "Create your first PDSA cycle",
     description: "Start a quality improvement cycle using a guided template or from scratch.",
     route: "/dashboard/pdsa-lab",
@@ -33,20 +43,15 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
   },
   {
     id: "task",
+    step: 3,
     label: "Assign a staff task",
     description: "Route work to the right team members with deadlines and priorities.",
     route: "/dashboard/staff-tasks",
     checkFn: (d) => d.taskCount > 0,
   },
   {
-    id: "trends",
-    label: "Add UDS trend data",
-    description: "Seed your UDS measures to see trend charts and SPC analysis on the dashboard.",
-    route: "/dashboard/settings",
-    checkFn: (d) => d.trendCount > 0,
-  },
-  {
     id: "financials",
+    step: 4,
     label: "Configure financial impact",
     description: "Enter shared savings and grant data to connect clinical work to revenue.",
     route: "/dashboard",
@@ -61,7 +66,6 @@ export function OnboardingChecklist() {
   const [dismissed, setDismissed] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
 
-  // Check localStorage for dismissal
   useEffect(() => {
     const key = `checklist_dismissed_${orgId}`;
     if (localStorage.getItem(key) === "true") setDismissed(true);
@@ -94,7 +98,6 @@ export function OnboardingChecklist() {
   const completedItems = CHECKLIST_ITEMS.filter((item) => item.checkFn(data));
   const progress = Math.round((completedItems.length / CHECKLIST_ITEMS.length) * 100);
 
-  // All done — auto-dismiss
   if (progress === 100) {
     localStorage.setItem(`checklist_dismissed_${orgId}`, "true");
     return null;
@@ -105,13 +108,28 @@ export function OnboardingChecklist() {
     setDismissed(true);
   };
 
+  const isNewOrg = completedItems.length === 0;
+
   return (
-    <Card className="border-primary/20 bg-primary/5">
+    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 shadow-sm">
       <CardHeader className="pb-3">
+        {isNewOrg && (
+          <div className="flex items-start gap-3 mb-3 rounded-lg bg-primary/10 p-3">
+            <Sparkles className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Welcome to MeasureWise!</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Complete these 4 steps to set up your quality improvement workspace. Each step takes about 2 minutes.
+              </p>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Rocket className="h-5 w-5 text-primary" />
-            <CardTitle className="text-base">Get started with MeasureWise</CardTitle>
+            <CardTitle className="text-base">
+              {isNewOrg ? "Setup Checklist" : "Get started with MeasureWise"}
+            </CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={handleDismiss}>
@@ -143,7 +161,9 @@ export function OnboardingChecklist() {
                 {done ? (
                   <CheckCircle2 className="h-5 w-5 text-success mt-0.5 shrink-0" />
                 ) : (
-                  <Circle className="h-5 w-5 text-muted-foreground mt-0.5 shrink-0" />
+                  <div className="flex items-center justify-center h-5 w-5 rounded-full border-2 border-primary text-primary text-xs font-bold mt-0.5 shrink-0">
+                    {item.step}
+                  </div>
                 )}
                 <div>
                   <p className={`text-sm font-medium ${done ? "line-through text-muted-foreground" : "text-foreground"}`}>
