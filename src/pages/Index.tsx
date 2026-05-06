@@ -333,12 +333,23 @@ export default function Dashboard() {
 
       <OnboardingChecklist />
 
-      {hasTrends && hasCycles && (
+      {hasTrends && hasCycles && !sampleBannerDismissed && (
         <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
           <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground flex-1">
             <span className="font-medium text-foreground">Sample data is active.</span> The charts and metrics below include demo data seeded during onboarding. As you add real QI cycles and UDS measures, your actual data will replace these samples.
           </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-xs text-muted-foreground shrink-0 h-7"
+            onClick={() => {
+              localStorage.setItem(`sample_banner_dismissed_${orgId}`, "true");
+              setSampleBannerDismissed(true);
+            }}
+          >
+            Dismiss
+          </Button>
         </div>
       )}
 
