@@ -1,83 +1,31 @@
+## 1. Fix UDS Measure Trend Chart Label Overlap
 
-## Add keyword-targeted feature pages and blog for SEO
+The dual Y-axis labels ("% (↑ Higher is better)" and "% (↓ Lower is better)") and the ReferenceLine labels ("HRSA Target 65%", "Target ≤25%") overlap at certain viewport sizes because they both use `position: "right"` and small font sizes in a tight space.
 
-The app is a client-side SPA — Google must execute JS to see content. While Googlebot can render JS, it's slower and less reliable than static HTML. We'll address this with two approaches: (1) keyword-rich content pages, and (2) a Vite prerender plugin that generates static HTML at build time so crawlers get fully rendered pages.
+**Fix:**
+- Move ReferenceLine labels to `position: "insideTopRight"` and `position: "insideBottomRight"` to separate them vertically
+- Shorten Y-axis labels to "% (Higher ↑)" and "% (Lower ↓)" 
+- Add `dx` / `dy` offsets to prevent collision
+- Increase left/right chart margins to give axis labels breathing room
 
----
-
-### 1. Install `vite-plugin-prerender` for static HTML generation
-
-Add a Vite plugin that renders key public pages to static HTML at build time. This gives Google real HTML to crawl instead of an empty `<div id="root">`.
-
-Pages to prerender:
-- `/` (homepage)
-- `/pricing`
-- `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/operations-managers`
-- All new feature and blog pages below
+**File:** `src/pages/Index.tsx` (lines 357-362)
 
 ---
 
-### 2. Add `react-helmet-async` for per-page meta tags
+## 2. Make Notification Bell Functional
 
-Each page will set its own `<title>`, `<meta description>`, canonical URL, and JSON-LD structured data. This is critical for keyword targeting.
+Currently the bell icon in `AppLayout.tsx` is a static button with a hardcoded badge "3". It needs a real notification dropdown.
 
----
+**Implementation:**
+- Create `src/components/NotificationDropdown.tsx` — a Popover with a scrollable list of notifications sourced from the `activity_log` table (already exists and scoped by `organization_id`)
+- Show the 10 most recent activity log entries as notifications
+- Badge count = unread count (activities created in last 7 days, simple approach without a separate read-status table)
+- Clicking a notification navigates to the relevant section (PDSA Lab, Staff Tasks, etc.) based on `activity_log.type`
+- Replace the static Bell button in `AppLayout.tsx` with NotificationDropdown
 
-### 3. Create feature pages targeting high-intent FQHC keywords
-
-| Route | Target keyword | H1 |
-|-------|---------------|-----|
-| `/features/pdsa-cycle-manager` | "PDSA cycle manager health center" | "PDSA Cycle Management Built for FQHCs" |
-| `/features/uds-tracking` | "UDS tracking software FQHC" | "UDS Measure Tracking for Federally Qualified Health Centers" |
-| `/features/hrsa-audit-binder` | "HRSA site visit preparation software" | "Generate Your HRSA Audit Binder in One Click" |
-| `/features/spc-charts` | "SPC charts healthcare quality" | "Statistical Process Control Charts for FQHC Quality Teams" |
-| `/features/pcmh-evidence` | "PCMH recertification evidence" | "PCMH Q-PASS Evidence Collection, Automated" |
-
-Each page: ~800 words of keyword-rich copy, feature screenshots, JSON-LD SoftwareApplication schema, CTA to signup.
-
----
-
-### 4. Create a blog section for long-tail keywords
-
-| Route | Target keyword |
-|-------|---------------|
-| `/blog` | Blog index |
-| `/blog/pdsa-cycle-fqhc-guide` | "how to run PDSA cycle FQHC" |
-| `/blog/uds-clinical-quality-measures-2026` | "UDS clinical quality measures 2026" |
-| `/blog/hrsa-site-visit-checklist` | "HRSA site visit checklist" |
-| `/blog/quality-improvement-fqhc-staff` | "quality improvement FQHC" |
-
-Each post: ~1,200 words, educational content, internal links to feature pages, JSON-LD Article schema, author attribution.
-
----
-
-### 5. Update sitemap and navigation
-
-- Add all new routes to `sitemap.xml` and `sitemap.txt`
-- Add a "Features" dropdown and "Blog" link to the landing page nav
-- Add internal links between feature pages and blog posts for link equity
-
----
-
-### Files changed
-
+**Files:**
 | File | Change |
 |------|--------|
-| `package.json` | Add `react-helmet-async`, prerender plugin |
-| `vite.config.ts` | Configure prerender for public routes |
-| `src/main.tsx` | Wrap app in `HelmetProvider` |
-| `src/components/SEO.tsx` | Reusable SEO component (title, desc, JSON-LD) |
-| `src/pages/features/*.tsx` | 5 new feature pages |
-| `src/pages/blog/*.tsx` | 4 blog posts + index |
-| `src/App.tsx` | Add routes for features and blog |
-| `src/pages/Landing.tsx` | Add Features dropdown + Blog link to nav |
-| `public/sitemap.xml`, `public/sitemap.txt` | Add new URLs |
-
----
-
-### Technical notes
-
-- Prerendering runs at build time via headless Chromium — no runtime SSR needed
-- JSON-LD schema (`SoftwareApplication` for features, `Article` for blog) helps rich snippets
-- All pages share the existing header/footer pattern from persona pages
-- Blog content is hardcoded (no CMS) — simple, fast, no backend dependency
+| `src/pages/Index.tsx` | Adjust chart margins, label positions, and text to fix overlap |
+| `src/components/NotificationDropdown.tsx` | New — notification popover pulling from activity_log |
+| `src/components/AppLayout.tsx` | Replace static Bell button with NotificationDropdown |
