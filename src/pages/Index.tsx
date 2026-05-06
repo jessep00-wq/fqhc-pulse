@@ -94,6 +94,8 @@ function FinancialsDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["org_financials", orgId] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(orgId, "Financial impact data configured", "success");
       toast.success("Financial data saved");
       onClose();
     },
