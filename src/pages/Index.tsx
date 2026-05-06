@@ -477,6 +477,14 @@ export default function Dashboard() {
 
       <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
+      <BoardReportDialog
+        open={boardReportOpen}
+        onClose={() => setBoardReportOpen(false)}
+        cycles={cycles || []}
+        tasks={tasks || []}
+        trends={trends || []}
+        financials={fin}
+      />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
