@@ -327,22 +327,41 @@ export default function Dashboard() {
     <div className="p-6 space-y-6">
       {/* Value-prop welcome header */}
       <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Welcome back, {firstName}
-        </h1>
-        <p className="text-base text-muted-foreground mt-1">
-          Your Quality Improvement Command Center for <span className="font-medium text-foreground">{organization.name}</span>
-        </p>
-        <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
-          Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
-        </p>
-        <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">Purpose-built for FQHCs</span>
-          <span className="inline-flex items-center gap-1.5">20+ UDS measures</span>
-          <span className="inline-flex items-center gap-1.5">·</span>
-          <span className="inline-flex items-center gap-1.5">HRSA Chapter 10 aligned</span>
-          <span className="inline-flex items-center gap-1.5">·</span>
-          <span className="inline-flex items-center gap-1.5">SPC analytics included</span>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Welcome back, {firstName}
+            </h1>
+            <p className="text-base text-muted-foreground mt-1">
+              Your Quality Improvement Command Center for <span className="font-medium text-foreground">{organization.name}</span>
+            </p>
+            <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
+              Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">Purpose-built for FQHCs</span>
+              <span className="inline-flex items-center gap-1.5">20+ UDS measures</span>
+              <span className="inline-flex items-center gap-1.5">·</span>
+              <span className="inline-flex items-center gap-1.5">HRSA Chapter 10 aligned</span>
+              <span className="inline-flex items-center gap-1.5">·</span>
+              <span className="inline-flex items-center gap-1.5">SPC analytics included</span>
+            </div>
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0 gap-1.5"
+            onClick={() => {
+              if (isFreeTier) {
+                toast.info("Board Report export is available on paid plans.", { description: "Upgrade to export quarterly board reports as PDF." });
+              } else {
+                setBoardReportOpen(true);
+              }
+            }}
+          >
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Export Board Report</span>
+          </Button>
         </div>
       </div>
 
