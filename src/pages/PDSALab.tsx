@@ -695,11 +695,19 @@ export default function PDSALab() {
   });
 
   const updateStatus = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: string }) => {
+    mutationFn: async ({ id, status, title }: { id: string; status: string; title?: string }) => {
       const { error } = await supabase.from("pdsa_cycles").update({ status }).eq("id", id);
       if (error) throw error;
+      return { status, title };
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] }),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      if (result.title) {
+        const phase = result.status.charAt(0).toUpperCase() + result.status.slice(1);
+        logActivity(organization.id, `PDSA cycle "${result.title}" moved to ${phase}`, result.status === "completed" ? "success" : "info");
+      }
+    },
   });
 
   const createCycle = useMutation({
