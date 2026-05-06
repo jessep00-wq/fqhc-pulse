@@ -103,21 +103,37 @@ export function weeklyDigestEmail(
     tasksCompleted: number;
     tasksPending: number;
     tasksOverdue: number;
-    topMeasures: Array<{ name: string; value: number; trend: string }>;
-  }
+    topMeasures: Array<{ name: string; value: number; trend: string; target?: number | null; gap?: number | null; activeCycleName?: string | null }>;
+  },
+  customSubject?: string
 ): { subject: string; html: string } {
   const measureRows = (digest.topMeasures || [])
     .map(
-      (m) => `<tr>
+      (m) => {
+        const belowTarget = m.gap !== null && m.gap !== undefined && m.gap > 0;
+        const atOrAbove = m.gap !== null && m.gap !== undefined && m.gap <= 0;
+        const valueColor = belowTarget ? "#ef4444" : atOrAbove ? "#10b981" : "#374151";
+        return `<tr>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.name}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.value}%</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${valueColor};font-weight:600;">${m.value}%</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.target != null ? `${m.target}%` : "—"}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${m.trend === "up" ? "#10b981" : m.trend === "down" ? "#ef4444" : "#6b7280"};">${m.trend === "up" ? "↑ Improving" : m.trend === "down" ? "↓ Declining" : "→ Stable"}</td>
-      </tr>`
+      </tr>`;
+      }
     )
     .join("");
 
+  // Build actionable insight sentences for below-target measures
+  const insightSentences = (digest.topMeasures || [])
+    .filter((m) => m.gap !== null && m.gap !== undefined && m.gap > 0)
+    .map((m) => {
+      const cycleNote = m.activeCycleName ? ` — <strong>${m.activeCycleName}</strong> is active.` : "";
+      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${m.name}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
+    })
+    .join("");
+
   return {
-    subject: "📊 Your Weekly QI Digest — MeasureWise",
+    subject: customSubject || "📊 Your Weekly QI Digest — MeasureWise",
     html: layout("Weekly QI Digest", `
       <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 24px;">Here's your quality improvement summary for the past week:</p>
@@ -141,6 +157,8 @@ export function weeklyDigestEmail(
         </tr>
       </table>
 
+      ${insightSentences ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:16px;margin:0 0 24px;">${insightSentences}</div>` : ""}
+
       ${
         measureRows
           ? `<h3 style="margin:0 0 12px;color:#111827;font-size:16px;">UDS Measure Trends</h3>
@@ -148,6 +166,7 @@ export function weeklyDigestEmail(
         <tr style="background:#f9fafb;">
           <th style="padding:10px 12px;text-align:left;font-size:13px;color:#6b7280;border-bottom:1px solid #e5e7eb;">Measure</th>
           <th style="padding:10px 12px;text-align:left;font-size:13px;color:#6b7280;border-bottom:1px solid #e5e7eb;">Current</th>
+          <th style="padding:10px 12px;text-align:left;font-size:13px;color:#6b7280;border-bottom:1px solid #e5e7eb;">Target</th>
           <th style="padding:10px 12px;text-align:left;font-size:13px;color:#6b7280;border-bottom:1px solid #e5e7eb;">Trend</th>
         </tr>
         ${measureRows}

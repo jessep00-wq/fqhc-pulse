@@ -163,12 +163,12 @@ export default function Landing() {
           </div>
 
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
-            Walk into your next HRSA site visit with your PDSA binder already generated.
+            Every PDSA cycle you run should move a UDS measure. Now you can prove it.
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            The only compliance-first PDSA tracker built specifically for FQHCs.
-            One-click evidence packets, guided QI cycles, and UDS dashboards
-            — at a price community health budgets can afford.
+            Link your quality improvement work to UDS scores and HRSA funding
+            outcomes — with guided PDSA cycles, real-time measure tracking,
+            and one-click audit binders. Built for FQHCs. No sales call required.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" asChild className="text-base px-8">

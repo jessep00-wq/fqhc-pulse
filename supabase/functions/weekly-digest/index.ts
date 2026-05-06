@@ -82,6 +82,31 @@ serve(async (req) => {
         .order("month", { ascending: false })
         .limit(20);
 
+      // Get UDS targets for this org
+      const { data: targets } = await supabase
+        .from("uds_targets")
+        .select("measure_id, target_value")
+        .eq("organization_id", org.id);
+
+      const targetMap: Record<string, number> = {};
+      for (const t of targets || []) {
+        targetMap[t.measure_id] = Number(t.target_value);
+      }
+
+      // Get active PDSA cycles with their UDS measures
+      const { data: activePdsaCycles } = await supabase
+        .from("pdsa_cycles")
+        .select("title, uds_measure")
+        .eq("organization_id", org.id)
+        .neq("status", "completed");
+
+      const cycleMeasureMap: Record<string, string> = {};
+      for (const c of activePdsaCycles || []) {
+        if (c.uds_measure) {
+          cycleMeasureMap[c.uds_measure] = c.title;
+        }
+      }
+
       const measureMap: Record<string, Array<{ month: string; value: number }>> = {};
       for (const t of trends || []) {
         if (!measureMap[t.measure_id]) measureMap[t.measure_id] = [];
@@ -95,8 +120,17 @@ serve(async (req) => {
           const current = sorted[0]?.value || 0;
           const previous = sorted[1]?.value || current;
           const trend = current > previous ? "up" : current < previous ? "down" : "stable";
-          return { name, value: current, trend };
+          const target = targetMap[name] ?? null;
+          const gap = target !== null ? Math.round(target - current) : null;
+          const activeCycleName = cycleMeasureMap[name] ?? null;
+          return { name, value: current, trend, target, gap, activeCycleName };
         });
+
+      // Build a personalized subject line
+      const belowTarget = topMeasures.find((m) => m.gap !== null && m.gap > 0);
+      const subject = belowTarget
+        ? `📊 ${belowTarget.name} is ${belowTarget.gap} pts below target`
+        : "📊 Your Weekly QI Digest — MeasureWise";
 
       const digest = {
         activeCycles: activeCycles || 0,
@@ -118,7 +152,7 @@ serve(async (req) => {
         const { data: authUser } = await supabase.auth.admin.getUserById(profile.id);
         if (!authUser?.user?.email) continue;
 
-        const email = weeklyDigestEmail(profile.full_name || "", digest);
+        const email = weeklyDigestEmail(profile.full_name || "", digest, subject);
 
         const response = await fetch(`${GATEWAY_URL}/emails`, {
           method: "POST",

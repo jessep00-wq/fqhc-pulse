@@ -310,6 +310,30 @@ export type Database = {
           },
         ]
       }
+      uds_targets: {
+        Row: {
+          created_at: string
+          id: string
+          measure_id: string
+          organization_id: string
+          target_value: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          measure_id: string
+          organization_id: string
+          target_value: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          measure_id?: string
+          organization_id?: string
+          target_value?: number
+        }
+        Relationships: []
+      }
       uds_trends: {
         Row: {
           created_at: string
