@@ -333,6 +333,14 @@ export default function Dashboard() {
         <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
           Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
         </p>
+        <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">Purpose-built for FQHCs</span>
+          <span className="inline-flex items-center gap-1.5">20+ UDS measures</span>
+          <span className="inline-flex items-center gap-1.5">·</span>
+          <span className="inline-flex items-center gap-1.5">HRSA Chapter 10 aligned</span>
+          <span className="inline-flex items-center gap-1.5">·</span>
+          <span className="inline-flex items-center gap-1.5">SPC analytics included</span>
+        </div>
       </div>
 
       <OnboardingChecklist />
