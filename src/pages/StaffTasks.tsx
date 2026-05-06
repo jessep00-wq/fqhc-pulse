@@ -87,6 +87,8 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
+      logActivity(organization.id, `New task created: "${title}"`, "info");
       toast.success("Task created");
       resetAndClose();
     },
