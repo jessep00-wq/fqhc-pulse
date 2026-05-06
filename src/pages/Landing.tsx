@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import ContactForm from "@/components/ContactForm";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { SEO } from "@/components/SEO";
 import {
   FlaskConical,
   BarChart3,
@@ -18,11 +19,25 @@ import {
   Lock,
   Download,
   Eye,
+  Zap,
+  Table,
+  TrendingUp,
+  AlertTriangle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import founderPhoto from "@/assets/founder-jessica.png";
+import {
+  LineChart as RechartsLineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine,
+} from "recharts";
 
 const complianceBadges = [
   { label: "HRSA Chapter 10 Aligned", icon: Shield },
@@ -97,11 +112,109 @@ const securityItems = [
   { icon: Lock, label: "No PHI stored — only aggregate QI metrics" },
 ];
 
+const comparisonRows = [
+  { feature: "PDSA cycle management", measurewise: true, spreadsheet: "Manual", generic: "Partial" },
+  { feature: "UDS measure tracking (20+)", measurewise: true, spreadsheet: "Manual", generic: false },
+  { feature: "SPC charts with control limits", measurewise: true, spreadsheet: false, generic: "Add-on" },
+  { feature: "HRSA audit binder export", measurewise: true, spreadsheet: false, generic: false },
+  { feature: "NCQA Q-PASS evidence mapping", measurewise: true, spreadsheet: false, generic: false },
+  { feature: "Built specifically for FQHCs", measurewise: true, spreadsheet: false, generic: false },
+  { feature: "No per-seat licensing fees", measurewise: true, spreadsheet: true, generic: false },
+  { feature: "Board-ready report export", measurewise: true, spreadsheet: "Manual", generic: "Add-on" },
+];
+
+// Static SPC demo data for the hero section
+const spcDemoData = [
+  { month: "Jul", value: 52, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Aug", value: 50, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Sep", value: 54, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Oct", value: 57, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Nov", value: 53, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Dec", value: 58, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Jan", value: 61, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Feb", value: 63, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Mar", value: 66, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Apr", value: 69, ucl: 68, lcl: 42, mean: 55 },
+  { month: "May", value: 71, ucl: 68, lcl: 42, mean: 55 },
+  { month: "Jun", value: 72, ucl: 68, lcl: 42, mean: 55 },
+];
+
+const faqItems = [
+  {
+    q: "What is MeasureWise?",
+    a: "MeasureWise is a quality improvement platform built exclusively for Federally Qualified Health Centers (FQHCs). It connects PDSA cycles to UDS measures and HRSA funding outcomes — replacing spreadsheets with guided workflows, SPC charts, and one-click audit binders.",
+  },
+  {
+    q: "Do I need to be an FQHC to use MeasureWise?",
+    a: "MeasureWise is purpose-built for FQHCs and community health centers that report UDS data and undergo HRSA Operational Site Visits. If your organization runs PDSA cycles and tracks clinical quality measures, MeasureWise will work for you.",
+  },
+  {
+    q: "What are SPC charts and why do I need them?",
+    a: "Statistical Process Control (SPC) charts distinguish real improvement from random variation. Instead of guessing whether a screening rate increase is meaningful, SPC uses control limits to tell you statistically. HRSA reviewers increasingly expect this level of rigor.",
+  },
+  {
+    q: "How is MeasureWise different from spreadsheets?",
+    a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, generate HRSA-ready audit binders, or link clinical improvements to financial outcomes. MeasureWise does all of this in one purpose-built tool.",
+  },
+  {
+    q: "Is there a free plan?",
+    a: "Yes. The free tier includes 3 active PDSA cycles, UDS dashboards, and guided methodology — no credit card required. Upgrade when you need unlimited cycles, SPC charts, and multi-site support.",
+  },
+  {
+    q: "Does MeasureWise store PHI?",
+    a: "No. MeasureWise stores only aggregate quality improvement metrics — screening rates, cycle documentation, and task status. No patient-level data enters the system.",
+  },
+];
+
+const faqJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: faqItems.map((item) => ({
+    "@type": "Question",
+    name: item.q,
+    acceptedAnswer: { "@type": "Answer", text: item.a },
+  })),
+};
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "MeasureWise",
+  url: "https://measurewise.org",
+  logo: "https://measurewise.org/measurewise-logo.png",
+  description: "Quality improvement software built exclusively for Federally Qualified Health Centers.",
+  sameAs: [],
+};
+
+const softwareJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "MeasureWise",
+  applicationCategory: "HealthApplication",
+  operatingSystem: "Web",
+  description: "The only quality improvement platform built exclusively for FQHCs. Link PDSA cycles to UDS measures and HRSA funding outcomes.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tier available" },
+};
+
+function ComparisonCell({ value }: { value: boolean | string }) {
+  if (value === true) return <CheckCircle className="h-5 w-5 text-primary mx-auto" />;
+  if (value === false) return <X className="h-5 w-5 text-muted-foreground/40 mx-auto" />;
+  return <span className="text-sm text-muted-foreground">{value}</span>;
+}
+
 export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="MeasureWise™ — Quality Improvement Software for FQHCs"
+        description="The only QI platform built exclusively for Federally Qualified Health Centers. Link PDSA cycles to UDS measures and HRSA funding outcomes with SPC charts, audit binders, and staff task management."
+        canonical="https://measurewise.org"
+        jsonLd={orgJsonLd}
+      />
+
       {/* Nav */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -158,6 +271,16 @@ export default function Landing() {
         )}
       </header>
 
+      {/* Differentiator Banner */}
+      <div className="bg-primary/5 border-b border-primary/10">
+        <div className="max-w-6xl mx-auto px-6 py-2.5 text-center">
+          <p className="text-sm font-semibold text-primary tracking-wide">
+            <Zap className="h-3.5 w-3.5 inline-block mr-1.5 -mt-0.5" />
+            The only quality improvement platform built exclusively for FQHCs
+          </p>
+        </div>
+      </div>
+
       {/* Hero */}
       <section className="py-24 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -203,6 +326,7 @@ export default function Landing() {
               className="w-full"
               width={1280}
               height={720}
+              loading="lazy"
             />
           </div>
         </div>
@@ -217,6 +341,86 @@ export default function Landing() {
               <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* SPC Chart Hero Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
+                <TrendingUp className="h-4 w-4" />
+                Professional-Grade Analytics
+              </div>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                SPC charts your FQHC actually needs — without the enterprise price tag
+              </h2>
+              <p className="text-muted-foreground text-lg leading-relaxed">
+                Did your PDSA cycle actually improve that screening rate, or was it random variation?
+                Statistical Process Control charts answer this with mathematical rigor — and MeasureWise
+                generates them automatically from your UDS data.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm text-muted-foreground">Auto-calculated UCL/LCL control limits using standard SPC formulas</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm text-muted-foreground">Out-of-control signals highlighted — see special cause variation instantly</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                  <span className="text-sm text-muted-foreground">The evidence HRSA reviewers want to see during Operational Site Visits</span>
+                </li>
+              </ul>
+              <Button asChild className="mt-2">
+                <Link to="/features/spc-charts">
+                  Learn more about SPC <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-4 shadow-lg">
+              <p className="text-xs font-medium text-muted-foreground mb-2 px-2">
+                Cervical Cancer Screening (CMS124) — SPC Chart
+              </p>
+              <ResponsiveContainer width="100%" height={280}>
+                <RechartsLineChart data={spcDemoData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" className="text-xs" tick={{ fontSize: 11 }} />
+                  <YAxis domain={[35, 80]} className="text-xs" tick={{ fontSize: 11 }} />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)", fontSize: 12 }} />
+                  <ReferenceLine y={68} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "UCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
+                  <ReferenceLine y={42} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "LCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
+                  <ReferenceLine y={55} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" strokeOpacity={0.4} label={{ value: "Mean", position: "right", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
+                  <Line type="monotone" dataKey="value" stroke="hsl(192, 70%, 35%)" strokeWidth={2.5} dot={(props: any) => {
+                    const { cx, cy, payload } = props;
+                    const outOfControl = payload.value > payload.ucl;
+                    return (
+                      <circle
+                        key={`dot-${payload.month}`}
+                        cx={cx}
+                        cy={cy}
+                        r={outOfControl ? 5 : 3.5}
+                        fill={outOfControl ? "hsl(0, 72%, 51%)" : "hsl(192, 70%, 35%)"}
+                        stroke={outOfControl ? "hsl(0, 72%, 51%)" : "hsl(192, 70%, 35%)"}
+                        strokeWidth={outOfControl ? 2 : 0}
+                      />
+                    );
+                  }} name="Screening Rate" />
+                </RechartsLineChart>
+              </ResponsiveContainer>
+              <div className="flex items-center justify-center gap-4 mt-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-primary" /> Within limits
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <span className="h-2 w-2 rounded-full bg-destructive" /> Out of control
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -258,6 +462,7 @@ export default function Landing() {
               src={founderPhoto}
               alt="Jessica R. Smith, Founder of MeasureWise"
               className="h-36 w-36 md:h-44 md:w-44 rounded-full object-cover border-2 border-primary/20 shadow-lg"
+              loading="lazy"
             />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -311,8 +516,46 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Comparison Table */}
+      <section className="py-20 px-6 bg-muted/30">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground">
+              Why FQHCs choose MeasureWise over spreadsheets
+            </h2>
+            <p className="text-muted-foreground mt-3 text-lg">
+              Side-by-side: purpose-built QI software vs. what you're probably using now.
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="text-left font-semibold p-4 text-foreground">Feature</th>
+                    <th className="text-center font-semibold p-4 text-primary">MeasureWise</th>
+                    <th className="text-center font-semibold p-4 text-muted-foreground">Spreadsheets</th>
+                    <th className="text-center font-semibold p-4 text-muted-foreground">Generic QI Tools</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonRows.map((row, i) => (
+                    <tr key={row.feature} className={i % 2 === 0 ? "" : "bg-muted/20"}>
+                      <td className="p-4 font-medium text-foreground">{row.feature}</td>
+                      <td className="p-4 text-center"><ComparisonCell value={row.measurewise} /></td>
+                      <td className="p-4 text-center"><ComparisonCell value={row.spreadsheet} /></td>
+                      <td className="p-4 text-center"><ComparisonCell value={row.generic} /></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Security & Compliance */}
-      <section className="py-20 px-6 border-y border-border bg-muted/30">
+      <section className="py-20 px-6 border-y border-border">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground">
@@ -371,6 +614,37 @@ export default function Landing() {
               </Link>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="py-20 px-6 bg-muted/30">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground">Frequently asked questions</h2>
+            <p className="text-muted-foreground mt-3 text-lg">Common questions from FQHC quality teams.</p>
+          </div>
+          <div className="space-y-3">
+            {faqItems.map((item, i) => (
+              <div key={i} className="rounded-lg border border-border bg-card">
+                <button
+                  className="w-full flex items-center justify-between p-4 text-left"
+                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                >
+                  <span className="font-medium text-foreground text-sm">{item.q}</span>
+                  <ArrowRight className={`h-4 w-4 text-muted-foreground shrink-0 ml-4 transition-transform ${openFaq === i ? "rotate-90" : ""}`} />
+                </button>
+                {openFaq === i && (
+                  <div className="px-4 pb-4">
+                    <p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {/* FAQ JSON-LD */}
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
         </div>
       </section>
 
