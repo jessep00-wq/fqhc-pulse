@@ -1,31 +1,63 @@
-## 1. Fix UDS Measure Trend Chart Label Overlap
 
-The dual Y-axis labels ("% (↑ Higher is better)" and "% (↓ Lower is better)") and the ReferenceLine labels ("HRSA Target 65%", "Target ≤25%") overlap at certain viewport sizes because they both use `position: "right"` and small font sizes in a tight space.
+# Dashboard UX Overhaul
 
-**Fix:**
-- Move ReferenceLine labels to `position: "insideTopRight"` and `position: "insideBottomRight"` to separate them vertically
-- Shorten Y-axis labels to "% (Higher ↑)" and "% (Lower ↓)" 
-- Add `dx` / `dy` offsets to prevent collision
-- Increase left/right chart margins to give axis labels breathing room
+## 1. Make "UDS Measures at Risk" clickable with detail panel
 
-**File:** `src/pages/Index.tsx` (lines 357-362)
+The MetricCard currently has no `onClick`. Add a dialog/sheet that opens when clicked, listing each measure currently below the 65% threshold with its name, latest value, and target — plus a link to navigate to PDSA Lab filtered by that measure.
+
+**File:** `src/pages/Index.tsx`
 
 ---
 
-## 2. Make Notification Bell Functional
+## 2. Add a value-prop welcome header
 
-Currently the bell icon in `AppLayout.tsx` is a static button with a hardcoded badge "3". It needs a real notification dropdown.
+Replace the plain "Dashboard" / subtitle with a contextual welcome section:
 
-**Implementation:**
-- Create `src/components/NotificationDropdown.tsx` — a Popover with a scrollable list of notifications sourced from the `activity_log` table (already exists and scoped by `organization_id`)
-- Show the 10 most recent activity log entries as notifications
-- Badge count = unread count (activities created in last 7 days, simple approach without a separate read-status table)
-- Clicking a notification navigates to the relevant section (PDSA Lab, Staff Tasks, etc.) based on `activity_log.type`
-- Replace the static Bell button in `AppLayout.tsx` with NotificationDropdown
+- **Headline:** "Your Quality Improvement Command Center"
+- **One-liner:** "Track UDS measures, run PDSA cycles, and connect clinical improvements to financial outcomes — all in one place."
+- Show the user's name (from auth) and org name for personalization.
 
-**Files:**
+This gives first-time visitors immediate orientation.
+
+**File:** `src/pages/Index.tsx`
+
+---
+
+## 3. Add tooltips to jargon-heavy terms
+
+Create a small `JargonTooltip` wrapper component. Add tooltips to:
+
+| Term | Tooltip |
+|------|---------|
+| PDSA | Plan-Do-Study-Act — a structured cycle for testing and implementing quality improvements |
+| UDS | Uniform Data System — standardized clinical measures reported annually to HRSA |
+| SPC | Statistical Process Control — charts that distinguish normal variation from meaningful change |
+| HRSA | Health Resources & Services Administration — the federal agency that funds and oversees FQHCs |
+| ACO | Accountable Care Organization — a value-based payment model rewarding quality outcomes |
+
+Apply to metric card titles, chart headers, and section titles throughout the dashboard.
+
+**Files:** `src/components/JargonTooltip.tsx` (new), `src/pages/Index.tsx`, `src/components/SPCChart.tsx`
+
+---
+
+## 4. Enhance the onboarding checklist
+
+The `OnboardingChecklist` component already exists but is easy to miss. Improvements:
+
+- Add a prominent welcome message above it for brand-new orgs (0 completed items): "Welcome to MeasureWise! Complete these steps to set up your quality improvement workspace."
+- Make the checklist default to **expanded** (it already does) and more visually prominent with a gradient border.
+- Add numbered steps for clearer sequencing.
+
+**File:** `src/components/OnboardingChecklist.tsx`
+
+---
+
+## Files summary
+
 | File | Change |
 |------|--------|
-| `src/pages/Index.tsx` | Adjust chart margins, label positions, and text to fix overlap |
-| `src/components/NotificationDropdown.tsx` | New — notification popover pulling from activity_log |
-| `src/components/AppLayout.tsx` | Replace static Bell button with NotificationDropdown |
+| `src/pages/Index.tsx` | Welcome header, at-risk dialog, jargon tooltips on metric cards and chart titles |
+| `src/components/JargonTooltip.tsx` | New — reusable tooltip wrapper for QI jargon |
+| `src/components/OnboardingChecklist.tsx` | Welcome message for new orgs, numbered steps, visual enhancement |
+| `src/components/SPCChart.tsx` | Add jargon tooltip to SPC chart title |
