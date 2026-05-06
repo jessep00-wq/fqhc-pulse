@@ -16,7 +16,7 @@ import {
   FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
   ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight,
 } from "lucide-react";
-import { UpgradeBanner } from "@/components/UpgradePrompt";
+// UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
