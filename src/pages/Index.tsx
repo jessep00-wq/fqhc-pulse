@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -449,11 +450,8 @@ export default function Dashboard() {
 
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle className="text-base"><JargonTooltip term="UDS">UDS</JargonTooltip> Measure Trends</CardTitle>
-            {hasTrends && (
-              <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
-            )}
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base"><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</CardTitle>
           </CardHeader>
           <CardContent>
             {!hasTrends ? (
@@ -465,22 +463,34 @@ export default function Dashboard() {
                 onAction={() => navigate("/dashboard/settings")}
               />
             ) : (
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                <XAxis dataKey="month" className="text-xs" />
-                <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "Screening & Control (%)", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "Poor Control (%)", angle: 90, position: "insideRight", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
-                <Legend />
-                <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} label={{ value: "HRSA 65%", position: "insideTopLeft", style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: "Target ≤25%", position: "insideBottomLeft", style: { fontSize: 9, fill: "hsl(0, 72%, 51%)" } }} />
-                <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
-                <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
-                <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
-                <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
-              </LineChart>
-            </ResponsiveContainer>
+              <Tabs defaultValue="trends" className="space-y-4">
+                <TabsList>
+                  <TabsTrigger value="trends">UDS Trends</TabsTrigger>
+                  <TabsTrigger value="spc"><JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis</TabsTrigger>
+                </TabsList>
+                <TabsContent value="trends" className="space-y-2">
+                  <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
+                  <ResponsiveContainer width="100%" height={300}>
+                    <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis dataKey="month" className="text-xs" />
+                      <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "Screening & Control (%)", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
+                      <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "Poor Control (%)", angle: 90, position: "insideRight", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
+                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
+                      <Legend />
+                      <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} label={{ value: "HRSA 65%", position: "insideTopLeft", style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
+                      <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: "Target ≤25%", position: "insideBottomLeft", style: { fontSize: 9, fill: "hsl(0, 72%, 51%)" } }} />
+                      <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
+                      <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
+                      <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
+                      <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </TabsContent>
+                <TabsContent value="spc">
+                  <SPCChart trends={trends || []} />
+                </TabsContent>
+              </Tabs>
             )}
           </CardContent>
         </Card>
@@ -519,8 +529,6 @@ export default function Dashboard() {
           </CardContent>
         </Card>
       </div>
-
-      <SPCChart trends={trends || []} />
     </div>
   );
 }

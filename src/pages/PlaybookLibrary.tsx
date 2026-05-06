@@ -16,6 +16,7 @@ import { toast } from "sonner";
 
 const ICONS: Record<string, React.ElementType> = {
   CMS124: Stethoscope, CMS125: Stethoscope, AWV: BarChart3, CMS165: Stethoscope, CMS2v12: Brain,
+  CMS138: Stethoscope, CMS130: Stethoscope, CMS122: Stethoscope,
 };
 
 const DOMAIN_COLORS: Record<string, string> = {

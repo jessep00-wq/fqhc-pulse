@@ -97,11 +97,11 @@ export function AppSidebar() {
       <SidebarFooter className="p-4 space-y-3">
         {!collapsed && isFreeTier && (
           <Link
-            to="/pricing"
+            to="/#contact"
             className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 transition-colors"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span>Free plan · {cyclesRemaining} cycle{cyclesRemaining === 1 ? "" : "s"} left</span>
+            <span>Free plan · Contact us to upgrade</span>
           </Link>
         )}
         {!collapsed && (

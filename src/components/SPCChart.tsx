@@ -1,8 +1,7 @@
 import { useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { JargonTooltip } from "@/components/JargonTooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Scatter, ScatterChart } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
 const MEASURES = [
   { id: "CMS124", label: "Cervical Cancer Screening" },
@@ -56,93 +55,89 @@ export default function SPCChart({ trends }: SPCChartProps) {
   const measureLabel = MEASURES.find((m) => m.id === measure)?.label || measure;
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between flex-wrap gap-3">
-          <CardTitle className="text-base"><JargonTooltip term="SPC">SPC</JargonTooltip> Chart — Process Performance</CardTitle>
-          <Select value={measure} onValueChange={setMeasure}>
-            <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              {MEASURES.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
-            </SelectContent>
-          </Select>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <p className="text-sm font-medium"><JargonTooltip term="SPC">SPC</JargonTooltip> Chart — Process Performance</p>
+        <Select value={measure} onValueChange={setMeasure}>
+          <SelectTrigger className="w-[200px] h-9"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            {MEASURES.map((m) => <SelectItem key={m.id} value={m.id}>{m.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+      {chartData.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">No trend data for {measureLabel}</p>
+      ) : (
+        <ResponsiveContainer width="100%" height={280}>
+          <LineChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+            <XAxis dataKey="month" className="text-xs" />
+            <YAxis className="text-xs" domain={[Math.floor(lcl - 5), Math.ceil(ucl + 5)]} />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "hsl(var(--card))",
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "var(--radius)",
+              }}
+              formatter={(value: number) => [`${value.toFixed(1)}%`, measureLabel]}
+            />
+            <ReferenceLine
+              y={ucl}
+              stroke="hsl(var(--destructive))"
+              strokeDasharray="6 3"
+              strokeWidth={1.5}
+              label={{ value: `UCL ${ucl.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--destructive))" } }}
+            />
+            <ReferenceLine
+              y={mean}
+              stroke="hsl(var(--success))"
+              strokeWidth={2}
+              label={{ value: `CL ${mean.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--success))" } }}
+            />
+            <ReferenceLine
+              y={lcl}
+              stroke="hsl(var(--destructive))"
+              strokeDasharray="6 3"
+              strokeWidth={1.5}
+              label={{ value: `LCL ${lcl.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--destructive))" } }}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke="hsl(var(--primary))"
+              strokeWidth={2}
+              dot={(props: { cx: number; cy: number; payload: { month: string; value: number; outOfControl: boolean } }) => {
+                const { cx, cy, payload } = props;
+                return (
+                  <circle
+                    key={payload.month}
+                    cx={cx}
+                    cy={cy}
+                    r={payload.outOfControl ? 6 : 4}
+                    fill={payload.outOfControl ? "hsl(var(--destructive))" : "hsl(var(--primary))"}
+                    stroke={payload.outOfControl ? "hsl(var(--destructive))" : "hsl(var(--primary))"}
+                    strokeWidth={payload.outOfControl ? 2 : 1}
+                  />
+                );
+              }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      )}
+      <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+        <div className="flex items-center gap-1.5">
+          <div className="h-0.5 w-4 bg-success" />
+          <span>Center Line (Mean)</span>
         </div>
-      </CardHeader>
-      <CardContent>
-        {chartData.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-8">No trend data for {measureLabel}</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={280}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-              <XAxis dataKey="month" className="text-xs" />
-              <YAxis className="text-xs" domain={[Math.floor(lcl - 5), Math.ceil(ucl + 5)]} />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: "hsl(var(--card))",
-                  border: "1px solid hsl(var(--border))",
-                  borderRadius: "var(--radius)",
-                }}
-                formatter={(value: number) => [`${value.toFixed(1)}%`, measureLabel]}
-              />
-              <ReferenceLine
-                y={ucl}
-                stroke="hsl(var(--destructive))"
-                strokeDasharray="6 3"
-                strokeWidth={1.5}
-                label={{ value: `UCL ${ucl.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--destructive))" } }}
-              />
-              <ReferenceLine
-                y={mean}
-                stroke="hsl(var(--success))"
-                strokeWidth={2}
-                label={{ value: `CL ${mean.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--success))" } }}
-              />
-              <ReferenceLine
-                y={lcl}
-                stroke="hsl(var(--destructive))"
-                strokeDasharray="6 3"
-                strokeWidth={1.5}
-                label={{ value: `LCL ${lcl.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--destructive))" } }}
-              />
-              <Line
-                type="monotone"
-                dataKey="value"
-                stroke="hsl(var(--primary))"
-                strokeWidth={2}
-                dot={(props: { cx: number; cy: number; payload: { month: string; value: number; outOfControl: boolean } }) => {
-                  const { cx, cy, payload } = props;
-                  return (
-                    <circle
-                      key={payload.month}
-                      cx={cx}
-                      cy={cy}
-                      r={payload.outOfControl ? 6 : 4}
-                      fill={payload.outOfControl ? "hsl(var(--destructive))" : "hsl(var(--primary))"}
-                      stroke={payload.outOfControl ? "hsl(var(--destructive))" : "hsl(var(--primary))"}
-                      strokeWidth={payload.outOfControl ? 2 : 1}
-                    />
-                  );
-                }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-        <div className="flex items-center justify-center gap-6 mt-3 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1.5">
-            <div className="h-0.5 w-4 bg-success" />
-            <span>Center Line (Mean)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-0.5 w-4 bg-destructive border-dashed" style={{ borderTop: "2px dashed hsl(var(--destructive))", height: 0 }} />
-            <span>Control Limits (±3σ)</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-destructive" />
-            <span>Out of Control</span>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <div className="h-0.5 w-4 bg-destructive border-dashed" style={{ borderTop: "2px dashed hsl(var(--destructive))", height: 0 }} />
+          <span>Control Limits (±3σ)</span>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex items-center gap-1.5">
+          <div className="h-3 w-3 rounded-full bg-destructive" />
+          <span>Out of Control</span>
+        </div>
+      </div>
+    </div>
   );
 }

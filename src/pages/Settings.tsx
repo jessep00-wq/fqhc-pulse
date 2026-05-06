@@ -10,7 +10,7 @@ import { logActivity } from "@/lib/activityLogger";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
-import { Loader2, User, Lock, Building2, TrendingUp, Upload, Plus, Trash2 } from "lucide-react";
+import { Loader2, User, Lock, Building2, TrendingUp, Upload, Plus, Trash2, Download, Database } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { TeamInviteSection } from "@/components/TeamInviteSection";
 import {
@@ -331,14 +331,48 @@ export default function Settings() {
             </Button>
           </div>
 
-          {/* CSV Upload */}
-          <div className="flex items-center gap-3">
+          {/* CSV Upload & Helpers */}
+          <div className="flex flex-wrap items-center gap-3">
             <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleCSVUpload} />
             <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} disabled={csvLoading}>
               {csvLoading ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Upload className="h-4 w-4 mr-1" />}
               Import CSV
             </Button>
-            <span className="text-xs text-muted-foreground">Format: measure_id, month (YYYY-MM), value</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const csv = "measure_id,month,value\nCMS124,2025-01,52\nCMS124,2025-02,55\nCMS165,2025-01,60\nCMS122,2025-01,35";
+                const blob = new Blob([csv], { type: "text/csv" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = "uds_sample.csv";
+                a.click();
+                URL.revokeObjectURL(url);
+              }}
+            >
+              <Download className="h-4 w-4 mr-1" /> Download Sample CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                const { error } = await supabase.rpc("seed_demo_data", { org_id: orgId });
+                if (error) {
+                  toast.error(error.message || "Failed to seed demo data");
+                } else {
+                  refetchTrends();
+                  queryClient.invalidateQueries({ queryKey: ["uds_trends", orgId] });
+                  queryClient.invalidateQueries({ queryKey: ["pdsa_cycles", orgId] });
+                  logActivity(orgId, "Seeded demo data for the organization", "info");
+                  toast.success("Demo data seeded successfully");
+                }
+              }}
+            >
+              <Database className="h-4 w-4 mr-1" /> Seed Demo Data
+            </Button>
+            <span className="text-xs text-muted-foreground">CSV format: measure_id, month (YYYY-MM), value</span>
           </div>
 
           <Separator />
