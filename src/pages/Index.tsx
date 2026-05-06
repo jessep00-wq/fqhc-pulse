@@ -339,9 +339,7 @@ export default function Dashboard() {
         </div>
       )}
 
-      {isFreeTier && (
-        <UpgradeBanner message={`Free plan: ${cyclesRemaining} PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles and watermark-free exports.`} />
-      )}
+      {/* Upgrade indicator moved to sidebar */}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
