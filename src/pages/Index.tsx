@@ -351,15 +351,15 @@ export default function Dashboard() {
               />
             ) : (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={trendChart}>
+              <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                 <XAxis dataKey="month" className="text-xs" />
-                <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "% (↑ Higher is better)", angle: -90, position: "insideLeft", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
-                <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "% (↓ Lower is better)", angle: 90, position: "insideRight", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
+                <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "% Higher ↑", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
+                <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "% Lower ↓", angle: 90, position: "insideRight", offset: -5, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
                 <Legend />
-                <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} label={{ value: "HRSA Target 65%", position: "right", style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: "Target ≤25%", position: "right", style: { fontSize: 9, fill: "hsl(0, 72%, 51%)" } }} />
+                <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} label={{ value: "HRSA 65%", position: "insideTopLeft", style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
+                <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: "Target ≤25%", position: "insideBottomLeft", style: { fontSize: 9, fill: "hsl(0, 72%, 51%)" } }} />
                 <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" />
                 <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" />
                 <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" />
