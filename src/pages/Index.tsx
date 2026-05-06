@@ -207,6 +207,9 @@ export default function Dashboard() {
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
+  const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
+    () => localStorage.getItem(`sample_banner_dismissed_${organization.id}`) === "true"
+  );
   const { isFreeTier, cyclesRemaining } = useTierLimits();
 
   const { data: cycles } = useQuery({
