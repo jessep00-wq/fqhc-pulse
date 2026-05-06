@@ -417,10 +417,11 @@ export default function Dashboard() {
                 </div>
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-4 text-center">
-                <p className="text-sm text-muted-foreground mb-2">No financial data configured</p>
+              <div className="flex flex-col items-center justify-center py-4 text-center space-y-2">
+                <p className="text-sm text-foreground font-medium">Link quality to revenue</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">See how your quality improvements translate to shared savings, penalty avoidance, and HRSA awards.</p>
                 <Button size="sm" variant="outline" onClick={() => setFinDialogOpen(true)}>
-                  <Settings2 className="h-3.5 w-3.5 mr-1" /> Configure
+                  <Settings2 className="h-3.5 w-3.5 mr-1" /> Configure Financial Data
                 </Button>
               </div>
             )}
@@ -435,6 +436,9 @@ export default function Dashboard() {
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-base"><JargonTooltip term="UDS">UDS</JargonTooltip> Measure Trends</CardTitle>
+            {hasTrends && (
+              <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
+            )}
           </CardHeader>
           <CardContent>
             {!hasTrends ? (
@@ -450,16 +454,16 @@ export default function Dashboard() {
               <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                 <XAxis dataKey="month" className="text-xs" />
-                <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "% Higher ↑", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
-                <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "% Lower ↓", angle: 90, position: "insideRight", offset: -5, style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
+                <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "Screening & Control (%)", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
+                <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "Poor Control (%)", angle: 90, position: "insideRight", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
                 <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
                 <Legend />
                 <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} label={{ value: "HRSA 65%", position: "insideTopLeft", style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
                 <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: "Target ≤25%", position: "insideBottomLeft", style: { fontSize: 9, fill: "hsl(0, 72%, 51%)" } }} />
-                <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" />
-                <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" />
-                <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" />
-                <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" />
+                <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
+                <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
+                <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
+                <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
               </LineChart>
             </ResponsiveContainer>
             )}
@@ -484,7 +488,18 @@ export default function Dashboard() {
               );
             })}
             {(!activity || activity.length === 0) && (
-              <p className="text-sm text-muted-foreground text-center py-4">No recent activity</p>
+              <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FlaskConical className="h-5 w-5 text-primary" />
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm font-medium">No activity yet</p>
+                  <p className="text-xs text-muted-foreground">Activity appears here as you run PDSA cycles, complete tasks, and update measures.</p>
+                </div>
+                <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
+                  Start your first PDSA cycle <ArrowRight className="h-3 w-3 ml-1" />
+                </Button>
+              </div>
             )}
           </CardContent>
         </Card>
