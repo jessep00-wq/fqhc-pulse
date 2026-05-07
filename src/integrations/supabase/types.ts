@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_health_snapshots: {
+        Row: {
+          active_pdsa_count: number
+          champion_user_id: string | null
+          created_at: string
+          first_pdsa_done: boolean
+          health_status: string
+          id: string
+          last_export_at: string | null
+          onboarding_complete: boolean
+          organization_id: string
+          period: string
+          risk_flag: string | null
+          weekly_active_users: number
+        }
+        Insert: {
+          active_pdsa_count?: number
+          champion_user_id?: string | null
+          created_at?: string
+          first_pdsa_done?: boolean
+          health_status?: string
+          id?: string
+          last_export_at?: string | null
+          onboarding_complete?: boolean
+          organization_id: string
+          period?: string
+          risk_flag?: string | null
+          weekly_active_users?: number
+        }
+        Update: {
+          active_pdsa_count?: number
+          champion_user_id?: string | null
+          created_at?: string
+          first_pdsa_done?: boolean
+          health_status?: string
+          id?: string
+          last_export_at?: string | null
+          onboarding_complete?: boolean
+          organization_id?: string
+          period?: string
+          risk_flag?: string | null
+          weekly_active_users?: number
+        }
+        Relationships: []
+      }
       activity_log: {
         Row: {
           created_at: string
@@ -266,6 +311,48 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          canceled_at: string | null
+          created_at: string
+          id: string
+          organization_id: string
+          plan: string
+          renews_at: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          updated_at: string
+        }
+        Insert: {
+          canceled_at?: string | null
+          created_at?: string
+          id?: string
+          organization_id: string
+          plan?: string
+          renews_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canceled_at?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          plan?: string
+          renews_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           acknowledged: boolean
@@ -433,6 +520,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      usage_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          metadata: Json | null
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {
