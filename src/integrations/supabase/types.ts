@@ -140,8 +140,10 @@ export type Database = {
       }
       organizations: {
         Row: {
+          archived_at: string | null
           created_at: string
           id: string
+          is_test: boolean
           name: string
           npi: string | null
           onboarding_status: string
@@ -150,8 +152,10 @@ export type Database = {
           stage: string
         }
         Insert: {
+          archived_at?: string | null
           created_at?: string
           id?: string
+          is_test?: boolean
           name: string
           npi?: string | null
           onboarding_status?: string
@@ -160,8 +164,10 @@ export type Database = {
           stage?: string
         }
         Update: {
+          archived_at?: string | null
           created_at?: string
           id?: string
+          is_test?: boolean
           name?: string
           npi?: string | null
           onboarding_status?: string
