@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { trackPostHogEvent } from "@/lib/posthog";
 
 export type EventName =
   | "login"
@@ -28,6 +29,9 @@ export async function trackEvent(
       .single();
 
     if (!profile?.organization_id) return;
+
+    // Mirror to PostHog
+    trackPostHogEvent(eventName, { organization_id: profile.organization_id, ...metadata });
 
     await supabase.from("usage_events").insert([{
       user_id: user.id,
