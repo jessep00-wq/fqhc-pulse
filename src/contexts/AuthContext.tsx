@@ -30,6 +30,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === "SIGNED_IN" && session?.user && !loginTracked.current) {
           loginTracked.current = true;
           trackEvent("login");
+          // Identify user in PostHog
+          identifyUser(session.user.id, {
+            email: session.user.email,
+          });
           supabase
             .from("profiles")
             .update({ last_login_at: new Date().toISOString() })
@@ -38,6 +42,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
+          resetPostHog();
         }
       }
     );
