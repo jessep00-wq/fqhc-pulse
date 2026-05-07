@@ -144,21 +144,30 @@ export type Database = {
           id: string
           name: string
           npi: string | null
+          onboarding_status: string
           owner_id: string | null
+          source: string | null
+          stage: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
           npi?: string | null
+          onboarding_status?: string
           owner_id?: string | null
+          source?: string | null
+          stage?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
           npi?: string | null
+          onboarding_status?: string
           owner_id?: string | null
+          source?: string | null
+          stage?: string
         }
         Relationships: []
       }
@@ -260,6 +269,9 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_internal: boolean
+          last_active_at: string | null
+          last_login_at: string | null
           organization_id: string | null
           staff_role: string | null
         }
@@ -267,6 +279,9 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_internal?: boolean
+          last_active_at?: string | null
+          last_login_at?: string | null
           organization_id?: string | null
           staff_role?: string | null
         }
@@ -274,6 +289,9 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_internal?: boolean
+          last_active_at?: string | null
+          last_login_at?: string | null
           organization_id?: string | null
           staff_role?: string | null
         }
