@@ -13,7 +13,7 @@ serve(async (req) => {
   }
 
   try {
-    // --- Auth check ---
+    // --- Auth check using getUser() (server-side, rejects anon key) ---
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -28,9 +28,8 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -38,18 +37,16 @@ serve(async (req) => {
     }
     // --- End auth check ---
 
-    const { uds_measure, context } = await req.json();
+    const body = await req.json();
+    const uds_measure = typeof body.uds_measure === "string" ? body.uds_measure.slice(0, 200) : "";
+    const context = typeof body.context === "string" ? body.context.slice(0, 500) : "";
 
-    // Input validation
-    if (!uds_measure || typeof uds_measure !== "string" || uds_measure.length > 200) {
+    if (!uds_measure) {
       return new Response(
         JSON.stringify({ error: "Invalid or missing uds_measure" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Cap context length to prevent prompt injection abuse
-    const safeContext = typeof context === "string" ? context.slice(0, 500) : "";
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
@@ -67,7 +64,7 @@ Keep the response practical and actionable for a community health center QI team
     const userPrompt = `Analyze potential root causes for underperformance on the following UDS measure at our FQHC:
 
 Measure: ${uds_measure}
-${safeContext ? `Additional context: ${safeContext}` : ""}
+${context ? `Additional context: ${context}` : ""}
 
 Provide a structured root cause analysis that our QI team can use to design a PDSA cycle.`;
 
