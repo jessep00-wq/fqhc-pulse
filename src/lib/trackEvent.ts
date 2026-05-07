@@ -33,7 +33,7 @@ export async function trackEvent(
       user_id: user.id,
       organization_id: profile.organization_id,
       event_name: eventName,
-      metadata: (metadata ?? {}) as Record<string, unknown>,
+      metadata: (metadata ?? {}) as unknown as import("@/integrations/supabase/types").Json,
     }]);
 
     // Update last_active_at on profile
