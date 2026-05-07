@@ -45,6 +45,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { organization } = useOrg();
   const { isFreeTier, cyclesRemaining } = useTierLimits();
+  const { isAdmin } = useUserRole();
 
   return (
     <Sidebar collapsible="icon">
