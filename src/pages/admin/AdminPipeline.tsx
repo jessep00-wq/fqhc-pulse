@@ -1,12 +1,17 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Building2 } from "lucide-react";
+import { useAdminOrgs, type OrgViewFilter } from "@/hooks/useAdminOrgs";
+import { OrgViewFilter as OrgViewFilterUI } from "@/components/admin/OrgViewFilter";
+import { OrgActionsMenu } from "@/components/admin/OrgActionsMenu";
 
 const stages = ["all", "lead", "onboarding", "active", "churned"] as const;
-
 const stageColors: Record<string, string> = {
   lead: "bg-blue-100 text-blue-800",
   onboarding: "bg-amber-100 text-amber-800",
@@ -16,17 +21,8 @@ const stageColors: Record<string, string> = {
 
 export default function AdminPipeline() {
   const [stageFilter, setStageFilter] = useState<string>("all");
-
-  const { data: orgs = [] } = useQuery({
-    queryKey: ["admin_pipeline_orgs"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("organizations")
-        .select("*")
-        .order("created_at", { ascending: false });
-      return data ?? [];
-    },
-  });
+  const [viewFilter, setViewFilter] = useState<OrgViewFilter>("active");
+  const { orgs, isLoading, archiveMutation, unarchiveMutation, deleteMutation } = useAdminOrgs(viewFilter);
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["admin_pipeline_profiles"],
@@ -36,9 +32,8 @@ export default function AdminPipeline() {
     },
   });
 
-  const filtered = stageFilter === "all"
-    ? orgs
-    : orgs.filter((o) => (o as any).stage === stageFilter);
+  const filtered = stageFilter === "all" ? orgs : orgs.filter((o) => o.stage === stageFilter);
+  const showArchived = viewFilter === "archived" || viewFilter === "all";
 
   return (
     <div className="space-y-6">
@@ -47,61 +42,77 @@ export default function AdminPipeline() {
           <h1 className="text-2xl font-bold">Pipeline</h1>
           <p className="text-muted-foreground">Track organizations through the funnel</p>
         </div>
-        <Select value={stageFilter} onValueChange={setStageFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {stages.map((s) => (
-              <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-3">
+          <Select value={stageFilter} onValueChange={setStageFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {stages.map((s) => (
+                <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <OrgViewFilterUI value={viewFilter} onChange={setViewFilter} />
+        </div>
       </div>
 
       <Card>
         <CardContent className="p-0">
-          <div className="overflow-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b text-left text-muted-foreground">
-                  <th className="p-4">Organization</th>
-                  <th className="p-4">Contact</th>
-                  <th className="p-4">Stage</th>
-                  <th className="p-4">Onboarding</th>
-                  <th className="p-4">Signed Up</th>
-                </tr>
-              </thead>
-              <tbody>
+          {isLoading ? (
+            <div className="p-4 space-y-3">
+              {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} className="h-10 w-full" />)}
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Building2 className="h-10 w-10 text-muted-foreground/50 mb-3" />
+              <p className="text-muted-foreground font-medium">No organizations match this filter</p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Organization</TableHead>
+                  <TableHead>Contact</TableHead>
+                  <TableHead>Stage</TableHead>
+                  <TableHead>Onboarding</TableHead>
+                  <TableHead>Signed Up</TableHead>
+                  {showArchived && <TableHead>Archived</TableHead>}
+                  <TableHead className="w-[60px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filtered.map((org) => {
                   const owner = profiles.find((p) => p.id === org.owner_id);
-                  const stage = (org as any).stage ?? "lead";
+                  const isArchived = !!(org as any).archived_at;
                   return (
-                    <tr key={org.id} className="border-b last:border-0 hover:bg-muted/50">
-                      <td className="p-4 font-medium">{org.name}</td>
-                      <td className="p-4 text-muted-foreground">{owner?.full_name ?? "—"}</td>
-                      <td className="p-4">
-                        <Badge variant="secondary" className={stageColors[stage] ?? ""}>
-                          {stage}
-                        </Badge>
-                      </td>
-                      <td className="p-4 capitalize">{(org as any).onboarding_status ?? "pending"}</td>
-                      <td className="p-4 text-muted-foreground">
-                        {new Date(org.created_at).toLocaleDateString()}
-                      </td>
-                    </tr>
+                    <TableRow key={org.id} className={isArchived ? "opacity-60" : ""}>
+                      <TableCell className="font-medium">{org.name}</TableCell>
+                      <TableCell className="text-muted-foreground">{owner?.full_name ?? "—"}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className={stageColors[org.stage] ?? ""}>{org.stage}</Badge>
+                      </TableCell>
+                      <TableCell className="capitalize">{org.onboarding_status}</TableCell>
+                      <TableCell className="text-muted-foreground">{new Date(org.created_at).toLocaleDateString()}</TableCell>
+                      {showArchived && (
+                        <TableCell className="text-muted-foreground">
+                          {isArchived ? new Date((org as any).archived_at).toLocaleDateString() : "—"}
+                        </TableCell>
+                      )}
+                      <TableCell>
+                        <OrgActionsMenu
+                          orgId={org.id} orgName={org.name} isArchived={isArchived}
+                          onArchive={(id) => archiveMutation.mutate(id)}
+                          onUnarchive={(id) => unarchiveMutation.mutate(id)}
+                          onDelete={(id) => deleteMutation.mutate(id)}
+                        />
+                      </TableCell>
+                    </TableRow>
                   );
                 })}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="p-8 text-center text-muted-foreground">
-                      No organizations match this filter
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
     </div>
