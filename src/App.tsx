@@ -35,6 +35,7 @@ import FeatureHRSAAuditBinder from "./pages/features/FeatureHRSAAuditBinder";
 import FeatureSPCCharts from "./pages/features/FeatureSPCCharts";
 import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
 import NetworkDashboard from "./pages/NetworkDashboard";
+import HowItWorks from "./pages/HowItWorks";
 
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
@@ -64,6 +65,7 @@ const App = () => (
                 <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
                 <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
                 <Route path="/pricing" element={<Pricing />} />
+                <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/status" element={<Status />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
