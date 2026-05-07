@@ -29,12 +29,12 @@ export async function trackEvent(
 
     if (!profile?.organization_id) return;
 
-    await supabase.from("usage_events").insert({
+    await supabase.from("usage_events").insert([{
       user_id: user.id,
       organization_id: profile.organization_id,
       event_name: eventName,
-      metadata: metadata ?? {},
-    });
+      metadata: (metadata ?? {}) as Record<string, unknown>,
+    }]);
 
     // Update last_active_at on profile
     await supabase
