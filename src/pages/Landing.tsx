@@ -11,7 +11,6 @@ import {
   ArrowRight,
   Shield,
   ClipboardCheck,
-  Users,
   DollarSign,
   CheckCircle,
   Menu,
@@ -20,13 +19,9 @@ import {
   Download,
   Eye,
   Zap,
-  Table,
   TrendingUp,
-  AlertTriangle,
   Target,
   Clock,
-  Layers,
-  Award,
 } from "lucide-react";
 import { useState } from "react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
