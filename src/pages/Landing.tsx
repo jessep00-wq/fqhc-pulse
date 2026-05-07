@@ -378,9 +378,9 @@ export default function Landing() {
             {complianceBadges.map((b) => (
               <div
                 key={b.label}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-1.5 text-sm text-muted-foreground"
+                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-5 py-2 text-sm font-semibold text-primary"
               >
-                <b.icon className="h-4 w-4 text-primary" />
+                <b.icon className="h-4.5 w-4.5" />
                 {b.label}
               </div>
             ))}
@@ -405,22 +405,28 @@ export default function Landing() {
             </Button>
           </div>
 
-          {/* What happens when you click */}
-          <div className="max-w-xl mx-auto pt-4">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">What happens when you sign up</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-              <div className="flex gap-3 items-start">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">1</span>
-                <p className="text-sm text-muted-foreground">Tell us about your FQHC and top UDS priorities</p>
-              </div>
-              <div className="flex gap-3 items-start">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">2</span>
-                <p className="text-sm text-muted-foreground">We configure a sample PDSA → UDS workflow for you</p>
-              </div>
-              <div className="flex gap-3 items-start">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-bold">3</span>
-                <p className="text-sm text-muted-foreground">Run your first cycle in under 10 minutes — share it with your team</p>
-              </div>
+          {/* Three-Step Workflow Visual */}
+          <div className="max-w-3xl mx-auto pt-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-stretch">
+              {[
+                { icon: FlaskConical, step: "1", title: "Plan PDSA", desc: "Use guided templates linked to UDS measures" },
+                { icon: TrendingUp, step: "2", title: "Track UDS Impact", desc: "SPC charts show real improvement vs. noise" },
+                { icon: FileCheck, step: "3", title: "Export Audit Binder", desc: "One-click HRSA & NCQA-ready documentation" },
+              ].map((s, i) => (
+                <div key={s.step} className="flex items-center">
+                  <div className="flex-1 text-center space-y-3 p-5 rounded-xl border border-border bg-card shadow-sm">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mx-auto">
+                      <s.icon className="h-6 w-6" />
+                    </div>
+                    <p className="text-xs font-bold text-primary uppercase tracking-wider">Step {s.step}</p>
+                    <h3 className="font-semibold text-foreground text-base">{s.title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                  </div>
+                  {i < 2 && (
+                    <ArrowRight className="h-5 w-5 text-primary/40 shrink-0 mx-1 hidden sm:block" />
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -449,6 +455,17 @@ export default function Landing() {
               <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* Credibility Badge Bar */}
+      <section className="py-6 px-6 border-b border-border bg-card">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-2 font-medium"><Shield className="h-4 w-4 text-primary" /> HRSA Chapter 10 Aligned</span>
+          <span className="hidden sm:inline text-border">|</span>
+          <span className="inline-flex items-center gap-2 font-medium"><ClipboardCheck className="h-4 w-4 text-primary" /> NCQA PCMH & Q-PASS Ready</span>
+          <span className="hidden sm:inline text-border">|</span>
+          <span className="inline-flex items-center gap-2 font-medium"><FileCheck className="h-4 w-4 text-primary" /> One-Click Audit Binder Exports</span>
         </div>
       </section>
 
