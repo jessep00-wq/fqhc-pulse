@@ -12,11 +12,58 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // --- Cron secret or JWT auth check ---
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    const authHeader = req.headers.get("Authorization");
+    const cronHeader = req.headers.get("x-cron-secret");
+
+    if (cronSecret && cronHeader === cronSecret) {
+      // Valid cron invocation — proceed
+    } else if (authHeader?.startsWith("Bearer ")) {
+      // Check if caller is founder_admin
+      const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+      const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        global: { headers: { Authorization: authHeader } },
+      });
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
+      if (claimsError || !claimsData?.claims) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      // Verify founder_admin role
+      const userId = claimsData.claims.sub;
+      const serviceClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      );
+      const { data: roleData } = await serviceClient
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "founder_admin")
+        .maybeSingle();
+      if (!roleData) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    } else {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    // --- End auth check ---
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    // Get all organizations
     const { data: orgs, error: orgsError } = await supabase
       .from("organizations")
       .select("id, created_at, onboarding_status");
@@ -29,24 +76,21 @@ Deno.serve(async (req) => {
     const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
     const today = now.toISOString().split("T")[0];
 
-    const results = [];
+    let processedCount = 0;
 
     for (const org of orgs ?? []) {
-      // Count weekly active users (users with usage_events in last 7 days)
       const { count: weeklyActiveUsers } = await supabase
         .from("usage_events")
         .select("user_id", { count: "exact", head: true })
         .eq("organization_id", org.id)
         .gte("created_at", sevenDaysAgo.toISOString());
 
-      // Count active PDSA cycles
       const { count: activePdsaCount } = await supabase
         .from("pdsa_cycles")
         .select("id", { count: "exact", head: true })
         .eq("organization_id", org.id)
         .neq("status", "completed");
 
-      // Get last export event
       const { data: lastExportEvents } = await supabase
         .from("usage_events")
         .select("created_at")
@@ -57,7 +101,6 @@ Deno.serve(async (req) => {
 
       const lastExportAt = lastExportEvents?.[0]?.created_at ?? null;
 
-      // Get last meaningful event
       const { data: lastMeaningful } = await supabase
         .from("usage_events")
         .select("created_at")
@@ -70,7 +113,6 @@ Deno.serve(async (req) => {
         ? new Date(lastMeaningful[0].created_at)
         : null;
 
-      // Has first PDSA been done?
       const { count: totalPdsas } = await supabase
         .from("pdsa_cycles")
         .select("id", { count: "exact", head: true })
@@ -79,7 +121,6 @@ Deno.serve(async (req) => {
       const firstPdsaDone = (totalPdsas ?? 0) > 0;
       const onboardingComplete = org.onboarding_status === "complete";
 
-      // Determine health status
       let healthStatus = "green";
       let riskFlag: string | null = null;
 
@@ -91,13 +132,11 @@ Deno.serve(async (req) => {
         riskFlag = "inactive_7_days";
       }
 
-      // Check for new signup without onboarding
       const orgCreatedAt = new Date(org.created_at);
       if (!onboardingComplete && orgCreatedAt < threeDaysAgo) {
         riskFlag = "no_onboarding_3_days";
       }
 
-      // Check subscription for high-usage trial with no payment
       const { data: sub } = await supabase
         .from("subscriptions")
         .select("status, plan")
@@ -108,7 +147,6 @@ Deno.serve(async (req) => {
         riskFlag = "high_usage_trial";
       }
 
-      // Get champion (most active user)
       const { data: championData } = await supabase
         .from("usage_events")
         .select("user_id")
@@ -125,7 +163,6 @@ Deno.serve(async (req) => {
         championUserId = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? null;
       }
 
-      // Upsert health snapshot
       const snapshot = {
         organization_id: org.id,
         period: today,
@@ -147,15 +184,16 @@ Deno.serve(async (req) => {
         console.error(`Failed to upsert health for org ${org.id}:`, upsertError);
       }
 
-      results.push({ org_id: org.id, health_status: healthStatus, risk_flag: riskFlag });
+      processedCount++;
     }
 
-    return new Response(JSON.stringify({ success: true, processed: results.length, results }), {
+    // Only return summary count, never org IDs
+    return new Response(JSON.stringify({ success: true, processed: processedCount }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Health computation error:", error);
-    return new Response(JSON.stringify({ error: (error as Error).message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
