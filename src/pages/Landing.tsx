@@ -458,6 +458,17 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Credibility Badge Bar */}
+      <section className="py-6 px-6 border-b border-border bg-card">
+        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+          <span className="inline-flex items-center gap-2 font-medium"><Shield className="h-4 w-4 text-primary" /> HRSA Chapter 10 Aligned</span>
+          <span className="hidden sm:inline text-border">|</span>
+          <span className="inline-flex items-center gap-2 font-medium"><ClipboardCheck className="h-4 w-4 text-primary" /> NCQA PCMH & Q-PASS Ready</span>
+          <span className="hidden sm:inline text-border">|</span>
+          <span className="inline-flex items-center gap-2 font-medium"><FileCheck className="h-4 w-4 text-primary" /> One-Click Audit Binder Exports</span>
+        </div>
+      </section>
+
       {/* What MeasureWise Actually Does */}
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
