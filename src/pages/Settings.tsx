@@ -194,14 +194,25 @@ export default function Settings() {
         throw new Error("CSV must have columns: measure_id, month, value");
       }
 
-      const rows = lines.slice(1).map((line) => {
+      const VALID_MEASURES = new Set(["CMS2","CMS122","CMS124","CMS125","CMS127","CMS130","CMS138","CMS147","CMS165"]);
+      const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
+      const MAX_ROWS = 500;
+
+      const dataLines = lines.slice(1).filter((l) => l.trim().length > 0);
+      if (dataLines.length > MAX_ROWS) throw new Error(`Maximum ${MAX_ROWS} rows per import`);
+
+      const rows = dataLines.map((line) => {
         const cols = line.split(",").map((c) => c.trim());
+        const measureId = cols[measureIdx];
+        const month = cols[monthIdx];
         const val = Number(cols[valueIdx]);
-        if (isNaN(val)) throw new Error(`Invalid value: ${cols[valueIdx]}`);
+        if (!VALID_MEASURES.has(measureId)) throw new Error(`Unknown measure: ${measureId}`);
+        if (!MONTH_RE.test(month)) throw new Error(`Invalid month format: ${month}. Expected YYYY-MM`);
+        if (isNaN(val) || val < 0 || val > 100) throw new Error(`Value out of range (0-100): ${cols[valueIdx]}`);
         return {
           organization_id: orgId,
-          measure_id: cols[measureIdx],
-          month: cols[monthIdx],
+          measure_id: measureId,
+          month: month,
           value: val,
         };
       });
