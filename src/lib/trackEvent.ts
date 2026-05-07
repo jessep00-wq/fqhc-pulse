@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { trackPostHogEvent } from "@/lib/posthog";
 
 export type EventName =
   | "login"
