@@ -1,44 +1,63 @@
 
-# Fully Functional Admin Overview
+# Admin Console: Full Actions + Archived View + Historical Billing
 
-## Database Migration
+## 1. Shared reusable hook: `useAdminOrgs`
 
-Add two columns to `organizations` and a DELETE policy for founder admins:
+Create `src/hooks/useAdminOrgs.ts` — a shared hook that:
+- Fetches organizations with a `filter` param: `"active"` (default, `archived_at IS NULL`), `"archived"` (`archived_at IS NOT NULL`), `"all"` (no filter)
+- Excludes `is_test = true` unless filter is `"all"`
+- Exposes `archiveMutation`, `unarchiveMutation` (sets `archived_at = null`), and `deleteMutation` (hard delete, available for **any** org — no test-only restriction, per your request)
+- Handles toast notifications and query invalidation
 
-- **`is_test`** (`boolean NOT NULL DEFAULT false`) — flags test orgs
-- **`archived_at`** (`timestamptz NULL`) — soft-delete timestamp
-- **DELETE policy**: only founder admins can delete organizations
-- **Update existing RLS**: founder admins can already read/update all orgs (read policy exists; update needs adding for founder_admin)
+## 2. Shared component: `OrgActionsMenu`
 
-## AdminOverview Page Refactor
+Create `src/components/admin/OrgActionsMenu.tsx`:
+- View → navigates to `/admin/account/:orgId`
+- Edit → same route
+- Archive (shown when `archived_at` is null) → sets `archived_at = now()`
+- Unarchive (shown when `archived_at` is not null) → clears `archived_at`
+- Delete (always available, shown in red) → hard-deletes with a confirmation step
 
-### Default Query
-- Filter: `archived_at IS NULL` AND `is_test = false`
-- Join subscriptions inline to get plan info per org
+## 3. Shared component: `OrgViewFilter`
 
-### KPI Cards
-- Derived from the live queries (orgs, subscriptions, health snapshots) — already partially done, just add loading skeletons
-- Show `Skeleton` components while queries load
+A small toggle/select (`Active | Archived | All`) used at the top of each admin page to switch the view.
 
-### Organizations Table
-- Columns: Name, Stage, Plan, Created, **Actions**
-- Actions dropdown menu per row:
-  - **View** → navigate to `/admin/account/:orgId`
-  - **Edit** → navigate to `/admin/account/:orgId` (same detail page for now)
-  - **Archive** (non-test orgs only) → `update organizations set archived_at = now() where id = ?`
-  - **Delete** (test orgs only) → `delete from organizations where id = ?`
-- After each mutation: invalidate queries, show sonner toast
-- Empty state when no orgs match
+## 4. Update AdminOverview
 
-### Loading States
-- Skeleton cards (6 cards) while data loads
-- Skeleton table rows while orgs load
+- Replace inline queries/mutations with `useAdminOrgs` hook
+- Add the `OrgViewFilter` toggle
+- Use `OrgActionsMenu` in table rows
+- When viewing "Archived", show the `archived_at` date column
 
-### Nav Tabs
-Already wired to real routes (`/admin`, `/admin/pipeline`, etc.) via `AdminLayout` — no changes needed.
+## 5. Update AdminPipeline
 
-## Technical Details
+- Replace inline org query with `useAdminOrgs`
+- Add `OrgViewFilter` alongside existing stage filter
+- Add `OrgActionsMenu` as a new Actions column
+- Loading skeleton + empty state
 
-### Files changed
-1. **New migration** — `ALTER TABLE organizations ADD COLUMN is_test ...`, `ADD COLUMN archived_at ...`, DELETE RLS policy, founder_admin UPDATE policy
-2. **`src/pages/admin/AdminOverview.tsx`** — full rewrite with actions dropdown, loading/empty states, filtered query
+## 6. Update AdminBilling
+
+- Replace inline org query with `useAdminOrgs`
+- Add `OrgViewFilter`
+- Add `OrgActionsMenu`
+- **Historical clients**: show subscriptions with status `canceled` or `expired` — add a "Show historical" toggle that includes canceled/expired subs. When viewing archived orgs, all their subs naturally appear.
+- Loading skeleton + empty state
+
+## 7. Update AdminAdoption
+
+- Replace inline org query with `useAdminOrgs`
+- Add `OrgViewFilter`
+- Add `OrgActionsMenu`
+- Loading skeleton + empty state
+
+## Files changed
+- **New**: `src/hooks/useAdminOrgs.ts`
+- **New**: `src/components/admin/OrgActionsMenu.tsx`
+- **New**: `src/components/admin/OrgViewFilter.tsx`
+- **Edit**: `src/pages/admin/AdminOverview.tsx`
+- **Edit**: `src/pages/admin/AdminPipeline.tsx`
+- **Edit**: `src/pages/admin/AdminBilling.tsx`
+- **Edit**: `src/pages/admin/AdminAdoption.tsx`
+
+No database changes needed — the `is_test`, `archived_at` columns and DELETE RLS policy already exist.
