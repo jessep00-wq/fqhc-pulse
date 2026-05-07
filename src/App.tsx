@@ -93,6 +93,27 @@ const App = () => (
                 <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
                 <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
 
+                {/* Admin routes */}
+                <Route
+                  path="/admin/*"
+                  element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <ErrorBoundary>
+                          <Routes>
+                            <Route path="/" element={<AdminOverview />} />
+                            <Route path="/pipeline" element={<AdminPipeline />} />
+                            <Route path="/billing" element={<AdminBilling />} />
+                            <Route path="/adoption" element={<AdminAdoption />} />
+                            <Route path="/account/:orgId" element={<AdminAccountDetail />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </ErrorBoundary>
+                      </AdminLayout>
+                    </AdminRoute>
+                  }
+                />
+
                 <Route
                   path="/dashboard/*"
                   element={
