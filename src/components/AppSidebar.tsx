@@ -14,6 +14,7 @@ import { NavLink } from "@/components/NavLink";
 import { useLocation, Link } from "react-router-dom";
 import { useOrg } from "@/contexts/OrgContext";
 import { useTierLimits } from "@/hooks/useTierLimits";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   Sidebar,
   SidebarContent,
