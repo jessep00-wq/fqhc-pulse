@@ -22,24 +22,8 @@ export default function ContactForm() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.functions.invoke("send-email", {
-        body: {
-          to: email,
-          subject: "We received your message — MeasureWise",
-          html: `<!DOCTYPE html>
-<html><body style="margin:0;padding:0;background:#f8fafb;font-family:Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafb;padding:40px 20px;"><tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-<tr><td style="background:#1a8a8a;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
-<tr><td style="padding:32px;">
-<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${name}` : ""}!</h2>
-<p style="color:#374151;line-height:1.6;margin:0 0 16px;">We've received your message and our team will get back to you within 1 business day.</p>
-<p style="color:#374151;line-height:1.6;margin:0 0 16px;">In the meantime, feel free to explore MeasureWise with a free account — no credit card required.</p>
-<a href="https://measurewise.org/auth?signup=true" style="display:inline-block;background:#1a8a8a;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Try MeasureWise Free</a>
-</td></tr>
-<tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;"><p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p></td></tr>
-</table></td></tr></table></body></html>`,
-        },
+      const { error } = await supabase.functions.invoke("contact-form", {
+        body: { name, email, message },
       });
       if (error) throw error;
       setSent(true);
