@@ -61,6 +61,14 @@ serve(async (req) => {
       );
     }
 
+    // Restrict recipient to the authenticated user's own verified email
+    if (to !== user.email) {
+      return new Response(
+        JSON.stringify({ error: "Forbidden: can only send emails to your own address" }),
+        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
     // Validate input lengths
     if (subject.length > 500 || html.length > 50000 || to.length > 320) {
       return new Response(

@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // --- Cron secret or JWT auth check ---
+    // --- Cron secret or JWT auth check (fail closed) ---
     const cronSecret = Deno.env.get("CRON_SECRET");
     const authHeader = req.headers.get("Authorization");
     const cronHeader = req.headers.get("x-cron-secret");
@@ -20,22 +20,20 @@ Deno.serve(async (req) => {
     if (cronSecret && cronHeader === cronSecret) {
       // Valid cron invocation — proceed
     } else if (authHeader?.startsWith("Bearer ")) {
-      // Check if caller is founder_admin
+      // Check if caller is founder_admin using getUser() (server-side validation)
       const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
       const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
       const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         global: { headers: { Authorization: authHeader } },
       });
-      const token = authHeader.replace("Bearer ", "");
-      const { data: claimsData, error: claimsError } = await authClient.auth.getClaims(token);
-      if (claimsError || !claimsData?.claims) {
+      const { data: { user }, error: authError } = await authClient.auth.getUser();
+      if (authError || !user) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
           status: 401,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
       // Verify founder_admin role
-      const userId = claimsData.claims.sub;
       const serviceClient = createClient(
         Deno.env.get("SUPABASE_URL")!,
         Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
@@ -43,7 +41,7 @@ Deno.serve(async (req) => {
       const { data: roleData } = await serviceClient
         .from("user_roles")
         .select("role")
-        .eq("user_id", userId)
+        .eq("user_id", user.id)
         .eq("role", "founder_admin")
         .maybeSingle();
       if (!roleData) {
