@@ -1,111 +1,95 @@
 
-# MeasureWise Product Enhancement Plan
+# Landing Page Conversion Overhaul
 
-All five initiatives, delivered in phases. Each phase is independently shippable.
+## Current State
+The landing page already has: hero with CTA, compliance badges, SPC chart section, comparison table, persona cards, founder section, security section, FAQ, and contact form. Many of the requested elements exist in some form but need restructuring, deeper copy, and better information architecture.
 
----
+## Changes
 
-## Phase 1 — Competitive Positioning & SPC Hero (Landing + In-App)
+### 1. Hero Section — Stronger CTA & Clarity
+- Keep existing H1 headline
+- Replace subheadline with the more specific copy: "MeasureWise™ is a quality operations platform for FQHCs that links every PDSA cycle to specific UDS measures, tracks impact in real time, and auto-builds audit-ready binders for HRSA, NCQA, and Q-PASS reviews."
+- Change primary CTA to "See MeasureWise in Action" or keep "Start Your Free PDSA Tracker"
+- Add a "What happens when you click" micro-explainer below the CTA buttons (3-step: ask about your FQHC, configure a sample workflow, guided walkthrough)
 
-**Goal:** Make "built for FQHCs" and "the only QI platform designed around UDS reporting" impossible to miss.
+### 2. New Section: "What MeasureWise Actually Does" (after Stats)
+- Full paragraph explaining MeasureWise as a quality operations layer
+- Use the exact copy direction provided: "sits on top of your existing EHR and reporting tools..."
+- H2 heading for SEO
 
-### Landing Page Changes (`Landing.tsx`)
-- Add a bold differentiator banner above the hero: *"The only quality improvement platform built exclusively for FQHCs"*
-- Add a new **SPC Chart Hero section** between the stats bar and the sample export section:
-  - Static/animated SPC chart illustration (using Recharts with sample data, not interactive)
-  - Headline: *"Professional-grade SPC charts — without the enterprise price tag"*
-  - Subtext explaining control limits, special-cause variation, and why FQHCs need this
-  - CTA to `/features/spc-charts`
-- Add a **"Why MeasureWise vs. Spreadsheets"** comparison table (MeasureWise vs. Excel vs. Generic QI tools) near the features section
+### 3. New Section: "How It Works" (4-step workflow)
+- Visual step-by-step: Set up measures → Build PDSA → Track measure impact → Generate audit binder
+- Each step: icon, short heading, 1-2 sentence description
+- Numbered steps with connecting visual flow
 
-### In-App Dashboard (`Index.tsx`)
-- Add a subtle value reinforcement strip under the welcome header: *"Purpose-built for FQHCs · Tracks 20+ UDS measures · HRSA Chapter 10 aligned"*
-- Promote SPC tab: change tab order to show SPC Analysis first (instead of UDS Trends), add a small badge "Pro Feature" or "Exclusive"
+### 4. Restructure "Key Features" Section
+- Expand from 4 cards to include short paragraphs tied to FQHC pain points
+- Each feature card gets a pain-point opener (e.g., "Tired of manually assembling audit evidence?")
 
-### Feature Page (`FeatureSPCCharts.tsx`)
-- Enhance with a live interactive SPC demo using sample data (reuse existing `SPCChart` component with hardcoded demo data)
-- Add "Who uses SPC charts?" section targeting QI Directors
+### 5. New Section: "Outcomes You Can Expect"
+- 3-4 outcome cards: UDS performance improvement, HRSA site visit readiness, staff time saved, funding impact visibility
+- Concrete framing tied to real FQHC workflows
 
----
+### 6. New Section: "Why This Instead of Spreadsheets and Azara?"
+- 3-4 concise objection-handling paragraphs:
+  - "Not another dashboard" — connects improvement work to the measure
+  - "PDSA-first, not report-first" — start with the change you're testing
+  - "Audit-ready by default" — auto-builds documentation
+  - "No enterprise pricing" — built for CHC budgets
 
-## Phase 2 — One-Click Board Report PDF Export
+### 7. Expand FAQ
+- Add new questions:
+  - "Does this replace our EHR or Azara?"
+  - "What data does MeasureWise use?"
+  - "How long does it take to get started?"
+  - "Can we start with one site or pilot program?"
+- Update FAQ JSON-LD accordingly
 
-**Goal:** Generate a quarterly board-ready PDF compiling UDS trends, PDSA cycles, task completion, and financial impact.
+### 8. Enhance Founder Section
+- Add "Built for FQHCs by FQHC operators" heading
+- Slightly expand the founder bio to emphasize the "lived through UDS season" angle
 
-### New Component: `BoardReportDialog.tsx`
-- Triggered from a new "Export Board Report" button on the dashboard
-- Collects: report period (quarter selector), organization name
-- Generates a multi-page PDF using jsPDF + html2canvas (same pattern as `AuditBinderDialog`)
-- Pages:
-  1. **Cover Page** — Organization name, period, MeasureWise branding
-  2. **UDS Performance Summary** — Table of all measures with current value, target, trend direction
-  3. **UDS Trend Charts** — Rendered line charts (same as dashboard)
-  4. **SPC Analysis** — One SPC chart per measure with control limits
-  5. **Active PDSA Cycles** — Title, status, UDS measure, improvement %, assigned staff
-  6. **Staff Task Completion** — Summary stats + breakdown by role
-  7. **Financial Impact** — ACO savings, revenue protected, HRSA award
+### 9. SEO Improvements
+- Update meta title to: "MeasureWise™ – PDSA and UDS Quality Operations Platform for FQHCs"
+- Update meta description to the recommended copy
+- Ensure H2 headings use strategic keyword phrases throughout
+- Body copy naturally incorporates: "FQHC quality improvement platform", "PDSA tracking tool", "UDS measure performance", "HRSA site visit documentation", "NCQA PCMH Q-PASS preparation"
 
-### Dashboard Integration
-- Add "Export Board Report" button in the dashboard header area (next to welcome message)
-- Gate behind paid tier (show upgrade prompt for free tier)
+### 10. New Page: `/how-it-works`
+- Deeper-dive page with expanded workflow explanation
+- Supports SEO with a linkable URL for outreach/social
+- Uses `PublicPageLayout` wrapper
+- Content: detailed walkthrough of the 4-step workflow, screenshots/illustrations, and a bottom CTA
 
-### Database: No schema changes needed — all data already exists in current tables.
+## Section Order (revised landing page)
+1. Nav (unchanged)
+2. Differentiator banner (unchanged)
+3. Hero (revised copy + micro-explainer)
+4. Stats bar (unchanged)
+5. **"What MeasureWise Actually Does"** (NEW)
+6. **"How It Works" — 4-step workflow** (NEW)
+7. SPC Chart Hero (existing, unchanged)
+8. Key Features (restructured with pain-point openers)
+9. **"Outcomes You Can Expect"** (NEW)
+10. Comparison Table (existing, unchanged)
+11. **"Why This Instead of Spreadsheets?"** (NEW — replaces/supplements comparison intro)
+12. Persona cards (existing, unchanged)
+13. Founder section (enhanced copy)
+14. Security section (unchanged)
+15. FAQ (expanded)
+16. Sample Export (existing, unchanged)
+17. CTA banner (unchanged)
+18. Contact form (unchanged)
+19. Footer (unchanged)
 
----
+## Files
+- **Modified**: `src/pages/Landing.tsx` (major restructure)
+- **Created**: `src/pages/HowItWorks.tsx` (new deeper-dive page)
+- **Modified**: `src/App.tsx` (add `/how-it-works` route)
+- **Modified**: `src/components/PublicPageLayout.tsx` (add "How It Works" to nav if needed)
 
-## Phase 3 — Multi-Site Network Dashboard
-
-**Goal:** Allow organizations to view aggregate vs. per-site performance for multi-location FQHCs.
-
-### Database Migration
-- New `sites` table: `id`, `organization_id`, `name`, `address`, `created_at`
-- Add optional `site_id` column to: `pdsa_cycles`, `tasks`, `uds_trends`, `org_financials`
-- RLS: same `organization_id`-based policies as existing tables
-
-### New Page: `NetworkDashboard.tsx` (route: `/dashboard/network`)
-- **Aggregate view**: Combined UDS trends across all sites, total PDSA cycles, financial rollup
-- **Per-site breakdown**: Dropdown to filter by site, side-by-side comparison cards
-- **Leaderboard**: Rank sites by UDS measure performance
-- Sidebar nav entry with "Enterprise" badge
-
-### Settings Integration
-- New "Sites" tab in Settings to add/manage sites
-- Site assignment when creating PDSA cycles and entering UDS data
-
-### Gating: Enterprise tier only — show upgrade prompt for other tiers.
-
----
-
-## Phase 4 — SEO & Indexing Hardening
-
-**Goal:** Ensure all public pages are properly crawlable and optimized.
-
-### Technical SEO
-- Verify all public pages have unique `<SEO>` components (most already do)
-- Add `<meta name="robots" content="index, follow">` to all public pages
-- Ensure `noindex` is NOT set anywhere on public routes
-- Add JSON-LD `Organization` schema to Landing page
-- Add JSON-LD `SoftwareApplication` schema
-- Verify `sitemap.xml` includes all feature pages and blog posts (currently missing some)
-- Add Open Graph images per page (currently all share one `og-image.png`)
-
-### Content SEO
-- Add FAQ section to Landing page with JSON-LD `FAQPage` schema (targeting long-tail FQHC queries)
-- Ensure all images have descriptive alt text (audit existing)
-- Add internal linking between blog posts and feature pages
-
----
-
-## Phase 5 — Polish & Cross-Cutting
-
-- Update Pricing page to highlight Board Report and Network Dashboard as paid features
-- Add testimonial/social proof section to Landing (placeholder for now)
-- Ensure all new features follow the existing design system (teal primary, enterprise-grade aesthetic)
-
----
-
-## Implementation Order
-
-Phases 1 and 2 are highest-impact and can be done first. Phase 3 requires a database migration and is the largest effort. Phase 4 is quick wins. Phase 5 is polish.
-
-**Estimated scope:** ~15-20 files touched across all phases.
+## Technical Notes
+- All new sections use existing design tokens and semantic color classes
+- No new dependencies required
+- JSON-LD schemas updated with new FAQ entries
+- Heading hierarchy: single H1, all sections use H2, subsections H3

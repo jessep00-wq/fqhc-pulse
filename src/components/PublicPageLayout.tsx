@@ -21,6 +21,9 @@ export function PublicPageLayout({ children, backTo }: PublicPageLayoutProps) {
               <Link to="/features/pdsa-cycle-manager">Features</Link>
             </Button>
             <Button variant="ghost" asChild className="hidden sm:inline-flex">
+              <Link to="/how-it-works">How It Works</Link>
+            </Button>
+            <Button variant="ghost" asChild className="hidden sm:inline-flex">
               <Link to="/blog">Blog</Link>
             </Button>
             <Button variant="ghost" asChild className="hidden sm:inline-flex">
