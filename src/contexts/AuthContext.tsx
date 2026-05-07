@@ -16,13 +16,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const loginTracked = useRef(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Track login event and update last_login_at
+        if (event === "SIGNED_IN" && session?.user && !loginTracked.current) {
+          loginTracked.current = true;
+          trackEvent("login");
+          supabase
+            .from("profiles")
+            .update({ last_login_at: new Date().toISOString() })
+            .eq("id", session.user.id)
+            .then(() => {});
+        }
+        if (event === "SIGNED_OUT") {
+          loginTracked.current = false;
+        }
       }
     );
 
