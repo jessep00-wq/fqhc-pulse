@@ -378,9 +378,9 @@ export default function Landing() {
             {complianceBadges.map((b) => (
               <div
                 key={b.label}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-muted px-4 py-1.5 text-sm text-muted-foreground"
+                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-5 py-2 text-sm font-semibold text-primary"
               >
-                <b.icon className="h-4 w-4 text-primary" />
+                <b.icon className="h-4.5 w-4.5" />
                 {b.label}
               </div>
             ))}
