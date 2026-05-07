@@ -786,7 +786,7 @@ export default function Landing() {
             Built for FQHCs by an FQHC operator
           </h2>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            MeasureWise is built by a former FQHC quality and clinical operations leader who has
+            MeasureWise is built by a current FQHC quality and clinical operations leader with 12 years of experience who has
             lived through UDS season, survived HRSA site visits, managed NCQA submissions, and
             watched quality teams drown in spreadsheets that were never designed for PDSA tracking.
           </p>
