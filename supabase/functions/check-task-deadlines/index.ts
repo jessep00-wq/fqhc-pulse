@@ -16,6 +16,19 @@ serve(async (req) => {
   }
 
   try {
+    // --- Cron secret auth check ---
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    if (cronSecret) {
+      const cronHeader = req.headers.get("x-cron-secret");
+      if (cronHeader !== cronSecret) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+    // --- End auth check ---
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -25,7 +38,6 @@ serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Get tasks that are overdue or due within the next 2 days
     const twoDaysFromNow = new Date();
     twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
     const today = new Date().toISOString().split("T")[0];
@@ -46,7 +58,6 @@ serve(async (req) => {
       });
     }
 
-    // Group tasks by organization
     const tasksByOrg: Record<string, typeof urgentTasks> = {};
     for (const task of urgentTasks) {
       if (!tasksByOrg[task.organization_id]) tasksByOrg[task.organization_id] = [];
@@ -56,7 +67,6 @@ serve(async (req) => {
     let emailsSent = 0;
 
     for (const [orgId, orgTasks] of Object.entries(tasksByOrg)) {
-      // Get QI managers / admins for this org to notify
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, full_name, organization_id")
@@ -65,7 +75,6 @@ serve(async (req) => {
 
       if (!profiles || profiles.length === 0) continue;
 
-      // Get their emails from auth
       for (const profile of profiles) {
         const { data: authUser } = await supabase.auth.admin.getUserById(profile.id);
         if (!authUser?.user?.email) continue;
@@ -95,7 +104,7 @@ serve(async (req) => {
         });
 
         if (response.ok) emailsSent++;
-        else console.error(`Failed to send to ${authUser.user.email}:`, await response.text());
+        else console.error(`Failed to send deadline email:`, await response.text());
       }
     }
 
@@ -105,8 +114,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Task deadline check error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

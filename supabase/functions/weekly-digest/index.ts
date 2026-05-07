@@ -16,6 +16,19 @@ serve(async (req) => {
   }
 
   try {
+    // --- Cron secret auth check ---
+    const cronSecret = Deno.env.get("CRON_SECRET");
+    if (cronSecret) {
+      const cronHeader = req.headers.get("x-cron-secret");
+      if (cronHeader !== cronSecret) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+    // --- End auth check ---
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
@@ -40,7 +53,6 @@ serve(async (req) => {
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
     for (const org of orgs) {
-      // Gather digest data
       const { count: activeCycles } = await supabase
         .from("pdsa_cycles")
         .select("*", { count: "exact", head: true })
@@ -74,7 +86,6 @@ serve(async (req) => {
         .not("due_date", "is", null)
         .lt("due_date", today);
 
-      // Get latest UDS trends
       const { data: trends } = await supabase
         .from("uds_trends")
         .select("measure_id, month, value")
@@ -82,7 +93,6 @@ serve(async (req) => {
         .order("month", { ascending: false })
         .limit(20);
 
-      // Get UDS targets for this org
       const { data: targets } = await supabase
         .from("uds_targets")
         .select("measure_id, target_value")
@@ -93,7 +103,6 @@ serve(async (req) => {
         targetMap[t.measure_id] = Number(t.target_value);
       }
 
-      // Get active PDSA cycles with their UDS measures
       const { data: activePdsaCycles } = await supabase
         .from("pdsa_cycles")
         .select("title, uds_measure")
@@ -126,7 +135,6 @@ serve(async (req) => {
           return { name, value: current, trend, target, gap, activeCycleName };
         });
 
-      // Build a personalized subject line
       const belowTarget = topMeasures.find((m) => m.gap !== null && m.gap > 0);
       const subject = belowTarget
         ? `📊 ${belowTarget.name} is ${belowTarget.gap} pts below target`
@@ -141,7 +149,6 @@ serve(async (req) => {
         topMeasures,
       };
 
-      // Send to QI Managers in this org
       const { data: profiles } = await supabase
         .from("profiles")
         .select("id, full_name")
@@ -170,7 +177,7 @@ serve(async (req) => {
         });
 
         if (response.ok) emailsSent++;
-        else console.error(`Failed digest to ${authUser.user.email}:`, await response.text());
+        else console.error(`Failed digest email:`, await response.text());
       }
     }
 
@@ -180,8 +187,7 @@ serve(async (req) => {
     });
   } catch (error: unknown) {
     console.error("Weekly digest error:", error);
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
