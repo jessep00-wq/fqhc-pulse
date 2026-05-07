@@ -14,7 +14,7 @@ export function PublicPageLayout({ children, backTo }: PublicPageLayoutProps) {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-14" />
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild className="hidden sm:inline-flex">

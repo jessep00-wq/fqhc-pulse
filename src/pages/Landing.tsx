@@ -306,7 +306,7 @@ export default function Landing() {
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-12" />
+            <img src={measurewiseLogo} alt="MeasureWise" className="h-16" />
           </div>
           <div className="hidden md:flex items-center gap-3">
             <Button variant="ghost" asChild>
@@ -912,7 +912,7 @@ export default function Landing() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
             <div className="col-span-2 md:col-span-1">
               <div className="flex items-center gap-2 mb-3">
-                <img src={measurewiseLogo} alt="MeasureWise" className="h-8" />
+                <img src={measurewiseLogo} alt="MeasureWise" className="h-12" />
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Quality improvement software built for Federally Qualified Health Centers.
