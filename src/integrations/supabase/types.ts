@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_health_snapshots: {
+        Row: {
+          active_pdsa_count: number
+          champion_user_id: string | null
+          created_at: string
+          first_pdsa_done: boolean
+          health_status: string
+          id: string
+          last_export_at: string | null
+          onboarding_complete: boolean
+          organization_id: string
+          period: string
+          risk_flag: string | null
+          weekly_active_users: number
+        }
+        Insert: {
+          active_pdsa_count?: number
+          champion_user_id?: string | null
+          created_at?: string
+          first_pdsa_done?: boolean
+          health_status?: string
+          id?: string
+          last_export_at?: string | null
+          onboarding_complete?: boolean
+          organization_id: string
+          period?: string
+          risk_flag?: string | null
+          weekly_active_users?: number
+        }
+        Update: {
+          active_pdsa_count?: number
+          champion_user_id?: string | null
+          created_at?: string
+          first_pdsa_done?: boolean
+          health_status?: string
+          id?: string
+          last_export_at?: string | null
+          onboarding_complete?: boolean
+          organization_id?: string
+          period?: string
+          risk_flag?: string | null
+          weekly_active_users?: number
+        }
+        Relationships: []
+      }
       activity_log: {
         Row: {
           created_at: string
@@ -99,21 +144,30 @@ export type Database = {
           id: string
           name: string
           npi: string | null
+          onboarding_status: string
           owner_id: string | null
+          source: string | null
+          stage: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
           npi?: string | null
+          onboarding_status?: string
           owner_id?: string | null
+          source?: string | null
+          stage?: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
           npi?: string | null
+          onboarding_status?: string
           owner_id?: string | null
+          source?: string | null
+          stage?: string
         }
         Relationships: []
       }
@@ -215,6 +269,9 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_internal: boolean
+          last_active_at: string | null
+          last_login_at: string | null
           organization_id: string | null
           staff_role: string | null
         }
@@ -222,6 +279,9 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_internal?: boolean
+          last_active_at?: string | null
+          last_login_at?: string | null
           organization_id?: string | null
           staff_role?: string | null
         }
@@ -229,6 +289,9 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_internal?: boolean
+          last_active_at?: string | null
+          last_login_at?: string | null
           organization_id?: string | null
           staff_role?: string | null
         }
@@ -263,6 +326,48 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          canceled_at: string | null
+          created_at: string
+          id: string
+          organization_id: string
+          plan: string
+          renews_at: string | null
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_end: string | null
+          updated_at: string
+        }
+        Insert: {
+          canceled_at?: string | null
+          created_at?: string
+          id?: string
+          organization_id: string
+          plan?: string
+          renews_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string
+        }
+        Update: {
+          canceled_at?: string | null
+          created_at?: string
+          id?: string
+          organization_id?: string
+          plan?: string
+          renews_at?: string | null
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_end?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -434,16 +539,76 @@ export type Database = {
           },
         ]
       }
+      usage_events: {
+        Row: {
+          created_at: string
+          event_name: string
+          id: string
+          metadata: Json | null
+          organization_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_name: string
+          id?: string
+          metadata?: Json | null
+          organization_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_name?: string
+          id?: string
+          metadata?: Json | null
+          organization_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_founder_admin: { Args: { _user_id: string }; Returns: boolean }
       seed_demo_data: { Args: { org_id: string }; Returns: undefined }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "founder_admin"
+        | "internal_support"
+        | "org_admin"
+        | "standard_user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -570,6 +735,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "founder_admin",
+        "internal_support",
+        "org_admin",
+        "standard_user",
+      ],
+    },
   },
 } as const

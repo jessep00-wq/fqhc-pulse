@@ -37,6 +37,15 @@ import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
 import NetworkDashboard from "./pages/NetworkDashboard";
 import HowItWorks from "./pages/HowItWorks";
 
+// Admin pages
+import { AdminRoute } from "./components/AdminRoute";
+import { AdminLayout } from "./components/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminPipeline from "./pages/admin/AdminPipeline";
+import AdminBilling from "./pages/admin/AdminBilling";
+import AdminAdoption from "./pages/admin/AdminAdoption";
+import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
+
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
 import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
@@ -83,6 +92,27 @@ const App = () => (
                 <Route path="/blog/uds-clinical-quality-measures-2026" element={<BlogUDSMeasures2026 />} />
                 <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
                 <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
+
+                {/* Admin routes */}
+                <Route
+                  path="/admin/*"
+                  element={
+                    <AdminRoute>
+                      <AdminLayout>
+                        <ErrorBoundary>
+                          <Routes>
+                            <Route path="/" element={<AdminOverview />} />
+                            <Route path="/pipeline" element={<AdminPipeline />} />
+                            <Route path="/billing" element={<AdminBilling />} />
+                            <Route path="/adoption" element={<AdminAdoption />} />
+                            <Route path="/account/:orgId" element={<AdminAccountDetail />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </ErrorBoundary>
+                      </AdminLayout>
+                    </AdminRoute>
+                  }
+                />
 
                 <Route
                   path="/dashboard/*"

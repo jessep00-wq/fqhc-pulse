@@ -7,12 +7,14 @@ import {
   Settings,
   Sparkles,
   Building2,
+  Shield,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, Link } from "react-router-dom";
 import { useOrg } from "@/contexts/OrgContext";
 import { useTierLimits } from "@/hooks/useTierLimits";
+import { useUserRole } from "@/hooks/useUserRole";
 import {
   Sidebar,
   SidebarContent,
@@ -43,6 +45,7 @@ export function AppSidebar() {
   const location = useLocation();
   const { organization } = useOrg();
   const { isFreeTier, cyclesRemaining } = useTierLimits();
+  const { isAdmin } = useUserRole();
 
   return (
     <Sidebar collapsible="icon">
@@ -102,7 +105,16 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-3">
-        {!collapsed && isFreeTier && (
+        {!collapsed && isAdmin && (
+          <Link
+            to="/admin"
+            className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+          >
+            <Shield className="h-3.5 w-3.5 shrink-0" />
+            <span>Admin Console</span>
+          </Link>
+        )}
+        {!collapsed && isFreeTier && !isAdmin && (
           <Link
             to="/#contact"
             className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 transition-colors"
