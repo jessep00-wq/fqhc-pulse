@@ -7,6 +7,7 @@ import {
   Settings,
   Sparkles,
   Building2,
+  Shield,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { NavLink } from "@/components/NavLink";
