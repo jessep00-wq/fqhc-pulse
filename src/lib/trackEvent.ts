@@ -30,6 +30,9 @@ export async function trackEvent(
 
     if (!profile?.organization_id) return;
 
+    // Mirror to PostHog
+    trackPostHogEvent(eventName, { organization_id: profile.organization_id, ...metadata });
+
     await supabase.from("usage_events").insert([{
       user_id: user.id,
       organization_id: profile.organization_id,
