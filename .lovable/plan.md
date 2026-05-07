@@ -1,63 +1,34 @@
 
-# Admin Console: Full Actions + Archived View + Historical Billing
+# Interactive KPI Cards on Admin Overview
 
-## 1. Shared reusable hook: `useAdminOrgs`
+## What changes
 
-Create `src/hooks/useAdminOrgs.ts` — a shared hook that:
-- Fetches organizations with a `filter` param: `"active"` (default, `archived_at IS NULL`), `"archived"` (`archived_at IS NOT NULL`), `"all"` (no filter)
-- Excludes `is_test = true` unless filter is `"all"`
-- Exposes `archiveMutation`, `unarchiveMutation` (sets `archived_at = null`), and `deleteMutation` (hard delete, available for **any** org — no test-only restriction, per your request)
-- Handles toast notifications and query invalidation
+Refactor `src/pages/admin/AdminOverview.tsx` so each KPI card is a `<button>` that filters the organizations table.
 
-## 2. Shared component: `OrgActionsMenu`
+### KPI card behavior
+- Each card becomes a native `<button>` element (keyboard accessible, focusable)
+- Clicking a card sets a `kpiFilter` state: `"total" | "trial" | "paid" | "active_7d" | "inactive_14d" | "past_due" | null`
+- Active card gets a highlighted ring/border (e.g. `ring-2 ring-primary`) and slightly elevated shadow
+- All cards get hover (`hover:shadow-md hover:border-primary/50`), focus-visible (`focus-visible:ring-2`), and pressed (`active:scale-[0.98]`) states
+- Clicking the already-selected card deselects it (returns to `null`)
 
-Create `src/components/admin/OrgActionsMenu.tsx`:
-- View → navigates to `/admin/account/:orgId`
-- Edit → same route
-- Archive (shown when `archived_at` is null) → sets `archived_at = now()`
-- Unarchive (shown when `archived_at` is not null) → clears `archived_at`
-- Delete (always available, shown in red) → hard-deletes with a confirmation step
+### Table filtering logic
+Each filter derives a Set of org IDs from live Supabase data:
+- **Total Orgs** → all orgs (no filter, equivalent to clearing)
+- **Trial Orgs** → org IDs where subscription status = "trialing"
+- **Paid Orgs** → org IDs where plan ≠ "free" AND status = "active"
+- **Active (7d)** → org IDs where latest health snapshot = "green"
+- **Inactive 14d+** → org IDs where latest health snapshot = "red"
+- **Past Due** → org IDs where subscription status = "past_due"
 
-## 3. Shared component: `OrgViewFilter`
+The table rows are filtered to only show orgs whose IDs are in the derived set.
 
-A small toggle/select (`Active | Archived | All`) used at the top of each admin page to switch the view.
+### Table header
+- When a KPI filter is active, show a label above the table: `"Showing: {filter name}"` with an `X` button to clear
+- When no filter is active, show the current heading "Organizations"
 
-## 4. Update AdminOverview
-
-- Replace inline queries/mutations with `useAdminOrgs` hook
-- Add the `OrgViewFilter` toggle
-- Use `OrgActionsMenu` in table rows
-- When viewing "Archived", show the `archived_at` date column
-
-## 5. Update AdminPipeline
-
-- Replace inline org query with `useAdminOrgs`
-- Add `OrgViewFilter` alongside existing stage filter
-- Add `OrgActionsMenu` as a new Actions column
-- Loading skeleton + empty state
-
-## 6. Update AdminBilling
-
-- Replace inline org query with `useAdminOrgs`
-- Add `OrgViewFilter`
-- Add `OrgActionsMenu`
-- **Historical clients**: show subscriptions with status `canceled` or `expired` — add a "Show historical" toggle that includes canceled/expired subs. When viewing archived orgs, all their subs naturally appear.
-- Loading skeleton + empty state
-
-## 7. Update AdminAdoption
-
-- Replace inline org query with `useAdminOrgs`
-- Add `OrgViewFilter`
-- Add `OrgActionsMenu`
-- Loading skeleton + empty state
+### Empty state
+If the filtered set is empty, show an appropriate empty state message specific to the selected card.
 
 ## Files changed
-- **New**: `src/hooks/useAdminOrgs.ts`
-- **New**: `src/components/admin/OrgActionsMenu.tsx`
-- **New**: `src/components/admin/OrgViewFilter.tsx`
-- **Edit**: `src/pages/admin/AdminOverview.tsx`
-- **Edit**: `src/pages/admin/AdminPipeline.tsx`
-- **Edit**: `src/pages/admin/AdminBilling.tsx`
-- **Edit**: `src/pages/admin/AdminAdoption.tsx`
-
-No database changes needed — the `is_test`, `archived_at` columns and DELETE RLS policy already exist.
+- **Edit**: `src/pages/admin/AdminOverview.tsx` — all changes are in this single file
