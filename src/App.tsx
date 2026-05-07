@@ -37,6 +37,15 @@ import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
 import NetworkDashboard from "./pages/NetworkDashboard";
 import HowItWorks from "./pages/HowItWorks";
 
+// Admin pages
+import { AdminRoute } from "./components/AdminRoute";
+import { AdminLayout } from "./components/AdminLayout";
+import AdminOverview from "./pages/admin/AdminOverview";
+import AdminPipeline from "./pages/admin/AdminPipeline";
+import AdminBilling from "./pages/admin/AdminBilling";
+import AdminAdoption from "./pages/admin/AdminAdoption";
+import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
+
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
 import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
