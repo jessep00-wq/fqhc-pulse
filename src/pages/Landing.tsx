@@ -319,6 +319,9 @@ export default function Landing() {
               <Link to="/blog">Blog</Link>
             </Button>
             <Button variant="ghost" asChild>
+              <Link to="/newsletter">Newsletter</Link>
+            </Button>
+            <Button variant="ghost" asChild>
               <Link to="/pricing">Pricing</Link>
             </Button>
             <Button variant="ghost" asChild>
@@ -347,6 +350,9 @@ export default function Landing() {
             </Button>
             <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
+            </Button>
+            <Button variant="ghost" asChild className="w-full justify-start">
+              <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
             </Button>
             <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
@@ -950,6 +956,7 @@ export default function Landing() {
               <h4 className="text-sm font-semibold text-foreground mb-3">Resources</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">System Status</Link></li>
                 <li><a href="#contact" className="hover:text-foreground transition-colors">Contact Us</a></li>
               </ul>

@@ -316,7 +316,7 @@ export default function AdminNewsletter() {
             <DialogHeader>
               <DialogTitle>{editId ? "Edit Issue" : "New Issue"}</DialogTitle>
             </DialogHeader>
-            <NewsletterEditor newsletter={editNewsletter} onClose={() => { setCreating(false); setEditId(null); }} />
+            <NewsletterEditor key={editId ?? "new"} newsletter={editNewsletter} onClose={() => { setCreating(false); setEditId(null); }} />
           </DialogContent>
         </Dialog>
       </div>
@@ -336,7 +336,7 @@ export default function AdminNewsletter() {
             </TableHeader>
             <TableBody>
               {newsletters.map((nl) => (
-                <TableRow key={nl.id}>
+                <TableRow key={nl.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setEditId(nl.id)}>
                   <TableCell className="font-medium">
                     <span className="mr-2">{nl.hero_emoji}</span>{nl.title}
                   </TableCell>
@@ -346,7 +346,7 @@ export default function AdminNewsletter() {
                   <TableCell className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{new Date(nl.published_at || nl.created_at).toLocaleDateString()}</div>
                   </TableCell>
-                  <TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" size="icon" className="h-8 w-8"><MoreHorizontal className="h-4 w-4" /></Button>
@@ -356,7 +356,23 @@ export default function AdminNewsletter() {
                         {nl.status === "published" && (
                           <DropdownMenuItem onClick={() => window.open(`/newsletter/${nl.id}`, "_blank")}><Eye className="h-4 w-4 mr-2" />View</DropdownMenuItem>
                         )}
-                        <DropdownMenuItem className="text-destructive" onClick={() => deleteMutation.mutate(nl.id)}><Trash2 className="h-4 w-4 mr-2" />Delete</DropdownMenuItem>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem className="text-destructive" onSelect={(e) => e.preventDefault()}>
+                              <Trash2 className="h-4 w-4 mr-2" />Delete
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete "{nl.title}"?</AlertDialogTitle>
+                              <AlertDialogDescription>This permanently removes the newsletter issue. This action cannot be undone.</AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => deleteMutation.mutate(nl.id)}>Delete</AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
