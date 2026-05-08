@@ -44,7 +44,13 @@ import AdminOverview from "./pages/admin/AdminOverview";
 import AdminPipeline from "./pages/admin/AdminPipeline";
 import AdminBilling from "./pages/admin/AdminBilling";
 import AdminAdoption from "./pages/admin/AdminAdoption";
+import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
+
+// Newsletter pages
+import NewsletterIndex from "./pages/NewsletterIndex";
+import NewsletterDetail from "./pages/NewsletterDetail";
+import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
 
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
