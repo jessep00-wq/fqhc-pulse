@@ -165,15 +165,27 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
         if (status === "published") payload.published_at = new Date().toISOString();
       }
 
+      let savedId = newsletter?.id;
       if (newsletter?.id) {
         const { error } = await supabase.from("newsletters").update(payload).eq("id", newsletter.id);
         if (error) throw error;
       } else {
         if (status) payload.status = status;
-        const { error } = await supabase.from("newsletters").insert(payload);
+        const { data: inserted, error } = await supabase.from("newsletters").insert(payload).select("id").single();
         if (error) throw error;
+        savedId = inserted.id;
       }
       qc.invalidateQueries({ queryKey: ["admin-newsletters"] });
+
+      // Trigger email send on publish
+      if (status === "published" && savedId) {
+        supabase.functions.invoke("send-newsletter", { body: { newsletterId: savedId } })
+          .then(({ error }) => {
+            if (error) { toast.error("Published but email send failed"); console.error(error); }
+            else toast.success("Newsletter sent to subscribers!");
+          });
+      }
+
       toast.success(status === "published" ? "Published!" : "Saved!");
       onClose();
     } catch (err: any) {
