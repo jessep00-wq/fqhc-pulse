@@ -68,14 +68,14 @@ export function useAdminOrgs(filter: OrgViewFilter = "active") {
 
   const deleteMutation = useMutation({
     mutationFn: async (orgId: string) => {
-      const { error } = await supabase
-        .from("organizations")
-        .delete()
-        .eq("id", orgId);
+      const { error } = await supabase.rpc("admin_delete_organization", { _org_id: orgId } as any);
       if (error) throw error;
     },
     onSuccess: () => { toast.success("Organization deleted"); invalidateAll(); },
-    onError: (err: Error) => toast.error(`Delete failed: ${err.message}`),
+    onError: (err: Error) => {
+      console.error("Delete org failed:", err);
+      toast.error(`Delete failed: ${err.message}`);
+    },
   });
 
   return {
