@@ -316,7 +316,7 @@ export default function AdminNewsletter() {
             <DialogHeader>
               <DialogTitle>{editId ? "Edit Issue" : "New Issue"}</DialogTitle>
             </DialogHeader>
-            <NewsletterEditor newsletter={editNewsletter} onClose={() => { setCreating(false); setEditId(null); }} />
+            <NewsletterEditor key={editId ?? "new"} newsletter={editNewsletter} onClose={() => { setCreating(false); setEditId(null); }} />
           </DialogContent>
         </Dialog>
       </div>
