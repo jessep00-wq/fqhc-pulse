@@ -27,6 +27,9 @@ export function PublicPageLayout({ children, backTo }: PublicPageLayoutProps) {
               <Link to="/blog">Blog</Link>
             </Button>
             <Button variant="ghost" asChild className="hidden sm:inline-flex">
+              <Link to="/newsletter">Newsletter</Link>
+            </Button>
+            <Button variant="ghost" asChild className="hidden sm:inline-flex">
               <Link to="/pricing">Pricing</Link>
             </Button>
             <Button variant="ghost" asChild>
