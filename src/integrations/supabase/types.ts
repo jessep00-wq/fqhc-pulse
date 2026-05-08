@@ -661,6 +661,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_delete_organization: {
+        Args: { _org_id: string }
+        Returns: undefined
+      }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {

@@ -1,86 +1,32 @@
+## Three fixes
 
-# Newsletter System for MeasureWise
+### 1. Newsletter link missing on home page
+The home page (`Landing.tsx`) renders its own header instead of using `PublicPageLayout`, which is why the Newsletter link is missing on `/` even though it appears on other public pages.
 
-## What We're Building
+**Change** — `src/pages/Landing.tsx`:
+- Add a `Newsletter` link (`/newsletter`) to the desktop nav (between Blog and Pricing).
+- Add the same link in the mobile menu.
+- Add it to the footer "Product" / "Company" link list.
 
-A full newsletter system with three parts:
-1. **Public archive page** at `/newsletter` — visitors browse past issues rendered in your brand aesthetic
-2. **Admin authoring** — founder admin creates/edits newsletter issues via `/admin/newsletter`
-3. **Email subscription & delivery** — visitors subscribe, and new issues are emailed weekly
+### 2. Cannot delete a test client from Admin Overview / Pipeline
+Today `useAdminOrgs.deleteMutation` runs a plain `DELETE` against `organizations`. Because child tables (`subscriptions`, `profiles`, `pdsa_cycles`, `tasks`, `uds_trends`, `org_financials`, `account_health_snapshots`, `usage_events`, `team_invitations`, `sites`) have no `ON DELETE CASCADE` and several of them have RLS that blocks delete for non-org members, the request silently leaves orphaned rows or the org row stays in place — the user perceives "delete doesn't work".
 
-The uploaded HTML serves as the design reference. Each issue will be stored as structured content (headline, sections, callouts, etc.) so the rendering can vary week-to-week while staying on-brand.
+**Changes**:
+- **DB migration** — add a security-definer function `admin_delete_organization(_org_id uuid)` that:
+  - Checks `is_founder_admin(auth.uid())`, raises if not.
+  - Deletes all child rows for that org in dependency order (`tasks`, `pdsa_cycles`, `uds_trends`, `uds_targets`, `org_financials`, `account_health_snapshots`, `usage_events`, `subscriptions`, `team_invitations`, `sites`, `activity_log`, sets `profiles.organization_id = NULL`).
+  - Finally deletes the `organizations` row.
+- **`src/hooks/useAdminOrgs.ts`** — change `deleteMutation` to call `supabase.rpc("admin_delete_organization", { _org_id: orgId })`. Surface the actual error in the toast and `console.error` so failures are visible.
 
----
+### 3. Admin → Newsletter: clicking a row doesn't open the issue
+Currently only the kebab → "Edit" opens the editor. Clicking the row/title does nothing, and "View" only appears for published issues. This is the "does not bring copy of the newsletter up" report.
 
-## Database
+**Changes** — `src/pages/admin/AdminNewsletter.tsx`:
+- Make the title cell a button: clicking the title opens the editor (`setEditId(nl.id)`), so the existing copy loads into the form.
+- Add a hover style and `cursor-pointer` on the row to signal it.
+- Wrap the destructive Delete dropdown item in an `AlertDialog` confirmation (prevents accidental deletes from the same menu).
+- Confirm `NewsletterEditor` is keyed by `editId` so React remounts and re-initializes its `useState` from the selected newsletter (add `key={editId ?? "new"}` on `<NewsletterEditor>`). Without the key, switching between issues without closing the dialog can show stale state.
 
-### `newsletters` table
-- `id`, `title`, `subtitle`, `hero_emoji`, `hero_summary`, `published_at`, `status` (draft/published), `created_at`
-- Content stored as a JSONB `sections` column — an array of typed blocks: `intro`, `comparison`, `checklist`, `roles_grid`, `sprint_steps`, `quote`, `callout`, `body_text`, `divider`
-- RLS: public SELECT for published issues; founder_admin full CRUD
-
-### `newsletter_subscribers` table
-- `id`, `email` (unique), `subscribed_at`, `unsubscribed_at`, `token` (for one-click unsubscribe)
-- RLS: anon INSERT (subscribe); no public SELECT/UPDATE/DELETE
-
----
-
-## Public Pages
-
-### `/newsletter` — Archive index
-- Lists all published issues (newest first) with title, date, and excerpt
-- Each links to `/newsletter/:id`
-- Subscribe form (email input + button) at top and bottom
-- Uses `PublicPageLayout` for consistent header/footer
-- Brand-aligned card design with teal accents
-
-### `/newsletter/:id` — Single issue view
-- Renders the JSONB sections using React components that mirror the uploaded HTML aesthetic:
-  - Navy header with gradient teal accent line
-  - Teal hero band
-  - Comparison cards (red/green), checklists, role grids, sprint steps, quote blocks, callout boxes
-  - CTA section at bottom
-- Responsive, matches your teal/navy palette using design tokens
-- Social share buttons (copy link, LinkedIn)
-
----
-
-## Admin Pages
-
-### `/admin/newsletter` — Newsletter management
-- Table of all issues (drafts + published), with edit/delete/publish actions
-- "New Issue" button opens a structured editor
-- Editor has fields for: title, subtitle, hero emoji, hero summary
-- Sections editor: add/remove/reorder typed blocks (body text, callout, comparison, checklist, roles grid, sprint steps, quote)
-- Each block type has a simple form (no rich text needed — just text inputs/textareas)
-- Preview button renders the issue in-page
-- Publish button sets `published_at = now()` and triggers email send to all subscribers
-
----
-
-## Email Delivery
-
-- **Subscribe**: Public form calls an Edge Function that inserts into `newsletter_subscribers` with a unique unsubscribe token
-- **Send**: When an issue is published, an Edge Function iterates subscribers and sends each a rendered HTML email
-  - Email HTML matches the uploaded aesthetic (navy header, teal accents, CTA)
-  - Includes one-click unsubscribe link
-- **Unsubscribe**: Edge Function + page at `/newsletter/unsubscribe` validates token and sets `unsubscribed_at`
-
-Note: Since newsletters are bulk/marketing emails, they will NOT use Lovable's transactional email system. Instead, we'll use the existing Resend connector for delivery, which is already configured in the project.
-
----
-
-## Routing Changes
-
-- Add `/newsletter` and `/newsletter/:id` as public routes
-- Add `/admin/newsletter` inside the admin layout
-- Add "Newsletter" nav item to admin sidebar
-
----
-
-## Technical Details
-
-- ~8 new files: 2 pages (archive + detail), 1 admin page, section renderer components, subscriber Edge Function, send Edge Function, unsubscribe Edge Function
-- 1 migration: `newsletters` + `newsletter_subscribers` tables with RLS
-- Uses existing `PublicPageLayout`, `AdminLayout`, and Resend connector
-- Newsletter section components are reusable and map JSONB block types to styled React components matching the uploaded design
+### Out of scope
+- No visual redesign of the newsletter detail page or admin table beyond the row-click affordance.
+- No changes to email send logic or RLS on newsletters/subscribers.
