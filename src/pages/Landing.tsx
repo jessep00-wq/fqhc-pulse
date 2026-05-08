@@ -319,6 +319,9 @@ export default function Landing() {
               <Link to="/blog">Blog</Link>
             </Button>
             <Button variant="ghost" asChild>
+              <Link to="/newsletter">Newsletter</Link>
+            </Button>
+            <Button variant="ghost" asChild>
               <Link to="/pricing">Pricing</Link>
             </Button>
             <Button variant="ghost" asChild>
