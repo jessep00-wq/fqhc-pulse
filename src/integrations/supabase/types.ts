@@ -91,6 +91,69 @@ export type Database = {
           },
         ]
       }
+      newsletter_subscribers: {
+        Row: {
+          email: string
+          id: string
+          subscribed_at: string
+          token: string
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          email: string
+          id?: string
+          subscribed_at?: string
+          token?: string
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          email?: string
+          id?: string
+          subscribed_at?: string
+          token?: string
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
+      newsletters: {
+        Row: {
+          created_at: string
+          hero_emoji: string | null
+          hero_summary: string | null
+          id: string
+          published_at: string | null
+          sections: Json
+          status: string
+          subtitle: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          hero_emoji?: string | null
+          hero_summary?: string | null
+          id?: string
+          published_at?: string | null
+          sections?: Json
+          status?: string
+          subtitle?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          hero_emoji?: string | null
+          hero_summary?: string | null
+          id?: string
+          published_at?: string | null
+          sections?: Json
+          status?: string
+          subtitle?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       org_financials: {
         Row: {
           created_at: string
