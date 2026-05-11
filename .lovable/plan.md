@@ -1,70 +1,116 @@
 ## Goal
-Implement homepage conversion improvements #1, #3, #4, #5, #7 from the strategy review on the public Landing page (`src/pages/Landing.tsx`) and supporting fallbacks.
+Two changes:
+1. Fix founder name everywhere: **Jessica Carter → Jessica Smith** (also "Jessica R. Smith" stays as-is — already correct in those spots).
+2. Replace the "Free forever for one site" model with a **14-day free trial** — copy update plus full backend enforcement (auto-lock after day 14 unless subscribed).
 
 ---
 
-## #1 — Social proof above the fold (founder-led, honest)
-Since you're pre-named-customer, use a **founder-led credibility block** instead of fake testimonials. Add a compact 3-card row directly under the hero CTAs (above the dashboard preview):
+## Part 1 — Name fix (copy only)
 
-- **Card A — Founder bona fides** (1 sentence): "Built by Jessica Carter, FQHC quality director who ran the same audits and PDSA cycles you do." + tiny avatar.
-- **Card B — Methodology proof**: "Aligned with HRSA Chapter 10, UDS Tables 6B/7, and NCQA PCMH 2024 standards."
-- **Card C — Outcome framing** (designed-to claim, not testimonial): "Designed to cut PDSA documentation from days to a single 30-minute committee meeting."
+Two stale references to "Jessica Carter":
+- `src/pages/Landing.tsx` line 441 (img alt) and line 444 (founder credibility card body)
+- `src/components/store/FounderCredibilityCard.tsx` lines 14, 32 (alt text says "Jessica" only — fine), no "Carter" but reference says "Jessica" — leave as-is.
 
-When real customer quotes land, this block is swapped 1:1 for a `Testimonials` component with named quotes + headshots + center logo.
+Replace both occurrences of "Jessica Carter" with "Jessica Smith".
 
-## #3 — Hero refactor: text-left / image-right, single CTA
-Restructure the `<section>` at lines 380–453:
-- Two-column grid at `lg:grid-cols-2` (stacks on mobile).
-- **Left**: compliance badges, H1, sharper sub-headline, **one** primary CTA + one ghost secondary, micro-trust line ("Free for one site · No credit card · Cancel anytime").
-- **Right**: dashboard preview image (currently below hero) lifted up, with a soft gradient frame.
-- Move the 3-step workflow strip *below* the hero into its own section so the hero stays focused.
-- Rewrite sub-headline to:
-  > *"The QI platform for FQHC quality directors who are tired of running cycles that never show up in UDS results. Plan a PDSA cycle, watch the measure move on an SPC chart, and export an HRSA-ready binder — all in one place."*
+---
 
-## #4 — Standardize CTA copy + button hierarchy
-Replace mixed CTA wording across `Landing.tsx` and `PublicPageLayout.tsx` with one canonical pair, used everywhere:
-- **Primary**: `Start free — no credit card →`
-- **Secondary**: `See how it works`
+## Part 2 — 14-day free trial (copy + enforcement)
 
-Hierarchy rules:
-- Primary = filled `<Button>` (default variant), always with right arrow.
-- Secondary = `variant="outline"` or `"ghost"`, no arrow.
-- Nav uses primary only; footer CTA banner uses primary + secondary.
-- Remove the duplicate "Start Your Free Trial" / "Start Your Free PDSA Tracker" / "Get Started Free" / "Start Free Trial" variants. Audit `Landing.tsx`, `PublicPageLayout.tsx`, and `index.html` static fallback.
+### A. Copy changes (no Free tier anywhere)
 
-## #5 — Pricing teaser on homepage
-Insert a new lightweight section between the "Stats" band and "What MeasureWise actually does":
-- Single-row, three-pill teaser: **Free → Solo $149/mo → Multi-Site $349/mo → Network $699/mo**.
-- One-line reassurance: "Free forever for one site. No sales call. No per-seat licensing."
-- Single CTA: "See full pricing →" linking to `/pricing`.
-- Visual: clean horizontal band with subtle primary tint, not a full pricing table (keeps `/pricing` the destination).
+**`src/pages/Pricing.tsx`**
+- Remove the entire "Free" tier object (lines 29–46). Grid becomes 3 paid plans (Solo / Multi-Site / Network).
+- Hero pill: "14-day free trial — no credit card required".
+- Each plan card CTA: "Start 14-day free trial" (instead of "Subscribe").
+- Bottom CTA section: "Start your 14-day free trial".
+- FAQ rewrite:
+  - Remove "What's included in the Free plan?"
+  - Replace with: "How does the 14-day free trial work?" → "Sign up with your email, pick a plan, and get full access for 14 days. No credit card required to start. Add a card before day 14 to keep your access — otherwise the workspace locks until you subscribe."
+  - Update "Do I need a credit card to start?" → "No. Start your 14-day free trial with just an email address. Add a card before the trial ends to continue."
+- Header CTA "Get Started Free" → "Start 14-day free trial".
 
-## #7 — Fix prod fallback paths, OG verification, single sitemap
-**Static fallback in `index.html`** currently references `/src/assets/measurewise-logo.png` and `/src/assets/dashboard-preview.jpg` — these dev paths break in production builds:
-- Copy both assets to `public/` (e.g., `public/measurewise-logo.png`, `public/dashboard-preview.jpg`).
-- Update the static fallback `<img src>` references to point to those public URLs.
+**`src/pages/Landing.tsx`**
+- Pricing teaser strip (lines ~520–550): drop the **Free 1 site** pill. Show 3 pills (Solo → Multi-Site → Network) plus reassurance line: *"14-day free trial on every plan. No credit card. Cancel anytime."*
+- Hero microcopy (line 419): "Free for one site · No credit card · Cancel anytime" → "14-day free trial · No credit card · Cancel anytime".
+- FAQ answer at line 248 ("Yes. The free tier includes…") → rewrite to describe the 14-day trial.
 
-**OG image**: confirm `public/og-image.png` is 1200×630. If wrong dimensions, regenerate. Add `og:image:width`, `og:image:height`, and `og:image:alt` meta tags in `index.html`.
+**`src/components/PublicPageLayout.tsx`**
+- Footer banner (lines 69, 72): "Run your first PDSA cycle in under 10 minutes. No sales call, no credit card." stays. The "Free for one site" check pill (line 72) → "14-day free trial".
 
-**Single sitemap**: today there are **three** sources — `public/sitemap.xml`, `public/sitemap.txt`, and `supabase/functions/sitemap/index.ts` (out of date, missing features/blog routes). Plan:
-- Keep `public/sitemap.xml` as the single source of truth (already complete).
-- Delete `public/sitemap.txt` and the `supabase/functions/sitemap` edge function.
-- Verify `public/robots.txt` references only `https://measurewise.org/sitemap.xml`.
+**`src/pages/HowItWorks.tsx`**
+- Line 172: "Start Your Free Trial" → "Start 14-day free trial".
+
+**`src/pages/blog/*` + `src/pages/NewsletterDetail.tsx`**
+- Standardize "Start your free trial" / "Start Free Trial" → "Start 14-day free trial".
+
+**`src/pages/features/*`** — JSON-LD already says "Free 14-day trial". Leave.
+
+**`index.html`** — already says "Start free — no credit card →". Update to "Start 14-day free trial →".
+
+### B. Backend trial enforcement
+
+**Migration**
+- Backfill `subscriptions.trial_end` for existing rows where plan='free' and trial_end IS NULL → `created_at + interval '14 days'`.
+- Update `handle_new_org_subscription()` trigger function: insert `trial_end = now() + interval '14 days'` (instead of NULL).
+- Add helper `public.org_access_status(org_id uuid)` returning text in `('trialing','active','locked')`:
+  - `active` if any sub row with plan != 'free' AND status in ('active','trialing','past_due') AND (current_period_end is null OR current_period_end > now()).
+  - `trialing` if no paid sub AND trial_end > now().
+  - `locked` otherwise.
+
+**`supabase/functions/create-subscription-checkout/index.ts`**
+- Add `subscription_data.trial_period_days: 14` so the user's Stripe sub also has a 14-day trial (lets them subscribe during workspace trial without immediate charge).
+- Allow checkout even if `organization_id` exists — already does. No change to ownership rules.
+
+**`supabase/functions/payments-webhook/index.ts`**
+- On `customer.subscription.created/updated`, also write `trial_end` from `subscription.trial_end` and `plan` from `metadata.plan`. Confirm it upserts on `organization_id+environment` (read existing handler first to confirm shape — keep upsert idempotent).
+
+**`src/hooks/useSubscription.ts`**
+- Add derived fields: `trialEndsAt: Date | null`, `daysLeftInTrial: number | null`, `isTrialing: boolean`, `isLocked: boolean` (no paid sub AND trial expired).
+- `isPaid` stays true only when plan != 'free' and status active/trialing/past_due.
+
+**`src/hooks/useTierLimits.ts`**
+- Switch from hardcoded FREE_LIMITS to plan-aware limits:
+  - trialing → SOLO_LIMITS (full access during trial)
+  - solo / multi / network → respective limits
+  - locked → ZERO_LIMITS (canCreateCycle=false, etc.)
+
+**New: `src/components/TrialGuard.tsx`**
+- Wraps `/dashboard/*` routes inside `AppLayout`. If `isLocked`, render a full-page "Your free trial has ended" screen with a "Choose a plan" button → `/pricing`. Read-only access to Settings → Billing remains so user can subscribe.
+
+**New: `src/components/TrialBanner.tsx`**
+- Shown in `AppLayout` when `isTrialing`. Yellow banner: "X days left in your free trial — Upgrade now". Linked to `/pricing`.
+
+### C. Memory update
+Update `mem://index.md` Core line: pricing model is **14-day free trial on all paid plans, no free tier**.
 
 ---
 
 ## Files to change
-- `src/pages/Landing.tsx` — hero refactor, credibility block, CTA standardization, pricing teaser
-- `src/components/PublicPageLayout.tsx` — CTA copy alignment in nav + footer banner
-- `index.html` — fix fallback image paths, add OG dimension/alt tags, align CTA copy
-- `public/measurewise-logo.png`, `public/dashboard-preview.jpg` — new (copied from `src/assets`)
-- `public/sitemap.txt` — delete
-- `supabase/functions/sitemap/index.ts` + `supabase/config.toml` entry — delete
-- `public/robots.txt` — verify single sitemap reference
+- `src/pages/Landing.tsx` — name fix, pricing teaser pills, hero microcopy, FAQ
+- `src/components/store/FounderCredibilityCard.tsx` — verify (already says "Jessica" only)
+- `src/pages/Pricing.tsx` — remove Free tier, CTA copy, FAQ, hero pill
+- `src/components/PublicPageLayout.tsx` — pill copy
+- `src/pages/HowItWorks.tsx`, `src/pages/NewsletterDetail.tsx`, `src/pages/blog/*` — CTA copy
+- `index.html` — CTA copy
+- `supabase/migrations/<new>.sql` — backfill trial_end, update trigger, add `org_access_status`
+- `supabase/functions/create-subscription-checkout/index.ts` — `trial_period_days: 14`
+- `supabase/functions/payments-webhook/index.ts` — sync `trial_end` + `plan`
+- `src/hooks/useSubscription.ts` — trial/lock derivations
+- `src/hooks/useTierLimits.ts` — plan-aware
+- `src/components/TrialGuard.tsx` (new), `src/components/TrialBanner.tsx` (new)
+- `src/components/AppLayout.tsx` — mount TrialGuard + TrialBanner
+- `mem://index.md` — pricing rule update
 
-## Out of scope (per your selection)
-- #2 video walkthrough
-- #6 customer logo strip (no logos available yet)
-
-## Open question
-For #1, are you OK with the founder-led credibility framing (no fake testimonials), or do you have **any** named quote — even from a beta user or advisor — I can use instead?
+## Test plan (preview)
+1. Sign up new account → onboarding creates org → DB row should have `trial_end = now()+14d`.
+2. Dashboard shows yellow trial banner with "14 days left".
+3. Manually `UPDATE subscriptions SET trial_end = now() - interval '1 day'` for your org → reload → TrialGuard locks the dashboard, "Choose a plan" CTA visible.
+4. Click any paid plan → Stripe Checkout (sandbox).
+5. Pay with test card `4242 4242 4242 4242`, any future expiry, any CVC, any ZIP.
+6. Webhook fires → row upserts to `plan='solo'`, `status='trialing'`, `trial_end` from Stripe.
+7. App unlocks; banner disappears.
+8. Open Billing Portal from Settings → cancel → row updates to `cancel_at_period_end=true`; access remains until `current_period_end`.
+9. Verify Pricing page shows only 3 paid plans, no Free tier; CTA reads "Start 14-day free trial".
+10. View homepage, How It Works, blog posts → all CTAs read "Start 14-day free trial"; no "Free forever / Free for one site" anywhere.
+11. Founder credibility card on landing reads "Jessica Smith"; testimonial blockquote keeps "Jessica R. Smith, BSN".
