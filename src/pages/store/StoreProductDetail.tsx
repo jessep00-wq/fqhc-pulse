@@ -80,12 +80,20 @@ export default function StoreProductDetail() {
                 <Badge variant="secondary">{product.category}</Badge>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{product.name}</h1>
+              {product.buyer_guidance && (
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  {product.buyer_guidance}
+                </div>
+              )}
               <p className="text-lg text-muted-foreground">{product.short_description}</p>
             </header>
 
             {product.long_description && (
               <p className="text-base leading-relaxed">{product.long_description}</p>
             )}
+
+            <PreviewGallery images={product.preview_image_urls ?? []} title="What it looks like" />
 
             {product.bullets?.length > 0 && (
               <section>
