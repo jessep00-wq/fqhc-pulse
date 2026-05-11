@@ -321,12 +321,12 @@ export default function Pricing() {
           <div className="space-y-8">
             {[
               {
-                q: "What's included in the Free plan?",
-                a: "The Free plan gives you full access to the PDSA tracker with guided methodology, UDS measure dashboards, and HRSA audit binder export (watermarked). It's limited to 1 user, 3 active PDSA cycles, and 1 clinic site — enough to run your first improvement cycle and see real results before upgrading.",
+                q: "How does the 14-day free trial work?",
+                a: "Sign up with your email, pick a plan, and get full access to MeasureWise for 14 days. No credit card required to start. Add a card before day 14 to keep your workspace; otherwise it locks until you subscribe.",
               },
               {
                 q: "Do I need a credit card to start?",
-                a: "No. Start your 30-day free trial on any paid plan with just an email address. No credit card, no purchase order, no procurement approval. The Free plan never requires a card at all.",
+                a: "No. Start your 14-day free trial with just an email address — no credit card, no purchase order, no procurement approval. Add a card before the trial ends to continue using MeasureWise.",
               },
               {
                 q: "Do you offer annual billing?",
