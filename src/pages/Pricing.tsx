@@ -28,6 +28,7 @@ interface TierFeature {
 const getTiers = (annual: boolean) => [
   {
     name: "Free",
+    lookupKey: null as string | null,
     price: "$0",
     period: "",
     description: "Your first PDSA cycle, on us.",
@@ -45,12 +46,13 @@ const getTiers = (annual: boolean) => [
   },
   {
     name: "Solo Clinic",
+    lookupKey: annual ? "solo_annual" : "solo_monthly",
     price: annual ? "$124" : "$149",
     period: "/month",
     annualTotal: annual ? "$1,490/yr" : undefined,
     description: "One site, unlimited everything else.",
     highlight: false,
-    cta: "Start Free Trial",
+    cta: "Subscribe",
     features: [
       { text: "1 clinic site" },
       { text: "Unlimited users — MAs, RNs, providers, QI staff" },
@@ -65,13 +67,14 @@ const getTiers = (annual: boolean) => [
   },
   {
     name: "Multi-Site",
+    lookupKey: annual ? "multi_annual" : "multi_monthly",
     price: annual ? "$291" : "$349",
     period: "/month",
     annualTotal: annual ? "$3,490/yr" : undefined,
     description: "For health centers with 2–5 locations.",
     highlight: true,
     badge: "Most Popular",
-    cta: "Start Free Trial",
+    cta: "Subscribe",
     features: [
       { text: "Up to 5 clinic sites" },
       { text: "Unlimited users — no per-seat fees" },
@@ -87,12 +90,13 @@ const getTiers = (annual: boolean) => [
   },
   {
     name: "Health Center Network",
+    lookupKey: annual ? "network_annual" : "network_monthly",
     price: annual ? "$582" : "$699",
     period: "/month",
     annualTotal: annual ? "$6,990/yr" : undefined,
     description: "For networks with 6+ sites or PCA/HCCN programs.",
     highlight: false,
-    cta: "Start Free Trial",
+    cta: "Subscribe",
     features: [
       { text: "Unlimited clinic sites" },
       { text: "Unlimited users across the network" },
