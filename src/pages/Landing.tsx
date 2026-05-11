@@ -522,11 +522,6 @@ export default function Landing() {
           <p className="text-xs font-bold text-primary uppercase tracking-wider">Simple, FQHC-friendly pricing</p>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
-              <span className="text-foreground">Free</span>
-              <span className="text-muted-foreground text-xs">1 site</span>
-            </span>
-            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
-            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
               <span className="text-foreground">Solo</span>
               <span className="text-primary">$149</span>
               <span className="text-muted-foreground text-xs">/mo</span>
@@ -545,7 +540,7 @@ export default function Landing() {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Free forever for one site. No sales call. No per-seat licensing.
+            14-day free trial on every plan. No credit card to start. No per-seat licensing.
           </p>
           <Button variant="outline" asChild>
             <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
