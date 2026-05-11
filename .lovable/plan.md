@@ -1,98 +1,62 @@
+## Storefront Conversion Polish
 
-# MeasureWise Storefront — Plan
+Tighten the storefront so the offer matches the homepage promise, removes buyer hesitation, and surfaces credibility — without changing pricing, products, or checkout flow.
 
-A new public storefront at `/store` selling 5 digital templates and 2 themed bundles. Catalog is CMS-driven (admin can edit copy/pricing without code), checkout uses Lovable's built-in Stripe payments, and customers receive their files via signed download links emailed by Resend.
+### 1. Match store headline to homepage promise
 
-## Scope
+Rewrite the `/store` hero on `StoreIndex.tsx` so it ties the purchase to UDS movement, audit readiness, and FQHC workflow value (mirroring Landing's voice: "move the needle", "audit-defensible", "PDSA that actually ships").
 
-### Public pages
-- `/store` — Storefront landing
-  - Hero ("Implementation tools for FQHC quality teams")
-  - Category strip: UDS Reporting · QI Governance · PDSA Improvement · Board & Leadership
-  - Product card grid (filterable by category)
-  - Bundle section ("Save with a bundle") with 2 themed bundles
-  - Trust band (HRSA-aligned, instant download, ungated PDFs/DOCX)
-  - Final CTA / FAQ
-- `/store/:slug` — Product detail page (conversion-optimized)
-  - Hero: name, category badge, price, "Buy now" CTA, hero emoji/icon
-  - "What's inside" (file list with formats)
-  - "Who it's for" (Quality Director, PCMH Coordinator, Ops Manager)
-  - "Why it works" — grounded in HRSA UDS framework (Tables 6B/7 reference for clinical/outcome products)
-  - Sample preview (image or PDF page thumb)
-  - Related products / "Pair with…" cross-sell
-  - FAQ + sticky buy bar on mobile
-- `/store/bundle/:slug` — Bundle detail (same shape, lists included products + savings)
-- `/store/success?session_id=…` — Post-checkout thank-you with "Check your email" + manual re-send link
-- Add **Store** link to public nav (`PublicPageLayout`) and footer
+- New H1: **"Templates that move UDS measures and survive HRSA audits."**
+- Subhead: reinforce "built by an FQHC quality leader, used by quality directors" — not a generic template store.
+- Replace the three tagline chips with three outcome chips: *Move a UDS measure*, *Defend an HRSA OSV*, *Run a QI committee in 30 min*.
 
-### Admin (founder_admin only) at `/admin/store`
-- Products list (create/edit/archive)
-- Fields: slug, name, category, price, currency, hero_emoji, short_description, long_description (markdown), bullets (jsonb), included_files (jsonb), sample_preview_url, status (draft/published), stripe_price_id (auto-filled)
-- Bundles list with multi-select of products + bundle_price
-- File uploader (Supabase Storage, private bucket `product-files`)
-- "Sync to Stripe" button per product (creates Product + Price in Stripe, stores IDs)
-- Orders table (read-only): customer email, product/bundle, amount, status, download link, sent_at
+### 2. Buyer-guidance labels (help visitors choose fast)
 
-### Catalog seed (5 products + 2 bundles)
-| Product | Category | Price |
-|---|---|---|
-| UDS Measure Template Pack | UDS Reporting | $129 |
-| QI Committee Packet Template | QI Governance | $79 |
-| Board Quality Report Template | Board & Leadership | $79 |
-| Hypertension PDSA Bundle | PDSA Improvement | $129 |
-| Diabetes A1c PDSA Bundle | PDSA Improvement | $129 |
+Add a small colored "Best for…" pill on every `ProductCard` and `BundleCard`, plus a one-liner under the title:
 
-Themed bundles:
-- **Governance Bundle** — QI Committee + Board Quality Report — $129 (save $29)
-- **PDSA Improvement Bundle** — Hypertension + Diabetes A1c — $199 (save $59)
-- (Optional later) All-Access Bundle
+- **UDS Measure Template Pack** → "Best if you're behind on a clinical measure"
+- **QI Committee Packet** → "Best if your QI meetings feel unstructured"
+- **Board Quality Report** → "Best for your next board quarterly"
+- **Hypertension / Diabetes A1c PDSA Bundles** → "Best if a specific measure is stuck"
+- **Governance Bundle** → "Best for new QI Directors stepping into the role"
+- **PDSA Improvement Bundle** → "Best when you have 60 days to move a measure"
 
-Copy will be drafted for each product page — value prop, target reader, what's inside, and a UDS framing line (e.g., "Aligned with HRSA UDS Table 6B clinical quality measures").
+Driven by a new optional `buyer_guidance` text column on `store_products` + `store_bundles` (nullable, no migration risk; falls back to nothing if empty). Seed values via migration.
 
-### Checkout & delivery flow
-1. Buyer clicks **Buy now** on a product or bundle.
-2. Frontend calls edge function `create-checkout` → creates a Stripe Checkout Session (mode=payment) with the product/bundle's `stripe_price_id`, success_url, cancel_url. Customer email collected by Stripe.
-3. Stripe redirects to `/store/success?session_id=…`.
-4. Stripe webhook → edge function `stripe-webhook` listens for `checkout.session.completed`:
-   - Insert row into `orders` with email + line items
-   - For each purchased product, generate a **signed Storage URL** (7-day expiry) for each included file
-   - Send an email via Resend (`send-purchase-email`) with: thank-you, list of files, signed download links, support contact, terms
-5. Success page shows order summary + "Resent the email? Click here" (calls `resend-purchase-email` with session_id; rate-limited).
+### 3. "Who it's for" + "What you get" on every product card
 
-### Database (new tables)
-- `store_products` — slug, name, category, price_cents, currency, status, hero_emoji, short_description, long_description, bullets jsonb, included_file_paths text[], sample_preview_url, stripe_product_id, stripe_price_id, sort_order
-- `store_bundles` — slug, name, price_cents, included_product_ids uuid[], stripe_product_id, stripe_price_id, status, description, sort_order
-- `orders` — stripe_session_id, customer_email, product_ids uuid[], bundle_ids uuid[], amount_cents, currency, status, download_links jsonb, email_sent_at, created_at
-- `download_log` — order_id, file_path, downloaded_at, ip (audit)
+The detail page already has these sections; the **catalog cards** do not. Extend `ProductCard` to show:
 
-RLS:
-- Products/bundles: public SELECT where `status='published'`; ALL for `is_founder_admin`
-- Orders/download_log: `is_founder_admin` only (customers don't log in)
-- Storage bucket `product-files`: private; access only via short-lived signed URLs generated server-side
+- A compact **Who it's for** row (first 2 roles from `who_its_for`, e.g. "QI Director · Compliance Lead").
+- A compact **What you get** row (count + first item, e.g. "4 files · UDS Measure Tracker XLSX").
 
-### Edge functions
-- `create-checkout` (verify_jwt=false) — input: `{ kind: 'product'|'bundle', id }`; output: `{ url }`
-- `stripe-webhook` (verify_jwt=false) — verifies signature, fulfills order, sends email
-- `resend-purchase-email` (verify_jwt=false, rate-limited) — re-issues signed links for a session_id within 30 days
-- `sync-stripe-product` (verify_jwt=true, founder_admin only) — upserts Stripe Product/Price from a `store_products`/`store_bundles` row
+Same treatment on `BundleCard` — already lists products; add a "Who it's for" line aggregated from the bundle's products.
 
-### Integrations to enable
-- **Lovable's built-in Stripe payments** (`enable_stripe_payments`) — handles test/live modes, no manual key management. Step 5 (tax option) will be asked at enable time; recommend tax option 2 (calculation only) since these are downloadable digital goods sold to US health centers.
-- **Resend** (already connected) for delivery emails.
-- **Supabase Storage** private bucket `product-files`.
+### 4. Deliverable previews / screenshots
 
-### Out of scope (for this plan)
-- Customer accounts / login-based downloads library (rejected in favor of email delivery)
-- Refund automation (handled manually in Stripe for now)
-- Tax filing / VAT (option 2 calculates only; user files)
-- Coupons / discount codes (can be added later via Stripe Dashboard)
+Make the offer tangible on every product detail page:
 
-## Build order
-1. DB migration (tables + RLS + storage bucket + policies)
-2. Enable Stripe payments and confirm tax handling
-3. Edge functions (`create-checkout`, `stripe-webhook`, `resend-purchase-email`, `sync-stripe-product`)
-4. Admin `/admin/store` — products, bundles, file uploads, Stripe sync
-5. Public storefront `/store`, product/bundle detail pages, success page
-6. Add **Store** to public nav + footer + sitemap
-7. You upload the 5 product file sets + we draft sales copy and seed catalog
-8. Test end-to-end in Stripe test mode, then flip to live
+- Add a **Preview gallery** section above the buy panel using a new `preview_image_urls text[]` column on `store_products`.
+- Renders as a 2–3 thumbnail grid that opens a lightbox (reuse shadcn `Dialog`).
+- For bundles, show a stitched mosaic of previews from included products.
+- Until you upload real screenshots in `/admin/store`, the section gracefully hides. Add an upload UI in `AdminStore.tsx` (reuses the existing storage upload pattern, new `product-previews` **public** bucket).
+
+A small "Sample preview" link already exists via `sample_preview_url`; we'll keep it for full PDF samples and use `preview_image_urls` for inline screenshots.
+
+### 5. Founder / FQHC credibility band near top
+
+Right under the hero on `/store` and in the buy panel sidebar on detail pages:
+
+- Reuse `founder-jessica.png` from Landing.
+- Compact card: photo + "Built by Jessica, FQHC Quality Director — every template is one she's used in a real OSV / board meeting."
+- One-line proof point: "Trusted by quality teams at FQHCs across the country."
+- On the detail page, this sits directly beneath the price/Buy button so it's the last thing seen before purchase.
+
+### Technical notes
+
+- **Schema migration**: add `buyer_guidance text` and `preview_image_urls text[] default '{}'` to `store_products` and `store_bundles`; create public `product-previews` storage bucket with read-anyone / write-founder-admin policies.
+- **Types**: extend `StoreProduct` / `StoreBundle` in `src/types/store.ts`.
+- **Components**: update `ProductCard.tsx`, `BundleCard.tsx`, `StoreIndex.tsx`, `StoreProductDetail.tsx`, `StoreBundleDetail.tsx`. New `FounderCredibilityCard.tsx` and `PreviewGallery.tsx` in `src/components/store/`.
+- **Admin**: extend `AdminStore.tsx` with preview-image upload + buyer-guidance text field per product/bundle.
+- **Seed data**: migration writes the buyer-guidance copy listed in step 2 to existing rows so the UI is populated immediately.
+- **No changes** to Stripe, checkout, webhooks, fulfillment, or routing.
