@@ -1,28 +1,35 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { useSubscription, type PlanTier } from "@/hooks/useSubscription";
 
 export interface TierLimits {
   maxCycles: number;
   maxUsers: number;
   maxSites: number;
   watermarkExports: boolean;
-  tier: "free" | "solo" | "multi" | "network";
+  tier: PlanTier;
 }
 
-const FREE_LIMITS: TierLimits = {
-  maxCycles: 3,
-  maxUsers: 1,
-  maxSites: 1,
+const LIMITS_BY_TIER: Record<PlanTier, TierLimits> = {
+  free: { maxCycles: 3, maxUsers: 1, maxSites: 1, watermarkExports: true, tier: "free" },
+  solo: { maxCycles: Infinity, maxUsers: Infinity, maxSites: 1, watermarkExports: false, tier: "solo" },
+  multi: { maxCycles: Infinity, maxUsers: Infinity, maxSites: 5, watermarkExports: false, tier: "multi" },
+  network: { maxCycles: Infinity, maxUsers: Infinity, maxSites: Infinity, watermarkExports: false, tier: "network" },
+};
+
+const LOCKED_LIMITS: TierLimits = {
+  maxCycles: 0,
+  maxUsers: 0,
+  maxSites: 0,
   watermarkExports: true,
   tier: "free",
 };
 
-// For now, all users are on free tier until payment is integrated
-// This hook will be updated when Stripe/Paddle is added
 export function useTierLimits() {
   const { organization } = useOrg();
   const orgId = organization.id;
+  const { plan, isLocked, isTrialing, isPaid } = useSubscription();
 
   const { data: cycleCount = 0 } = useQuery({
     queryKey: ["pdsa_cycle_count", orgId],
@@ -49,15 +56,19 @@ export function useTierLimits() {
     enabled: !!orgId,
   });
 
-  const limits = FREE_LIMITS; // Will check org subscription tier later
+  // During trial, give Solo-equivalent access (full features, single site).
+  const effectivePlan: PlanTier = isPaid ? plan : isTrialing ? "solo" : "free";
+  const limits: TierLimits = isLocked ? LOCKED_LIMITS : LIMITS_BY_TIER[effectivePlan];
 
   return {
     limits,
     cycleCount,
     memberCount,
-    canCreateCycle: cycleCount < limits.maxCycles,
-    canInviteUser: memberCount < limits.maxUsers,
+    canCreateCycle: !isLocked && cycleCount < limits.maxCycles,
+    canInviteUser: !isLocked && memberCount < limits.maxUsers,
     cyclesRemaining: Math.max(0, limits.maxCycles - cycleCount),
-    isFreeTier: limits.tier === "free",
+    isFreeTier: effectivePlan === "free",
+    isTrialing,
+    isLocked,
   };
 }
