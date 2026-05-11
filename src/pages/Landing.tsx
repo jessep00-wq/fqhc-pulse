@@ -377,77 +377,118 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Hero */}
-      <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto text-center space-y-8">
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {complianceBadges.map((b) => (
-              <div
-                key={b.label}
-                className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 px-5 py-2 text-sm font-semibold text-primary"
-              >
-                <b.icon className="h-4.5 w-4.5" />
-                {b.label}
-              </div>
-            ))}
-          </div>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-foreground leading-tight">
-            Every PDSA cycle you run should move a UDS measure. Now you can prove it.
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            MeasureWise™ is a quality operations platform for FQHCs that links every
-            PDSA cycle to specific UDS measures, tracks impact in real time, and
-            auto-builds audit-ready binders for HRSA, NCQA, and Q-PASS reviews.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">
-                Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <Link to="/how-it-works">See How It Works</Link>
-            </Button>
-          </div>
-
-          {/* Three-Step Workflow Visual */}
-          <div className="max-w-3xl mx-auto pt-6">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-stretch">
-              {[
-                { icon: FlaskConical, step: "1", title: "Plan PDSA", desc: "Use guided templates linked to UDS measures" },
-                { icon: TrendingUp, step: "2", title: "Track UDS Impact", desc: "SPC charts show real improvement vs. noise" },
-                { icon: FileCheck, step: "3", title: "Export Audit Binder", desc: "One-click HRSA & NCQA-ready documentation" },
-              ].map((s, i) => (
-                <div key={s.step} className="flex items-center">
-                  <div className="flex-1 text-center space-y-3 p-5 rounded-xl border border-border bg-card shadow-sm">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mx-auto">
-                      <s.icon className="h-6 w-6" />
-                    </div>
-                    <p className="text-xs font-bold text-primary uppercase tracking-wider">Step {s.step}</p>
-                    <h3 className="font-semibold text-foreground text-base">{s.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-                  </div>
-                  {i < 2 && (
-                    <ArrowRight className="h-5 w-5 text-primary/40 shrink-0 mx-1 hidden sm:block" />
-                  )}
+      {/* Hero — text-left / image-right */}
+      <section className="py-16 md:py-20 px-6">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+          {/* Left: copy + CTA */}
+          <div className="space-y-7 text-center lg:text-left">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
+              {complianceBadges.map((b) => (
+                <div
+                  key={b.label}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary"
+                >
+                  <b.icon className="h-3.5 w-3.5" />
+                  {b.label}
                 </div>
               ))}
+            </div>
+
+            <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight text-foreground leading-[1.08]">
+              Every PDSA cycle you run should move a UDS measure. Now you can prove it.
+            </h1>
+
+            <p className="text-lg text-muted-foreground leading-relaxed">
+              The QI platform for FQHC quality directors who are tired of running cycles that
+              never show up in UDS results. Plan a PDSA cycle, watch the measure move on an SPC
+              chart, and export an HRSA-ready binder — all in one place.
+            </p>
+
+            <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
+              <Button size="lg" asChild className="text-base px-8">
+                <Link to="/auth?signup=true">
+                  Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="text-base px-8">
+                <Link to="/how-it-works">See how it works</Link>
+              </Button>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              Free for one site · No credit card · Cancel anytime
+            </p>
+          </div>
+
+          {/* Right: dashboard preview */}
+          <div className="relative">
+            <div className="absolute -inset-6 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
+            <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
+              <img
+                src={dashboardPreview}
+                alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking"
+                className="w-full"
+                width={1280}
+                height={720}
+              />
             </div>
           </div>
         </div>
 
-        {/* Product Screenshot */}
-        <div className="max-w-5xl mx-auto mt-16">
-          <div className="rounded-xl border border-border shadow-2xl overflow-hidden">
-            <img
-              src={dashboardPreview}
-              alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking"
-              className="w-full"
-              width={1280}
-              height={720}
-              loading="lazy"
-            />
+        {/* Founder-led credibility row */}
+        <div className="max-w-6xl mx-auto mt-16 grid md:grid-cols-3 gap-4">
+          <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
+            <img src={founderPhoto} alt="Jessica Carter, founder" className="h-12 w-12 rounded-full object-cover shrink-0 border border-border" />
+            <div>
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Built by an FQHC QI leader</p>
+              <p className="text-sm text-foreground leading-snug">Designed by Jessica Carter, an FQHC quality director who ran the same audits and PDSA cycles you do.</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+              <Shield className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Standards-aligned</p>
+              <p className="text-sm text-foreground leading-snug">Aligned with HRSA Chapter 10, UDS Tables 6B/7, and NCQA PCMH 2024 standards — not generic QI software.</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
+              <Clock className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Designed to save hours</p>
+              <p className="text-sm text-foreground leading-snug">Built to cut PDSA documentation from days to a single 30-minute committee meeting.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Three-Step Workflow */}
+      <section className="py-12 px-6 border-y border-border bg-muted/30">
+        <div className="max-w-5xl mx-auto">
+          <p className="text-center text-sm font-semibold text-primary uppercase tracking-wider mb-6">How it works</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-stretch">
+            {[
+              { icon: FlaskConical, step: "1", title: "Plan PDSA", desc: "Use guided templates linked to UDS measures" },
+              { icon: TrendingUp, step: "2", title: "Track UDS Impact", desc: "SPC charts show real improvement vs. noise" },
+              { icon: FileCheck, step: "3", title: "Export Audit Binder", desc: "One-click HRSA & NCQA-ready documentation" },
+            ].map((s, i) => (
+              <div key={s.step} className="flex items-center">
+                <div className="flex-1 text-center space-y-3 p-5 rounded-xl border border-border bg-card shadow-sm">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mx-auto">
+                    <s.icon className="h-6 w-6" />
+                  </div>
+                  <p className="text-xs font-bold text-primary uppercase tracking-wider">Step {s.step}</p>
+                  <h3 className="font-semibold text-foreground text-base">{s.title}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
+                </div>
+                {i < 2 && (
+                  <ArrowRight className="h-5 w-5 text-primary/40 shrink-0 mx-1 hidden sm:block" />
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </section>
