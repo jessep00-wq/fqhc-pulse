@@ -223,7 +223,7 @@ export default function Pricing() {
 
       {/* Pricing cards */}
       <section className="pb-24 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
           {tiers.map((tier) => (
             <Card
               key={tier.name}
