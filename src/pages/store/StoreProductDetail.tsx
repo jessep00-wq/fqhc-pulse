@@ -151,7 +151,7 @@ export default function StoreProductDetail() {
           </div>
 
           {/* Buy panel */}
-          <aside className="lg:col-span-1">
+          <aside className="lg:col-span-1 space-y-4">
             <Card className="lg:sticky lg:top-24">
               <CardContent className="p-6 space-y-4">
                 <div>
@@ -165,6 +165,8 @@ export default function StoreProductDetail() {
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Free updates for 12 months</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Email delivery within 1 minute</li>
                 </ul>
+                <Separator />
+                <FounderCredibilityCard variant="compact" />
               </CardContent>
             </Card>
           </aside>
