@@ -1,89 +1,70 @@
-
 ## Goal
-Make `/store/bundle/:slug` feel as substantial as its price by sharpening copy, making deliverables concrete, balancing the layout, and reducing buy-mode distractions. Frontend-only changes; no schema, Stripe, or fulfillment changes.
+Implement homepage conversion improvements #1, #3, #4, #5, #7 from the strategy review on the public Landing page (`src/pages/Landing.tsx`) and supporting fallbacks.
 
-## Scope
-File: `src/pages/store/StoreBundleDetail.tsx` (primary)
-Supporting: `src/components/store/FounderCredibilityCard.tsx` (compact variant copy), optionally `src/components/PublicPageLayout.tsx` (slim nav variant), and a small new component `src/components/store/DeliverablesList.tsx`.
+---
 
-No changes to product/bundle data model. New copy is derived from existing fields (`whats_inside`, `included_file_paths`, `who_its_for`) with sensible fallbacks per bundle slug.
+## #1 — Social proof above the fold (founder-led, honest)
+Since you're pre-named-customer, use a **founder-led credibility block** instead of fake testimonials. Add a compact 3-card row directly under the hero CTAs (above the dashboard preview):
 
-## Changes
+- **Card A — Founder bona fides** (1 sentence): "Built by Jessica Carter, FQHC quality director who ran the same audits and PDSA cycles you do." + tiny avatar.
+- **Card B — Methodology proof**: "Aligned with HRSA Chapter 10, UDS Tables 6B/7, and NCQA PCMH 2024 standards."
+- **Card C — Outcome framing** (designed-to claim, not testimonial): "Designed to cut PDSA documentation from days to a single 30-minute committee meeting."
 
-### 1. Sharper hero subhead (operational payoff)
-Replace the generic "<short_description>. Save $X." pattern with a buyer-centered subhead that emphasizes faster launch, less worksheet building, and clearer measure movement.
+When real customer quotes land, this block is swapped 1:1 for a `Testimonials` component with named quotes + headshots + center logo.
 
-- New H1 stays: bundle name.
-- New subhead (bundle-aware, defaults driven by slug; PDSA bundle example):
-  > "Launch two high-impact UDS improvement projects without rebuilding your PDSA tools from scratch. Ready-to-use Hypertension and Diabetes A1c workflows so your team moves from discussion to action fast."
-- Keep the small "Save $X" badge in the chip row, but remove savings from the subhead itself so the copy reads as outcome, not discount.
-- Add a 3-chip outcome strip under the subhead: "Launch in a week", "No worksheet building", "Board-ready evidence".
+## #3 — Hero refactor: text-left / image-right, single CTA
+Restructure the `<section>` at lines 380–453:
+- Two-column grid at `lg:grid-cols-2` (stacks on mobile).
+- **Left**: compliance badges, H1, sharper sub-headline, **one** primary CTA + one ghost secondary, micro-trust line ("Free for one site · No credit card · Cancel anytime").
+- **Right**: dashboard preview image (currently below hero) lifted up, with a soft gradient frame.
+- Move the 3-step workflow strip *below* the hero into its own section so the hero stays focused.
+- Rewrite sub-headline to:
+  > *"The QI platform for FQHC quality directors who are tired of running cycles that never show up in UDS results. Plan a PDSA cycle, watch the measure move on an SPC chart, and export an HRSA-ready binder — all in one place."*
 
-### 2. Concrete deliverables in purchase box
-Replace "2 templates included" with a tangible list mapped to how quality leaders evaluate usefulness.
+## #4 — Standardize CTA copy + button hierarchy
+Replace mixed CTA wording across `Landing.tsx` and `PublicPageLayout.tsx` with one canonical pair, used everywhere:
+- **Primary**: `Start free — no credit card →`
+- **Secondary**: `See how it works`
 
-In the right-rail purchase card, under the price + Buy button, render a "You'll receive" block:
-- Workbook (Plan/Do/Study/Act)
-- Intervention tracker
-- Meeting-ready summary
-- SPC chart setup
-- Email delivery within 1 minute
-- Free updates for 12 months
+Hierarchy rules:
+- Primary = filled `<Button>` (default variant), always with right arrow.
+- Secondary = `variant="outline"` or `"ghost"`, no arrow.
+- Nav uses primary only; footer CTA banner uses primary + secondary.
+- Remove the duplicate "Start Your Free Trial" / "Start Your Free PDSA Tracker" / "Get Started Free" / "Start Free Trial" variants. Audit `Landing.tsx`, `PublicPageLayout.tsx`, and `index.html` static fallback.
 
-Source order: pull from `whats_inside` of included products (deduped, capped at 5) and fall back to a curated list per bundle slug if empty. Keep the existing "templates included" + delivery items but reframe them as deliverables, not metadata.
+## #5 — Pricing teaser on homepage
+Insert a new lightweight section between the "Stats" band and "What MeasureWise actually does":
+- Single-row, three-pill teaser: **Free → Solo $149/mo → Multi-Site $349/mo → Network $699/mo**.
+- One-line reassurance: "Free forever for one site. No sales call. No per-seat licensing."
+- Single CTA: "See full pricing →" linking to `/pricing`.
+- Visual: clean horizontal band with subtle primary tint, not a full pricing table (keeps `/pricing` the destination).
 
-### 3. Polished trust box copy + tighter format
-Update `FounderCredibilityCard` compact variant copy to:
-> **Built by an FQHC Quality Director**
-> Each template in this bundle is one Jessica has personally used in an HRSA OSV, QI committee, or board meeting — not a generic download.
+## #7 — Fix prod fallback paths, OG verification, single sitemap
+**Static fallback in `index.html`** currently references `/src/assets/measurewise-logo.png` and `/src/assets/dashboard-preview.jpg` — these dev paths break in production builds:
+- Copy both assets to `public/` (e.g., `public/measurewise-logo.png`, `public/dashboard-preview.jpg`).
+- Update the static fallback `<img src>` references to point to those public URLs.
 
-Tighten spacing, add a thin top border, align avatar to text baseline. Keep the photo.
+**OG image**: confirm `public/og-image.png` is 1200×630. If wrong dimensions, regenerate. Add `og:image:width`, `og:image:height`, and `og:image:alt` meta tags in `index.html`.
 
-### 4. Rebalance the left column (more substance above the fold)
-Add three compact sections so the left column visually matches the right rail's weight:
+**Single sitemap**: today there are **three** sources — `public/sitemap.xml`, `public/sitemap.txt`, and `supabase/functions/sitemap/index.ts` (out of date, missing features/blog routes). Plan:
+- Keep `public/sitemap.xml` as the single source of truth (already complete).
+- Delete `public/sitemap.txt` and the `supabase/functions/sitemap` edge function.
+- Verify `public/robots.txt` references only `https://measurewise.org/sitemap.xml`.
 
-a. **Preview strip above "What's included"** — show 1 hero preview image at full width if available, then the existing `PreviewGallery` thumbnails below. If no images exist for the bundle, render a styled "deliverable mosaic" using product emojis + `whats_inside[0]` per product as a tile (no broken image states).
+---
 
-b. **"You'll receive" section** (new component `DeliverablesList`) — same data as the purchase-box list but expanded with a one-line description per item. Placed directly under the hero, before "What's included".
+## Files to change
+- `src/pages/Landing.tsx` — hero refactor, credibility block, CTA standardization, pricing teaser
+- `src/components/PublicPageLayout.tsx` — CTA copy alignment in nav + footer banner
+- `index.html` — fix fallback image paths, add OG dimension/alt tags, align CTA copy
+- `public/measurewise-logo.png`, `public/dashboard-preview.jpg` — new (copied from `src/assets`)
+- `public/sitemap.txt` — delete
+- `supabase/functions/sitemap/index.ts` + `supabase/config.toml` entry — delete
+- `public/robots.txt` — verify single sitemap reference
 
-c. **"How teams use it" workflow strip** — 4 horizontal steps with icons: Download → Customize for your site → Run the PDSA → Present results. Pure presentational, hard-coded copy, no data.
+## Out of scope (per your selection)
+- #2 video walkthrough
+- #6 customer logo strip (no logos available yet)
 
-### 5. Reduce nav distraction in buy mode
-Add a `slimNav` (or equivalent) prop to `PublicPageLayout` that, when true, hides secondary nav links and keeps only: logo (left), "Back to store" (left), and a single "Sign in" link (right). Apply on `StoreBundleDetail` and `StoreProductDetail`.
-
-If touching `PublicPageLayout` is risky, alternative: render a local minimal top bar inside `StoreBundleDetail` and pass `hideNav` to the layout (whichever prop already exists; will confirm at build time). Either way, the goal is fewer escape routes above the fold.
-
-### 6. Anchor the offer above the fold
-Reorder the left column so the first screen contains: hero emoji + title + new subhead + outcome chips + hero preview image (or mosaic) + "You'll receive" list. Push "What's included" product cards just below the fold. Founder credibility card stays in the right rail (compact) plus a banner version near the bottom of the left column for closing trust.
-
-## Out of scope
-- Database/schema changes
-- New Stripe products or pricing
-- Per-bundle CMS for the new copy (uses slug-based defaults + existing fields)
-- Changes to ProductCard or non-bundle pages beyond the optional slim-nav prop on `StoreProductDetail`
-
-## Visual sketch
-
-```text
-┌─────────────────────────────────────────────┬───────────────┐
-│ 🎁  Bundle • Save $59                       │  $XXX  ($YYY) │
-│ PDSA Improvement Bundle                     │  [ Buy now ]  │
-│ Launch two high-impact UDS projects without │  ─────────────│
-│ rebuilding PDSA tools from scratch…         │  You'll receive│
-│ [Launch in a week] [No worksheets] [Board…] │   • Workbook  │
-│                                             │   • Tracker   │
-│ ▢▢▢ hero preview / mosaic ▢▢▢              │   • Summary   │
-│                                             │   • SPC setup │
-│ You'll receive                              │  ─────────────│
-│  • Workbook  – Plan/Do/Study/Act            │  Built by an  │
-│  • Tracker   – intervention log             │  FQHC QI Dir. │
-│  • Summary   – meeting-ready                │               │
-│  • SPC setup – control limits ready         │               │
-│                                             │               │
-│ How teams use it: Download → Customize →    │               │
-│ Run PDSA → Present                          │               │
-│                                             │               │
-│ What's included (product cards)             │               │
-│ Founder banner (closing trust)              │               │
-└─────────────────────────────────────────────┴───────────────┘
-```
+## Open question
+For #1, are you OK with the founder-led credibility framing (no fake testimonials), or do you have **any** named quote — even from a beta user or advisor — I can use instead?
