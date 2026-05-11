@@ -190,6 +190,18 @@ export default function AdminStore() {
               </div>
 
               <div>
+                <Label className="text-xs">Buyer guidance ("Best for…")</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    defaultValue={product.buyer_guidance ?? ""}
+                    placeholder="Best if you're behind on a measure"
+                    onChange={(e) => setGuidance({ ...guidance, [product.id]: e.target.value })}
+                  />
+                  <Button size="sm" onClick={() => saveGuidance(product.id)}>Save</Button>
+                </div>
+              </div>
+
+              <div>
                 <Label className="text-xs">Files ({product.included_file_paths?.length ?? 0})</Label>
                 <ul className="mt-1 space-y-1">
                   {(product.included_file_paths ?? []).map((path) => (
@@ -207,6 +219,34 @@ export default function AdminStore() {
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f) void handleUpload(product.id, f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs">Preview screenshots ({product.preview_image_urls?.length ?? 0})</Label>
+                <div className="mt-1 grid grid-cols-3 gap-2">
+                  {(product.preview_image_urls ?? []).map((url) => (
+                    <div key={url} className="relative group rounded overflow-hidden border bg-muted aspect-[4/3]">
+                      <img src={url} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePreview(product.id, url)}
+                        className="absolute top-1 right-1 text-xs px-1.5 py-0.5 rounded bg-background/80 opacity-0 group-hover:opacity-100"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="mt-2"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handlePreviewUpload(product.id, f);
                     e.target.value = "";
                   }}
                 />
