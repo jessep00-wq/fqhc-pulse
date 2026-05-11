@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.resend-purchase-email]
 verify_jwt = false
+
+[functions.get-order]
+verify_jwt = false
+
+[functions.create-subscription-checkout]
+verify_jwt = false
+
+[functions.create-billing-portal]
+verify_jwt = false

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 interface PublicPageLayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface PublicPageLayoutProps {
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">

@@ -1,4 +1,4 @@
-// Creates a Stripe Checkout Session for a store product or bundle.
+// Creates a Stripe Checkout Session for a one-time storefront product or bundle.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { createStripeClient, type StripeEnv } from "../_shared/stripe.ts";
 
@@ -12,8 +12,7 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-// Map of price_id (lookup_key) -> { kind, slug } for our catalog.
-// Kept in code so we don't trust the client about which item is being purchased.
+// Server-side allowlist so the client can never request an arbitrary price.
 const PRICE_LOOKUP_KEYS: Record<string, { kind: "product" | "bundle"; slug: string }> = {
   uds_template_pack_one_time: { kind: "product", slug: "uds-measure-template-pack" },
   qi_committee_packet_one_time: { kind: "product", slug: "qi-committee-packet-template" },
@@ -41,7 +40,6 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Look up the catalog row (so we can stamp the order id into Stripe metadata).
     const table = item.kind === "product" ? "store_products" : "store_bundles";
     const { data: row } = await supabase
       .from(table)
@@ -51,7 +49,6 @@ Deno.serve(async (req) => {
 
     const stripe = createStripeClient(env);
 
-    // Resolve the actual Stripe price by lookup_key
     const prices = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
     const price = prices.data[0];
     if (!price) {
@@ -68,11 +65,14 @@ Deno.serve(async (req) => {
       cancel_url: `${origin}/store/${item.kind === "bundle" ? "bundle/" : ""}${item.slug}`,
       customer_creation: "always",
       allow_promotion_codes: true,
+      // Stripe handles tax compliance + fraud + disputes + receipts on this session.
+      managed_payments: { enabled: true },
       metadata: {
         kind: item.kind,
         slug: item.slug,
         catalog_id: row?.id ?? "",
         lookup_key: lookupKey,
+        environment: env,
       },
     });
 

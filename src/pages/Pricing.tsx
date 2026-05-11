@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
@@ -10,8 +10,14 @@ import {
   Shield,
   ArrowLeft,
   Lock,
+  Loader2,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { toast } from "sonner";
 
 interface TierFeature {
   text: string;
@@ -22,6 +28,7 @@ interface TierFeature {
 const getTiers = (annual: boolean) => [
   {
     name: "Free",
+    lookupKey: null as string | null,
     price: "$0",
     period: "",
     description: "Your first PDSA cycle, on us.",
@@ -39,12 +46,13 @@ const getTiers = (annual: boolean) => [
   },
   {
     name: "Solo Clinic",
+    lookupKey: annual ? "solo_annual" : "solo_monthly",
     price: annual ? "$124" : "$149",
     period: "/month",
     annualTotal: annual ? "$1,490/yr" : undefined,
     description: "One site, unlimited everything else.",
     highlight: false,
-    cta: "Start Free Trial",
+    cta: "Subscribe",
     features: [
       { text: "1 clinic site" },
       { text: "Unlimited users — MAs, RNs, providers, QI staff" },
@@ -59,13 +67,14 @@ const getTiers = (annual: boolean) => [
   },
   {
     name: "Multi-Site",
+    lookupKey: annual ? "multi_annual" : "multi_monthly",
     price: annual ? "$291" : "$349",
     period: "/month",
     annualTotal: annual ? "$3,490/yr" : undefined,
     description: "For health centers with 2–5 locations.",
     highlight: true,
     badge: "Most Popular",
-    cta: "Start Free Trial",
+    cta: "Subscribe",
     features: [
       { text: "Up to 5 clinic sites" },
       { text: "Unlimited users — no per-seat fees" },
@@ -81,12 +90,13 @@ const getTiers = (annual: boolean) => [
   },
   {
     name: "Health Center Network",
+    lookupKey: annual ? "network_annual" : "network_monthly",
     price: annual ? "$582" : "$699",
     period: "/month",
     annualTotal: annual ? "$6,990/yr" : undefined,
     description: "For networks with 6+ sites or PCA/HCCN programs.",
     highlight: false,
-    cta: "Start Free Trial",
+    cta: "Subscribe",
     features: [
       { text: "Unlimited clinic sites" },
       { text: "Unlimited users across the network" },
@@ -124,10 +134,42 @@ const differentiators = [
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const tiers = getTiers(annual);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubscribe = async (lookupKey: string | null) => {
+    if (!lookupKey) {
+      navigate("/auth?signup=true");
+      return;
+    }
+    if (!user) {
+      // Send to signup; after onboarding the user can come back here.
+      navigate(`/auth?signup=true&plan=${lookupKey}`);
+      return;
+    }
+    setLoadingKey(lookupKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", {
+        body: { priceId: lookupKey, environment: getStripeEnvironment() },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url as string;
+        return;
+      }
+      throw new Error("No checkout URL returned");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not start checkout";
+      toast.error(message);
+      setLoadingKey(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
       {/* Nav */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -246,11 +288,17 @@ export default function Pricing() {
                 <Button
                   className="w-full mt-6"
                   variant={tier.highlight ? "default" : "outline"}
-                  asChild
+                  onClick={() => handleSubscribe(tier.lookupKey)}
+                  disabled={loadingKey === tier.lookupKey}
                 >
-                  <Link to={tier.name === "Free" ? "/auth?signup=true" : "/#contact"}>
-                    {tier.name === "Free" ? tier.cta : "Contact Us to Upgrade"} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  {loadingKey === tier.lookupKey ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      {tier.lookupKey === null ? tier.cta : tier.cta}{" "}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
