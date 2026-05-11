@@ -78,7 +78,7 @@ const getTiers = (annual: boolean) => [
     annualTotal: annual ? "$6,990/yr" : undefined,
     description: "For networks with 6+ sites or PCA/HCCN programs.",
     highlight: false,
-    cta: "Subscribe",
+    cta: "Start 14-day free trial",
     features: [
       { text: "Unlimited clinic sites" },
       { text: "Unlimited users across the network" },
