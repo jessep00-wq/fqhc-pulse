@@ -163,7 +163,7 @@ export default function Pricing() {
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/auth?signup=true">Get Started Free</Link>
+              <Link to="/auth?signup=true">Start 14-day free trial</Link>
             </Button>
           </div>
         </div>
