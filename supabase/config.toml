@@ -1,1 +1,10 @@
 project_id = "eeyigxcwewdqfeidqbxk"
+
+[functions.payments-webhook]
+verify_jwt = false
+
+[functions.create-checkout]
+verify_jwt = false
+
+[functions.resend-purchase-email]
+verify_jwt = false
