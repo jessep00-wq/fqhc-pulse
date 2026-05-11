@@ -1,0 +1,91 @@
+// Creates a Stripe Checkout Session for a store product or bundle.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { createStripeClient, type StripeEnv } from "../_shared/stripe.ts";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+);
+
+// Map of price_id (lookup_key) -> { kind, slug } for our catalog.
+// Kept in code so we don't trust the client about which item is being purchased.
+const PRICE_LOOKUP_KEYS: Record<string, { kind: "product" | "bundle"; slug: string }> = {
+  uds_template_pack_one_time: { kind: "product", slug: "uds-measure-template-pack" },
+  qi_committee_packet_one_time: { kind: "product", slug: "qi-committee-packet-template" },
+  board_quality_report_one_time: { kind: "product", slug: "board-quality-report-template" },
+  htn_pdsa_bundle_one_time: { kind: "product", slug: "hypertension-pdsa-bundle" },
+  a1c_pdsa_bundle_one_time: { kind: "product", slug: "diabetes-a1c-pdsa-bundle" },
+  governance_bundle_one_time: { kind: "bundle", slug: "governance-bundle" },
+  pdsa_improvement_bundle_one_time: { kind: "bundle", slug: "pdsa-improvement-bundle" },
+};
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  try {
+    const body = await req.json();
+    const lookupKey = String(body?.priceId ?? "");
+    const env: StripeEnv = body?.environment === "live" ? "live" : "sandbox";
+    const origin = req.headers.get("origin") ?? "https://measurewise.org";
+
+    const item = PRICE_LOOKUP_KEYS[lookupKey];
+    if (!item) {
+      return new Response(JSON.stringify({ error: "Unknown price" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Look up the catalog row (so we can stamp the order id into Stripe metadata).
+    const table = item.kind === "product" ? "store_products" : "store_bundles";
+    const { data: row } = await supabase
+      .from(table)
+      .select("id, name")
+      .eq("slug", item.slug)
+      .maybeSingle();
+
+    const stripe = createStripeClient(env);
+
+    // Resolve the actual Stripe price by lookup_key
+    const prices = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
+    const price = prices.data[0];
+    if (!price) {
+      return new Response(JSON.stringify({ error: "Price not found in Stripe" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      line_items: [{ price: price.id, quantity: 1 }],
+      success_url: `${origin}/store/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/store/${item.kind === "bundle" ? "bundle/" : ""}${item.slug}`,
+      customer_creation: "always",
+      allow_promotion_codes: true,
+      metadata: {
+        kind: item.kind,
+        slug: item.slug,
+        catalog_id: row?.id ?? "",
+        lookup_key: lookupKey,
+      },
+    });
+
+    return new Response(JSON.stringify({ url: session.url }), {
+      status: 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (err) {
+    console.error("create-checkout error", err);
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return new Response(JSON.stringify({ error: message }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});
