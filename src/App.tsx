@@ -111,6 +111,12 @@ const App = () => (
                 <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
                 <Route path="/newsletter/:id" element={<NewsletterDetail />} />
 
+                {/* Store */}
+                <Route path="/store" element={<StoreIndex />} />
+                <Route path="/store/success" element={<StoreSuccess />} />
+                <Route path="/store/bundle/:slug" element={<StoreBundleDetail />} />
+                <Route path="/store/:slug" element={<StoreProductDetail />} />
+
                 <Route
                   path="/admin/*"
                   element={
