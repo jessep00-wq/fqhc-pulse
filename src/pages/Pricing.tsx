@@ -34,7 +34,7 @@ const getTiers = (annual: boolean) => [
     annualTotal: annual ? "$1,490/yr" : undefined,
     description: "One site, unlimited everything else.",
     highlight: false,
-    cta: "Subscribe",
+    cta: "Start 14-day free trial",
     features: [
       { text: "1 clinic site" },
       { text: "Unlimited users — MAs, RNs, providers, QI staff" },
