@@ -904,6 +904,7 @@ export type Database = {
         Returns: boolean
       }
       is_founder_admin: { Args: { _user_id: string }; Returns: boolean }
+      org_access_status: { Args: { _org_id: string }; Returns: string }
       seed_demo_data: { Args: { org_id: string }; Returns: undefined }
     }
     Enums: {

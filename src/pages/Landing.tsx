@@ -244,8 +244,8 @@ const faqItems = [
     a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, generate HRSA-ready audit binders, or link clinical improvements to financial outcomes. MeasureWise does all of this in one purpose-built tool.",
   },
   {
-    q: "Is there a free plan?",
-    a: "Yes. The free tier includes 3 active PDSA cycles, UDS dashboards, and guided methodology — no credit card required. Upgrade when you need unlimited cycles, SPC charts, and multi-site support.",
+    q: "Is there a free trial?",
+    a: "Yes. Every plan starts with a 14-day free trial — no credit card required to begin. You get full access during the trial. Add a card before day 14 to keep your workspace; otherwise it locks until you subscribe.",
   },
   {
     q: "Does MeasureWise store PHI?",
@@ -328,7 +328,7 @@ export default function Landing() {
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+              <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
             </Button>
           </div>
           <Button
@@ -361,7 +361,7 @@ export default function Landing() {
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
             </Button>
             <Button asChild className="w-full">
-              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start free — no credit card</Link>
+              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start 14-day free trial</Link>
             </Button>
           </div>
         )}
@@ -407,7 +407,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
               <Button size="lg" asChild className="text-base px-8">
                 <Link to="/auth?signup=true">
-                  Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" />
+                  Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-base px-8">
@@ -416,7 +416,7 @@ export default function Landing() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Free for one site · No credit card · Cancel anytime
+              14-day free trial · No credit card · Cancel anytime
             </p>
           </div>
 
@@ -438,10 +438,10 @@ export default function Landing() {
         {/* Founder-led credibility row */}
         <div className="max-w-6xl mx-auto mt-16 grid md:grid-cols-3 gap-4">
           <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
-            <img src={founderPhoto} alt="Jessica Carter, founder" className="h-12 w-12 rounded-full object-cover shrink-0 border border-border" />
+            <img src={founderPhoto} alt="Jessica Smith, founder" className="h-12 w-12 rounded-full object-cover shrink-0 border border-border" />
             <div>
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Built by an FQHC QI leader</p>
-              <p className="text-sm text-foreground leading-snug">Designed by Jessica Carter, an FQHC quality director who ran the same audits and PDSA cycles you do.</p>
+              <p className="text-sm text-foreground leading-snug">Designed by Jessica Smith, an FQHC quality director who ran the same audits and PDSA cycles you do.</p>
             </div>
           </div>
           <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
@@ -522,11 +522,6 @@ export default function Landing() {
           <p className="text-xs font-bold text-primary uppercase tracking-wider">Simple, FQHC-friendly pricing</p>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
             <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
-              <span className="text-foreground">Free</span>
-              <span className="text-muted-foreground text-xs">1 site</span>
-            </span>
-            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
-            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
               <span className="text-foreground">Solo</span>
               <span className="text-primary">$149</span>
               <span className="text-muted-foreground text-xs">/mo</span>
@@ -545,7 +540,7 @@ export default function Landing() {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            Free forever for one site. No sales call. No per-seat licensing.
+            14-day free trial on every plan. No credit card to start. No per-seat licensing.
           </p>
           <Button variant="outline" asChild>
             <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -982,7 +977,7 @@ export default function Landing() {
             className="text-base px-8"
           >
             <Link to="/auth?signup=true">
-              Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" />
+              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

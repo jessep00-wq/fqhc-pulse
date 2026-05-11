@@ -169,7 +169,7 @@ export default function HowItWorks() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Button size="lg" asChild className="text-base px-8">
               <Link to="/auth?signup=true">
-                Start Your Free Trial <ArrowRight className="ml-2 h-4 w-4" />
+                Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8">

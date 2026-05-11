@@ -94,7 +94,7 @@ export default function BlogUDSMeasures2026() {
             <div className="mt-12 p-6 bg-muted rounded-lg border border-border">
               <p className="font-semibold text-foreground mb-2">Track your UDS measures year-round</p>
               <p>
-                Stop relying on quarterly spreadsheet pulls. <Link to="/features/uds-tracking" className="text-primary hover:underline">MeasureWise tracks 20+ UDS measures</Link> in real time with gap-to-target analysis and automated alerts. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start your free trial →</Link>
+                Stop relying on quarterly spreadsheet pulls. <Link to="/features/uds-tracking" className="text-primary hover:underline">MeasureWise tracks 20+ UDS measures</Link> in real time with gap-to-target analysis and automated alerts. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start 14-day free trial →</Link>
               </p>
             </div>
           </div>

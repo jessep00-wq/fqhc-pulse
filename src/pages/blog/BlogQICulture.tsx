@@ -103,7 +103,7 @@ export default function BlogQICulture() {
             <div className="mt-12 p-6 bg-muted rounded-lg border border-border">
               <p className="font-semibold text-foreground mb-2">Empower your whole team to drive improvement</p>
               <p>
-                MeasureWise makes quality improvement accessible to every staff member — not just the QI director. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start your free trial →</Link>
+                MeasureWise makes quality improvement accessible to every staff member — not just the QI director. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start 14-day free trial →</Link>
               </p>
             </div>
           </div>

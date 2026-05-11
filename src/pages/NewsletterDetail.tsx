@@ -102,7 +102,7 @@ export default function NewsletterDetail() {
           <p className="text-sm text-sidebar-foreground/70 mb-7 max-w-md mx-auto">
             MeasureWise helps FQHC quality teams organize PDSA cycles, document measure-driven improvement work, and assign clear ownership — all year long.
           </p>
-          <Button asChild><Link to="/auth?signup=true">Start Free Trial</Link></Button>
+          <Button asChild><Link to="/auth?signup=true">Start 14-day free trial</Link></Button>
         </div>
 
         {/* Footer */}

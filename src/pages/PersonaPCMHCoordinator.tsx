@@ -56,7 +56,7 @@ export default function PersonaPCMHCoordinator() {
           </Link>
           <div className="flex items-center gap-3">
             <Button variant="ghost" asChild><Link to="/auth">Sign In</Link></Button>
-            <Button asChild><Link to="/auth?signup=true">Get Started Free</Link></Button>
+            <Button asChild><Link to="/auth?signup=true">Start 14-day free trial</Link></Button>
           </div>
         </div>
       </header>
@@ -138,7 +138,7 @@ export default function PersonaPCMHCoordinator() {
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> One-click export</span>
           </div>
           <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <Link to="/auth?signup=true">Get Started Free <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
       </section>

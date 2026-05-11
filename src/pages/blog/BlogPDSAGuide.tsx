@@ -111,7 +111,7 @@ export default function BlogPDSAGuide() {
             <div className="mt-12 p-6 bg-muted rounded-lg border border-border">
               <p className="font-semibold text-foreground mb-2">Ready to run your first PDSA cycle?</p>
               <p>
-                <Link to="/features/pdsa-cycle-manager" className="text-primary hover:underline">MeasureWise's PDSA Cycle Manager</Link> guides your team through each phase with templates, coaching prompts, and automatic UDS measure linking. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start your free trial →</Link>
+                <Link to="/features/pdsa-cycle-manager" className="text-primary hover:underline">MeasureWise's PDSA Cycle Manager</Link> guides your team through each phase with templates, coaching prompts, and automatic UDS measure linking. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start 14-day free trial →</Link>
               </p>
             </div>
           </div>

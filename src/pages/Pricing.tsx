@@ -27,24 +27,6 @@ interface TierFeature {
 
 const getTiers = (annual: boolean) => [
   {
-    name: "Free",
-    lookupKey: null as string | null,
-    price: "$0",
-    period: "",
-    description: "Your first PDSA cycle, on us.",
-    highlight: false,
-    cta: "Start Free",
-    features: [
-      { text: "1 user" },
-      { text: "3 active PDSA cycles" },
-      { text: "1 clinic site" },
-      { text: "UDS measure dashboards" },
-      { text: "HRSA audit binder export (watermarked)" },
-      { text: "Guided PDSA methodology" },
-      { text: "Self-serve onboarding" },
-    ] as TierFeature[],
-  },
-  {
     name: "Solo Clinic",
     lookupKey: annual ? "solo_annual" : "solo_monthly",
     price: annual ? "$124" : "$149",
@@ -52,7 +34,7 @@ const getTiers = (annual: boolean) => [
     annualTotal: annual ? "$1,490/yr" : undefined,
     description: "One site, unlimited everything else.",
     highlight: false,
-    cta: "Subscribe",
+    cta: "Start 14-day free trial",
     features: [
       { text: "1 clinic site" },
       { text: "Unlimited users — MAs, RNs, providers, QI staff" },
@@ -74,7 +56,7 @@ const getTiers = (annual: boolean) => [
     description: "For health centers with 2–5 locations.",
     highlight: true,
     badge: "Most Popular",
-    cta: "Subscribe",
+    cta: "Start 14-day free trial",
     features: [
       { text: "Up to 5 clinic sites" },
       { text: "Unlimited users — no per-seat fees" },
@@ -96,7 +78,7 @@ const getTiers = (annual: boolean) => [
     annualTotal: annual ? "$6,990/yr" : undefined,
     description: "For networks with 6+ sites or PCA/HCCN programs.",
     highlight: false,
-    cta: "Subscribe",
+    cta: "Start 14-day free trial",
     features: [
       { text: "Unlimited clinic sites" },
       { text: "Unlimited users across the network" },
@@ -181,7 +163,7 @@ export default function Pricing() {
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/auth?signup=true">Get Started Free</Link>
+              <Link to="/auth?signup=true">Start 14-day free trial</Link>
             </Button>
           </div>
         </div>
@@ -206,7 +188,7 @@ export default function Pricing() {
             Priced the way FQHCs actually budget — a QI Director can buy without procurement approval.
           </p>
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
-            30-day free trial — no credit card required
+            14-day free trial — no credit card required
           </div>
 
           {/* Billing toggle */}
@@ -241,7 +223,7 @@ export default function Pricing() {
 
       {/* Pricing cards */}
       <section className="pb-24 px-6">
-        <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-6">
           {tiers.map((tier) => (
             <Card
               key={tier.name}
@@ -339,12 +321,12 @@ export default function Pricing() {
           <div className="space-y-8">
             {[
               {
-                q: "What's included in the Free plan?",
-                a: "The Free plan gives you full access to the PDSA tracker with guided methodology, UDS measure dashboards, and HRSA audit binder export (watermarked). It's limited to 1 user, 3 active PDSA cycles, and 1 clinic site — enough to run your first improvement cycle and see real results before upgrading.",
+                q: "How does the 14-day free trial work?",
+                a: "Sign up with your email, pick a plan, and get full access to MeasureWise for 14 days. No credit card required to start. Add a card before day 14 to keep your workspace; otherwise it locks until you subscribe.",
               },
               {
                 q: "Do I need a credit card to start?",
-                a: "No. Start your 30-day free trial on any paid plan with just an email address. No credit card, no purchase order, no procurement approval. The Free plan never requires a card at all.",
+                a: "No. Start your 14-day free trial with just an email address — no credit card, no purchase order, no procurement approval. Add a card before the trial ends to continue using MeasureWise.",
               },
               {
                 q: "Do you offer annual billing?",
@@ -379,13 +361,13 @@ export default function Pricing() {
       {/* CTA */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">Start your 30-day free trial</h2>
+          <h2 className="text-3xl font-bold">Start your 14-day free trial</h2>
           <p className="text-primary-foreground/80 text-lg">
             No credit card. No sales call. Just the QI tools your FQHC needs.
           </p>
           <Button size="lg" variant="secondary" asChild className="text-base px-8">
             <Link to="/auth?signup=true">
-              Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
