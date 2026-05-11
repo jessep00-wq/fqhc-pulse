@@ -361,13 +361,13 @@ export default function Pricing() {
       {/* CTA */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">Start your 30-day free trial</h2>
+          <h2 className="text-3xl font-bold">Start your 14-day free trial</h2>
           <p className="text-primary-foreground/80 text-lg">
             No credit card. No sales call. Just the QI tools your FQHC needs.
           </p>
           <Button size="lg" variant="secondary" asChild className="text-base px-8">
             <Link to="/auth?signup=true">
-              Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
