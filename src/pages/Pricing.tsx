@@ -288,11 +288,17 @@ export default function Pricing() {
                 <Button
                   className="w-full mt-6"
                   variant={tier.highlight ? "default" : "outline"}
-                  asChild
+                  onClick={() => handleSubscribe(tier.lookupKey)}
+                  disabled={loadingKey === tier.lookupKey}
                 >
-                  <Link to={tier.name === "Free" ? "/auth?signup=true" : "/#contact"}>
-                    {tier.name === "Free" ? tier.cta : "Contact Us to Upgrade"} <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
+                  {loadingKey === tier.lookupKey ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      {tier.lookupKey === null ? tier.cta : tier.cta}{" "}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </CardContent>
             </Card>
