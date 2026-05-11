@@ -45,18 +45,35 @@ export function useSubscription() {
   const sub = query.data;
   const plan: PlanTier = (sub?.plan as PlanTier) ?? "free";
   const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
-  const isActive =
+  const trialEndsAt = sub?.trial_end ? new Date(sub.trial_end) : null;
+  const now = new Date();
+
+  const isPaid =
     !!sub &&
+    plan !== "free" &&
     (ACTIVE_STATUSES.has(sub.status) ||
-      (sub.status === "canceled" && periodEnd && periodEnd > new Date())) &&
-    plan !== "free";
+      (sub.status === "canceled" && periodEnd && periodEnd > now));
+
+  const isTrialing =
+    !isPaid && plan === "free" && !!trialEndsAt && trialEndsAt > now;
+
+  const isLocked = !isPaid && !isTrialing;
+
+  const daysLeftInTrial =
+    trialEndsAt && trialEndsAt > now
+      ? Math.max(0, Math.ceil((trialEndsAt.getTime() - now.getTime()) / 86_400_000))
+      : null;
 
   return {
     ...query,
     subscription: sub,
     plan,
-    isActive,
-    isPaid: isActive,
+    isActive: isPaid,
+    isPaid,
+    isTrialing,
+    isLocked,
+    trialEndsAt,
+    daysLeftInTrial,
     cancelAtPeriodEnd: !!sub?.cancel_at_period_end,
     periodEnd,
   };
