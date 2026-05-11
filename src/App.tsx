@@ -52,6 +52,13 @@ import NewsletterIndex from "./pages/NewsletterIndex";
 import NewsletterDetail from "./pages/NewsletterDetail";
 import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
 
+// Store pages
+import StoreIndex from "./pages/store/StoreIndex";
+import StoreProductDetail from "./pages/store/StoreProductDetail";
+import StoreBundleDetail from "./pages/store/StoreBundleDetail";
+import StoreSuccess from "./pages/store/StoreSuccess";
+import AdminStore from "./pages/admin/AdminStore";
+
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
 import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
