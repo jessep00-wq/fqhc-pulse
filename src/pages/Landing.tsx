@@ -416,7 +416,7 @@ export default function Landing() {
             </div>
 
             <p className="text-sm text-muted-foreground">
-              Free for one site · No credit card · Cancel anytime
+              14-day free trial · No credit card · Cancel anytime
             </p>
           </div>
 
