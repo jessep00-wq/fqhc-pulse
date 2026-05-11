@@ -4,9 +4,10 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/store/ProductCard";
 import { BundleCard } from "@/components/store/BundleCard";
+import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Download, ShieldCheck, Zap } from "lucide-react";
+import { CheckCircle, Download, ShieldCheck, TrendingUp, Clock } from "lucide-react";
 import {
   STORE_CATEGORIES,
   type StoreBundle,
@@ -63,18 +64,25 @@ export default function StoreIndex() {
         <div className="max-w-5xl mx-auto text-center space-y-6">
           <Badge variant="secondary">MeasureWise Store</Badge>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Implementation tools for FQHC quality teams
+            Templates that move UDS measures and survive HRSA audits.
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Practical templates — not generic forms — built around the HRSA UDS framework so your
-            documentation is cleaner, your committees run smoother, and your reports defend
-            themselves.
+            Built by an FQHC quality leader and used by quality directors at health centers across
+            the country — not generic forms. Every template is designed to move a measure, defend an
+            OSV, or run a real QI committee.
           </p>
           <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground pt-2">
-            <span className="inline-flex items-center gap-1.5"><Download className="h-4 w-4 text-primary" /> Instant download</span>
-            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary" /> HRSA-aligned</span>
-            <span className="inline-flex items-center gap-1.5"><Zap className="h-4 w-4 text-primary" /> Editable PDFs, DOCX & XLSX</span>
+            <span className="inline-flex items-center gap-1.5"><TrendingUp className="h-4 w-4 text-primary" /> Move a UDS measure</span>
+            <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary" /> Defend an HRSA OSV</span>
+            <span className="inline-flex items-center gap-1.5"><Clock className="h-4 w-4 text-primary" /> Run a QI committee in 30 min</span>
           </div>
+        </div>
+      </section>
+
+      {/* Founder credibility band */}
+      <section className="px-6 -mt-6">
+        <div className="max-w-4xl mx-auto">
+          <FounderCredibilityCard />
         </div>
       </section>
 

@@ -23,6 +23,7 @@ export default function AdminStore() {
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [editing, setEditing] = useState<Record<string, string>>({});
+  const [guidance, setGuidance] = useState<Record<string, string>>({});
 
   useEffect(() => {
     void load();
@@ -60,6 +61,41 @@ export default function AdminStore() {
     void load();
   }
 
+  async function handlePreviewUpload(productId: string, file: File) {
+    const path = `${productId}/${Date.now()}-${file.name}`;
+    const { error: upErr } = await supabase.storage
+      .from("product-previews")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("product-previews").getPublicUrl(path);
+    const product = products.find((p) => p.id === productId);
+    const newUrls = Array.from(new Set([...(product?.preview_image_urls ?? []), pub.publicUrl]));
+    const { error: dbErr } = await supabase
+      .from("store_products" as never)
+      .update({ preview_image_urls: newUrls } as never)
+      .eq("id", productId);
+    if (dbErr) {
+      toast.error(dbErr.message);
+      return;
+    }
+    toast.success("Preview uploaded");
+    void load();
+  }
+
+  async function removePreview(productId: string, url: string) {
+    const product = products.find((p) => p.id === productId);
+    const newUrls = (product?.preview_image_urls ?? []).filter((u) => u !== url);
+    await supabase
+      .from("store_products" as never)
+      .update({ preview_image_urls: newUrls } as never)
+      .eq("id", productId);
+    toast.success("Preview removed");
+    void load();
+  }
+
   async function removeFile(productId: string, path: string) {
     await supabase.storage.from("product-files").remove([path]);
     const product = products.find((p) => p.id === productId);
@@ -87,6 +123,20 @@ export default function AdminStore() {
       return;
     }
     toast.success("Price updated. Note: this updates display only — Stripe price stays the same.");
+    void load();
+  }
+
+  async function saveGuidance(productId: string) {
+    const text = (guidance[productId] ?? "").trim() || null;
+    const { error } = await supabase
+      .from("store_products" as never)
+      .update({ buyer_guidance: text } as never)
+      .eq("id", productId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Buyer guidance updated");
     void load();
   }
 
@@ -140,6 +190,18 @@ export default function AdminStore() {
               </div>
 
               <div>
+                <Label className="text-xs">Buyer guidance ("Best for…")</Label>
+                <div className="flex gap-2 mt-1">
+                  <Input
+                    defaultValue={product.buyer_guidance ?? ""}
+                    placeholder="Best if you're behind on a measure"
+                    onChange={(e) => setGuidance({ ...guidance, [product.id]: e.target.value })}
+                  />
+                  <Button size="sm" onClick={() => saveGuidance(product.id)}>Save</Button>
+                </div>
+              </div>
+
+              <div>
                 <Label className="text-xs">Files ({product.included_file_paths?.length ?? 0})</Label>
                 <ul className="mt-1 space-y-1">
                   {(product.included_file_paths ?? []).map((path) => (
@@ -157,6 +219,34 @@ export default function AdminStore() {
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     if (f) void handleUpload(product.id, f);
+                    e.target.value = "";
+                  }}
+                />
+              </div>
+
+              <div>
+                <Label className="text-xs">Preview screenshots ({product.preview_image_urls?.length ?? 0})</Label>
+                <div className="mt-1 grid grid-cols-3 gap-2">
+                  {(product.preview_image_urls ?? []).map((url) => (
+                    <div key={url} className="relative group rounded overflow-hidden border bg-muted aspect-[4/3]">
+                      <img src={url} alt="preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePreview(product.id, url)}
+                        className="absolute top-1 right-1 text-xs px-1.5 py-0.5 rounded bg-background/80 opacity-0 group-hover:opacity-100"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <Input
+                  type="file"
+                  accept="image/*"
+                  className="mt-2"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) void handlePreviewUpload(product.id, f);
                     e.target.value = "";
                   }}
                 />

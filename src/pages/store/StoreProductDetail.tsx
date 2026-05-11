@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
-import { CheckCircle, FileText, ShieldCheck, Users } from "lucide-react";
+import { PreviewGallery } from "@/components/store/PreviewGallery";
+import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
+import { CheckCircle, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreProduct } from "@/types/store";
 
 export default function StoreProductDetail() {
@@ -78,12 +80,20 @@ export default function StoreProductDetail() {
                 <Badge variant="secondary">{product.category}</Badge>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{product.name}</h1>
+              {product.buyer_guidance && (
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  {product.buyer_guidance}
+                </div>
+              )}
               <p className="text-lg text-muted-foreground">{product.short_description}</p>
             </header>
 
             {product.long_description && (
               <p className="text-base leading-relaxed">{product.long_description}</p>
             )}
+
+            <PreviewGallery images={product.preview_image_urls ?? []} title="What it looks like" />
 
             {product.bullets?.length > 0 && (
               <section>
@@ -141,7 +151,7 @@ export default function StoreProductDetail() {
           </div>
 
           {/* Buy panel */}
-          <aside className="lg:col-span-1">
+          <aside className="lg:col-span-1 space-y-4">
             <Card className="lg:sticky lg:top-24">
               <CardContent className="p-6 space-y-4">
                 <div>
@@ -155,6 +165,8 @@ export default function StoreProductDetail() {
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Free updates for 12 months</li>
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Email delivery within 1 minute</li>
                 </ul>
+                <Separator />
+                <FounderCredibilityCard variant="compact" />
               </CardContent>
             </Card>
           </aside>
