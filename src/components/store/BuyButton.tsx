@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 interface BuyButtonProps {
   priceId: string | null;
@@ -29,7 +30,7 @@ export function BuyButton({
     setLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId, environment: "sandbox" },
+        body: { priceId, environment: getStripeEnvironment() },
       });
       if (error) throw error;
       if (data?.url) {
