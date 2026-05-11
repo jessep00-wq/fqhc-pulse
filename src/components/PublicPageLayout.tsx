@@ -6,9 +6,10 @@ import measurewiseLogo from "@/assets/measurewise-logo.png";
 interface PublicPageLayoutProps {
   children: React.ReactNode;
   backTo?: { label: string; href: string };
+  slimNav?: boolean;
 }
 
-export function PublicPageLayout({ children, backTo }: PublicPageLayoutProps) {
+export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
