@@ -516,7 +516,42 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* What MeasureWise Actually Does */}
+      {/* Pricing Teaser */}
+      <section className="py-12 px-6 bg-primary/5 border-b border-primary/10">
+        <div className="max-w-5xl mx-auto text-center space-y-5">
+          <p className="text-xs font-bold text-primary uppercase tracking-wider">Simple, FQHC-friendly pricing</p>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Free</span>
+              <span className="text-muted-foreground text-xs">1 site</span>
+            </span>
+            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Solo</span>
+              <span className="text-primary">$149</span>
+              <span className="text-muted-foreground text-xs">/mo</span>
+            </span>
+            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Multi-Site</span>
+              <span className="text-primary">$349</span>
+              <span className="text-muted-foreground text-xs">/mo</span>
+            </span>
+            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Network</span>
+              <span className="text-primary">$699</span>
+              <span className="text-muted-foreground text-xs">/mo</span>
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Free forever for one site. No sales call. No per-seat licensing.
+          </p>
+          <Button variant="outline" asChild>
+            <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+        </div>
+      </section>
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
