@@ -1,62 +1,89 @@
-## Storefront Conversion Polish
 
-Tighten the storefront so the offer matches the homepage promise, removes buyer hesitation, and surfaces credibility — without changing pricing, products, or checkout flow.
+## Goal
+Make `/store/bundle/:slug` feel as substantial as its price by sharpening copy, making deliverables concrete, balancing the layout, and reducing buy-mode distractions. Frontend-only changes; no schema, Stripe, or fulfillment changes.
 
-### 1. Match store headline to homepage promise
+## Scope
+File: `src/pages/store/StoreBundleDetail.tsx` (primary)
+Supporting: `src/components/store/FounderCredibilityCard.tsx` (compact variant copy), optionally `src/components/PublicPageLayout.tsx` (slim nav variant), and a small new component `src/components/store/DeliverablesList.tsx`.
 
-Rewrite the `/store` hero on `StoreIndex.tsx` so it ties the purchase to UDS movement, audit readiness, and FQHC workflow value (mirroring Landing's voice: "move the needle", "audit-defensible", "PDSA that actually ships").
+No changes to product/bundle data model. New copy is derived from existing fields (`whats_inside`, `included_file_paths`, `who_its_for`) with sensible fallbacks per bundle slug.
 
-- New H1: **"Templates that move UDS measures and survive HRSA audits."**
-- Subhead: reinforce "built by an FQHC quality leader, used by quality directors" — not a generic template store.
-- Replace the three tagline chips with three outcome chips: *Move a UDS measure*, *Defend an HRSA OSV*, *Run a QI committee in 30 min*.
+## Changes
 
-### 2. Buyer-guidance labels (help visitors choose fast)
+### 1. Sharper hero subhead (operational payoff)
+Replace the generic "<short_description>. Save $X." pattern with a buyer-centered subhead that emphasizes faster launch, less worksheet building, and clearer measure movement.
 
-Add a small colored "Best for…" pill on every `ProductCard` and `BundleCard`, plus a one-liner under the title:
+- New H1 stays: bundle name.
+- New subhead (bundle-aware, defaults driven by slug; PDSA bundle example):
+  > "Launch two high-impact UDS improvement projects without rebuilding your PDSA tools from scratch. Ready-to-use Hypertension and Diabetes A1c workflows so your team moves from discussion to action fast."
+- Keep the small "Save $X" badge in the chip row, but remove savings from the subhead itself so the copy reads as outcome, not discount.
+- Add a 3-chip outcome strip under the subhead: "Launch in a week", "No worksheet building", "Board-ready evidence".
 
-- **UDS Measure Template Pack** → "Best if you're behind on a clinical measure"
-- **QI Committee Packet** → "Best if your QI meetings feel unstructured"
-- **Board Quality Report** → "Best for your next board quarterly"
-- **Hypertension / Diabetes A1c PDSA Bundles** → "Best if a specific measure is stuck"
-- **Governance Bundle** → "Best for new QI Directors stepping into the role"
-- **PDSA Improvement Bundle** → "Best when you have 60 days to move a measure"
+### 2. Concrete deliverables in purchase box
+Replace "2 templates included" with a tangible list mapped to how quality leaders evaluate usefulness.
 
-Driven by a new optional `buyer_guidance` text column on `store_products` + `store_bundles` (nullable, no migration risk; falls back to nothing if empty). Seed values via migration.
+In the right-rail purchase card, under the price + Buy button, render a "You'll receive" block:
+- Workbook (Plan/Do/Study/Act)
+- Intervention tracker
+- Meeting-ready summary
+- SPC chart setup
+- Email delivery within 1 minute
+- Free updates for 12 months
 
-### 3. "Who it's for" + "What you get" on every product card
+Source order: pull from `whats_inside` of included products (deduped, capped at 5) and fall back to a curated list per bundle slug if empty. Keep the existing "templates included" + delivery items but reframe them as deliverables, not metadata.
 
-The detail page already has these sections; the **catalog cards** do not. Extend `ProductCard` to show:
+### 3. Polished trust box copy + tighter format
+Update `FounderCredibilityCard` compact variant copy to:
+> **Built by an FQHC Quality Director**
+> Each template in this bundle is one Jessica has personally used in an HRSA OSV, QI committee, or board meeting — not a generic download.
 
-- A compact **Who it's for** row (first 2 roles from `who_its_for`, e.g. "QI Director · Compliance Lead").
-- A compact **What you get** row (count + first item, e.g. "4 files · UDS Measure Tracker XLSX").
+Tighten spacing, add a thin top border, align avatar to text baseline. Keep the photo.
 
-Same treatment on `BundleCard` — already lists products; add a "Who it's for" line aggregated from the bundle's products.
+### 4. Rebalance the left column (more substance above the fold)
+Add three compact sections so the left column visually matches the right rail's weight:
 
-### 4. Deliverable previews / screenshots
+a. **Preview strip above "What's included"** — show 1 hero preview image at full width if available, then the existing `PreviewGallery` thumbnails below. If no images exist for the bundle, render a styled "deliverable mosaic" using product emojis + `whats_inside[0]` per product as a tile (no broken image states).
 
-Make the offer tangible on every product detail page:
+b. **"You'll receive" section** (new component `DeliverablesList`) — same data as the purchase-box list but expanded with a one-line description per item. Placed directly under the hero, before "What's included".
 
-- Add a **Preview gallery** section above the buy panel using a new `preview_image_urls text[]` column on `store_products`.
-- Renders as a 2–3 thumbnail grid that opens a lightbox (reuse shadcn `Dialog`).
-- For bundles, show a stitched mosaic of previews from included products.
-- Until you upload real screenshots in `/admin/store`, the section gracefully hides. Add an upload UI in `AdminStore.tsx` (reuses the existing storage upload pattern, new `product-previews` **public** bucket).
+c. **"How teams use it" workflow strip** — 4 horizontal steps with icons: Download → Customize for your site → Run the PDSA → Present results. Pure presentational, hard-coded copy, no data.
 
-A small "Sample preview" link already exists via `sample_preview_url`; we'll keep it for full PDF samples and use `preview_image_urls` for inline screenshots.
+### 5. Reduce nav distraction in buy mode
+Add a `slimNav` (or equivalent) prop to `PublicPageLayout` that, when true, hides secondary nav links and keeps only: logo (left), "Back to store" (left), and a single "Sign in" link (right). Apply on `StoreBundleDetail` and `StoreProductDetail`.
 
-### 5. Founder / FQHC credibility band near top
+If touching `PublicPageLayout` is risky, alternative: render a local minimal top bar inside `StoreBundleDetail` and pass `hideNav` to the layout (whichever prop already exists; will confirm at build time). Either way, the goal is fewer escape routes above the fold.
 
-Right under the hero on `/store` and in the buy panel sidebar on detail pages:
+### 6. Anchor the offer above the fold
+Reorder the left column so the first screen contains: hero emoji + title + new subhead + outcome chips + hero preview image (or mosaic) + "You'll receive" list. Push "What's included" product cards just below the fold. Founder credibility card stays in the right rail (compact) plus a banner version near the bottom of the left column for closing trust.
 
-- Reuse `founder-jessica.png` from Landing.
-- Compact card: photo + "Built by Jessica, FQHC Quality Director — every template is one she's used in a real OSV / board meeting."
-- One-line proof point: "Trusted by quality teams at FQHCs across the country."
-- On the detail page, this sits directly beneath the price/Buy button so it's the last thing seen before purchase.
+## Out of scope
+- Database/schema changes
+- New Stripe products or pricing
+- Per-bundle CMS for the new copy (uses slug-based defaults + existing fields)
+- Changes to ProductCard or non-bundle pages beyond the optional slim-nav prop on `StoreProductDetail`
 
-### Technical notes
+## Visual sketch
 
-- **Schema migration**: add `buyer_guidance text` and `preview_image_urls text[] default '{}'` to `store_products` and `store_bundles`; create public `product-previews` storage bucket with read-anyone / write-founder-admin policies.
-- **Types**: extend `StoreProduct` / `StoreBundle` in `src/types/store.ts`.
-- **Components**: update `ProductCard.tsx`, `BundleCard.tsx`, `StoreIndex.tsx`, `StoreProductDetail.tsx`, `StoreBundleDetail.tsx`. New `FounderCredibilityCard.tsx` and `PreviewGallery.tsx` in `src/components/store/`.
-- **Admin**: extend `AdminStore.tsx` with preview-image upload + buyer-guidance text field per product/bundle.
-- **Seed data**: migration writes the buyer-guidance copy listed in step 2 to existing rows so the UI is populated immediately.
-- **No changes** to Stripe, checkout, webhooks, fulfillment, or routing.
+```text
+┌─────────────────────────────────────────────┬───────────────┐
+│ 🎁  Bundle • Save $59                       │  $XXX  ($YYY) │
+│ PDSA Improvement Bundle                     │  [ Buy now ]  │
+│ Launch two high-impact UDS projects without │  ─────────────│
+│ rebuilding PDSA tools from scratch…         │  You'll receive│
+│ [Launch in a week] [No worksheets] [Board…] │   • Workbook  │
+│                                             │   • Tracker   │
+│ ▢▢▢ hero preview / mosaic ▢▢▢              │   • Summary   │
+│                                             │   • SPC setup │
+│ You'll receive                              │  ─────────────│
+│  • Workbook  – Plan/Do/Study/Act            │  Built by an  │
+│  • Tracker   – intervention log             │  FQHC QI Dir. │
+│  • Summary   – meeting-ready                │               │
+│  • SPC setup – control limits ready         │               │
+│                                             │               │
+│ How teams use it: Download → Customize →    │               │
+│ Run PDSA → Present                          │               │
+│                                             │               │
+│ What's included (product cards)             │               │
+│ Founder banner (closing trust)              │               │
+└─────────────────────────────────────────────┴───────────────┘
+```
