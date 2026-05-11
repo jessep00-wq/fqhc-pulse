@@ -188,7 +188,7 @@ export default function Pricing() {
             Priced the way FQHCs actually budget — a QI Director can buy without procurement approval.
           </p>
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
-            30-day free trial — no credit card required
+            14-day free trial — no credit card required
           </div>
 
           {/* Billing toggle */}
