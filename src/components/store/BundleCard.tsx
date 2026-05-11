@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, Package } from "lucide-react";
+import { ArrowRight, Package, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
 
 interface BundleCardProps {
@@ -12,6 +12,10 @@ interface BundleCardProps {
 export function BundleCard({ bundle, includedProducts }: BundleCardProps) {
   const fullPrice = includedProducts.reduce((sum, p) => sum + p.price_cents, 0);
   const savings = fullPrice - bundle.price_cents;
+
+  const audience = Array.from(
+    new Set(includedProducts.flatMap((p) => p.who_its_for ?? [])),
+  ).slice(0, 3).join(" · ");
 
   return (
     <Link
@@ -28,10 +32,17 @@ export function BundleCard({ bundle, includedProducts }: BundleCardProps) {
               </Badge>
             )}
           </div>
-          <h3 className="text-xl font-semibold mb-2 group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-semibold mb-1 group-hover:text-primary transition-colors">
             {bundle.name}
           </h3>
+          {bundle.buyer_guidance && (
+            <div className="inline-flex items-center gap-1.5 text-xs font-medium text-primary mb-2">
+              <Sparkles className="h-3.5 w-3.5" />
+              {bundle.buyer_guidance}
+            </div>
+          )}
           <p className="text-sm text-muted-foreground mb-4">{bundle.short_description}</p>
+
           <div className="space-y-1.5 mb-4">
             {includedProducts.map((p) => (
               <div key={p.id} className="flex items-center text-sm">
@@ -40,6 +51,14 @@ export function BundleCard({ bundle, includedProducts }: BundleCardProps) {
               </div>
             ))}
           </div>
+
+          {audience && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-3">
+              <Users className="h-3.5 w-3.5 text-primary shrink-0" />
+              <span className="truncate"><span className="font-medium text-foreground/80">For:</span> {audience}</span>
+            </div>
+          )}
+
           <div className="flex items-center justify-between mt-auto pt-3 border-t">
             <div>
               <span className="text-xl font-bold">{formatPrice(bundle.price_cents, bundle.currency)}</span>
