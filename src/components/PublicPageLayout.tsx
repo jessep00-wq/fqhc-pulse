@@ -69,7 +69,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             Run your first PDSA cycle in under 10 minutes. No sales call, no credit card.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/70">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free for one site</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> 14-day free trial</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> No sales call</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> HRSA-aligned</span>
           </div>
