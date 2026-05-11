@@ -33,7 +33,7 @@ export default function StoreProductDetail() {
 
   if (loading) {
     return (
-      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }}>
+      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
         <div className="max-w-4xl mx-auto px-6 py-16 text-muted-foreground">Loading…</div>
       </PublicPageLayout>
     );
@@ -41,7 +41,7 @@ export default function StoreProductDetail() {
 
   if (!product) {
     return (
-      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }}>
+      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
         <div className="max-w-4xl mx-auto px-6 py-16">
           <h1 className="text-2xl font-bold mb-2">Product not found</h1>
           <Link to="/store" className="text-primary underline">Browse all templates</Link>
@@ -51,7 +51,7 @@ export default function StoreProductDetail() {
   }
 
   return (
-    <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }}>
+    <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
       <SEO
         title={`${product.name} — MeasureWise Store`}
         description={product.short_description ?? product.name}
