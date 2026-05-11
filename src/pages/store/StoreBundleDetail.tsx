@@ -81,12 +81,27 @@ export default function StoreBundleDetail() {
                 )}
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{bundle.name}</h1>
+              {bundle.buyer_guidance && (
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                  <Sparkles className="h-4 w-4" />
+                  {bundle.buyer_guidance}
+                </div>
+              )}
               <p className="text-lg text-muted-foreground">{bundle.short_description}</p>
             </header>
 
             {bundle.long_description && (
               <p className="text-base leading-relaxed">{bundle.long_description}</p>
             )}
+
+            <PreviewGallery
+              images={
+                bundle.preview_image_urls?.length
+                  ? bundle.preview_image_urls
+                  : products.flatMap((p) => p.preview_image_urls ?? []).slice(0, 6)
+              }
+              title="What it looks like"
+            />
 
             <section>
               <h2 className="text-xl font-semibold mb-3">What's included</h2>
