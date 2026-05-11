@@ -328,7 +328,7 @@ export default function Landing() {
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/auth?signup=true">Start Free Trial <ArrowRight className="ml-1 h-3.5 w-3.5" /></Link>
+              <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
             </Button>
           </div>
           <Button
@@ -361,7 +361,7 @@ export default function Landing() {
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
             </Button>
             <Button asChild className="w-full">
-              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start Free Trial</Link>
+              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start free — no credit card</Link>
             </Button>
           </div>
         )}
