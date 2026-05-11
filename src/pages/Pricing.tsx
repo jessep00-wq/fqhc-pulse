@@ -56,7 +56,7 @@ const getTiers = (annual: boolean) => [
     description: "For health centers with 2–5 locations.",
     highlight: true,
     badge: "Most Popular",
-    cta: "Subscribe",
+    cta: "Start 14-day free trial",
     features: [
       { text: "Up to 5 clinic sites" },
       { text: "Unlimited users — no per-seat fees" },
