@@ -474,6 +474,7 @@ export type Database = {
       }
       store_bundles: {
         Row: {
+          buyer_guidance: string | null
           created_at: string
           currency: string
           hero_emoji: string | null
@@ -481,6 +482,7 @@ export type Database = {
           included_product_ids: string[]
           long_description: string | null
           name: string
+          preview_image_urls: string[]
           price_cents: number
           short_description: string | null
           slug: string
@@ -491,6 +493,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          buyer_guidance?: string | null
           created_at?: string
           currency?: string
           hero_emoji?: string | null
@@ -498,6 +501,7 @@ export type Database = {
           included_product_ids?: string[]
           long_description?: string | null
           name: string
+          preview_image_urls?: string[]
           price_cents: number
           short_description?: string | null
           slug: string
@@ -508,6 +512,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          buyer_guidance?: string | null
           created_at?: string
           currency?: string
           hero_emoji?: string | null
@@ -515,6 +520,7 @@ export type Database = {
           included_product_ids?: string[]
           long_description?: string | null
           name?: string
+          preview_image_urls?: string[]
           price_cents?: number
           short_description?: string | null
           slug?: string
@@ -529,6 +535,7 @@ export type Database = {
       store_products: {
         Row: {
           bullets: Json
+          buyer_guidance: string | null
           category: string
           created_at: string
           currency: string
@@ -537,6 +544,7 @@ export type Database = {
           included_file_paths: string[]
           long_description: string | null
           name: string
+          preview_image_urls: string[]
           price_cents: number
           sample_preview_url: string | null
           short_description: string | null
@@ -552,6 +560,7 @@ export type Database = {
         }
         Insert: {
           bullets?: Json
+          buyer_guidance?: string | null
           category: string
           created_at?: string
           currency?: string
@@ -560,6 +569,7 @@ export type Database = {
           included_file_paths?: string[]
           long_description?: string | null
           name: string
+          preview_image_urls?: string[]
           price_cents: number
           sample_preview_url?: string | null
           short_description?: string | null
@@ -575,6 +585,7 @@ export type Database = {
         }
         Update: {
           bullets?: Json
+          buyer_guidance?: string | null
           category?: string
           created_at?: string
           currency?: string
@@ -583,6 +594,7 @@ export type Database = {
           included_file_paths?: string[]
           long_description?: string | null
           name?: string
+          preview_image_urls?: string[]
           price_cents?: number
           sample_preview_url?: string | null
           short_description?: string | null
