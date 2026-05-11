@@ -44,7 +44,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             </Button>
             {!slimNav && (
               <Button asChild>
-                <Link to="/auth?signup=true">Get Started Free</Link>
+                <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
               </Button>
             )}
           </div>
@@ -66,16 +66,21 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl font-bold">Ready to link quality improvement to funding outcomes?</h2>
           <p className="text-primary-foreground/80 text-lg">
-            Start your free 14-day trial — no sales call, no credit card. Run your first PDSA cycle in under 10 minutes.
+            Run your first PDSA cycle in under 10 minutes. No sales call, no credit card.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/70">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free to start</span>
+            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free for one site</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> No sales call</span>
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> HRSA-aligned</span>
           </div>
-          <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <Link to="/auth?signup=true">Start Free Trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" variant="secondary" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+              <Link to="/how-it-works">See how it works</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
