@@ -982,7 +982,7 @@ export default function Landing() {
             className="text-base px-8"
           >
             <Link to="/auth?signup=true">
-              Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+              Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>
