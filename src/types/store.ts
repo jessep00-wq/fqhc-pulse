@@ -23,6 +23,8 @@ export interface StoreProduct {
   sample_preview_url: string | null;
   stripe_price_id: string | null;
   sort_order: number;
+  buyer_guidance: string | null;
+  preview_image_urls: string[];
 }
 
 export interface StoreBundle {
