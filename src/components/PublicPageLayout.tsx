@@ -44,7 +44,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             </Button>
             {!slimNav && (
               <Button asChild>
-                <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+                <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
               </Button>
             )}
           </div>
