@@ -328,7 +328,7 @@ export default function Landing() {
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+              <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
             </Button>
           </div>
           <Button
@@ -361,7 +361,7 @@ export default function Landing() {
               <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
             </Button>
             <Button asChild className="w-full">
-              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start free — no credit card</Link>
+              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start 14-day free trial</Link>
             </Button>
           </div>
         )}
@@ -407,7 +407,7 @@ export default function Landing() {
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
               <Button size="lg" asChild className="text-base px-8">
                 <Link to="/auth?signup=true">
-                  Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" />
+                  Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-base px-8">
@@ -977,7 +977,7 @@ export default function Landing() {
             className="text-base px-8"
           >
             <Link to="/auth?signup=true">
-              Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" />
+              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
         </div>

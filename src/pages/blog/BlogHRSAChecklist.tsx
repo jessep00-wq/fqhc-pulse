@@ -116,7 +116,7 @@ export default function BlogHRSAChecklist() {
             <div className="mt-12 p-6 bg-muted rounded-lg border border-border">
               <p className="font-semibold text-foreground mb-2">Be audit-ready every day</p>
               <p>
-                MeasureWise captures your QI evidence as you work — so when HRSA calls, your <Link to="/features/hrsa-audit-binder" className="text-primary hover:underline">audit binder</Link> is already built. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start your free trial →</Link>
+                MeasureWise captures your QI evidence as you work — so when HRSA calls, your <Link to="/features/hrsa-audit-binder" className="text-primary hover:underline">audit binder</Link> is already built. <Link to="/auth?signup=true" className="text-primary hover:underline font-semibold">Start 14-day free trial →</Link>
               </p>
             </div>
           </div>

@@ -60,7 +60,7 @@ export default function PersonaQIDirector() {
               <Link to="/auth">Sign In</Link>
             </Button>
             <Button asChild>
-              <Link to="/auth?signup=true">Get Started Free</Link>
+              <Link to="/auth?signup=true">Start 14-day free trial</Link>
             </Button>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function PersonaQIDirector() {
             <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> OSV-ready</span>
           </div>
           <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <Link to="/auth?signup=true">Get Started Free <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
           </Button>
         </div>
       </section>
