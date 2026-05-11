@@ -438,10 +438,10 @@ export default function Landing() {
         {/* Founder-led credibility row */}
         <div className="max-w-6xl mx-auto mt-16 grid md:grid-cols-3 gap-4">
           <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
-            <img src={founderPhoto} alt="Jessica Carter, founder" className="h-12 w-12 rounded-full object-cover shrink-0 border border-border" />
+            <img src={founderPhoto} alt="Jessica Smith, founder" className="h-12 w-12 rounded-full object-cover shrink-0 border border-border" />
             <div>
               <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Built by an FQHC QI leader</p>
-              <p className="text-sm text-foreground leading-snug">Designed by Jessica Carter, an FQHC quality director who ran the same audits and PDSA cycles you do.</p>
+              <p className="text-sm text-foreground leading-snug">Designed by Jessica Smith, an FQHC quality director who ran the same audits and PDSA cycles you do.</p>
             </div>
           </div>
           <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
