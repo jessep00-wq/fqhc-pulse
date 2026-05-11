@@ -22,4 +22,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://measurewise.org/sitemap.txt
+Sitemap: https://measurewise.org/sitemap.xml
