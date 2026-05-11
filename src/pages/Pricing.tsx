@@ -27,24 +27,6 @@ interface TierFeature {
 
 const getTiers = (annual: boolean) => [
   {
-    name: "Free",
-    lookupKey: null as string | null,
-    price: "$0",
-    period: "",
-    description: "Your first PDSA cycle, on us.",
-    highlight: false,
-    cta: "Start Free",
-    features: [
-      { text: "1 user" },
-      { text: "3 active PDSA cycles" },
-      { text: "1 clinic site" },
-      { text: "UDS measure dashboards" },
-      { text: "HRSA audit binder export (watermarked)" },
-      { text: "Guided PDSA methodology" },
-      { text: "Self-serve onboarding" },
-    ] as TierFeature[],
-  },
-  {
     name: "Solo Clinic",
     lookupKey: annual ? "solo_annual" : "solo_monthly",
     price: annual ? "$124" : "$149",
