@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
-import { CheckCircle, FileText, ShieldCheck, Users } from "lucide-react";
+import { PreviewGallery } from "@/components/store/PreviewGallery";
+import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
+import { CheckCircle, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreProduct } from "@/types/store";
 
 export default function StoreProductDetail() {
