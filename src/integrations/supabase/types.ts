@@ -91,6 +91,35 @@ export type Database = {
           },
         ]
       }
+      download_log: {
+        Row: {
+          downloaded_at: string
+          file_path: string
+          id: string
+          order_id: string | null
+        }
+        Insert: {
+          downloaded_at?: string
+          file_path: string
+          id?: string
+          order_id?: string | null
+        }
+        Update: {
+          downloaded_at?: string
+          file_path?: string
+          id?: string
+          order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "download_log_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -151,6 +180,51 @@ export type Database = {
           subtitle?: string | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          amount_cents: number
+          bundle_ids: string[]
+          created_at: string
+          currency: string
+          customer_email: string
+          download_links: Json
+          email_sent_at: string | null
+          id: string
+          product_ids: string[]
+          status: string
+          stripe_payment_intent_id: string | null
+          stripe_session_id: string | null
+        }
+        Insert: {
+          amount_cents: number
+          bundle_ids?: string[]
+          created_at?: string
+          currency?: string
+          customer_email: string
+          download_links?: Json
+          email_sent_at?: string | null
+          id?: string
+          product_ids?: string[]
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          bundle_ids?: string[]
+          created_at?: string
+          currency?: string
+          customer_email?: string
+          download_links?: Json
+          email_sent_at?: string | null
+          id?: string
+          product_ids?: string[]
+          status?: string
+          stripe_payment_intent_id?: string | null
+          stripe_session_id?: string | null
         }
         Relationships: []
       }
@@ -395,6 +469,132 @@ export type Database = {
           id?: string
           name?: string
           organization_id?: string
+        }
+        Relationships: []
+      }
+      store_bundles: {
+        Row: {
+          created_at: string
+          currency: string
+          hero_emoji: string | null
+          id: string
+          included_product_ids: string[]
+          long_description: string | null
+          name: string
+          price_cents: number
+          short_description: string | null
+          slug: string
+          sort_order: number
+          status: string
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          hero_emoji?: string | null
+          id?: string
+          included_product_ids?: string[]
+          long_description?: string | null
+          name: string
+          price_cents: number
+          short_description?: string | null
+          slug: string
+          sort_order?: number
+          status?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          hero_emoji?: string | null
+          id?: string
+          included_product_ids?: string[]
+          long_description?: string | null
+          name?: string
+          price_cents?: number
+          short_description?: string | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      store_products: {
+        Row: {
+          bullets: Json
+          category: string
+          created_at: string
+          currency: string
+          hero_emoji: string | null
+          id: string
+          included_file_paths: string[]
+          long_description: string | null
+          name: string
+          price_cents: number
+          sample_preview_url: string | null
+          short_description: string | null
+          slug: string
+          sort_order: number
+          status: string
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          uds_framing: string | null
+          updated_at: string
+          whats_inside: Json
+          who_its_for: Json
+        }
+        Insert: {
+          bullets?: Json
+          category: string
+          created_at?: string
+          currency?: string
+          hero_emoji?: string | null
+          id?: string
+          included_file_paths?: string[]
+          long_description?: string | null
+          name: string
+          price_cents: number
+          sample_preview_url?: string | null
+          short_description?: string | null
+          slug: string
+          sort_order?: number
+          status?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          uds_framing?: string | null
+          updated_at?: string
+          whats_inside?: Json
+          who_its_for?: Json
+        }
+        Update: {
+          bullets?: Json
+          category?: string
+          created_at?: string
+          currency?: string
+          hero_emoji?: string | null
+          id?: string
+          included_file_paths?: string[]
+          long_description?: string | null
+          name?: string
+          price_cents?: number
+          sample_preview_url?: string | null
+          short_description?: string | null
+          slug?: string
+          sort_order?: number
+          status?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          uds_framing?: string | null
+          updated_at?: string
+          whats_inside?: Json
+          who_its_for?: Json
         }
         Relationships: []
       }
