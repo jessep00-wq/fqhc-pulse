@@ -1,4 +1,4 @@
-// Stripe webhook handler. Fulfills store orders on checkout.session.completed.
+// Stripe webhook handler. Fulfills storefront orders and syncs SaaS subscriptions.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import {
   createStripeClient,
@@ -12,6 +12,8 @@ const supabase = createClient(
 );
 
 const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
+
+// ─────────────────────────────  Storefront fulfillment  ─────────────────────────────
 
 async function fulfillOrder(env: StripeEnv, sessionId: string) {
   const stripe = createStripeClient(env);
@@ -30,7 +32,6 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
     return;
   }
 
-  // Resolve included files
   let productIds: string[] = [];
   let bundleIds: string[] = [];
   let filePaths: string[] = [];
@@ -69,7 +70,6 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
     }
   }
 
-  // Generate signed download URLs
   const downloadLinks: Array<{ name: string; url: string; path: string }> = [];
   for (const path of filePaths) {
     const { data, error } = await supabase.storage
@@ -86,7 +86,6 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
     }
   }
 
-  // Upsert order
   const { data: orderRow } = await supabase
     .from("orders")
     .upsert(
@@ -103,13 +102,13 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
         currency: session.currency ?? "usd",
         status: "paid",
         download_links: downloadLinks,
+        environment: env,
       },
       { onConflict: "stripe_session_id" },
     )
     .select("id, email_sent_at")
     .maybeSingle();
 
-  // Send delivery email (only if not already sent)
   if (orderRow && !orderRow.email_sent_at) {
     await sendPurchaseEmail({
       to: customerEmail,
@@ -173,6 +172,78 @@ async function sendPurchaseEmail(opts: {
   }
 }
 
+async function markOrderRefunded(env: StripeEnv, paymentIntentId: string) {
+  await supabase
+    .from("orders")
+    .update({ status: "refunded", refunded_at: new Date().toISOString() })
+    .eq("stripe_payment_intent_id", paymentIntentId)
+    .eq("environment", env);
+}
+
+// ─────────────────────────────  SaaS subscription sync  ─────────────────────────────
+
+// deno-lint-ignore no-explicit-any
+async function upsertSubscription(env: StripeEnv, sub: any) {
+  const organizationId =
+    sub.metadata?.organizationId ??
+    (typeof sub.customer === "string" ? null : sub.customer?.metadata?.organizationId);
+  if (!organizationId) {
+    console.warn("subscription event missing organizationId metadata", sub.id);
+    return;
+  }
+
+  const item = sub.items?.data?.[0];
+  const lookupKey: string | undefined =
+    item?.price?.lookup_key ?? item?.price?.metadata?.lovable_external_id ?? undefined;
+  const plan =
+    sub.metadata?.plan ??
+    (lookupKey?.startsWith("solo")
+      ? "solo"
+      : lookupKey?.startsWith("multi")
+        ? "multi"
+        : lookupKey?.startsWith("network")
+          ? "network"
+          : "free");
+
+  const periodEndUnix = item?.current_period_end ?? sub.current_period_end;
+  const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+
+  await supabase.from("subscriptions").upsert(
+    {
+      organization_id: organizationId,
+      stripe_subscription_id: sub.id,
+      stripe_customer_id: customerId,
+      stripe_price_id: lookupKey ?? null,
+      plan,
+      status: sub.status,
+      current_period_end: periodEndUnix
+        ? new Date(periodEndUnix * 1000).toISOString()
+        : null,
+      renews_at: periodEndUnix ? new Date(periodEndUnix * 1000).toISOString() : null,
+      cancel_at_period_end: !!sub.cancel_at_period_end,
+      canceled_at: sub.canceled_at ? new Date(sub.canceled_at * 1000).toISOString() : null,
+      trial_end: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
+      environment: env,
+      updated_at: new Date().toISOString(),
+    },
+    { onConflict: "stripe_subscription_id" },
+  );
+}
+
+async function markSubscriptionDeleted(env: StripeEnv, subscriptionId: string) {
+  await supabase
+    .from("subscriptions")
+    .update({
+      status: "canceled",
+      canceled_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq("stripe_subscription_id", subscriptionId)
+    .eq("environment", env);
+}
+
+// ─────────────────────────────  Server  ─────────────────────────────
+
 Deno.serve(async (req) => {
   const url = new URL(req.url);
   const env: StripeEnv = url.searchParams.get("env") === "live" ? "live" : "sandbox";
@@ -194,9 +265,33 @@ Deno.serve(async (req) => {
   }
 
   try {
-    if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
-      const session = event.data.object as { id: string };
-      await fulfillOrder(env, session.id);
+    switch (event.type) {
+      case "checkout.session.completed":
+      case "checkout.session.async_payment_succeeded": {
+        const session = event.data.object as { id: string; mode?: string; metadata?: Record<string, string> };
+        // Subscription mode — let customer.subscription.created handle DB sync.
+        if (session.mode === "subscription") break;
+        await fulfillOrder(env, session.id);
+        break;
+      }
+      case "customer.subscription.created":
+      case "customer.subscription.updated":
+        // deno-lint-ignore no-explicit-any
+        await upsertSubscription(env, event.data.object as any);
+        break;
+      case "customer.subscription.deleted": {
+        const sub = event.data.object as { id: string };
+        await markSubscriptionDeleted(env, sub.id);
+        break;
+      }
+      case "charge.refunded": {
+        const charge = event.data.object as { payment_intent?: string };
+        if (charge.payment_intent) await markOrderRefunded(env, charge.payment_intent);
+        break;
+      }
+      default:
+        // Unhandled event type — return 200 so Stripe stops retrying.
+        break;
     }
   } catch (err) {
     console.error("Webhook handler error", err);
