@@ -75,7 +75,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Button size="lg" variant="secondary" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">Start free — no credit card <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
               <Link to="/how-it-works">See how it works</Link>
