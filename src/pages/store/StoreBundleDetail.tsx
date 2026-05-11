@@ -9,8 +9,66 @@ import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
 import { PreviewGallery } from "@/components/store/PreviewGallery";
 import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
-import { CheckCircle, Package, Sparkles } from "lucide-react";
+import {
+  DeliverablesList,
+  DEFAULT_PDSA_BUNDLE_DELIVERABLES,
+  type Deliverable,
+} from "@/components/store/DeliverablesList";
+import { WorkflowStrip } from "@/components/store/WorkflowStrip";
+import {
+  CheckCircle,
+  Package,
+  Sparkles,
+  Rocket,
+  ClipboardCheck,
+  TrendingUp,
+  FileSpreadsheet,
+  ListChecks,
+  FileText,
+  LineChart,
+} from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
+
+interface BundleCopy {
+  subhead: string;
+  outcomeChips: string[];
+  deliverables: Deliverable[];
+}
+
+function getBundleCopy(bundle: StoreBundle, products: StoreProduct[]): BundleCopy {
+  // Slug-based defaults; falls back to derived copy.
+  const isPDSA = bundle.slug.includes("pdsa") || bundle.slug.includes("improvement");
+
+  const defaultSubhead = isPDSA
+    ? "Launch two high-impact UDS improvement projects without rebuilding your PDSA tools from scratch. Ready-to-use Hypertension and Diabetes A1c workflows so your team moves from discussion to action fast."
+    : `${bundle.short_description ?? ""} Built so your team moves from discussion to action — without rebuilding worksheets from scratch.`;
+
+  const chips = isPDSA
+    ? ["Launch in a week", "No worksheet building", "Board-ready evidence"]
+    : ["Faster launch", "Less prep work", "Audit-ready output"];
+
+  // Prefer derived deliverables from product whats_inside, capped/iconed.
+  const fromProducts: Deliverable[] = [];
+  const seen = new Set<string>();
+  const iconCycle = [FileSpreadsheet, ListChecks, FileText, LineChart];
+  products.forEach((p) => {
+    (p.whats_inside ?? []).forEach((title) => {
+      const key = title.trim().toLowerCase();
+      if (!key || seen.has(key) || fromProducts.length >= 4) return;
+      seen.add(key);
+      fromProducts.push({
+        icon: iconCycle[fromProducts.length % iconCycle.length],
+        title,
+        description: p.name,
+      });
+    });
+  });
+
+  const deliverables =
+    fromProducts.length >= 3 ? fromProducts : isPDSA ? DEFAULT_PDSA_BUNDLE_DELIVERABLES : fromProducts.length ? fromProducts : DEFAULT_PDSA_BUNDLE_DELIVERABLES;
+
+  return { subhead: defaultSubhead, outcomeChips: chips, deliverables };
+}
 
 export default function StoreBundleDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -42,14 +100,14 @@ export default function StoreBundleDetail() {
 
   if (loading) {
     return (
-      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }}>
+      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
         <div className="max-w-4xl mx-auto px-6 py-16 text-muted-foreground">Loading…</div>
       </PublicPageLayout>
     );
   }
   if (!bundle) {
     return (
-      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }}>
+      <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
         <div className="max-w-4xl mx-auto px-6 py-16">
           <h1 className="text-2xl font-bold mb-2">Bundle not found</h1>
           <Link to="/store" className="text-primary underline">Browse all templates</Link>
@@ -60,9 +118,20 @@ export default function StoreBundleDetail() {
 
   const fullPrice = products.reduce((sum, p) => sum + p.price_cents, 0);
   const savings = fullPrice - bundle.price_cents;
+  const copy = getBundleCopy(bundle, products);
+
+  const galleryImages =
+    bundle.preview_image_urls?.length
+      ? bundle.preview_image_urls
+      : products.flatMap((p) => p.preview_image_urls ?? []).slice(0, 6);
+
+  const heroImage = galleryImages[0];
+  const restImages = galleryImages.slice(1);
+
+  const outcomeChipIcons = [Rocket, ClipboardCheck, TrendingUp];
 
   return (
-    <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }}>
+    <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
       <SEO
         title={`${bundle.name} — MeasureWise Store`}
         description={bundle.short_description ?? bundle.name}
@@ -72,8 +141,8 @@ export default function StoreBundleDetail() {
       <article className="max-w-5xl mx-auto px-6 py-10">
         <div className="grid lg:grid-cols-3 gap-10">
           <div className="lg:col-span-2 space-y-8">
-            <header className="space-y-3">
-              <div className="flex items-center gap-3">
+            <header className="space-y-4">
+              <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-5xl">{bundle.hero_emoji ?? "🎁"}</span>
                 <Badge>Bundle</Badge>
                 {savings > 0 && (
@@ -87,21 +156,61 @@ export default function StoreBundleDetail() {
                   {bundle.buyer_guidance}
                 </div>
               )}
-              <p className="text-lg text-muted-foreground">{bundle.short_description}</p>
+              <p className="text-lg text-muted-foreground leading-relaxed">{copy.subhead}</p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {copy.outcomeChips.map((c, i) => {
+                  const Icon = outcomeChipIcons[i % outcomeChipIcons.length];
+                  return (
+                    <span
+                      key={c}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-card px-3 py-1 text-xs font-medium text-foreground"
+                    >
+                      <Icon className="h-3.5 w-3.5 text-primary" />
+                      {c}
+                    </span>
+                  );
+                })}
+              </div>
             </header>
+
+            {heroImage ? (
+              <div className="overflow-hidden rounded-lg border bg-muted">
+                <img
+                  src={heroImage}
+                  alt={`${bundle.name} preview`}
+                  className="w-full h-auto object-cover"
+                />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 rounded-lg border bg-gradient-to-br from-primary/5 to-transparent p-3">
+                {products.flatMap((p) => {
+                  const tiles = (p.whats_inside ?? []).slice(0, 2);
+                  return tiles.map((t, i) => (
+                    <div
+                      key={`${p.id}-${i}`}
+                      className="aspect-square rounded-md bg-card border flex flex-col items-center justify-center text-center p-2"
+                    >
+                      <span className="text-2xl mb-1">{p.hero_emoji ?? "📋"}</span>
+                      <span className="text-[10px] font-medium leading-tight text-muted-foreground line-clamp-3">
+                        {t}
+                      </span>
+                    </div>
+                  ));
+                }).slice(0, 8)}
+              </div>
+            )}
+
+            {restImages.length > 0 && (
+              <PreviewGallery images={restImages} title="More previews" />
+            )}
+
+            <DeliverablesList items={copy.deliverables} />
+
+            <WorkflowStrip />
 
             {bundle.long_description && (
               <p className="text-base leading-relaxed">{bundle.long_description}</p>
             )}
-
-            <PreviewGallery
-              images={
-                bundle.preview_image_urls?.length
-                  ? bundle.preview_image_urls
-                  : products.flatMap((p) => p.preview_image_urls ?? []).slice(0, 6)
-              }
-              title="What it looks like"
-            />
 
             <section>
               <h2 className="text-xl font-semibold mb-3">What's included</h2>
@@ -126,6 +235,8 @@ export default function StoreBundleDetail() {
                 ))}
               </div>
             </section>
+
+            <FounderCredibilityCard />
           </div>
 
           <aside className="lg:col-span-1 space-y-4">
@@ -143,6 +254,8 @@ export default function StoreBundleDetail() {
                   <p className="text-sm text-muted-foreground">One-time purchase · all files delivered together</p>
                 </div>
                 <BuyButton priceId={bundle.stripe_price_id} className="w-full" label={`Buy ${bundle.name}`} />
+                <Separator />
+                <DeliverablesList items={copy.deliverables} compact />
                 <Separator />
                 <ul className="text-sm space-y-1.5 text-muted-foreground">
                   <li className="flex items-center gap-2"><Package className="h-4 w-4 text-primary" /> {products.length} templates included</li>

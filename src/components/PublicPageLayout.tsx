@@ -6,9 +6,10 @@ import measurewiseLogo from "@/assets/measurewise-logo.png";
 interface PublicPageLayoutProps {
   children: React.ReactNode;
   backTo?: { label: string; href: string };
+  slimNav?: boolean;
 }
 
-export function PublicPageLayout({ children, backTo }: PublicPageLayoutProps) {
+export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
@@ -17,27 +18,33 @@ export function PublicPageLayout({ children, backTo }: PublicPageLayoutProps) {
             <img src={measurewiseLogo} alt="MeasureWise" className="h-14" />
           </Link>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link to="/features/pdsa-cycle-manager">Features</Link>
-            </Button>
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link to="/how-it-works">How It Works</Link>
-            </Button>
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link to="/blog">Blog</Link>
-            </Button>
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link to="/newsletter">Newsletter</Link>
-            </Button>
-            <Button variant="ghost" asChild className="hidden sm:inline-flex">
-              <Link to="/pricing">Pricing</Link>
-            </Button>
+            {!slimNav && (
+              <>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/features/pdsa-cycle-manager">Features</Link>
+                </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/how-it-works">How It Works</Link>
+                </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/blog">Blog</Link>
+                </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/newsletter">Newsletter</Link>
+                </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/pricing">Pricing</Link>
+                </Button>
+              </>
+            )}
             <Button variant="ghost" asChild>
               <Link to="/auth">Sign In</Link>
             </Button>
-            <Button asChild>
-              <Link to="/auth?signup=true">Get Started Free</Link>
-            </Button>
+            {!slimNav && (
+              <Button asChild>
+                <Link to="/auth?signup=true">Get Started Free</Link>
+              </Button>
+            )}
           </div>
         </div>
       </header>

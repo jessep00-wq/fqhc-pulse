@@ -8,16 +8,16 @@ interface FounderCredibilityCardProps {
 export function FounderCredibilityCard({ variant = "banner" }: FounderCredibilityCardProps) {
   if (variant === "compact") {
     return (
-      <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3">
+      <div className="flex items-start gap-3 rounded-lg border border-primary/20 bg-primary/5 p-3.5">
         <img
           src={founderPhoto}
           alt="Jessica, MeasureWise founder and FQHC Quality Director"
-          className="h-12 w-12 rounded-full object-cover shrink-0"
+          className="h-11 w-11 rounded-full object-cover shrink-0 ring-2 ring-primary/20"
         />
-        <div className="text-xs leading-relaxed">
+        <div className="text-xs leading-snug space-y-1">
           <p className="font-semibold text-foreground">Built by an FQHC Quality Director</p>
           <p className="text-muted-foreground">
-            Every template here is one Jessica has used in a real OSV or board meeting.
+            Each template is one Jessica has personally used in an HRSA OSV, QI committee, or board meeting — not a generic download.
           </p>
         </div>
       </div>
