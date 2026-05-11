@@ -134,10 +134,42 @@ const differentiators = [
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
+  const [loadingKey, setLoadingKey] = useState<string | null>(null);
   const tiers = getTiers(annual);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubscribe = async (lookupKey: string | null) => {
+    if (!lookupKey) {
+      navigate("/auth?signup=true");
+      return;
+    }
+    if (!user) {
+      // Send to signup; after onboarding the user can come back here.
+      navigate(`/auth?signup=true&plan=${lookupKey}`);
+      return;
+    }
+    setLoadingKey(lookupKey);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-subscription-checkout", {
+        body: { priceId: lookupKey, environment: getStripeEnvironment() },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url as string;
+        return;
+      }
+      throw new Error("No checkout URL returned");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Could not start checkout";
+      toast.error(message);
+      setLoadingKey(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
       {/* Nav */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
