@@ -52,6 +52,13 @@ import NewsletterIndex from "./pages/NewsletterIndex";
 import NewsletterDetail from "./pages/NewsletterDetail";
 import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
 
+// Store pages
+import StoreIndex from "./pages/store/StoreIndex";
+import StoreProductDetail from "./pages/store/StoreProductDetail";
+import StoreBundleDetail from "./pages/store/StoreBundleDetail";
+import StoreSuccess from "./pages/store/StoreSuccess";
+import AdminStore from "./pages/admin/AdminStore";
+
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
 import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
@@ -104,6 +111,12 @@ const App = () => (
                 <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
                 <Route path="/newsletter/:id" element={<NewsletterDetail />} />
 
+                {/* Store */}
+                <Route path="/store" element={<StoreIndex />} />
+                <Route path="/store/success" element={<StoreSuccess />} />
+                <Route path="/store/bundle/:slug" element={<StoreBundleDetail />} />
+                <Route path="/store/:slug" element={<StoreProductDetail />} />
+
                 <Route
                   path="/admin/*"
                   element={
@@ -116,6 +129,7 @@ const App = () => (
                             <Route path="/billing" element={<AdminBilling />} />
                             <Route path="/adoption" element={<AdminAdoption />} />
                             <Route path="/newsletter" element={<AdminNewsletter />} />
+                            <Route path="/store" element={<AdminStore />} />
                             <Route path="/account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
