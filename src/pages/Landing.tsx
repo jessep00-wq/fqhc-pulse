@@ -244,8 +244,8 @@ const faqItems = [
     a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, generate HRSA-ready audit binders, or link clinical improvements to financial outcomes. MeasureWise does all of this in one purpose-built tool.",
   },
   {
-    q: "Is there a free plan?",
-    a: "Yes. The free tier includes 3 active PDSA cycles, UDS dashboards, and guided methodology — no credit card required. Upgrade when you need unlimited cycles, SPC charts, and multi-site support.",
+    q: "Is there a free trial?",
+    a: "Yes. Every plan starts with a 14-day free trial — no credit card required to begin. You get full access during the trial. Add a card before day 14 to keep your workspace; otherwise it locks until you subscribe.",
   },
   {
     q: "Does MeasureWise store PHI?",
