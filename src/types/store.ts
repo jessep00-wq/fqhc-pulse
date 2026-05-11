@@ -40,6 +40,8 @@ export interface StoreBundle {
   included_product_ids: string[];
   stripe_price_id: string | null;
   sort_order: number;
+  buyer_guidance: string | null;
+  preview_image_urls: string[];
 }
 
 export const STORE_CATEGORIES: StoreCategory[] = [
