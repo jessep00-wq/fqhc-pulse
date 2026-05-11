@@ -4,9 +4,10 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
 import { ProductCard } from "@/components/store/ProductCard";
 import { BundleCard } from "@/components/store/BundleCard";
+import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Download, ShieldCheck, Zap } from "lucide-react";
+import { CheckCircle, Download, ShieldCheck, TrendingUp, ClipboardCheck, Clock } from "lucide-react";
 import {
   STORE_CATEGORIES,
   type StoreBundle,
