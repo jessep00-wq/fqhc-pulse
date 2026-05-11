@@ -192,8 +192,10 @@ export type Database = {
           customer_email: string
           download_links: Json
           email_sent_at: string | null
+          environment: string
           id: string
           product_ids: string[]
+          refunded_at: string | null
           status: string
           stripe_payment_intent_id: string | null
           stripe_session_id: string | null
@@ -206,8 +208,10 @@ export type Database = {
           customer_email: string
           download_links?: Json
           email_sent_at?: string | null
+          environment?: string
           id?: string
           product_ids?: string[]
+          refunded_at?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
@@ -220,8 +224,10 @@ export type Database = {
           customer_email?: string
           download_links?: Json
           email_sent_at?: string | null
+          environment?: string
           id?: string
           product_ids?: string[]
+          refunded_at?: string | null
           status?: string
           stripe_payment_intent_id?: string | null
           stripe_session_id?: string | null
@@ -612,40 +618,52 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           canceled_at: string | null
           created_at: string
+          current_period_end: string | null
+          environment: string
           id: string
           organization_id: string
           plan: string
           renews_at: string | null
           status: string
           stripe_customer_id: string | null
+          stripe_price_id: string | null
           stripe_subscription_id: string | null
           trial_end: string | null
           updated_at: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           canceled_at?: string | null
           created_at?: string
+          current_period_end?: string | null
+          environment?: string
           id?: string
           organization_id: string
           plan?: string
           renews_at?: string | null
           status?: string
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
           updated_at?: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           canceled_at?: string | null
           created_at?: string
+          current_period_end?: string | null
+          environment?: string
           id?: string
           organization_id?: string
           plan?: string
           renews_at?: string | null
           status?: string
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
           trial_end?: string | null
           updated_at?: string
