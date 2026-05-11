@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
@@ -10,8 +10,14 @@ import {
   Shield,
   ArrowLeft,
   Lock,
+  Loader2,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { toast } from "sonner";
 
 interface TierFeature {
   text: string;
