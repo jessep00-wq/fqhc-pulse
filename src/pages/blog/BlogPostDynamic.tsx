@@ -6,6 +6,7 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
 import { Calendar, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ContentIcon } from "@/components/ContentIcon";
 
 export default function BlogPostDynamic() {
   const { slug } = useParams<{ slug: string }>();
@@ -55,7 +56,9 @@ export default function BlogPostDynamic() {
       />
       <article className="max-w-3xl mx-auto px-6 py-12">
         <header className="mb-10 space-y-4">
-          {post.cover_emoji && <div className="text-5xl">{post.cover_emoji}</div>}
+          {(post.cover_image_url || post.cover_emoji) && (
+            <ContentIcon imageUrl={post.cover_image_url} emoji={post.cover_emoji} size={64} />
+          )}
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
             {post.title}
           </h1>
