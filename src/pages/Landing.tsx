@@ -325,6 +325,9 @@ export default function Landing() {
               <Link to="/newsletter">Newsletter</Link>
             </Button>
             <Button variant="ghost" asChild>
+              <Link to="/about">About</Link>
+            </Button>
+            <Button variant="ghost" asChild>
               <Link to="/pricing">Pricing</Link>
             </Button>
             <Button variant="ghost" asChild>
