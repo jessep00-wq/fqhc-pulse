@@ -350,7 +350,10 @@ export default function AdminNewsletter() {
               {newsletters.map((nl) => (
                 <TableRow key={nl.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setEditId(nl.id)}>
                   <TableCell className="font-medium">
-                    <span className="mr-2">{nl.hero_emoji}</span>{nl.title}
+                    <div className="flex items-center gap-2">
+                      <ContentIcon imageUrl={nl.hero_image_url} emoji={nl.hero_emoji} size={24} />
+                      <span>{nl.title}</span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={nl.status === "published" ? "default" : "secondary"}>{nl.status}</Badge>
