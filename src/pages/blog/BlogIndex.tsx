@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { Calendar, ArrowRight } from "lucide-react";
+import { ContentIcon } from "@/components/ContentIcon";
 
 type ListPost = {
   slug: string;
@@ -13,6 +14,7 @@ type ListPost = {
   date: string;
   readTime: string;
   cover_emoji?: string | null;
+  cover_image_url?: string | null;
 };
 
 const legacyPosts: ListPost[] = [
@@ -52,7 +54,7 @@ export default function BlogIndex() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("slug, title, excerpt, cover_emoji, published_at, read_time_minutes")
+        .select("slug, title, excerpt, cover_emoji, cover_image_url, published_at, read_time_minutes")
         .eq("status", "published")
         .order("published_at", { ascending: false });
       if (error) throw error;
@@ -63,6 +65,7 @@ export default function BlogIndex() {
         date: p.published_at || new Date().toISOString(),
         readTime: `${p.read_time_minutes} min read`,
         cover_emoji: p.cover_emoji,
+        cover_image_url: p.cover_image_url,
       }));
     },
   });
@@ -97,7 +100,9 @@ export default function BlogIndex() {
               <Card key={post.slug} className="border-border hover:border-primary/30 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
-                    {post.cover_emoji && <span className="text-lg leading-none">{post.cover_emoji}</span>}
+                    {(post.cover_image_url || post.cover_emoji) && (
+                      <ContentIcon imageUrl={post.cover_image_url} emoji={post.cover_emoji} size={20} />
+                    )}
                     <Calendar className="h-4 w-4" />
                     <time dateTime={post.date}>
                       {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}

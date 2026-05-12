@@ -6,6 +6,7 @@ import { SubscribeForm } from "@/components/newsletter/SubscribeForm";
 import { SEO } from "@/components/SEO";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, ArrowRight } from "lucide-react";
+import { ContentIcon } from "@/components/ContentIcon";
 import type { Newsletter } from "@/types/newsletter";
 
 export default function NewsletterIndex() {
@@ -14,12 +15,12 @@ export default function NewsletterIndex() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("newsletters")
-        .select("id, title, subtitle, hero_emoji, published_at, created_at")
+        .select("id, title, subtitle, hero_emoji, hero_image_url, published_at, created_at")
         .eq("status", "published")
         .not("published_at", "is", null)
         .order("published_at", { ascending: false });
       if (error) throw error;
-      return data as Pick<Newsletter, "id" | "title" | "subtitle" | "hero_emoji" | "published_at" | "created_at">[];
+      return data as Pick<Newsletter, "id" | "title" | "subtitle" | "hero_emoji" | "hero_image_url" | "published_at" | "created_at">[];
     },
   });
 
@@ -53,7 +54,7 @@ export default function NewsletterIndex() {
                 className="block rounded-lg border bg-card p-6 hover:border-primary/50 hover:shadow-sm transition-all group"
               >
                 <div className="flex items-start gap-4">
-                  <span className="text-2xl">{nl.hero_emoji || "📋"}</span>
+                  <ContentIcon imageUrl={nl.hero_image_url} emoji={nl.hero_emoji} size={32} />
                   <div className="flex-1 min-w-0">
                     <h2 className="text-lg font-semibold group-hover:text-primary transition-colors line-clamp-2">{nl.title}</h2>
                     {nl.subtitle && <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{nl.subtitle}</p>}

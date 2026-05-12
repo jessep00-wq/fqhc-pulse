@@ -1,50 +1,31 @@
-## Full QA sweep — what I'll check
+## Goal
+Replace emoji icons on blog posts and newsletters with uploadable image icons (with emoji as a fallback for legacy content).
 
-I'll run through the site end-to-end in the browser at desktop and mobile widths, hitting every route and the main interactive buttons, then report findings as a single pass/fail list. Anything broken gets fixed in the follow-up build.
+## Storage
+- Create a new public Supabase Storage bucket `content-icons` (founder-admin write, public read).
+- Icons stored at `blog/{post-id-or-slug}.{ext}` and `newsletter/{id}.{ext}`.
 
-### Public site (logged out)
-- `/` Landing — header nav links (Features, How It Works, Case Studies, Blog, About, Pricing), hero CTAs, footer columns
-- `/about` — renders, JSON-LD present, CTA buttons work
-- `/case-studies` — index + each of the 3 standalone HTML pages load
-- `/blog` — index lists 4 legacy posts; each `/blog/:slug` opens
-- `/blog/:slug` dynamic — confirm the new dynamic route does not shadow the 4 static routes
-- `/newsletter`, `/newsletter/:id`, `/newsletter/unsubscribe`
-- `/pricing`, `/how-it-works`, `/status`, `/contact`, `/security`, `/refund-policy`, `/privacy`, `/terms`
-- `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/operations-managers`
-- `/features/*` (PDSA, UDS, HRSA, SPC, PCMH)
-- `/store` index + a product + a bundle
-- Page refresh on a deep link (e.g., `/blog/pdsa-cycle-fqhc-guide`) returns 200 (SPA fallback)
-- 404 (`/does-not-exist`) renders NotFound
+## Database (migration)
+- `blog_posts`: add `cover_image_url text` (nullable). Keep `cover_emoji` as fallback.
+- `newsletters`: add `hero_image_url text` (nullable). Keep `hero_emoji` as fallback.
 
-### Auth + onboarding
-- `/auth` sign-in tab loads, sign-up tab loads, password reset link
-- Confirm "Start 14-day free trial" routes to `/auth?signup=true`
+## Admin UI
+- `src/pages/admin/AdminBlog.tsx`: replace the "Cover Emoji" input with an image uploader (file picker → upload to bucket → preview thumbnail → save URL). Allow "Remove image" to fall back to emoji.
+- `src/pages/admin/AdminNewsletter.tsx`: same treatment for the hero icon field.
+- Validate file type (png/jpg/svg/webp) and size (≤ 1 MB). Show preview at ~64px.
 
-### Authenticated app (founder bypass)
-- `/dashboard` — loads without trial lock, no TrialBanner for founder
-- Sidebar links: PDSA Lab, Network, Playbooks, AI Assistant, Staff Tasks, Settings
-- Quick interactions: open a PDSA card, open AI Assistant, open Settings tabs
-- Founder tier limits = network (no upgrade prompts)
+## Public rendering
+Render image when `*_image_url` is set, otherwise the emoji (legacy):
+- `src/pages/blog/BlogIndex.tsx` — list thumbnail.
+- `src/pages/blog/BlogPostDynamic.tsx` — header.
+- `src/pages/NewsletterIndex.tsx` — list thumbnail.
+- `src/pages/NewsletterDetail.tsx` — header.
+- Admin tables (`AdminBlog`, `AdminNewsletter`) — show image if present, else emoji.
 
-### Admin console
-- `/admin` loads, all 6 nav buttons work: Overview, Pipeline, Billing, Adoption, Newsletter, **Blog**, Store
-- `/admin/blog` — table renders, "New Post" dialog opens, all fields editable, Markdown preview tab works
-- Create a draft post, edit it, publish it, verify it appears on `/blog` and at `/blog/:slug`, then delete it (cleanup)
-- Confirm slug auto-generation, status pill, View / Publish / Edit / Delete actions
+A small `<ContentIcon url? emoji? size />` helper component will keep rendering consistent.
 
-### Cross-cutting
-- Console: no new red errors (router future-flag warnings are expected)
-- Network: no failing 4xx/5xx besides intentional auth redirects
-- Responsive: re-check Landing + Blog + Admin/Blog at 390px width
-- SEO: Helmet sets `<title>` per route, canonical present, About page emits Person JSON-LD
+## Out of scope
+- No changes to email templates / `send-newsletter` (still uses emoji unless you ask).
+- No bulk migration of existing emoji to images.
 
-### Output
-A single report grouped by area: ✅ working / ⚠️ minor / ❌ broken, with the exact route or button for each. After approval, I'll switch to build mode and fix anything in the ❌ / ⚠️ lists.
-
-### One question before I start
-The Admin Blog test will create a real "QA test post" in the database. I'll delete it at the end, but for ~30 seconds it would be visible at `/blog` to anyone hitting the site. Two options:
-
-- **A. Use a draft-only test** — create the post as draft, verify edit + preview + publish-toggle UI, but don't actually publish to the public site. Safer.
-- **B. Full publish test** — briefly publish, view it at `/blog/qa-test-post`, then delete. Most thorough.
-
-Pick one and I'll proceed. (Default if you don't answer: **A — draft only**.)
+Confirm and I'll implement.

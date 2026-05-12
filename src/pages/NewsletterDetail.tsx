@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, ArrowLeft, Share2, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ContentIcon } from "@/components/ContentIcon";
 import { toast } from "sonner";
 import type { Newsletter, NewsletterSection } from "@/types/newsletter";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
@@ -81,7 +82,7 @@ export default function NewsletterDetail() {
         {/* Hero band */}
         {newsletter.hero_summary && (
           <div className="bg-primary px-8 sm:px-12 py-5 flex items-center gap-4">
-            <span className="text-2xl shrink-0">{newsletter.hero_emoji || "📋"}</span>
+            <ContentIcon imageUrl={newsletter.hero_image_url} emoji={newsletter.hero_emoji} size={32} className="bg-primary-foreground/10" />
             <p className="text-[15px] font-medium text-primary-foreground leading-snug" dangerouslySetInnerHTML={{ __html: newsletter.hero_summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }} />
           </div>
         )}

@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, ExternalLink, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { IconUploader } from "@/components/admin/IconUploader";
+import { ContentIcon } from "@/components/ContentIcon";
 
 type BlogPost = {
   id: string;
@@ -23,6 +25,7 @@ type BlogPost = {
   title: string;
   excerpt: string | null;
   cover_emoji: string | null;
+  cover_image_url: string | null;
   content_md: string;
   read_time_minutes: number;
   author_name: string;
@@ -44,6 +47,7 @@ const empty = {
   title: "",
   excerpt: "",
   cover_emoji: "📋",
+  cover_image_url: null as string | null,
   content_md: "",
   read_time_minutes: 5,
   author_name: "Jessica Smith, RN, BSN",
@@ -83,6 +87,7 @@ export default function AdminBlog() {
       title: p.title,
       excerpt: p.excerpt || "",
       cover_emoji: p.cover_emoji || "📋",
+      cover_image_url: p.cover_image_url ?? null,
       content_md: p.content_md,
       read_time_minutes: p.read_time_minutes,
       author_name: p.author_name,
@@ -101,6 +106,7 @@ export default function AdminBlog() {
         title: form.title,
         excerpt: form.excerpt || null,
         cover_emoji: form.cover_emoji,
+        cover_image_url: form.cover_image_url,
         content_md: form.content_md,
         read_time_minutes: form.read_time_minutes,
         author_name: form.author_name,
@@ -177,30 +183,28 @@ export default function AdminBlog() {
               <DialogTitle>{editing ? "Edit Post" : "New Post"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_120px] gap-3">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={form.title}
-                    onChange={(e) => {
-                      setForm((f) => ({
-                        ...f,
-                        title: e.target.value,
-                        slug: slugTouched ? f.slug : slugify(e.target.value),
-                      }));
-                    }}
-                    placeholder="How to Run Effective PDSA Cycles"
-                  />
-                </div>
-                <div>
-                  <Label>Cover Emoji</Label>
-                  <Input
-                    value={form.cover_emoji}
-                    onChange={(e) => setForm((f) => ({ ...f, cover_emoji: e.target.value }))}
-                    maxLength={4}
-                  />
-                </div>
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={form.title}
+                  onChange={(e) => {
+                    setForm((f) => ({
+                      ...f,
+                      title: e.target.value,
+                      slug: slugTouched ? f.slug : slugify(e.target.value),
+                    }));
+                  }}
+                  placeholder="How to Run Effective PDSA Cycles"
+                />
               </div>
+              <IconUploader
+                folder="blog"
+                label="Cover icon"
+                value={form.cover_image_url}
+                emojiFallback={form.cover_emoji}
+                onEmojiChange={(v) => setForm((f) => ({ ...f, cover_emoji: v }))}
+                onChange={(url) => setForm((f) => ({ ...f, cover_image_url: url }))}
+              />
               <div>
                 <Label>Slug</Label>
                 <Input
@@ -304,7 +308,10 @@ export default function AdminBlog() {
                 {posts.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell>
-                      <div className="font-medium">{p.cover_emoji} {p.title}</div>
+                      <div className="font-medium flex items-center gap-2">
+                        <ContentIcon imageUrl={p.cover_image_url} emoji={p.cover_emoji} size={24} />
+                        <span>{p.title}</span>
+                      </div>
                       <div className="text-xs text-muted-foreground">/{p.slug}</div>
                     </TableCell>
                     <TableCell>

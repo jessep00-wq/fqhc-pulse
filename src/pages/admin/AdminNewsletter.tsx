@@ -15,6 +15,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { NewsletterSectionRenderer } from "@/components/newsletter/NewsletterSectionRenderer";
 import { toast } from "sonner";
 import { Plus, MoreHorizontal, Eye, Pencil, Trash2, Send, Calendar, ArrowUp, ArrowDown, X } from "lucide-react";
+import { IconUploader } from "@/components/admin/IconUploader";
+import { ContentIcon } from "@/components/ContentIcon";
 import type { Newsletter, NewsletterSection, SectionType } from "@/types/newsletter";
 
 const SECTION_TYPES: { value: SectionType; label: string }[] = [
@@ -143,6 +145,7 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
   const [title, setTitle] = useState(newsletter?.title || "");
   const [subtitle, setSubtitle] = useState(newsletter?.subtitle || "");
   const [heroEmoji, setHeroEmoji] = useState(newsletter?.hero_emoji || "📋");
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(newsletter?.hero_image_url || null);
   const [heroSummary, setHeroSummary] = useState(newsletter?.hero_summary || "");
   const [sections, setSections] = useState<NewsletterSection[]>(newsletter?.sections || []);
   const [addType, setAddType] = useState<SectionType>("body_text");
@@ -157,6 +160,7 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
         title: title.trim(),
         subtitle: subtitle.trim() || null,
         hero_emoji: heroEmoji.trim() || "📋",
+        hero_image_url: heroImageUrl,
         hero_summary: heroSummary.trim() || null,
         sections: sections as any,
       };
@@ -217,7 +221,7 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
           </div>
           {heroSummary && (
             <div className="bg-primary px-8 py-4 flex items-center gap-3">
-              <span className="text-xl">{heroEmoji}</span>
+              <ContentIcon imageUrl={heroImageUrl} emoji={heroEmoji} size={28} />
               <p className="text-sm font-medium text-primary-foreground">{heroSummary}</p>
             </div>
           )}
@@ -234,9 +238,17 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input placeholder="Title *" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Input placeholder="Subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
-        <Input placeholder="Hero emoji" value={heroEmoji} onChange={(e) => setHeroEmoji(e.target.value)} className="max-w-[100px]" />
-        <Textarea placeholder="Hero summary (bold with **text**)" rows={2} value={heroSummary} onChange={(e) => setHeroSummary(e.target.value)} />
+        <Textarea placeholder="Hero summary (bold with **text**)" rows={2} value={heroSummary} onChange={(e) => setHeroSummary(e.target.value)} className="sm:col-span-2" />
       </div>
+
+      <IconUploader
+        folder="newsletter"
+        label="Hero icon"
+        value={heroImageUrl}
+        emojiFallback={heroEmoji}
+        onEmojiChange={setHeroEmoji}
+        onChange={setHeroImageUrl}
+      />
 
       <div>
         <h3 className="text-sm font-semibold mb-3">Sections ({sections.length})</h3>
@@ -338,7 +350,10 @@ export default function AdminNewsletter() {
               {newsletters.map((nl) => (
                 <TableRow key={nl.id} className="cursor-pointer hover:bg-muted/50" onClick={() => setEditId(nl.id)}>
                   <TableCell className="font-medium">
-                    <span className="mr-2">{nl.hero_emoji}</span>{nl.title}
+                    <div className="flex items-center gap-2">
+                      <ContentIcon imageUrl={nl.hero_image_url} emoji={nl.hero_emoji} size={24} />
+                      <span>{nl.title}</span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Badge variant={nl.status === "published" ? "default" : "secondary"}>{nl.status}</Badge>

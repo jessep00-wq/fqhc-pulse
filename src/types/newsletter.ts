@@ -92,6 +92,7 @@ export interface Newsletter {
   title: string;
   subtitle: string | null;
   hero_emoji: string | null;
+  hero_image_url: string | null;
   hero_summary: string | null;
   sections: NewsletterSection[];
   status: string;
