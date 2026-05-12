@@ -12,8 +12,6 @@
 
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://measurewise.org" />
-    
-    
     <meta property="og:image" content="https://measurewise.org/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -25,42 +23,213 @@
     <meta name="twitter:title" content="MeasureWise™ — Quality Operations for FQHCs" />
     <meta property="og:description" content="Every PDSA cycle you run should move a UDS measure. MeasureWise™ links quality improvement to UDS scores and HRSA funding for FQHCs." />
     <meta name="twitter:description" content="Every PDSA cycle you run should move a UDS measure. MeasureWise™ links quality improvement to UDS scores and HRSA funding for FQHCs." />
+
+    <style>
+      .mw-fallback{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;margin:0;background:#fff}
+      .mw-fallback a{color:#1a7a7a}
+      .mw-header{border-bottom:1px solid #e5e7eb;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;max-width:1152px;margin:0 auto}
+      .mw-logo{height:48px}
+      .mw-nav{display:flex;gap:12px;align-items:center}
+      .mw-link{color:#1a7a7a;text-decoration:none;font-size:14px;font-weight:500}
+      .mw-btn{background:#1a7a7a;color:#fff;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:600;display:inline-block}
+      .mw-btn-outline{border:1px solid #d1d5db;padding:10px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:600;color:#0f172a;display:inline-block}
+      .mw-section{max-width:1024px;margin:0 auto;padding:64px 24px}
+      .mw-hero{padding:72px 24px;text-align:center;max-width:896px;margin:0 auto}
+      .mw-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:24px}
+      .mw-chip{border:1px solid #e5e7eb;border-radius:9999px;padding:4px 14px;font-size:13px;color:#475569}
+      .mw-h1{font-size:clamp(28px,5vw,48px);font-weight:800;line-height:1.15;margin:0 0 20px;color:#0f172a}
+      .mw-sub{font-size:18px;color:#475569;max-width:640px;margin:0 auto 28px;line-height:1.6}
+      .mw-ctas{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:48px}
+      .mw-shot{border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px -15px rgba(0,0,0,.15);max-width:1024px;margin:0 auto}
+      .mw-shot img{width:100%;display:block}
+      .mw-h2{font-size:28px;font-weight:700;margin:0 0 12px;text-align:center;color:#0f172a}
+      .mw-h2-sub{text-align:center;color:#475569;margin:0 auto 36px;max-width:560px}
+      .mw-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+      @media (max-width:760px){.mw-grid-3{grid-template-columns:1fr}}
+      .mw-card{border:1px solid #e5e7eb;border-radius:10px;padding:22px;background:#fff}
+      .mw-card h3{margin:0 0 8px;font-size:17px;color:#0f172a}
+      .mw-card p{margin:0;color:#475569;font-size:14px;line-height:1.55}
+      .mw-founder{background:#f0f9fa;border:1px solid #c7e6e6;border-radius:10px;padding:20px;margin-top:32px;text-align:center;color:#0f172a;font-size:15px;line-height:1.6}
+      .mw-pricing{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}
+      @media (max-width:760px){.mw-pricing{grid-template-columns:1fr}}
+      .mw-price{border:1px solid #e5e7eb;border-radius:10px;padding:22px;text-align:center}
+      .mw-price-name{font-size:14px;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin:0 0 8px}
+      .mw-price-amt{font-size:28px;font-weight:800;margin:0 0 4px;color:#0f172a}
+      .mw-price-trial{font-size:13px;color:#1a7a7a;font-weight:600}
+      .mw-cta-band{background:#0f4f4f;color:#fff;padding:56px 24px;text-align:center;margin-top:32px;border-radius:12px}
+      .mw-cta-band h2{margin:0 0 12px;font-size:26px}
+      .mw-cta-band p{margin:0 0 24px;color:#bde0e0}
+      .mw-cta-band .mw-btn{background:#fff;color:#0f4f4f}
+      .mw-cta-band .mw-btn-outline{border-color:rgba(255,255,255,.4);color:#fff;background:transparent}
+      .mw-footer{border-top:1px solid #e5e7eb;padding:24px;text-align:center;color:#64748b;font-size:13px}
+      .mw-footer a{color:#475569;text-decoration:none;margin:0 10px}
+      .mw-noscript-banner{background:#fef3c7;color:#92400e;text-align:center;padding:12px 24px;font-size:14px}
+    </style>
+
+    <script type="application/ld+json">
+    {
+      "@context":"https://schema.org",
+      "@type":"SoftwareApplication",
+      "name":"MeasureWise",
+      "applicationCategory":"HealthApplication",
+      "operatingSystem":"Web",
+      "description":"Quality operations platform for Federally Qualified Health Centers (FQHCs). Plan PDSA cycles, track UDS measures on SPC charts, and export HRSA-ready audit binders.",
+      "url":"https://measurewise.org",
+      "offers":[
+        {"@type":"Offer","name":"Solo","price":"149","priceCurrency":"USD"},
+        {"@type":"Offer","name":"Multi-Site","price":"349","priceCurrency":"USD"},
+        {"@type":"Offer","name":"Network","price":"699","priceCurrency":"USD"}
+      ]
+    }
+    </script>
   </head>
 
   <body>
     <div id="root">
-      <!-- Static fallback: visible before JS loads, replaced by React -->
-      <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1a1a2e;margin:0">
-        <header style="border-bottom:1px solid #e5e7eb;padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;max-width:1152px;margin:0 auto">
-          <img src="/measurewise-logo.png" alt="MeasureWise" style="height:48px" />
-          <nav style="display:flex;gap:12px;align-items:center">
-            <a href="/auth" style="color:#1a7a7a;text-decoration:none;font-size:14px;font-weight:500">Sign In</a>
-            <a href="/auth?signup=true" style="background:#1a7a7a;color:#fff;padding:8px 20px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500">Start 14-day free trial →</a>
+      <!-- Static fallback: visible before JS loads, replaced by React. Mirrors core marketing pitch so JS-disabled / hardened-browser visitors still see a complete page. -->
+      <div class="mw-fallback">
+        <header class="mw-header">
+          <img src="/measurewise-logo.png" alt="MeasureWise" class="mw-logo" />
+          <nav class="mw-nav">
+            <a href="/auth" class="mw-link">Sign In</a>
+            <a href="/auth?signup=true" class="mw-btn">Start 14-day free trial →</a>
           </nav>
         </header>
-        <main style="max-width:896px;margin:0 auto;padding:80px 24px;text-align:center">
-          <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:24px">
-            <span style="border:1px solid #e5e7eb;border-radius:9999px;padding:4px 16px;font-size:13px;color:#6b7280">HRSA Chapter 10 Aligned</span>
-            <span style="border:1px solid #e5e7eb;border-radius:9999px;padding:4px 16px;font-size:13px;color:#6b7280">NCQA PCMH Q-PASS Ready</span>
-            <span style="border:1px solid #e5e7eb;border-radius:9999px;padding:4px 16px;font-size:13px;color:#6b7280">UDS-Friendly Reporting</span>
-          </div>
-          <h1 style="font-size:clamp(28px,5vw,48px);font-weight:800;line-height:1.15;margin:0 0 20px;color:#0f172a">Every PDSA cycle you run should move a UDS measure. Now you can prove it.</h1>
-          <p style="font-size:18px;color:#6b7280;max-width:640px;margin:0 auto 32px;line-height:1.6">The QI platform for FQHC quality directors who are tired of running cycles that never show up in UDS results. Plan a PDSA cycle, watch the measure move on an SPC chart, and export an HRSA-ready binder — all in one place.</p>
-          <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:64px">
-            <a href="/auth?signup=true" style="background:#1a7a7a;color:#fff;padding:12px 32px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:600">Start 14-day free trial →</a>
-            <a href="/how-it-works" style="border:1px solid #d1d5db;padding:12px 32px;border-radius:8px;text-decoration:none;font-size:16px;font-weight:600;color:#0f172a">See how it works</a>
-          </div>
-          <div style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;box-shadow:0 20px 60px -15px rgba(0,0,0,.15)">
-            <img src="/dashboard-preview.jpg" alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking" style="width:100%;display:block" />
-          </div>
+
+        <main>
+          <section class="mw-hero">
+            <div class="mw-chips">
+              <span class="mw-chip">HRSA Chapter 10 Aligned</span>
+              <span class="mw-chip">NCQA PCMH Q-PASS Ready</span>
+              <span class="mw-chip">UDS-Friendly Reporting</span>
+            </div>
+            <h1 class="mw-h1">Every PDSA cycle you run should move a UDS measure. Now you can prove it.</h1>
+            <p class="mw-sub">The QI platform for FQHC quality directors who are tired of running cycles that never show up in UDS results. Plan a PDSA cycle, watch the measure move on an SPC chart, and export an HRSA-ready binder — all in one place.</p>
+            <div class="mw-ctas">
+              <a href="/auth?signup=true" class="mw-btn" style="padding:12px 28px;font-size:16px">Start 14-day free trial →</a>
+              <a href="/how-it-works" class="mw-btn-outline" style="padding:12px 28px;font-size:16px">See how it works</a>
+            </div>
+            <div class="mw-shot">
+              <img src="/dashboard-preview.jpg" alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking" />
+            </div>
+          </section>
+
+          <section class="mw-section">
+            <h2 class="mw-h2">What you get</h2>
+            <p class="mw-h2-sub">Purpose-built for FQHC quality teams — not generic project software.</p>
+            <div class="mw-grid-3">
+              <div class="mw-card">
+                <h3>PDSA Cycle Manager</h3>
+                <p>Guided Plan-Do-Study-Act cycles tied to the exact UDS or PCMH measure they're meant to move. No more orphan cycles.</p>
+              </div>
+              <div class="mw-card">
+                <h3>SPC Charts on UDS Measures</h3>
+                <p>Real-time control charts on diabetes A1c, hypertension, depression screening, and the rest of your UDS line items.</p>
+              </div>
+              <div class="mw-card">
+                <h3>One-Click HRSA Audit Binder</h3>
+                <p>Export an OSV-ready PDF binder with PDSA evidence, SPC trends, and QI committee minutes — in seconds.</p>
+              </div>
+            </div>
+            <div class="mw-founder">
+              <strong>Built by Jessica R. Smith, BSN</strong> — an FQHC Quality Director, not a template factory. Every workflow, template, and report is one she's actually used in a real HRSA OSV, QI committee, or board meeting.
+            </div>
+          </section>
+
+          <section class="mw-section" style="padding-top:0">
+            <h2 class="mw-h2">Simple pricing. 14-day free trial on every plan.</h2>
+            <p class="mw-h2-sub">No free tier, no credit card surprises — just two weeks to prove it works for your health center.</p>
+            <div class="mw-pricing">
+              <div class="mw-price">
+                <p class="mw-price-name">Solo</p>
+                <p class="mw-price-amt">$149<span style="font-size:14px;font-weight:500;color:#64748b">/mo</span></p>
+                <p class="mw-price-trial">14-day free trial</p>
+              </div>
+              <div class="mw-price" style="border-color:#1a7a7a;border-width:2px">
+                <p class="mw-price-name">Multi-Site</p>
+                <p class="mw-price-amt">$349<span style="font-size:14px;font-weight:500;color:#64748b">/mo</span></p>
+                <p class="mw-price-trial">14-day free trial</p>
+              </div>
+              <div class="mw-price">
+                <p class="mw-price-name">Network</p>
+                <p class="mw-price-amt">$699<span style="font-size:14px;font-weight:500;color:#64748b">/mo</span></p>
+                <p class="mw-price-trial">14-day free trial</p>
+              </div>
+            </div>
+
+            <div class="mw-cta-band">
+              <h2>Ready to link quality work to funding outcomes?</h2>
+              <p>Run your first PDSA cycle in under 10 minutes.</p>
+              <div class="mw-ctas" style="margin-bottom:0">
+                <a href="/auth?signup=true" class="mw-btn">Start 14-day free trial →</a>
+                <a href="mailto:support@measurewise.org?subject=MeasureWise%20walkthrough" class="mw-btn-outline">Book a 15-min walkthrough</a>
+              </div>
+            </div>
+          </section>
         </main>
+
+        <footer class="mw-footer">
+          © 2026 MeasureWise. All rights reserved.
+          <span style="display:inline-block;margin-top:6px">
+            <a href="/terms">Terms</a>·<a href="/privacy">Privacy</a>·<a href="mailto:support@measurewise.org">Contact</a>
+          </span>
+        </footer>
       </div>
     </div>
+
     <noscript>
-      <div style="background:#fef3c7;color:#92400e;text-align:center;padding:16px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:14px">
-        JavaScript is required for the full MeasureWise experience. <a href="/auth?signup=true" style="color:#1a7a7a;font-weight:600;text-decoration:underline">Get started</a> or <a href="mailto:support@measurewise.org" style="color:#1a7a7a;font-weight:600;text-decoration:underline">contact us</a>.
+      <div class="mw-noscript-banner">
+        JavaScript is required for the full MeasureWise experience. You can still <a href="/auth?signup=true" style="color:#1a7a7a;font-weight:600">start a 14-day free trial</a> or <a href="mailto:support@measurewise.org" style="color:#1a7a7a;font-weight:600">contact us</a> below.
+      </div>
+      <div class="mw-fallback">
+        <header class="mw-header">
+          <img src="/measurewise-logo.png" alt="MeasureWise" class="mw-logo" />
+          <nav class="mw-nav">
+            <a href="/auth" class="mw-link">Sign In</a>
+            <a href="/auth?signup=true" class="mw-btn">Start 14-day free trial →</a>
+          </nav>
+        </header>
+        <main>
+          <section class="mw-hero">
+            <div class="mw-chips">
+              <span class="mw-chip">HRSA Chapter 10 Aligned</span>
+              <span class="mw-chip">NCQA PCMH Q-PASS Ready</span>
+              <span class="mw-chip">UDS-Friendly Reporting</span>
+            </div>
+            <h1 class="mw-h1">Every PDSA cycle you run should move a UDS measure. Now you can prove it.</h1>
+            <p class="mw-sub">The QI platform for FQHC quality directors. Plan a PDSA cycle, watch the measure move on an SPC chart, and export an HRSA-ready binder — all in one place.</p>
+            <div class="mw-ctas">
+              <a href="/auth?signup=true" class="mw-btn" style="padding:12px 28px;font-size:16px">Start 14-day free trial →</a>
+              <a href="/how-it-works" class="mw-btn-outline" style="padding:12px 28px;font-size:16px">See how it works</a>
+            </div>
+            <div class="mw-shot">
+              <img src="/dashboard-preview.jpg" alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking" />
+            </div>
+          </section>
+          <section class="mw-section">
+            <h2 class="mw-h2">What you get</h2>
+            <div class="mw-grid-3">
+              <div class="mw-card"><h3>PDSA Cycle Manager</h3><p>Guided cycles tied to the exact UDS or PCMH measure they're meant to move.</p></div>
+              <div class="mw-card"><h3>SPC Charts on UDS Measures</h3><p>Real-time control charts on A1c, hypertension, depression screening, and more.</p></div>
+              <div class="mw-card"><h3>One-Click HRSA Audit Binder</h3><p>Export an OSV-ready PDF with PDSA evidence and SPC trends in seconds.</p></div>
+            </div>
+            <div class="mw-founder"><strong>Built by Jessica R. Smith, BSN</strong> — an FQHC Quality Director, not a template factory.</div>
+          </section>
+          <section class="mw-section" style="padding-top:0">
+            <h2 class="mw-h2">Pricing — 14-day free trial on every plan</h2>
+            <div class="mw-pricing">
+              <div class="mw-price"><p class="mw-price-name">Solo</p><p class="mw-price-amt">$149/mo</p><p class="mw-price-trial">14-day free trial</p></div>
+              <div class="mw-price"><p class="mw-price-name">Multi-Site</p><p class="mw-price-amt">$349/mo</p><p class="mw-price-trial">14-day free trial</p></div>
+              <div class="mw-price"><p class="mw-price-name">Network</p><p class="mw-price-amt">$699/mo</p><p class="mw-price-trial">14-day free trial</p></div>
+            </div>
+          </section>
+        </main>
+        <footer class="mw-footer">
+          © 2026 MeasureWise · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:support@measurewise.org">support@measurewise.org</a>
+        </footer>
       </div>
     </noscript>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
