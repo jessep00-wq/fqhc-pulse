@@ -238,9 +238,17 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input placeholder="Title *" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Input placeholder="Subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
-        <Input placeholder="Hero emoji" value={heroEmoji} onChange={(e) => setHeroEmoji(e.target.value)} className="max-w-[100px]" />
-        <Textarea placeholder="Hero summary (bold with **text**)" rows={2} value={heroSummary} onChange={(e) => setHeroSummary(e.target.value)} />
+        <Textarea placeholder="Hero summary (bold with **text**)" rows={2} value={heroSummary} onChange={(e) => setHeroSummary(e.target.value)} className="sm:col-span-2" />
       </div>
+
+      <IconUploader
+        folder="newsletter"
+        label="Hero icon"
+        value={heroImageUrl}
+        emojiFallback={heroEmoji}
+        onEmojiChange={setHeroEmoji}
+        onChange={setHeroImageUrl}
+      />
 
       <div>
         <h3 className="text-sm font-semibold mb-3">Sections ({sections.length})</h3>
