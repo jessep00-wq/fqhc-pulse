@@ -112,6 +112,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             <div className="space-y-2">
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Company</p>
               <ul className="space-y-1.5 text-muted-foreground">
+                <li><Link to="/case-studies" className="hover:text-foreground transition-colors">Case Studies</Link></li>
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
