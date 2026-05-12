@@ -26,6 +26,7 @@ export function useSubscription() {
   const { organization } = useOrg();
   const orgId = organization?.id;
   const env = getStripeEnvironment();
+  const { isFounderAdmin } = useUserRole();
 
   const query = useQuery({
     queryKey: ["org_subscription", orgId, env],
@@ -49,16 +50,19 @@ export function useSubscription() {
   const trialEndsAt = sub?.trial_end ? new Date(sub.trial_end) : null;
   const now = new Date();
 
-  const isPaid =
+  const isPaidReal =
     !!sub &&
     plan !== "free" &&
     (ACTIVE_STATUSES.has(sub.status) ||
       (sub.status === "canceled" && periodEnd && periodEnd > now));
 
-  const isTrialing =
-    !isPaid && plan === "free" && !!trialEndsAt && trialEndsAt > now;
+  const isTrialingReal =
+    !isPaidReal && plan === "free" && !!trialEndsAt && trialEndsAt > now;
 
-  const isLocked = !isPaid && !isTrialing;
+  // Founder admin gets unlimited, never-locked access regardless of subscription state.
+  const isPaid = isFounderAdmin || isPaidReal;
+  const isTrialing = !isFounderAdmin && isTrialingReal;
+  const isLocked = !isFounderAdmin && !isPaidReal && !isTrialingReal;
 
   const daysLeftInTrial =
     trialEndsAt && trialEndsAt > now
@@ -73,6 +77,7 @@ export function useSubscription() {
     isPaid,
     isTrialing,
     isLocked,
+    isFounderBypass: isFounderAdmin,
     trialEndsAt,
     daysLeftInTrial,
     cancelAtPeriodEnd: !!sub?.cancel_at_period_end,
