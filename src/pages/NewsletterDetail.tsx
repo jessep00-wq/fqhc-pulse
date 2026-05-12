@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, ArrowLeft, Share2, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ContentIcon } from "@/components/ContentIcon";
 import { toast } from "sonner";
 import type { Newsletter, NewsletterSection } from "@/types/newsletter";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
