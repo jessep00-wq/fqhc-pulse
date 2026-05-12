@@ -183,30 +183,28 @@ export default function AdminBlog() {
               <DialogTitle>{editing ? "Edit Post" : "New Post"}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_120px] gap-3">
-                <div>
-                  <Label>Title</Label>
-                  <Input
-                    value={form.title}
-                    onChange={(e) => {
-                      setForm((f) => ({
-                        ...f,
-                        title: e.target.value,
-                        slug: slugTouched ? f.slug : slugify(e.target.value),
-                      }));
-                    }}
-                    placeholder="How to Run Effective PDSA Cycles"
-                  />
-                </div>
-                <div>
-                  <Label>Cover Emoji</Label>
-                  <Input
-                    value={form.cover_emoji}
-                    onChange={(e) => setForm((f) => ({ ...f, cover_emoji: e.target.value }))}
-                    maxLength={4}
-                  />
-                </div>
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={form.title}
+                  onChange={(e) => {
+                    setForm((f) => ({
+                      ...f,
+                      title: e.target.value,
+                      slug: slugTouched ? f.slug : slugify(e.target.value),
+                    }));
+                  }}
+                  placeholder="How to Run Effective PDSA Cycles"
+                />
               </div>
+              <IconUploader
+                folder="blog"
+                label="Cover icon"
+                value={form.cover_image_url}
+                emojiFallback={form.cover_emoji}
+                onEmojiChange={(v) => setForm((f) => ({ ...f, cover_emoji: v }))}
+                onChange={(url) => setForm((f) => ({ ...f, cover_image_url: url }))}
+              />
               <div>
                 <Label>Slug</Label>
                 <Input
