@@ -1,72 +1,93 @@
-## Two parts
+## What you're getting
 
-### Part 1 — Founder gets unlimited dashboard access
+1. **Header link audit** — Confirm Blog (`/blog`) and Newsletter (`/newsletter`) routes resolve correctly, keep Case Studies in the public nav.
+2. **Database-backed Blog** with an Admin Console authoring tool so you can publish a new post each month without code changes.
+3. **About the Author page** at `/about` with Jessica Smith's full bio, credentials, focus areas, and author statement.
 
-The trial lock (`TrialGuard` + `useTierLimits` `LOCKED_LIMITS`) currently kicks in for any org without a paid sub once the 14-day trial ends — including yours. Fix: bypass for `founder_admin` role.
+---
 
-- **`src/hooks/useSubscription.ts`** — read `useUserRole()` and force `isPaid = true`, `isLocked = false` when `isFounderAdmin`. Returns also expose an `isFounderBypass` flag.
-- **`src/hooks/useTierLimits.ts`** — when `isFounderBypass`, return Network-tier limits (everything Infinity, no watermarks) regardless of subscription row.
-- **`src/components/TrialBanner.tsx`** — hide for founder admin (no nag).
-- **`src/components/TrialGuard.tsx`** — already returns children when `!isLocked`; founder bypass propagates automatically. No change needed beyond verifying.
+### 1. Public header fix
 
-### Part 2 — YMYL trust + compliance signals
+Header already renders Features · How It Works · Case Studies · Blog · Pricing. Newsletter is currently only in the footer (correct — secondary destination). I'll:
 
-Add the missing trust signals across the public site. All work lives in frontend/presentation.
+- Verify `/blog` and `/newsletter` both render (they do — `BlogIndex` and `NewsletterIndex` are wired in `App.tsx`).
+- Add an **About** link to the public header so the new author page is reachable.
+- Keep Case Studies in the nav as-is.
 
-**A. New `/contact` page (`src/pages/Contact.tsx`)** — wired in `App.tsx`.
-Includes:
-- Business name: MeasureWise™
-- Email: support@measurewise.org (mailto)
-- Mailing address (placeholder you can edit; default: "MeasureWise, [Your City, State]" — I'll ask you to confirm)
-- Response-time SLA ("We reply within 1 business day")
-- Embedded `<ContactForm />` (already exists)
-- Link to Status page, Privacy, Terms, Refund policy
+---
 
-**B. New `/refund-policy` page (`src/pages/RefundPolicy.tsx`)**
-- 14-day free trial, no charge during trial
-- Monthly plans: cancel anytime, access through end of period, no pro-rated refunds
-- Annual plans: pro-rated refund within first 30 days
-- How to request: email support@measurewise.org
+### 2. Admin Blog (database-backed posts)
 
-**C. New `/security` page (`src/pages/Security.tsx`)** — critical for FQHC/UDS data buyers.
-Sections:
-- **Data hosting**: SOC 2 Type II infrastructure (Supabase / AWS us-east), encrypted in transit (TLS 1.2+) and at rest (AES-256)
-- **Tenant isolation**: Row-Level Security on every table, scoped by `organization_id`
-- **Authentication**: Email verification required, password complexity enforced, optional Google SSO
-- **PHI posture**: MeasureWise stores **aggregate UDS measure data**, not patient-level PHI. We do not require a BAA for standard use. (Honest framing — important for YMYL.)
-- **Backups & recovery**: daily automated backups, 7-day point-in-time recovery
-- **Access controls**: role-based (`founder_admin`, `org_admin`, `standard_user`)
-- **Subprocessors**: Supabase, Stripe, Resend, Lovable AI Gateway
-- **Incident reporting**: security@measurewise.org
+Today `BlogIndex` and the four post pages are hardcoded `.tsx` files — you can't add a post without an engineer. I'll convert blog to a DB-driven model with an admin authoring page, while keeping the existing 4 posts visible.
 
-**D. Footer upgrades (`PublicPageLayout.tsx`)**
-Replace the current single-row footer with a multi-column footer:
-- Column 1: MeasureWise logo + tagline + "© 2026" + "🔒 SSL secured · Data encrypted"
-- Column 2: Product — Features, Pricing, How It Works, Status
-- Column 3: Company — About (founder bio block), Blog, Newsletter, Contact
-- Column 4: Legal & Trust — Privacy, Terms, Refund Policy, Security & Compliance
-- Bottom strip: "Built by Jessica R. Smith, BSN — FQHC Quality Director · support@measurewise.org"
+**New `blog_posts` table** (with RLS):
+- `id`, `slug` (unique), `title`, `excerpt`, `cover_emoji`, `content_md` (markdown body), `read_time_minutes`, `status` ('draft' | 'published'), `published_at`, `author_name`, `created_at`, `updated_at`
+- RLS: anyone can SELECT where `status='published'`; founder admins can do everything.
 
-**E. Landing page testimonials section (`Landing.tsx`)**
-Add a "Trusted by FQHC quality teams" section above the existing CTA band:
-- 3 honest testimonial cards. Since we may not have signed customer quotes yet, I'll use **founder-attested early-adopter quotes** with first-name + role + state pattern (e.g. "Jessica R., QI Director — Midwest FQHC"). I'll mark this section so you can swap in real named quotes later.
-- Logos strip placeholder: "FQHC partners — coming soon" OR remove if you'd rather not have a fake logo wall.
-- Trust badges row: "HRSA Chapter 10 aligned · UDS 2026 ready · NCQA PCMH evidence · HTTPS / TLS 1.2+ encrypted"
+**Public pages**:
+- `/blog` (`BlogIndex.tsx`) — fetch published posts from DB ordered by `published_at desc`, merged with the 4 existing hardcoded legacy posts so nothing disappears.
+- `/blog/:slug` — new dynamic route that renders DB posts (markdown via `react-markdown`, which I'll add). Existing hardcoded routes (`/blog/pdsa-cycle-fqhc-guide`, etc.) keep working — the dynamic route only matches when no static route does.
 
-**F. `index.html` static fallback + `<noscript>`**
-Mirror the new footer trust block (contact email, address line, Privacy/Terms/Refund/Security links, SSL note) so the no-JS view also passes YMYL inspection.
+**Admin Console**:
+- New nav item **Blog** in `AdminLayout.tsx` (icon: `FileText`).
+- New page `/admin/blog` (`AdminBlog.tsx`) modeled on `AdminNewsletter.tsx`:
+  - List table (Title · Status · Published date · Actions)
+  - "New Post" dialog with fields: Title, Slug (auto-generated from title, editable), Excerpt, Cover emoji, Read time, Markdown body (large textarea with a live preview tab), Status, Publish date.
+  - Edit / Delete / Publish actions per row.
+- Route added under the existing `/admin/*` block in `App.tsx`, gated by `AdminRoute`.
 
-**G. SEO/structured data (`index.html`)**
-Extend the existing `SoftwareApplication` JSON-LD with:
-- `provider.name`, `provider.email`, `provider.url`
-- `aggregateRating` ONLY if you confirm you have real ratings (otherwise omit — fake ratings are a YMYL violation)
-- Add a separate `Organization` JSON-LD with contactPoint
+---
 
-### Things I need from you before building Part 2
+### 3. About the Author page
 
-1. **Mailing address** for Contact + footer — can be a city/state only (e.g. "Indianapolis, IN") if you prefer not to publish a street address. What should I use?
-2. **Testimonials** — do you have any real quotes I can use, or should I scaffold the section with clearly-marked placeholder quotes from early adopters that you'll fill in?
-3. **Refund policy** — confirm the terms above (no refunds on monthly, 30-day pro-rated on annual) or tell me what you want.
-4. **PHI / BAA stance** — confirm MeasureWise stores aggregate UDS measure data only (no patient-level PHI), or tell me the actual posture so the Security page is accurate.
+New route `/about` → `src/pages/About.tsx` using `PublicPageLayout` + `SEO`. Sections, in order:
 
-I'll ask these as a follow-up so you can answer in one go, then implement.
+- Hero: name, "Jessica Smith, RN" + the role line "FQHC Quality, Clinical Operations, Risk Management, and Data Integrity Leader".
+- **Bio** — your two intro paragraphs.
+- **Professional Background** — the nursing/operations history paragraph + Access Family Health detail + LifeCore / Mantachie / NMMC / Kindred Hospice paragraph.
+- **Credentials & Professional Training** — both education paragraphs as a clean two-column card layout (Education / Continuing Ed & Certifications).
+- **FQHC Quality Leadership** — three paragraphs followed by your focus-area list rendered as a 2-column bullet grid:
+  - UDS measure performance and data integrity
+  - HRSA audit readiness and documentation
+  - AthenaOne workflow optimization
+  - Population health and care gap workflows
+  - Provider and staff education
+  - Risk management and patient safety
+  - Clinical quality reporting
+  - Chronic disease measure improvement
+  - PDSA cycle structure and accountability
+  - Operational dashboards and executive reporting
+- **Proof of Experience** — paragraph + the Employee of the First Quarter (2019) callout.
+- **Author Statement** — rendered as a pulled-quote / italicized block ending with "It is about building the system that makes the measure true."
+- Closing CTA strip linking to Contact and Start trial.
+
+I'll add JSON-LD `Person` schema (name, jobTitle, alumniOf, knowsAbout) for SEO/E-E-A-T, plus a footer link under "Company" → About.
+
+---
+
+### Technical details (for reference)
+
+**Files created**
+- `src/pages/About.tsx`
+- `src/pages/admin/AdminBlog.tsx`
+- `src/pages/blog/BlogPostDynamic.tsx` (renders DB-backed post by slug)
+
+**Files edited**
+- `supabase/migrations/...` — `blog_posts` table + RLS
+- `src/App.tsx` — add `/about`, `/admin/blog`, and dynamic `/blog/:slug` route (placed *after* the four static blog routes so they take priority)
+- `src/components/PublicPageLayout.tsx` — add "About" link in header + footer
+- `src/pages/Landing.tsx` — add "About" in nav + footer
+- `src/components/AdminLayout.tsx` — add Blog nav item
+- `src/pages/blog/BlogIndex.tsx` — fetch DB posts and merge with legacy list
+- `package.json` — add `react-markdown` for post body rendering
+
+**No changes** to: existing 4 hardcoded blog post pages, auth, billing, RLS on other tables.
+
+---
+
+### One quick confirmation before I build
+
+Two small content choices — pick whichever, or tell me to use the defaults:
+
+- **Author page URL**: `/about` (default) or `/about/jessica-smith`?
+- **Credential label in the bio header**: you wrote "Jessica Smith, RN" but the footer/sig elsewhere on the site says "Jessica R. Smith, BSN". Should I use **RN** (matches this bio) or **BSN** (matches site footer)? I recommend "Jessica Smith, RN, BSN" if you hold both — say the word and I'll standardize across the site.

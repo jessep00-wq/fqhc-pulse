@@ -24,6 +24,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import Security from "./pages/Security";
 import Contact from "./pages/Contact";
 import CaseStudies from "./pages/CaseStudies";
+import About from "./pages/About";
 import Onboarding from "./pages/Onboarding";
 import PersonaQIDirector from "./pages/PersonaQIDirector";
 import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
@@ -50,6 +51,7 @@ import AdminBilling from "./pages/admin/AdminBilling";
 import AdminAdoption from "./pages/admin/AdminAdoption";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
+import AdminBlog from "./pages/admin/AdminBlog";
 
 // Newsletter pages
 import NewsletterIndex from "./pages/NewsletterIndex";
@@ -69,6 +71,7 @@ import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
 import BlogUDSMeasures2026 from "./pages/blog/BlogUDSMeasures2026";
 import BlogHRSAChecklist from "./pages/blog/BlogHRSAChecklist";
 import BlogQICulture from "./pages/blog/BlogQICulture";
+import BlogPostDynamic from "./pages/blog/BlogPostDynamic";
 
 const queryClient = new QueryClient();
 
@@ -98,6 +101,7 @@ const App = () => (
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/security" element={<Security />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/case-studies" element={<CaseStudies />} />
 
                 {/* Feature pages */}
@@ -113,6 +117,7 @@ const App = () => (
                 <Route path="/blog/uds-clinical-quality-measures-2026" element={<BlogUDSMeasures2026 />} />
                 <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
                 <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
+                <Route path="/blog/:slug" element={<BlogPostDynamic />} />
 
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
@@ -138,6 +143,7 @@ const App = () => (
                             <Route path="/adoption" element={<AdminAdoption />} />
                             <Route path="/newsletter" element={<AdminNewsletter />} />
                             <Route path="/store" element={<AdminStore />} />
+                            <Route path="/blog" element={<AdminBlog />} />
                             <Route path="/account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>

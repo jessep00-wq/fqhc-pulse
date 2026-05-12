@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, LayoutDashboard, Users, CreditCard, Activity, LogOut, Newspaper } from "lucide-react";
+import { ArrowLeft, LayoutDashboard, Users, CreditCard, Activity, LogOut, Newspaper, FileText } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const adminNav = [
   { title: "Billing", url: "/admin/billing", icon: CreditCard },
   { title: "Adoption", url: "/admin/adoption", icon: Activity },
   { title: "Newsletter", url: "/admin/newsletter", icon: Newspaper },
+  { title: "Blog", url: "/admin/blog", icon: FileText },
 ];
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {

@@ -35,6 +35,9 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                   <Link to="/blog">Blog</Link>
                 </Button>
                 <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/about">About</Link>
+                </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
                   <Link to="/pricing">Pricing</Link>
                 </Button>
               </>
@@ -112,6 +115,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             <div className="space-y-2">
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Company</p>
               <ul className="space-y-1.5 text-muted-foreground">
+                <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
                 <li><Link to="/case-studies" className="hover:text-foreground transition-colors">Case Studies</Link></li>
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
