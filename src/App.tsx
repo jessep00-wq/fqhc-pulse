@@ -116,6 +116,7 @@ const App = () => (
                 <Route path="/blog/uds-clinical-quality-measures-2026" element={<BlogUDSMeasures2026 />} />
                 <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
                 <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
+                <Route path="/blog/:slug" element={<BlogPostDynamic />} />
 
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
@@ -141,6 +142,7 @@ const App = () => (
                             <Route path="/adoption" element={<AdminAdoption />} />
                             <Route path="/newsletter" element={<AdminNewsletter />} />
                             <Route path="/store" element={<AdminStore />} />
+                            <Route path="/blog" element={<AdminBlog />} />
                             <Route path="/account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
