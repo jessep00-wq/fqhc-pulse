@@ -47,7 +47,7 @@ const empty = {
   content_md: "",
   read_time_minutes: 5,
   author_name: "Jessica Smith, RN, BSN",
-  status: "draft" as const,
+  status: "draft" as "draft" | "published",
 };
 
 export default function AdminBlog() {
@@ -86,7 +86,7 @@ export default function AdminBlog() {
       content_md: p.content_md,
       read_time_minutes: p.read_time_minutes,
       author_name: p.author_name,
-      status: p.status as "draft",
+      status: p.status as "draft" | "published",
     });
     setSlugTouched(true);
     setOpen(true);
@@ -240,7 +240,7 @@ export default function AdminBlog() {
                 </div>
                 <div>
                   <Label>Status</Label>
-                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as "draft" }))}>
+                  <Select value={form.status} onValueChange={(v) => setForm((f) => ({ ...f, status: v as "draft" | "published" }))}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
                       <SelectItem value="draft">Draft</SelectItem>
