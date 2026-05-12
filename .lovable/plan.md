@@ -1,48 +1,72 @@
-## Goal
-Ensure `measurewise.org` renders a complete, trust-building landing experience even when JavaScript is disabled, blocked, or still loading — so healthcare buyers (Quality Directors, CMOs, IT reviewers behind locked-down browsers) never see a blank or near-blank page.
+## Two parts
 
-## Current state
-`index.html` already contains a static fallback inside `#root` (header, hero headline, sub-headline, two CTAs, dashboard screenshot). React replaces it on mount. However:
+### Part 1 — Founder gets unlimited dashboard access
 
-1. The fallback is only a hero — no proof points, features, pricing, or footer. Buyers scanning with JS off still see "an unfinished page."
-2. The `<noscript>` tag only shows a small yellow banner — it does not duplicate the marketing content for crawlers/scanners that strip JS.
-3. There is no structured data (JSON-LD) to back the static markup.
-4. No `<style>` block — the inline styles are repetitive and the fallback isn't responsive at small breakpoints.
+The trial lock (`TrialGuard` + `useTierLimits` `LOCKED_LIMITS`) currently kicks in for any org without a paid sub once the 14-day trial ends — including yours. Fix: bypass for `founder_admin` role.
 
-## What to build
+- **`src/hooks/useSubscription.ts`** — read `useUserRole()` and force `isPaid = true`, `isLocked = false` when `isFounderAdmin`. Returns also expose an `isFounderBypass` flag.
+- **`src/hooks/useTierLimits.ts`** — when `isFounderBypass`, return Network-tier limits (everything Infinity, no watermarks) regardless of subscription row.
+- **`src/components/TrialBanner.tsx`** — hide for founder admin (no nag).
+- **`src/components/TrialGuard.tsx`** — already returns children when `!isLocked`; founder bypass propagates automatically. No change needed beyond verifying.
 
-### 1. Expand the static `#root` fallback in `index.html`
-Keep the existing hero, then add (all inline-styled, no JS, no external CSS):
-- **Trust strip** — "Built for FQHCs · HRSA Chapter 10 aligned · NCQA PCMH evidence ready · UDS reporting"
-- **3-up "what you get" grid** — PDSA Cycle Manager / SPC Charts on UDS Measures / One-click HRSA Audit Binder, each with a 1-line description
-- **Founder credibility line** — "Built by Jessica R. Smith, BSN — an FQHC Quality Director, not a template factory."
-- **Pricing teaser** — Solo $149 / Multi-Site $349 / Network $699, all with "14-day free trial"
-- **Secondary CTA block** — "Start 14-day free trial" + "Book a 15-min walkthrough" (mailto)
-- **Static footer** — copyright, Terms, Privacy, Contact (mailto:support@measurewise.org)
+### Part 2 — YMYL trust + compliance signals
 
-All of this lives inside `#root` so React still hydrates over it on JS-enabled clients.
+Add the missing trust signals across the public site. All work lives in frontend/presentation.
 
-### 2. Mirror the fallback inside `<noscript>`
-Add a second `<noscript>` block in `<body>` containing the same marketing sections (hero + trust + features + pricing + CTAs + footer) so:
-- Search-engine renderers that don't execute JS still index the full pitch
-- Hardened corporate browsers (common in hospital IT) see a complete page even if React fails to load
-- Keep the existing yellow "JavaScript is required for the full experience" notice at the top of the noscript content
+**A. New `/contact` page (`src/pages/Contact.tsx`)** — wired in `App.tsx`.
+Includes:
+- Business name: MeasureWise™
+- Email: support@measurewise.org (mailto)
+- Mailing address (placeholder you can edit; default: "MeasureWise, [Your City, State]" — I'll ask you to confirm)
+- Response-time SLA ("We reply within 1 business day")
+- Embedded `<ContactForm />` (already exists)
+- Link to Status page, Privacy, Terms, Refund policy
 
-### 3. Add small inline `<style>` block in `<head>`
-Replace repeated inline styles with a tiny stylesheet (~40 lines) using semantic class names (`.mw-hero`, `.mw-cta`, `.mw-grid-3`, etc.) so the fallback is responsive (single column < 640px) without bloating the file. Use the same teal `hsl(192 70% 35%)` brand color.
+**B. New `/refund-policy` page (`src/pages/RefundPolicy.tsx`)**
+- 14-day free trial, no charge during trial
+- Monthly plans: cancel anytime, access through end of period, no pro-rated refunds
+- Annual plans: pro-rated refund within first 30 days
+- How to request: email support@measurewise.org
 
-### 4. Add JSON-LD structured data
-Inside `<head>`, add `<script type="application/ld+json">` with `SoftwareApplication` schema (name, description, offers, aggregateRating placeholder removed, applicationCategory: "HealthApplication"). This is static markup — no JS execution required — and reinforces the no-JS render for crawlers.
+**C. New `/security` page (`src/pages/Security.tsx`)** — critical for FQHC/UDS data buyers.
+Sections:
+- **Data hosting**: SOC 2 Type II infrastructure (Supabase / AWS us-east), encrypted in transit (TLS 1.2+) and at rest (AES-256)
+- **Tenant isolation**: Row-Level Security on every table, scoped by `organization_id`
+- **Authentication**: Email verification required, password complexity enforced, optional Google SSO
+- **PHI posture**: MeasureWise stores **aggregate UDS measure data**, not patient-level PHI. We do not require a BAA for standard use. (Honest framing — important for YMYL.)
+- **Backups & recovery**: daily automated backups, 7-day point-in-time recovery
+- **Access controls**: role-based (`founder_admin`, `org_admin`, `standard_user`)
+- **Subprocessors**: Supabase, Stripe, Resend, Lovable AI Gateway
+- **Incident reporting**: security@measurewise.org
 
-### 5. Verify
-- View the preview with JS disabled (DevTools → Command Palette → "Disable JavaScript") and confirm hero, features, pricing, CTAs, screenshot, and footer all render and are clickable.
-- View `view-source:` to confirm the noscript block contains the full marketing copy.
-- Run Lighthouse SEO audit to confirm no regression.
+**D. Footer upgrades (`PublicPageLayout.tsx`)**
+Replace the current single-row footer with a multi-column footer:
+- Column 1: MeasureWise logo + tagline + "© 2026" + "🔒 SSL secured · Data encrypted"
+- Column 2: Product — Features, Pricing, How It Works, Status
+- Column 3: Company — About (founder bio block), Blog, Newsletter, Contact
+- Column 4: Legal & Trust — Privacy, Terms, Refund Policy, Security & Compliance
+- Bottom strip: "Built by Jessica R. Smith, BSN — FQHC Quality Director · support@measurewise.org"
 
-## Files to change
-- `index.html` — only file touched. No React/component changes, no backend changes.
+**E. Landing page testimonials section (`Landing.tsx`)**
+Add a "Trusted by FQHC quality teams" section above the existing CTA band:
+- 3 honest testimonial cards. Since we may not have signed customer quotes yet, I'll use **founder-attested early-adopter quotes** with first-name + role + state pattern (e.g. "Jessica R., QI Director — Midwest FQHC"). I'll mark this section so you can swap in real named quotes later.
+- Logos strip placeholder: "FQHC partners — coming soon" OR remove if you'd rather not have a fake logo wall.
+- Trust badges row: "HRSA Chapter 10 aligned · UDS 2026 ready · NCQA PCMH evidence · HTTPS / TLS 1.2+ encrypted"
 
-## Out of scope
-- True SSR (would require migrating off Vite SPA — not worth it for one page).
-- Prerendering pipeline (e.g., `vite-plugin-prerender`) — can be a follow-up if buyers still report issues.
-- Changes to the React `Landing.tsx` page (the JS-enabled experience already covers this content).
+**F. `index.html` static fallback + `<noscript>`**
+Mirror the new footer trust block (contact email, address line, Privacy/Terms/Refund/Security links, SSL note) so the no-JS view also passes YMYL inspection.
+
+**G. SEO/structured data (`index.html`)**
+Extend the existing `SoftwareApplication` JSON-LD with:
+- `provider.name`, `provider.email`, `provider.url`
+- `aggregateRating` ONLY if you confirm you have real ratings (otherwise omit — fake ratings are a YMYL violation)
+- Add a separate `Organization` JSON-LD with contactPoint
+
+### Things I need from you before building Part 2
+
+1. **Mailing address** for Contact + footer — can be a city/state only (e.g. "Indianapolis, IN") if you prefer not to publish a street address. What should I use?
+2. **Testimonials** — do you have any real quotes I can use, or should I scaffold the section with clearly-marked placeholder quotes from early adopters that you'll fill in?
+3. **Refund policy** — confirm the terms above (no refunds on monthly, 30-day pro-rated on annual) or tell me what you want.
+4. **PHI / BAA stance** — confirm MeasureWise stores aggregate UDS measure data only (no patient-level PHI), or tell me the actual posture so the Security page is accurate.
+
+I'll ask these as a follow-up so you can answer in one go, then implement.
