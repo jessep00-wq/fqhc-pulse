@@ -96,6 +96,7 @@ export type Database = {
           author_name: string
           content_md: string
           cover_emoji: string | null
+          cover_image_url: string | null
           created_at: string
           excerpt: string | null
           id: string
@@ -110,6 +111,7 @@ export type Database = {
           author_name?: string
           content_md?: string
           cover_emoji?: string | null
+          cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
@@ -124,6 +126,7 @@ export type Database = {
           author_name?: string
           content_md?: string
           cover_emoji?: string | null
+          cover_image_url?: string | null
           created_at?: string
           excerpt?: string | null
           id?: string
@@ -193,6 +196,7 @@ export type Database = {
         Row: {
           created_at: string
           hero_emoji: string | null
+          hero_image_url: string | null
           hero_summary: string | null
           id: string
           published_at: string | null
@@ -205,6 +209,7 @@ export type Database = {
         Insert: {
           created_at?: string
           hero_emoji?: string | null
+          hero_image_url?: string | null
           hero_summary?: string | null
           id?: string
           published_at?: string | null
@@ -217,6 +222,7 @@ export type Database = {
         Update: {
           created_at?: string
           hero_emoji?: string | null
+          hero_image_url?: string | null
           hero_summary?: string | null
           id?: string
           published_at?: string | null
