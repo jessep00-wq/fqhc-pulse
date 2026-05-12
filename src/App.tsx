@@ -101,6 +101,7 @@ const App = () => (
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/security" element={<Security />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/case-studies" element={<CaseStudies />} />
 
                 {/* Feature pages */}
