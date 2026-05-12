@@ -35,6 +35,9 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                   <Link to="/blog">Blog</Link>
                 </Button>
                 <Button variant="ghost" asChild className="hidden sm:inline-flex">
+                  <Link to="/newsletter">Newsletter</Link>
+                </Button>
+                <Button variant="ghost" asChild className="hidden sm:inline-flex">
                   <Link to="/about">About</Link>
                 </Button>
                 <Button variant="ghost" asChild className="hidden sm:inline-flex">
