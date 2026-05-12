@@ -221,7 +221,7 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
           </div>
           {heroSummary && (
             <div className="bg-primary px-8 py-4 flex items-center gap-3">
-              <span className="text-xl">{heroEmoji}</span>
+              <ContentIcon imageUrl={heroImageUrl} emoji={heroEmoji} size={28} />
               <p className="text-sm font-medium text-primary-foreground">{heroSummary}</p>
             </div>
           )}
