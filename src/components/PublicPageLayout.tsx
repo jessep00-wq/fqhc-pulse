@@ -84,14 +84,59 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
         </div>
       </section>
 
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link>
-            <Link to="/auth" className="hover:text-foreground transition-colors">Sign In</Link>
+      <footer className="border-t border-border bg-card/40">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
+            <div className="col-span-2 md:col-span-1 space-y-3">
+              <Link to="/" className="inline-flex items-center">
+                <img src={measurewiseLogo} alt="MeasureWise" className="h-10" />
+              </Link>
+              <p className="text-muted-foreground text-xs leading-relaxed">
+                Quality improvement software built by an FQHC Quality Director.
+              </p>
+              <p className="text-xs text-muted-foreground inline-flex items-center gap-1.5">
+                <span aria-hidden>🔒</span> SSL secured · TLS 1.2+ · AES-256 at rest
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Product</p>
+              <ul className="space-y-1.5 text-muted-foreground">
+                <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">Features</Link></li>
+                <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How it works</Link></li>
+                <li><Link to="/status" className="hover:text-foreground transition-colors">Status</Link></li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Company</p>
+              <ul className="space-y-1.5 text-muted-foreground">
+                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
+                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Legal &amp; Trust</p>
+              <ul className="space-y-1.5 text-muted-foreground">
+                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
+                <li><Link to="/security" className="hover:text-foreground transition-colors">Security &amp; Compliance</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row gap-3 justify-between items-start md:items-center text-xs text-muted-foreground">
+            <p>
+              © {new Date().getFullYear()} MeasureWise. All rights reserved. · Fulton, MS
+            </p>
+            <p>
+              Built by Jessica R. Smith, BSN — FQHC Quality Director
+            </p>
           </div>
         </div>
       </footer>

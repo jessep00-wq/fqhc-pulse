@@ -75,11 +75,35 @@
       "operatingSystem":"Web",
       "description":"Quality operations platform for Federally Qualified Health Centers (FQHCs). Plan PDSA cycles, track UDS measures on SPC charts, and export HRSA-ready audit binders.",
       "url":"https://measurewise.org",
+      "provider":{
+        "@type":"Organization",
+        "name":"MeasureWise",
+        "email":"support@measurewise.org",
+        "url":"https://measurewise.org"
+      },
       "offers":[
         {"@type":"Offer","name":"Solo","price":"149","priceCurrency":"USD"},
         {"@type":"Offer","name":"Multi-Site","price":"349","priceCurrency":"USD"},
         {"@type":"Offer","name":"Network","price":"699","priceCurrency":"USD"}
       ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context":"https://schema.org",
+      "@type":"Organization",
+      "name":"MeasureWise",
+      "url":"https://measurewise.org",
+      "logo":"https://measurewise.org/measurewise-logo.png",
+      "address":{"@type":"PostalAddress","addressLocality":"Fulton","addressRegion":"MS","addressCountry":"US"},
+      "contactPoint":[{
+        "@type":"ContactPoint",
+        "email":"support@measurewise.org",
+        "contactType":"customer support",
+        "areaServed":"US",
+        "availableLanguage":"English"
+      }],
+      "founder":{"@type":"Person","name":"Jessica R. Smith","jobTitle":"FQHC Quality Director"}
     }
     </script>
   </head>
@@ -169,10 +193,11 @@
         </main>
 
         <footer class="mw-footer">
-          © 2026 MeasureWise. All rights reserved.
-          <span style="display:inline-block;margin-top:6px">
-            <a href="/terms">Terms</a>·<a href="/privacy">Privacy</a>·<a href="mailto:support@measurewise.org">Contact</a>
+          © 2026 MeasureWise. All rights reserved. · MeasureWise, Fulton, MS · <a href="mailto:support@measurewise.org">support@measurewise.org</a>
+          <span style="display:block;margin-top:6px">
+            <a href="/contact">Contact</a>·<a href="/privacy">Privacy</a>·<a href="/terms">Terms</a>·<a href="/refund-policy">Refund Policy</a>·<a href="/security">Security &amp; Compliance</a>
           </span>
+          <span style="display:block;margin-top:6px;font-size:12px">🔒 TLS 1.2+ · AES-256 at rest · Aggregate UDS data only — no PHI stored</span>
         </footer>
       </div>
     </div>
@@ -225,7 +250,9 @@
           </section>
         </main>
         <footer class="mw-footer">
-          © 2026 MeasureWise · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="mailto:support@measurewise.org">support@measurewise.org</a>
+          © 2026 MeasureWise · Fulton, MS · <a href="mailto:support@measurewise.org">support@measurewise.org</a><br/>
+          <a href="/contact">Contact</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a> · <a href="/refund-policy">Refund Policy</a> · <a href="/security">Security &amp; Compliance</a><br/>
+          <span style="font-size:12px">🔒 TLS 1.2+ · AES-256 at rest · Aggregate UDS data only — no PHI stored</span>
         </footer>
       </div>
     </noscript>

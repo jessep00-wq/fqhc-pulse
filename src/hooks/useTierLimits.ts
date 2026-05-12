@@ -29,7 +29,7 @@ const LOCKED_LIMITS: TierLimits = {
 export function useTierLimits() {
   const { organization } = useOrg();
   const orgId = organization.id;
-  const { plan, isLocked, isTrialing, isPaid } = useSubscription();
+  const { plan, isLocked, isTrialing, isPaid, isFounderBypass } = useSubscription();
 
   const { data: cycleCount = 0 } = useQuery({
     queryKey: ["pdsa_cycle_count", orgId],
@@ -56,9 +56,20 @@ export function useTierLimits() {
     enabled: !!orgId,
   });
 
+  // Founder admin gets Network-tier (unlimited) regardless of subscription.
   // During trial, give Solo-equivalent access (full features, single site).
-  const effectivePlan: PlanTier = isPaid ? plan : isTrialing ? "solo" : "free";
-  const limits: TierLimits = isLocked ? LOCKED_LIMITS : LIMITS_BY_TIER[effectivePlan];
+  const effectivePlan: PlanTier = isFounderBypass
+    ? "network"
+    : isPaid
+    ? plan
+    : isTrialing
+    ? "solo"
+    : "free";
+  const limits: TierLimits = isFounderBypass
+    ? LIMITS_BY_TIER.network
+    : isLocked
+    ? LOCKED_LIMITS
+    : LIMITS_BY_TIER[effectivePlan];
 
   return {
     limits,

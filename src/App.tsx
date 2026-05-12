@@ -20,6 +20,9 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import RefundPolicy from "./pages/RefundPolicy";
+import Security from "./pages/Security";
+import Contact from "./pages/Contact";
 import Onboarding from "./pages/Onboarding";
 import PersonaQIDirector from "./pages/PersonaQIDirector";
 import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
@@ -91,6 +94,9 @@ const App = () => (
                 <Route path="/status" element={<Status />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/security" element={<Security />} />
+                <Route path="/contact" element={<Contact />} />
 
                 {/* Feature pages */}
                 <Route path="/features/pdsa-cycle-manager" element={<FeaturePDSA />} />
