@@ -308,7 +308,10 @@ export default function AdminBlog() {
                 {posts.map((p) => (
                   <TableRow key={p.id}>
                     <TableCell>
-                      <div className="font-medium">{p.cover_emoji} {p.title}</div>
+                      <div className="font-medium flex items-center gap-2">
+                        <ContentIcon imageUrl={p.cover_image_url} emoji={p.cover_emoji} size={24} />
+                        <span>{p.title}</span>
+                      </div>
                       <div className="text-xs text-muted-foreground">/{p.slug}</div>
                     </TableCell>
                     <TableCell>
