@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Sunrise Health Partners | MeasureWise™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --white: #ffffff;
+    --off: #f7f6f3;
+    --ink: #1a1a1f;
+    --mid: #6b6b75;
+    --light: #b8b8c2;
+    --border: #e4e3de;
+    --blue: #1a4fe0;
+    --blue-light: #eef1fd;
+    --blue-mid: #c0cbf7;
+    --red: #d63f3f;
+    --red-light: #fdf0f0;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--white);
+    color: var(--ink);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 300;
+    line-height: 1.65;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    padding: 18px 56px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .logo-blue { color: var(--blue); }
+  .pill {
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 100px;
+  }
+
+  /* HERO — split with large number */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 480px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-left {
+    padding: 72px 56px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .tag {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(34px, 3.5vw, 50px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--ink);
+    max-width: 480px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--blue);
+  }
+  .org-tag {
+    margin-top: 40px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.6;
+  }
+  .org-tag strong { color: var(--ink); font-weight: 500; display: block; }
+
+  /* HERO RIGHT — big number + context */
+  .hero-right {
+    padding: 72px 56px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .big-number {
+    font-family: 'Instrument Serif', serif;
+    font-size: clamp(72px, 10vw, 120px);
+    font-weight: 400;
+    color: var(--blue);
+    line-height: 0.9;
+    margin-bottom: 24px;
+    letter-spacing: -0.03em;
+  }
+  .big-context {
+    font-size: 15px;
+    color: var(--mid);
+    max-width: 340px;
+    line-height: 1.65;
+    margin-bottom: 40px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sub-stats {
+    display: flex;
+    gap: 40px;
+  }
+  .sub-stat-val {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .sub-stat-label {
+    font-size: 11px;
+    color: var(--mid);
+    line-height: 1.4;
+  }
+
+  /* META STRIP */
+  .meta-strip {
+    background: var(--off);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+  }
+  .meta-item {
+    padding: 18px 32px;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .meta-item:first-child { padding-left: 56px; }
+  .meta-key {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--light);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+  .meta-val {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  /* BODY */
+  .body-wrap {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    border-top: 0;
+  }
+  .main {
+    padding: 72px 56px;
+    border-right: 1px solid var(--border);
+  }
+  .aside {
+    padding: 72px 32px;
+    background: var(--off);
+  }
+
+  .section { margin-bottom: 64px; }
+  .section-num {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-num::after { content: ''; flex: 1; max-width: 40px; height: 1px; background: var(--blue-mid); }
+  h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 1.25;
+    color: var(--ink);
+    margin-bottom: 22px;
+  }
+  p {
+    font-size: 15px;
+    color: var(--mid);
+    margin-bottom: 16px;
+    line-height: 1.75;
+  }
+
+  /* QUOTE */
+  .quote-block {
+    border: 1px solid var(--border);
+    padding: 32px;
+    margin: 40px 0;
+    position: relative;
+  }
+  .quote-mark {
+    position: absolute;
+    top: -20px;
+    left: 28px;
+    background: var(--white);
+    padding: 0 8px;
+    font-family: 'Instrument Serif', serif;
+    font-size: 48px;
+    color: var(--blue-mid);
+    line-height: 1;
+  }
+  .quote-block p {
+    font-family: 'Instrument Serif', serif;
+    font-size: 19px;
+    font-style: italic;
+    color: var(--ink);
+    margin-bottom: 16px;
+    line-height: 1.55;
+  }
+  .quote-cite {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--blue);
+  }
+
+  /* FINANCIAL BREAKDOWN */
+  .financial-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 28px 0;
+    font-size: 14px;
+  }
+  .financial-table th {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--light);
+    text-align: left;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--off);
+  }
+  .financial-table td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--mid);
+    vertical-align: top;
+  }
+  .financial-table tr:last-child td { border-bottom: none; font-weight: 500; color: var(--ink); background: var(--blue-light); }
+  .financial-table .val { font-weight: 500; color: var(--ink); }
+  .financial-table .pos { color: var(--blue); font-weight: 700; }
+
+  /* STEPS */
+  .steps { margin: 28px 0; }
+  .step {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; }
+  .step-num {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    background: var(--blue-light);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .step-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--mid);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* OUTCOME CARDS */
+  .outcome-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 28px 0;
+  }
+  .outcome-card {
+    border: 1px solid var(--border);
+    padding: 24px;
+  }
+  .outcome-card.featured {
+    border-color: var(--blue);
+    background: var(--blue-light);
+  }
+  .oc-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 10px;
+  }
+  .oc-val {
+    font-family: 'Instrument Serif', serif;
+    font-size: 38px;
+    color: var(--blue);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+  .oc-desc {
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.5;
+  }
+
+  /* SIDEBAR */
+  .aside-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  .aside-card-title {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .aside-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .aside-row:last-child { border-bottom: none; }
+  .aside-row-label { color: var(--mid); }
+  .aside-row-val { font-weight: 500; color: var(--ink); }
+  .blue-val { color: var(--blue) !important; }
+
+  .feature-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--mid);
+    line-height: 1.4;
+  }
+  .feature-row:last-child { border-bottom: none; }
+  .ftick { color: var(--blue); font-size: 14px; margin-top: -1px; flex-shrink: 0; }
+
+  /* ALERT BOX */
+  .alert {
+    background: var(--blue-light);
+    border-left: 3px solid var(--blue);
+    padding: 16px 20px;
+    margin: 20px 0;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .alert strong { font-weight: 500; }
+
+  /* CTA */
+  .cta-bar {
+    background: var(--blue);
+    padding: 48px 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .cta-bar h3 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .cta-bar p { font-size: 13px; color: rgba(255,255,255,0.6); margin: 0; }
+  .cta-bar-btn {
+    background: #fff;
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    text-decoration: none;
+    display: inline-block;
+    white-space: nowrap;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+  }
+  .cta-bar-btn:hover { opacity: 0.85; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 18px 56px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--light);
+    letter-spacing: 0.05em;
+  }
+
+  /* Animation */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+  .au { animation: fadeUp 0.7s ease forwards; }
+  .au2 { animation: fadeUp 0.7s 0.15s ease forwards; opacity: 0; }
+  .au3 { animation: fadeUp 0.7s 0.3s ease forwards; opacity: 0; }
+
+  @media (max-width: 860px) {
+    nav, .main, .cta-bar, footer { padding-left: 24px; padding-right: 24px; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-left { padding: 48px 24px; border-right: none; border-bottom: 1px solid var(--border); }
+    .hero-right { padding: 40px 24px; }
+    .meta-item:first-child { padding-left: 24px; }
+    .body-wrap { grid-template-columns: 1fr; }
+    .aside { padding: 40px 24px; }
+    .main { border-right: none; border-bottom: 1px solid var(--border); }
+    .outcome-cards { grid-template-columns: 1fr; }
+    .sub-stats { flex-direction: column; gap: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Measure<span class="logo-blue">Wise™</span></div>
+  <div class="pill">Case Study No. 03</div>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <div>
+      <div class="tag au">Customer story · Financial outcomes</div>
+      <h1 class="au2">How <em>linking QI to revenue</em> unlocked $1.1M in funding for one health center</h1>
+    </div>
+    <div class="org-tag au3">
+      <strong>Sunrise Health Partners</strong>
+      Suburban Southeast · 4 sites · 19,500 patients annually
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="big-number au">$1.1M</div>
+    <p class="big-context au2">Total funding protected and unlocked through quality-linked revenue, HRSA performance bonuses, and a successfully renewed grant — all tied directly to UDS measure improvement work managed in MeasureWise.</p>
+    <div class="sub-stats au3">
+      <div>
+        <div class="sub-stat-val">+16pts</div>
+        <div class="sub-stat-label">Avg UDS measure<br>improvement</div>
+      </div>
+      <div>
+        <div class="sub-stat-val">18h</div>
+        <div class="sub-stat-label">Monthly admin<br>hours recovered</div>
+      </div>
+      <div>
+        <div class="sub-stat-val">9 mo</div>
+        <div class="sub-stat-label">Time to measurable<br>financial outcome</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="meta-strip">
+  <div class="meta-item">
+    <div class="meta-key">Organization</div>
+    <div class="meta-val">Sunrise Health Partners</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-key">Location</div>
+    <div class="meta-val">Suburban Southeast, 4 sites</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-key">Patients served</div>
+    <div class="meta-val">19,500 / year</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-key">QI team</div>
+    <div class="meta-val">1 director, 1 analyst</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-key">Plan</div>
+    <div class="meta-val">MeasureWise Growth</div>
+  </div>
+  <div class="meta-item">
+    <div class="meta-key">Time with MeasureWise</div>
+    <div class="meta-val">12 months</div>
+  </div>
+</div>
+
+<div class="body-wrap">
+  <main class="main">
+
+    <div class="section">
+      <div class="section-num">01 — The challenge</div>
+      <h2>Great QI work. No way to prove the financial return.</h2>
+      <p>Sunrise Health Partners has operated as an FQHC for 14 years, serving nearly 20,000 patients across four suburban sites. Their QI program was active — they ran regular PDSA cycles, held monthly QI committee meetings, and tracked their UDS measures diligently.</p>
+      <p>But when it came to making the case for additional resources, renewing their HRSA grant, or negotiating quality-based payments with their Medicaid managed care partners, they had a persistent problem: their QI data lived in a different world from their financial data. The CFO couldn't see how a PDSA cycle on Hypertension Control translated into a dollar figure. The board couldn't understand why the QI budget was the right size. And during contract negotiations with their Medicaid MCO, Sunrise had no structured evidence package to show that their clinical improvement work was generating financial value.</p>
+
+      <div class="quote-block">
+        <div class="quote-mark">"</div>
+        <p>We were doing real improvement work. But every time someone asked "what's the return on QI," we had nothing concrete to show them. The clinical data and the financial data lived in completely separate worlds.</p>
+        <div class="quote-cite">Dr. Anita Roshan — CMO, Sunrise Health Partners</div>
+      </div>
+
+      <p>The consequence was predictable: QI was seen as a compliance function rather than a revenue driver. The QI Director, Kwame Asante, was skilled and committed — but without tools to translate his team's work into financial language, he was always fighting for budget rather than earning it.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-num">02 — The approach</div>
+      <h2>Making every PDSA cycle financially visible</h2>
+      <p>Sunrise onboarded MeasureWise in September 2024. From the outset, Asante worked with the CFO to map each major UDS measure to its financial implications — identifying which measures were tied to MCO quality bonuses, which were weighted in HRSA's performance review, and which were linked to value-based payment thresholds.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Financial mapping</div>
+            <p class="step-desc">Each of Sunrise's 18 tracked UDS measures tagged with its revenue implications: HRSA scoring weight, MCO bonus threshold, and any value-based care program tie-in. This created a prioritized QI agenda based on financial impact, not just clinical urgency.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">PDSA alignment</div>
+            <p class="step-desc">All active PDSA cycles linked to their corresponding measures. AI insights surfaced that 60% of active cycles were targeting measures with no direct financial tie-in — allowing Asante to reallocate QI resources to higher-return priorities.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Evidence package generation</div>
+            <p class="step-desc">MeasureWise generated structured QI progress reports formatted for HRSA review and MCO contract negotiation. For the first time, Sunrise could hand an external stakeholder a document showing specific PDSA cycles tied to specific measure improvements tied to specific financial outcomes.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div>
+            <div class="step-title">Board-level visibility</div>
+            <p class="step-desc">Monthly QI dashboards sent directly to board members showed the relationship between improvement activity and financial performance — transforming QI from a compliance checkbox into a board-level strategic discussion.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-num">03 — The results</div>
+      <h2>$1.1 million in measurable financial outcomes</h2>
+      <p>Twelve months after implementing MeasureWise, Sunrise was able to quantify financial outcomes across three distinct categories. Asante presented the following breakdown to the board at their annual strategic review.</p>
+
+      <table class="financial-table">
+        <thead>
+          <tr>
+            <th>Category</th>
+            <th>Mechanism</th>
+            <th>UDS measure(s) involved</th>
+            <th>Financial outcome</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>HRSA grant renewal</td>
+            <td>Performance above threshold; no conditions attached</td>
+            <td>Diabetes HbA1c, Hypertension, Depression Screening</td>
+            <td class="val">$620,000 secured</td>
+          </tr>
+          <tr>
+            <td>MCO quality bonus</td>
+            <td>Cervical Cancer Screening crossed bonus threshold</td>
+            <td>Cervical Cancer Screening (+16pts)</td>
+            <td class="val">$310,000 received</td>
+          </tr>
+          <tr>
+            <td>MCO contract renegotiation</td>
+            <td>QI evidence package used in annual rate discussion</td>
+            <td>Multiple measures (trend data)</td>
+            <td class="val">$180,000 estimated uplift</td>
+          </tr>
+          <tr>
+            <td colspan="3"><strong>Total measurable financial outcome</strong></td>
+            <td class="pos">+$1,110,000</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="alert">
+        <strong>Note on the MCO renegotiation figure:</strong> The $180,000 represents Sunrise's CFO estimate of contract rate improvement attributable to the structured QI evidence package presented during annual negotiations. This figure is conservative — the MCO acknowledged the quality documentation as a significant factor in the rate discussion.
+      </div>
+
+      <div class="outcome-cards">
+        <div class="outcome-card featured">
+          <div class="oc-label">Headline outcome</div>
+          <div class="oc-val">$1.1M</div>
+          <div class="oc-desc">Total funding protected and unlocked across HRSA, MCO quality bonuses, and contract negotiations</div>
+        </div>
+        <div class="outcome-card">
+          <div class="oc-label">Clinical improvement</div>
+          <div class="oc-val">+16pts</div>
+          <div class="oc-desc">Average improvement across the 5 UDS measures most tied to Sunrise's financial performance</div>
+        </div>
+        <div class="outcome-card">
+          <div class="oc-label">QI admin recovered</div>
+          <div class="oc-val">18h/mo</div>
+          <div class="oc-desc">Hours per month saved on tracking, reporting, and board presentations</div>
+        </div>
+        <div class="outcome-card">
+          <div class="oc-label">Budget outcome</div>
+          <div class="oc-val">+1 FTE</div>
+          <div class="oc-desc">Board approved a new QI Analyst position, funded by demonstrated ROI of the QI program</div>
+        </div>
+      </div>
+
+      <div class="quote-block">
+        <div class="quote-mark">"</div>
+        <p>For the first time in fourteen years, I walked into a board meeting with a slide that showed exactly what our QI program was worth in dollars. The board approved a new position on the spot. That's what MeasureWise made possible.</p>
+        <div class="quote-cite">Kwame Asante — QI Director, Sunrise Health Partners</div>
+      </div>
+    </div>
+
+  </main>
+
+  <aside class="aside">
+    <div class="aside-card">
+      <div class="aside-card-title">Financial summary</div>
+      <div class="aside-row">
+        <span class="aside-row-label">HRSA grant secured</span>
+        <span class="aside-row-val blue-val">$620,000</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">MCO quality bonus</span>
+        <span class="aside-row-val blue-val">$310,000</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">Contract uplift (est.)</span>
+        <span class="aside-row-val blue-val">$180,000</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">Total</span>
+        <span class="aside-row-val blue-val">$1,110,000</span>
+      </div>
+    </div>
+
+    <div class="aside-card">
+      <div class="aside-card-title">By the numbers</div>
+      <div class="aside-row">
+        <span class="aside-row-label">PDSA cycles managed</span>
+        <span class="aside-row-val">29</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">UDS measures tracked</span>
+        <span class="aside-row-val">18</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">Sites connected</span>
+        <span class="aside-row-val">4</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">Active team members</span>
+        <span class="aside-row-val">9</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">Time to first outcome</span>
+        <span class="aside-row-val">9 months</span>
+      </div>
+      <div class="aside-row">
+        <span class="aside-row-label">Admin hours saved/mo</span>
+        <span class="aside-row-val">18h</span>
+      </div>
+    </div>
+
+    <div class="aside-card">
+      <div class="aside-card-title">Features used</div>
+      <div class="feature-row"><span class="ftick">✓</span>Financial impact tagging by UDS measure</div>
+      <div class="feature-row"><span class="ftick">✓</span>AI cycle prioritization by revenue impact</div>
+      <div class="feature-row"><span class="ftick">✓</span>HRSA-formatted QI evidence package</div>
+      <div class="feature-row"><span class="ftick">✓</span>Board-level monthly dashboard</div>
+      <div class="feature-row"><span class="ftick">✓</span>MCO reporting export</div>
+      <div class="feature-row"><span class="ftick">✓</span>UDS measure trend tracking</div>
+      <div class="feature-row"><span class="ftick">✓</span>Multi-site PDSA management</div>
+    </div>
+  </aside>
+</div>
+
+<div class="cta-bar">
+  <div>
+    <h3>What would $1.1M mean for your health center?</h3>
+    <p>Start a free 14-day trial — no credit card, no IT setup required.</p>
+  </div>
+  <a href="#" class="cta-bar-btn">Start free trial →</a>
+</div>
+
+<footer>
+  <span>MeasureWise™ · Quality Operations for FQHCs</span>
+  <span>measurewise.org</span>
+</footer>
+
+</body>
+</html>

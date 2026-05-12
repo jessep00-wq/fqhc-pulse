@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case Study — Northside Family Health Alliance | MeasureWise™</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Source+Serif+4:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e11;
+    --surface: #16161a;
+    --surface2: #1e1e24;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e6e0;
+    --muted: rgba(232,230,224,0.45);
+    --accent: #5bbf8a;
+    --accent-dim: rgba(91,191,138,0.12);
+    --accent-border: rgba(91,191,138,0.3);
+    --warm: #e8a84a;
+    --warm-dim: rgba(232,168,74,0.1);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Source Serif 4', serif;
+    font-weight: 300;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* HEADER */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 22px 56px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    background: rgba(14,14,17,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.04em;
+    color: var(--text);
+  }
+  .logo-accent { color: var(--accent); }
+  .case-tag {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 2px;
+  }
+
+  /* HERO STRIP */
+  .hero-strip {
+    background: var(--accent);
+    padding: 12px 56px;
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    overflow-x: auto;
+  }
+  .strip-stat {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    white-space: nowrap;
+  }
+  .strip-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #0e0e11;
+    line-height: 1;
+  }
+  .strip-label {
+    font-size: 12px;
+    color: rgba(14,14,17,0.65);
+    font-weight: 400;
+    font-family: 'Syne', sans-serif;
+  }
+  .strip-div {
+    width: 1px;
+    height: 32px;
+    background: rgba(14,14,17,0.2);
+    flex-shrink: 0;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 80px 56px 64px;
+    max-width: 900px;
+  }
+  .eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+  }
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(36px, 5vw, 64px);
+    font-weight: 800;
+    line-height: 1.05;
+    color: var(--text);
+    margin-bottom: 32px;
+    letter-spacing: -0.02em;
+  }
+  h1 .highlight {
+    color: var(--accent);
+  }
+  .hero-sub {
+    font-size: 17px;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.65;
+    font-style: italic;
+  }
+
+  /* META ROW */
+  .meta-row {
+    display: flex;
+    gap: 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 0 56px;
+  }
+  .meta-cell {
+    flex: 1;
+    padding: 20px 24px;
+    border-right: 1px solid var(--border);
+  }
+  .meta-cell:first-child { padding-left: 0; }
+  .meta-cell:last-child { border-right: none; }
+  .meta-key {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 5px;
+  }
+  .meta-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* LAYOUT */
+  .content-grid {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 0;
+    margin: 0;
+    border-top: 1px solid var(--border);
+    margin-top: 64px;
+  }
+  .main-content {
+    padding: 64px 56px;
+    border-right: 1px solid var(--border);
+  }
+  .sidebar {
+    padding: 64px 32px;
+  }
+
+  .section { margin-bottom: 60px; }
+  .section-eyebrow {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  p {
+    font-size: 15px;
+    color: rgba(232,230,224,0.72);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  /* QUOTE */
+  .pullquote {
+    border-left: 2px solid var(--accent);
+    padding: 24px 32px;
+    margin: 40px 0;
+    background: var(--accent-dim);
+  }
+  .pullquote p {
+    font-size: 19px;
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 14px;
+    line-height: 1.55;
+  }
+  .pullquote cite {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-style: normal;
+  }
+
+  /* BEFORE/AFTER */
+  .ba-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+    margin: 28px 0;
+  }
+  .ba-card {
+    background: var(--surface);
+    padding: 28px;
+  }
+  .ba-label {
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ba-label.before { color: rgba(232,168,74,0.8); }
+  .ba-label.after { color: var(--accent); }
+  .ba-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .ba-icon { flex-shrink: 0; margin-top: 2px; font-style: normal; }
+
+  /* NUMBERS ROW */
+  .numbers-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin: 28px 0;
+  }
+  .number-card {
+    background: var(--surface2);
+    padding: 28px 24px;
+    border-top: 2px solid var(--accent);
+  }
+  .number-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 44px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+  }
+  .number-desc {
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.4;
+    font-weight: 400;
+  }
+
+  /* SIDEBAR WIDGETS */
+  .sidebar-widget {
+    background: var(--surface);
+    padding: 24px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border);
+  }
+  .widget-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .widget-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .widget-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .widget-row-label { color: var(--muted); }
+  .widget-row-val { font-family: 'Syne', sans-serif; font-weight: 600; color: var(--text); }
+  .accent-val { color: var(--accent) !important; }
+
+  /* TIME SAVINGS BAR */
+  .savings-bar-wrap { margin: 12px 0; }
+  .savings-bar-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .savings-bar-track {
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .savings-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: growBar 1.2s ease forwards;
+    width: 0;
+  }
+  @keyframes growBar { to { width: var(--w); } }
+
+  /* FEATURE LIST */
+  .feature-list { margin-top: 0; }
+  .feature-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-family: 'Syne', sans-serif;
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .feature-item:last-child { border-bottom: none; }
+  .fdot {
+    width: 5px; height: 5px;
+    background: var(--accent);
+    border-radius: 50%;
+    margin-top: 4px;
+    flex-shrink: 0;
+  }
+
+  /* CTA */
+  .cta-section {
+    margin: 64px 56px;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    padding: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .cta-text h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .cta-text p { font-size: 13px; color: var(--muted); margin: 0; }
+  .cta-btn {
+    background: var(--accent);
+    color: #0e0e11;
+    font-family: 'Syne', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 14px 32px;
+    text-decoration: none;
+    display: inline-block;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+  }
+  .cta-btn:hover { opacity: 0.85; }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 56px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'Syne', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Fade in */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+  .fade { animation: fadeIn 0.8s ease forwards; }
+  .fade-d1 { animation-delay: 0.1s; opacity: 0; }
+  .fade-d2 { animation-delay: 0.25s; opacity: 0; }
+  .fade-d3 { animation-delay: 0.4s; opacity: 0; }
+
+  @media (max-width: 860px) {
+    header, .meta-row, .cta-section, footer { padding-left: 24px; padding-right: 24px; }
+    .hero { padding: 48px 24px 40px; }
+    .hero-strip { padding: 10px 24px; }
+    .content-grid { grid-template-columns: 1fr; }
+    .main-content { padding: 40px 24px; border-right: none; border-bottom: 1px solid var(--border); }
+    .sidebar { padding: 32px 24px; }
+    .meta-row { flex-wrap: wrap; }
+    .meta-cell { border-right: none; border-bottom: 1px solid var(--border); }
+    .numbers-row { grid-template-columns: 1fr 1fr; }
+    .ba-grid { grid-template-columns: 1fr; }
+    .cta-section { margin: 40px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Measure<span class="logo-accent">Wise™</span></div>
+  <div class="case-tag">Case Study No. 02</div>
+</header>
+
+<div class="hero-strip">
+  <div class="strip-stat">
+    <div class="strip-num">31h</div>
+    <div class="strip-label">saved per month on QI admin</div>
+  </div>
+  <div class="strip-div"></div>
+  <div class="strip-stat">
+    <div class="strip-num">+14pts</div>
+    <div class="strip-label">Cervical Cancer Screening rate</div>
+  </div>
+  <div class="strip-div"></div>
+  <div class="strip-stat">
+    <div class="strip-num">4→ 1</div>
+    <div class="strip-label">reporting tools consolidated</div>
+  </div>
+  <div class="strip-div"></div>
+  <div class="strip-stat">
+    <div class="strip-num">$840K</div>
+    <div class="strip-label">QI-linked revenue protected</div>
+  </div>
+</div>
+
+<section class="hero">
+  <div class="eyebrow fade fade-d1">Customer story</div>
+  <h1 class="fade fade-d2">The QI team that <span class="highlight">reclaimed 31 hours</span> every month</h1>
+  <p class="hero-sub fade fade-d3">Northside Family Health Alliance was drowning in QI admin. Two coordinators were spending more time reporting on improvement work than actually doing it. MeasureWise changed the ratio.</p>
+</section>
+
+<div class="meta-row">
+  <div class="meta-cell">
+    <div class="meta-key">Organization</div>
+    <div class="meta-val">Northside Family Health Alliance</div>
+  </div>
+  <div class="meta-cell">
+    <div class="meta-key">Location</div>
+    <div class="meta-val">Urban Midwest, 6 sites</div>
+  </div>
+  <div class="meta-cell">
+    <div class="meta-key">Patients served</div>
+    <div class="meta-val">28,000 annually</div>
+  </div>
+  <div class="meta-cell">
+    <div class="meta-key">QI team size</div>
+    <div class="meta-val">2 coordinators</div>
+  </div>
+  <div class="meta-cell">
+    <div class="meta-key">Time with MeasureWise</div>
+    <div class="meta-val">11 months</div>
+  </div>
+</div>
+
+<div class="content-grid">
+  <main class="main-content">
+
+    <div class="section">
+      <div class="section-eyebrow">The challenge</div>
+      <h2>Buried in spreadsheets, starved for insight</h2>
+      <p>Northside Family Health Alliance operates six sites across a major Midwest city, serving 28,000 patients annually — one of the largest FQHCs in the region. The QI department consisted of two full-time coordinators: Jamila Crawford, QI Director, and her colleague Terrence Bautista, QI Specialist.</p>
+      <p>On paper, Northside had a well-functioning QI program. In practice, Crawford and Bautista were spending the equivalent of nearly an entire workweek every month just managing information — updating spreadsheets, formatting reports for leadership, chasing status updates from site leads, and reconciling data across four different tracking systems. By the time they finished the monthly QI board report, half the data was stale.</p>
+
+      <div class="ba-grid">
+        <div class="ba-card">
+          <div class="ba-label before">Before MeasureWise</div>
+          <div class="ba-item"><span class="ba-icon">✕</span> 4 separate tools: Excel, SharePoint, Smartsheet, Google Drive</div>
+          <div class="ba-item"><span class="ba-icon">✕</span> 31 hours/month on QI admin and status reporting</div>
+          <div class="ba-item"><span class="ba-icon">✕</span> No visibility into PDSA cycle progress across sites</div>
+          <div class="ba-item"><span class="ba-icon">✕</span> Monthly board report took 3 days to compile</div>
+          <div class="ba-item"><span class="ba-icon">✕</span> No connection between PDSA work and UDS outcomes</div>
+        </div>
+        <div class="ba-card">
+          <div class="ba-label after">After MeasureWise</div>
+          <div class="ba-item"><span class="ba-icon" style="color:var(--accent)">✓</span> Single platform for all PDSA cycles and UDS tracking</div>
+          <div class="ba-item"><span class="ba-icon" style="color:var(--accent)">✓</span> 31 hours saved — redirected to direct improvement work</div>
+          <div class="ba-item"><span class="ba-icon" style="color:var(--accent)">✓</span> Live cycle dashboard visible to all site leads</div>
+          <div class="ba-item"><span class="ba-icon" style="color:var(--accent)">✓</span> Board report auto-generated in under 2 hours</div>
+          <div class="ba-item"><span class="ba-icon" style="color:var(--accent)">✓</span> Each PDSA cycle linked to its target UDS measure</div>
+        </div>
+      </div>
+
+      <div class="pullquote">
+        <p>"We were doing the reporting instead of the improving. MeasureWise flipped that ratio completely. Now our data works for us, not the other way around."</p>
+        <cite>Jamila Crawford — QI Director, Northside Family Health Alliance</cite>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-eyebrow">The approach</div>
+      <h2>Consolidation, automation, and focus</h2>
+      <p>Crawford and Bautista migrated all active PDSA documentation into MeasureWise over a two-week period. The process surfaced an immediate problem: Northside had 47 active PDSA cycles across six sites, but only 12 of them were directly tied to UDS measures with performance flags. The other 35 were improvement projects with no clear connection to the health center's most critical metrics.</p>
+      <p>Using MeasureWise's AI insights layer, the team identified which cycles were highest priority given Northside's UDS profile. Three measures stood out: Cervical Cancer Screening (31% below national average), Tobacco Use Screening (flagged in prior SAC review), and Weight Assessment in Children (below 40%). Crawford restructured the QI calendar around these three, reassigning resources from lower-priority cycles.</p>
+      <p>The change that surprised the team most was the weekly QI snapshot email. Every Monday morning, each site lead received a short automated summary of their active cycles — what phase each was in, what was due that week, and which UDS measures were trending in the right direction. For the first time, site leads felt ownership over QI progress without needing to attend an additional meeting or log into a new tool.</p>
+    </div>
+
+    <div class="section">
+      <div class="section-eyebrow">The results</div>
+      <h2>More time, better scores, stronger reporting</h2>
+      <p>Eleven months in, Northside's results span both operational efficiency and clinical outcomes — a combination that speaks directly to how MeasureWise is designed to work.</p>
+
+      <div class="numbers-row">
+        <div class="number-card">
+          <div class="number-val">31h</div>
+          <div class="number-desc">Monthly admin hours recovered and redirected to improvement work</div>
+        </div>
+        <div class="number-card">
+          <div class="number-val">+14pts</div>
+          <div class="number-desc">Cervical Cancer Screening rate, now above national FQHC average</div>
+        </div>
+        <div class="number-card">
+          <div class="number-val">$840K</div>
+          <div class="number-desc">Estimated value-based care revenue protected via QI performance metrics</div>
+        </div>
+      </div>
+
+      <p>The financial figure deserves context. Northside participates in a Medicaid managed care quality bonus program tied to specific clinical measures, including Cervical Cancer Screening and Tobacco Use Screening. Bringing those measures above threshold levels unlocked bonus payments that had been missed in the prior contract year. Crawford estimates the improvement work tied to MeasureWise protected or recovered approximately $840,000 in quality-linked revenue.</p>
+
+      <div class="pullquote">
+        <p>"I can't separate the QI work from the tool anymore. MeasureWise is just how we do quality improvement now. It's not a system we use — it's the system we run our program on."</p>
+        <cite>Terrence Bautista — QI Specialist, Northside Family Health Alliance</cite>
+      </div>
+
+      <p>Crawford's monthly board report — previously a three-day manual process — now takes under two hours to finalize. The QI Committee chair noted the reports had improved in clarity and completeness, prompting the board to allocate additional funding for a third QI coordinator position — the first time the department had expanded in six years.</p>
+    </div>
+
+  </main>
+
+  <aside class="sidebar">
+    <div class="sidebar-widget">
+      <div class="widget-title">Time savings breakdown</div>
+      <div class="savings-bar-wrap">
+        <div class="savings-bar-label"><span>Status tracking</span><span>12h → 1h</span></div>
+        <div class="savings-bar-track"><div class="savings-bar-fill" style="--w: 88%"></div></div>
+        <div class="savings-bar-label"><span>Board reports</span><span>10h → 2h</span></div>
+        <div class="savings-bar-track"><div class="savings-bar-fill" style="--w: 80%"></div></div>
+        <div class="savings-bar-label"><span>Site check-ins</span><span>6h → 0.5h</span></div>
+        <div class="savings-bar-track"><div class="savings-bar-fill" style="--w: 92%"></div></div>
+        <div class="savings-bar-label"><span>Data reconciliation</span><span>3h → 0.5h</span></div>
+        <div class="savings-bar-track"><div class="savings-bar-fill" style="--w: 83%"></div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-widget">
+      <div class="widget-title">By the numbers</div>
+      <div class="widget-row">
+        <span class="widget-row-label">PDSA cycles managed</span>
+        <span class="widget-row-val accent-val">47 → 28</span>
+      </div>
+      <div class="widget-row">
+        <span class="widget-row-label">UDS measures tracked</span>
+        <span class="widget-row-val">18</span>
+      </div>
+      <div class="widget-row">
+        <span class="widget-row-label">Sites connected</span>
+        <span class="widget-row-val">6</span>
+      </div>
+      <div class="widget-row">
+        <span class="widget-row-label">Active users</span>
+        <span class="widget-row-val">14</span>
+      </div>
+      <div class="widget-row">
+        <span class="widget-row-label">Tools replaced</span>
+        <span class="widget-row-val accent-val">4</span>
+      </div>
+    </div>
+
+    <div class="sidebar-widget">
+      <div class="widget-title">Features used</div>
+      <div class="feature-list">
+        <div class="feature-item"><div class="fdot"></div>Multi-site PDSA cycle dashboard</div>
+        <div class="feature-item"><div class="fdot"></div>AI cycle prioritization by UDS impact</div>
+        <div class="feature-item"><div class="fdot"></div>Automated weekly QI digest emails</div>
+        <div class="feature-item"><div class="fdot"></div>Board-ready report export</div>
+        <div class="feature-item"><div class="fdot"></div>Role-based access (site lead / coordinator / CMO)</div>
+        <div class="feature-item"><div class="fdot"></div>UDS measure trend tracking</div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="cta-section">
+  <div class="cta-text">
+    <h3>Stop reporting on improvement. Start doing it.</h3>
+    <p>Start a free 14-day trial — no credit card, no IT setup required.</p>
+  </div>
+  <a href="#" class="cta-btn">Start free trial →</a>
+</div>
+
+<footer>
+  <span>MeasureWise™ · Quality Operations for FQHCs</span>
+  <span>measurewise.org</span>
+</footer>
+
+</body>
+</html>
