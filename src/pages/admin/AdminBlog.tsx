@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, ExternalLink, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import { IconUploader } from "@/components/admin/IconUploader";
+import { ContentIcon } from "@/components/ContentIcon";
 
 type BlogPost = {
   id: string;
@@ -23,6 +25,7 @@ type BlogPost = {
   title: string;
   excerpt: string | null;
   cover_emoji: string | null;
+  cover_image_url: string | null;
   content_md: string;
   read_time_minutes: number;
   author_name: string;
@@ -44,6 +47,7 @@ const empty = {
   title: "",
   excerpt: "",
   cover_emoji: "📋",
+  cover_image_url: null as string | null,
   content_md: "",
   read_time_minutes: 5,
   author_name: "Jessica Smith, RN, BSN",
