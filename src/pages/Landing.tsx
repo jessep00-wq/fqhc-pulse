@@ -356,10 +356,15 @@ export default function Landing() {
             </Button>
             <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/case-studies" onClick={() => setMobileMenuOpen(false)}>Case Studies</Link>
+            </Button>
+            <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
             </Button>
             <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
+            </Button>
+            <Button variant="ghost" asChild className="w-full justify-start">
+              <Link to="/about" onClick={() => setMobileMenuOpen(false)}>About</Link>
             </Button>
             <Button variant="ghost" asChild className="w-full justify-start">
               <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
