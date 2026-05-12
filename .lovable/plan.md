@@ -1,93 +1,50 @@
-## What you're getting
+## Full QA sweep — what I'll check
 
-1. **Header link audit** — Confirm Blog (`/blog`) and Newsletter (`/newsletter`) routes resolve correctly, keep Case Studies in the public nav.
-2. **Database-backed Blog** with an Admin Console authoring tool so you can publish a new post each month without code changes.
-3. **About the Author page** at `/about` with Jessica Smith's full bio, credentials, focus areas, and author statement.
+I'll run through the site end-to-end in the browser at desktop and mobile widths, hitting every route and the main interactive buttons, then report findings as a single pass/fail list. Anything broken gets fixed in the follow-up build.
 
----
+### Public site (logged out)
+- `/` Landing — header nav links (Features, How It Works, Case Studies, Blog, About, Pricing), hero CTAs, footer columns
+- `/about` — renders, JSON-LD present, CTA buttons work
+- `/case-studies` — index + each of the 3 standalone HTML pages load
+- `/blog` — index lists 4 legacy posts; each `/blog/:slug` opens
+- `/blog/:slug` dynamic — confirm the new dynamic route does not shadow the 4 static routes
+- `/newsletter`, `/newsletter/:id`, `/newsletter/unsubscribe`
+- `/pricing`, `/how-it-works`, `/status`, `/contact`, `/security`, `/refund-policy`, `/privacy`, `/terms`
+- `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/operations-managers`
+- `/features/*` (PDSA, UDS, HRSA, SPC, PCMH)
+- `/store` index + a product + a bundle
+- Page refresh on a deep link (e.g., `/blog/pdsa-cycle-fqhc-guide`) returns 200 (SPA fallback)
+- 404 (`/does-not-exist`) renders NotFound
 
-### 1. Public header fix
+### Auth + onboarding
+- `/auth` sign-in tab loads, sign-up tab loads, password reset link
+- Confirm "Start 14-day free trial" routes to `/auth?signup=true`
 
-Header already renders Features · How It Works · Case Studies · Blog · Pricing. Newsletter is currently only in the footer (correct — secondary destination). I'll:
+### Authenticated app (founder bypass)
+- `/dashboard` — loads without trial lock, no TrialBanner for founder
+- Sidebar links: PDSA Lab, Network, Playbooks, AI Assistant, Staff Tasks, Settings
+- Quick interactions: open a PDSA card, open AI Assistant, open Settings tabs
+- Founder tier limits = network (no upgrade prompts)
 
-- Verify `/blog` and `/newsletter` both render (they do — `BlogIndex` and `NewsletterIndex` are wired in `App.tsx`).
-- Add an **About** link to the public header so the new author page is reachable.
-- Keep Case Studies in the nav as-is.
+### Admin console
+- `/admin` loads, all 6 nav buttons work: Overview, Pipeline, Billing, Adoption, Newsletter, **Blog**, Store
+- `/admin/blog` — table renders, "New Post" dialog opens, all fields editable, Markdown preview tab works
+- Create a draft post, edit it, publish it, verify it appears on `/blog` and at `/blog/:slug`, then delete it (cleanup)
+- Confirm slug auto-generation, status pill, View / Publish / Edit / Delete actions
 
----
+### Cross-cutting
+- Console: no new red errors (router future-flag warnings are expected)
+- Network: no failing 4xx/5xx besides intentional auth redirects
+- Responsive: re-check Landing + Blog + Admin/Blog at 390px width
+- SEO: Helmet sets `<title>` per route, canonical present, About page emits Person JSON-LD
 
-### 2. Admin Blog (database-backed posts)
+### Output
+A single report grouped by area: ✅ working / ⚠️ minor / ❌ broken, with the exact route or button for each. After approval, I'll switch to build mode and fix anything in the ❌ / ⚠️ lists.
 
-Today `BlogIndex` and the four post pages are hardcoded `.tsx` files — you can't add a post without an engineer. I'll convert blog to a DB-driven model with an admin authoring page, while keeping the existing 4 posts visible.
+### One question before I start
+The Admin Blog test will create a real "QA test post" in the database. I'll delete it at the end, but for ~30 seconds it would be visible at `/blog` to anyone hitting the site. Two options:
 
-**New `blog_posts` table** (with RLS):
-- `id`, `slug` (unique), `title`, `excerpt`, `cover_emoji`, `content_md` (markdown body), `read_time_minutes`, `status` ('draft' | 'published'), `published_at`, `author_name`, `created_at`, `updated_at`
-- RLS: anyone can SELECT where `status='published'`; founder admins can do everything.
+- **A. Use a draft-only test** — create the post as draft, verify edit + preview + publish-toggle UI, but don't actually publish to the public site. Safer.
+- **B. Full publish test** — briefly publish, view it at `/blog/qa-test-post`, then delete. Most thorough.
 
-**Public pages**:
-- `/blog` (`BlogIndex.tsx`) — fetch published posts from DB ordered by `published_at desc`, merged with the 4 existing hardcoded legacy posts so nothing disappears.
-- `/blog/:slug` — new dynamic route that renders DB posts (markdown via `react-markdown`, which I'll add). Existing hardcoded routes (`/blog/pdsa-cycle-fqhc-guide`, etc.) keep working — the dynamic route only matches when no static route does.
-
-**Admin Console**:
-- New nav item **Blog** in `AdminLayout.tsx` (icon: `FileText`).
-- New page `/admin/blog` (`AdminBlog.tsx`) modeled on `AdminNewsletter.tsx`:
-  - List table (Title · Status · Published date · Actions)
-  - "New Post" dialog with fields: Title, Slug (auto-generated from title, editable), Excerpt, Cover emoji, Read time, Markdown body (large textarea with a live preview tab), Status, Publish date.
-  - Edit / Delete / Publish actions per row.
-- Route added under the existing `/admin/*` block in `App.tsx`, gated by `AdminRoute`.
-
----
-
-### 3. About the Author page
-
-New route `/about` → `src/pages/About.tsx` using `PublicPageLayout` + `SEO`. Sections, in order:
-
-- Hero: name, "Jessica Smith, RN" + the role line "FQHC Quality, Clinical Operations, Risk Management, and Data Integrity Leader".
-- **Bio** — your two intro paragraphs.
-- **Professional Background** — the nursing/operations history paragraph + Access Family Health detail + LifeCore / Mantachie / NMMC / Kindred Hospice paragraph.
-- **Credentials & Professional Training** — both education paragraphs as a clean two-column card layout (Education / Continuing Ed & Certifications).
-- **FQHC Quality Leadership** — three paragraphs followed by your focus-area list rendered as a 2-column bullet grid:
-  - UDS measure performance and data integrity
-  - HRSA audit readiness and documentation
-  - AthenaOne workflow optimization
-  - Population health and care gap workflows
-  - Provider and staff education
-  - Risk management and patient safety
-  - Clinical quality reporting
-  - Chronic disease measure improvement
-  - PDSA cycle structure and accountability
-  - Operational dashboards and executive reporting
-- **Proof of Experience** — paragraph + the Employee of the First Quarter (2019) callout.
-- **Author Statement** — rendered as a pulled-quote / italicized block ending with "It is about building the system that makes the measure true."
-- Closing CTA strip linking to Contact and Start trial.
-
-I'll add JSON-LD `Person` schema (name, jobTitle, alumniOf, knowsAbout) for SEO/E-E-A-T, plus a footer link under "Company" → About.
-
----
-
-### Technical details (for reference)
-
-**Files created**
-- `src/pages/About.tsx`
-- `src/pages/admin/AdminBlog.tsx`
-- `src/pages/blog/BlogPostDynamic.tsx` (renders DB-backed post by slug)
-
-**Files edited**
-- `supabase/migrations/...` — `blog_posts` table + RLS
-- `src/App.tsx` — add `/about`, `/admin/blog`, and dynamic `/blog/:slug` route (placed *after* the four static blog routes so they take priority)
-- `src/components/PublicPageLayout.tsx` — add "About" link in header + footer
-- `src/pages/Landing.tsx` — add "About" in nav + footer
-- `src/components/AdminLayout.tsx` — add Blog nav item
-- `src/pages/blog/BlogIndex.tsx` — fetch DB posts and merge with legacy list
-- `package.json` — add `react-markdown` for post body rendering
-
-**No changes** to: existing 4 hardcoded blog post pages, auth, billing, RLS on other tables.
-
----
-
-### One quick confirmation before I build
-
-Two small content choices — pick whichever, or tell me to use the defaults:
-
-- **Author page URL**: `/about` (default) or `/about/jessica-smith`?
-- **Credential label in the bio header**: you wrote "Jessica Smith, RN" but the footer/sig elsewhere on the site says "Jessica R. Smith, BSN". Should I use **RN** (matches this bio) or **BSN** (matches site footer)? I recommend "Jessica Smith, RN, BSN" if you hold both — say the word and I'll standardize across the site.
+Pick one and I'll proceed. (Default if you don't answer: **A — draft only**.)
