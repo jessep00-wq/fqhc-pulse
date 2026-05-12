@@ -23,6 +23,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import RefundPolicy from "./pages/RefundPolicy";
 import Security from "./pages/Security";
 import Contact from "./pages/Contact";
+import CaseStudies from "./pages/CaseStudies";
 import Onboarding from "./pages/Onboarding";
 import PersonaQIDirector from "./pages/PersonaQIDirector";
 import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
@@ -97,6 +98,7 @@ const App = () => (
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/security" element={<Security />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/case-studies" element={<CaseStudies />} />
 
                 {/* Feature pages */}
                 <Route path="/features/pdsa-cycle-manager" element={<FeaturePDSA />} />
