@@ -15,6 +15,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { NewsletterSectionRenderer } from "@/components/newsletter/NewsletterSectionRenderer";
 import { toast } from "sonner";
 import { Plus, MoreHorizontal, Eye, Pencil, Trash2, Send, Calendar, ArrowUp, ArrowDown, X } from "lucide-react";
+import { IconUploader } from "@/components/admin/IconUploader";
+import { ContentIcon } from "@/components/ContentIcon";
 import type { Newsletter, NewsletterSection, SectionType } from "@/types/newsletter";
 
 const SECTION_TYPES: { value: SectionType; label: string }[] = [
@@ -143,6 +145,7 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
   const [title, setTitle] = useState(newsletter?.title || "");
   const [subtitle, setSubtitle] = useState(newsletter?.subtitle || "");
   const [heroEmoji, setHeroEmoji] = useState(newsletter?.hero_emoji || "📋");
+  const [heroImageUrl, setHeroImageUrl] = useState<string | null>(newsletter?.hero_image_url || null);
   const [heroSummary, setHeroSummary] = useState(newsletter?.hero_summary || "");
   const [sections, setSections] = useState<NewsletterSection[]>(newsletter?.sections || []);
   const [addType, setAddType] = useState<SectionType>("body_text");
@@ -157,6 +160,7 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
         title: title.trim(),
         subtitle: subtitle.trim() || null,
         hero_emoji: heroEmoji.trim() || "📋",
+        hero_image_url: heroImageUrl,
         hero_summary: heroSummary.trim() || null,
         sections: sections as any,
       };
