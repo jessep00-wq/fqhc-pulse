@@ -1024,25 +1024,28 @@ export default function Landing() {
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Resources</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Company</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
+                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">System Status</Link></li>
-                <li><a href="#contact" className="hover:text-foreground transition-colors">Contact Us</a></li>
+                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Legal</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-3">Legal &amp; Trust</h4>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
                 <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
+                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
+                <li><Link to="/security" className="hover:text-foreground transition-colors">Security &amp; Compliance</Link></li>
               </ul>
             </div>
           </div>
           <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} MeasureWise™. All rights reserved.</p>
-            <p>Built on SOC 2 certified infrastructure · No PHI stored</p>
+            <p>© {new Date().getFullYear()} MeasureWise™. All rights reserved. · Fulton, MS · <a href="mailto:support@measurewise.org" className="hover:text-foreground">support@measurewise.org</a></p>
+            <p><span aria-hidden>🔒</span> TLS 1.2+ · AES-256 at rest · Aggregate UDS data only — no PHI</p>
           </div>
         </div>
       </footer>
