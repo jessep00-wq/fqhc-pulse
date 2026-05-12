@@ -29,7 +29,7 @@ const LOCKED_LIMITS: TierLimits = {
 export function useTierLimits() {
   const { organization } = useOrg();
   const orgId = organization.id;
-  const { plan, isLocked, isTrialing, isPaid } = useSubscription();
+  const { plan, isLocked, isTrialing, isPaid, isFounderBypass } = useSubscription();
 
   const { data: cycleCount = 0 } = useQuery({
     queryKey: ["pdsa_cycle_count", orgId],
