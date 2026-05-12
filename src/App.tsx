@@ -24,6 +24,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import Security from "./pages/Security";
 import Contact from "./pages/Contact";
 import CaseStudies from "./pages/CaseStudies";
+import About from "./pages/About";
 import Onboarding from "./pages/Onboarding";
 import PersonaQIDirector from "./pages/PersonaQIDirector";
 import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
@@ -50,6 +51,7 @@ import AdminBilling from "./pages/admin/AdminBilling";
 import AdminAdoption from "./pages/admin/AdminAdoption";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
+import AdminBlog from "./pages/admin/AdminBlog";
 
 // Newsletter pages
 import NewsletterIndex from "./pages/NewsletterIndex";
@@ -69,6 +71,7 @@ import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
 import BlogUDSMeasures2026 from "./pages/blog/BlogUDSMeasures2026";
 import BlogHRSAChecklist from "./pages/blog/BlogHRSAChecklist";
 import BlogQICulture from "./pages/blog/BlogQICulture";
+import BlogPostDynamic from "./pages/blog/BlogPostDynamic";
 
 const queryClient = new QueryClient();
 

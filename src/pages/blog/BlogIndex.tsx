@@ -1,10 +1,21 @@
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { Calendar, ArrowRight } from "lucide-react";
 
-const posts = [
+type ListPost = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  cover_emoji?: string | null;
+};
+
+const legacyPosts: ListPost[] = [
   {
     slug: "pdsa-cycle-fqhc-guide",
     title: "How to Run Effective PDSA Cycles at Your FQHC",
@@ -36,6 +47,30 @@ const posts = [
 ];
 
 export default function BlogIndex() {
+  const { data: dbPosts = [] } = useQuery({
+    queryKey: ["public-blog-posts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("slug, title, excerpt, cover_emoji, published_at, read_time_minutes")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      if (error) throw error;
+      return (data || []).map<ListPost>((p) => ({
+        slug: p.slug,
+        title: p.title,
+        excerpt: p.excerpt || "",
+        date: p.published_at || new Date().toISOString(),
+        readTime: `${p.read_time_minutes} min read`,
+        cover_emoji: p.cover_emoji,
+      }));
+    },
+  });
+
+  const seen = new Set(dbPosts.map((p) => p.slug));
+  const posts = [...dbPosts, ...legacyPosts.filter((p) => !seen.has(p.slug))]
+    .sort((a, b) => (a.date < b.date ? 1 : -1));
+
   return (
     <PublicPageLayout>
       <SEO
@@ -62,6 +97,7 @@ export default function BlogIndex() {
               <Card key={post.slug} className="border-border hover:border-primary/30 transition-colors">
                 <CardContent className="p-6">
                   <div className="flex items-center gap-3 text-sm text-muted-foreground mb-3">
+                    {post.cover_emoji && <span className="text-lg leading-none">{post.cover_emoji}</span>}
                     <Calendar className="h-4 w-4" />
                     <time dateTime={post.date}>
                       {new Date(post.date).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
