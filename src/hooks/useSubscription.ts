@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { getStripeEnvironment } from "@/lib/stripe";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export type PlanTier = "free" | "solo" | "multi" | "network";
 
