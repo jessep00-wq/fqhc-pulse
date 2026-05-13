@@ -226,7 +226,7 @@ async function upsertSubscription(env: StripeEnv, sub: any) {
       environment: env,
       updated_at: new Date().toISOString(),
     },
-    { onConflict: "stripe_subscription_id" },
+      { onConflict: "organization_id,environment" },
   );
 }
 
