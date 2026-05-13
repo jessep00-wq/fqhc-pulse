@@ -5,7 +5,7 @@ interface SEOProps {
   description: string;
   canonical?: string;
   type?: "website" | "article";
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
   article?: {
     publishedTime?: string;
     author?: string;
@@ -38,9 +38,9 @@ export function SEO({ title, description, canonical, type = "website", jsonLd, a
       )}
       {article?.author && <meta property="article:author" content={article.author} />}
 
-      {jsonLd && (
-        <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
-      )}
+      {jsonLd && (Array.isArray(jsonLd) ? jsonLd : [jsonLd]).map((ld, i) => (
+        <script key={i} type="application/ld+json">{JSON.stringify(ld)}</script>
+      ))}
     </Helmet>
   );
 }
