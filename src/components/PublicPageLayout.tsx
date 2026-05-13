@@ -65,7 +65,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
         </div>
       )}
 
-      {children}
+      <main>{children}</main>
 
       {/* CTA Banner */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">
