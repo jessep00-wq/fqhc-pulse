@@ -18,6 +18,21 @@ import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { toast } from "sonner";
+import { SEO } from "@/components/SEO";
+
+const pricingJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "MeasureWise",
+  applicationCategory: "HealthApplication",
+  operatingSystem: "Web",
+  description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA-ready audit binders.",
+  offers: [
+    { "@type": "Offer", name: "Solo Clinic", price: "149", priceCurrency: "USD" },
+    { "@type": "Offer", name: "Multi-Site", price: "349", priceCurrency: "USD" },
+    { "@type": "Offer", name: "Network", price: "699", priceCurrency: "USD" },
+  ],
+};
 
 interface TierFeature {
   text: string;
@@ -151,6 +166,12 @@ export default function Pricing() {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Pricing — MeasureWise FQHC Quality Operations"
+        description="Solo $149, Multi-Site $349, Network $699 per month. 14-day free trial on every plan. No free tier, no surprises."
+        canonical="https://measurewise.org/pricing"
+        jsonLd={pricingJsonLd}
+      />
       <PaymentTestModeBanner />
       {/* Nav */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
