@@ -280,7 +280,11 @@ const softwareJsonLd = {
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "The only quality improvement platform built exclusively for FQHCs. Link PDSA cycles to UDS measures and HRSA funding outcomes.",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tier available" },
+  offers: [
+    { "@type": "Offer", name: "Solo Clinic", price: "149", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "149", priceCurrency: "USD", unitText: "MONTH" } },
+    { "@type": "Offer", name: "Multi-Site", price: "349", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "349", priceCurrency: "USD", unitText: "MONTH" } },
+    { "@type": "Offer", name: "Network", price: "699", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "699", priceCurrency: "USD", unitText: "MONTH" } },
+  ],
 };
 
 function ComparisonCell({ value }: { value: boolean | string }) {
