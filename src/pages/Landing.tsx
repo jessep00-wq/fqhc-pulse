@@ -296,10 +296,10 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="MeasureWise™ – PDSA and UDS Quality Operations Platform for FQHCs"
-        description="MeasureWise helps FQHCs link every PDSA cycle to UDS measures, track impact in real time, and generate HRSA- and NCQA-ready audit binders without extra spreadsheets or manual work."
-        canonical="https://measurewise.org"
-        jsonLd={orgJsonLd}
+        title="MeasureWise™ — PDSA & UDS Quality Operations for FQHCs"
+        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
+        canonical="https://measurewise.org/"
+        jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
       />
 
       {/* Nav */}
@@ -378,6 +378,8 @@ export default function Landing() {
           </div>
         )}
       </header>
+
+      <main>
 
       {/* Differentiator Banner */}
       <div className="bg-primary/5 border-b border-primary/10">
@@ -962,8 +964,6 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
         </div>
       </section>
 
@@ -1011,6 +1011,8 @@ export default function Landing() {
           </Card>
         </div>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-12 px-6">
