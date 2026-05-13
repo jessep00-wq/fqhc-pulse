@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { CheckCircle, ArrowLeft } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { SEO } from "@/components/SEO";
 
 const services = [
   { name: "Application", description: "Web application and user interface" },
@@ -14,6 +15,11 @@ const services = [
 export default function Status() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="System Status — MeasureWise"
+        description="Live status of MeasureWise services: application, API, authentication, database, edge functions, and file storage."
+        canonical="https://measurewise.org/status"
+      />
       <header className="border-b">
         <div className="mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">

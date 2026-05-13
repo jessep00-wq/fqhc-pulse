@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-background py-12 px-6">
+      <SEO
+        title="Privacy Policy — MeasureWise"
+        description="How MeasureWise collects, uses, and protects information. Aggregate UDS data only — no PHI stored."
+        canonical="https://measurewise.org/privacy"
+      />
       <div className="max-w-3xl mx-auto">
         <Button variant="ghost" asChild className="mb-8">
           <Link to="/">
