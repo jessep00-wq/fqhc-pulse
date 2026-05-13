@@ -31,7 +31,8 @@ export function useSubscription() {
   const query = useQuery({
     queryKey: ["org_subscription", orgId, env],
     queryFn: async () => {
-      const { data } = await supabase
+      // Prefer the row matching the current payments environment.
+      const { data: envRow } = await supabase
         .from("subscriptions")
         .select("*")
         .eq("organization_id", orgId!)
@@ -39,7 +40,18 @@ export function useSubscription() {
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      return (data as OrgSubscription | null) ?? null;
+      if (envRow) return envRow as OrgSubscription;
+
+      // Fallback: any active row for this org (covers env-mismatch / provisioning races
+      // so a brand-new user with an active free trial isn't locked out).
+      const { data: anyRow } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("organization_id", orgId!)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return (anyRow as OrgSubscription | null) ?? null;
     },
     enabled: !!orgId,
   });
