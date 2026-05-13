@@ -46,7 +46,7 @@ export default function Onboarding() {
 
       const { error: orgError } = await supabase
         .from("organizations")
-        .insert({ id: orgId, name: name.trim(), npi: npi.trim() || null });
+        .insert({ id: orgId, name: name.trim(), npi: npi.trim() || null, owner_id: user.id });
 
       if (orgError) throw orgError;
 
