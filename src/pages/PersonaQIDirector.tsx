@@ -11,6 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { SEO } from "@/components/SEO";
 
 const features = [
   {
@@ -49,6 +50,11 @@ const steps = [
 export default function PersonaQIDirector() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="MeasureWise for QI Directors — PDSA + UDS in one platform"
+        description="Run PDSA cycles tied to UDS measures, prove impact on SPC charts, and export HRSA-ready binders. Built for FQHC Quality Directors."
+        canonical="https://measurewise.org/for/qi-directors"
+      />
       {/* Nav */}
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">

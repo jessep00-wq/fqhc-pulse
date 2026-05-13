@@ -280,7 +280,11 @@ const softwareJsonLd = {
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "The only quality improvement platform built exclusively for FQHCs. Link PDSA cycles to UDS measures and HRSA funding outcomes.",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free tier available" },
+  offers: [
+    { "@type": "Offer", name: "Solo Clinic", price: "149", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "149", priceCurrency: "USD", unitText: "MONTH" } },
+    { "@type": "Offer", name: "Multi-Site", price: "349", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "349", priceCurrency: "USD", unitText: "MONTH" } },
+    { "@type": "Offer", name: "Network", price: "699", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "699", priceCurrency: "USD", unitText: "MONTH" } },
+  ],
 };
 
 function ComparisonCell({ value }: { value: boolean | string }) {
@@ -296,10 +300,10 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
       <SEO
-        title="MeasureWise™ – PDSA and UDS Quality Operations Platform for FQHCs"
-        description="MeasureWise helps FQHCs link every PDSA cycle to UDS measures, track impact in real time, and generate HRSA- and NCQA-ready audit binders without extra spreadsheets or manual work."
-        canonical="https://measurewise.org"
-        jsonLd={orgJsonLd}
+        title="MeasureWise™ — PDSA & UDS Quality Operations for FQHCs"
+        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
+        canonical="https://measurewise.org/"
+        jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
       />
 
       {/* Nav */}
@@ -379,6 +383,8 @@ export default function Landing() {
         )}
       </header>
 
+      <main>
+
       {/* Differentiator Banner */}
       <div className="bg-primary/5 border-b border-primary/10">
         <div className="max-w-6xl mx-auto px-6 py-2.5 text-center">
@@ -442,6 +448,8 @@ export default function Landing() {
                 className="w-full"
                 width={1280}
                 height={720}
+                fetchPriority="high"
+                decoding="async"
               />
             </div>
           </div>
@@ -962,8 +970,6 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
-          <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }} />
         </div>
       </section>
 
@@ -1011,6 +1017,8 @@ export default function Landing() {
           </Card>
         </div>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-12 px-6">

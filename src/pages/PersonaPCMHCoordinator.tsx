@@ -11,6 +11,7 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { SEO } from "@/components/SEO";
 
 const features = [
   {
@@ -49,6 +50,11 @@ const steps = [
 export default function PersonaPCMHCoordinator() {
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="MeasureWise for PCMH Coordinators — Q-PASS evidence, ready"
+        description="Build NCQA PCMH evidence as you work. Map PDSA cycles to standards and export Q-PASS-ready packets in minutes."
+        canonical="https://measurewise.org/for/pcmh-coordinators"
+      />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">

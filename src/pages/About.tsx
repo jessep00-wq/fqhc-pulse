@@ -38,7 +38,7 @@ export default function About() {
     <PublicPageLayout>
       <SEO
         title="About Jessica Smith, RN — Founder of MeasureWise"
-        description="Jessica Smith, RN — FQHC Quality, Clinical Operations, Risk Management, and Data Integrity Leader. Founder of MeasureWise, building quality systems that work in real clinic life."
+        description="Jessica Smith, RN, BSN — FQHC Quality, Risk, and Data Integrity leader and founder of MeasureWise. Building QI systems that work in real clinic life."
         canonical="https://measurewise.org/about"
         jsonLd={personJsonLd}
       />

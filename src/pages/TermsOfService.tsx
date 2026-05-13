@@ -1,10 +1,16 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function TermsOfService() {
   return (
     <div className="min-h-screen bg-background py-12 px-6">
+      <SEO
+        title="Terms of Service — MeasureWise"
+        description="MeasureWise Terms of Service governing use of our FQHC quality operations platform, subscriptions, and content."
+        canonical="https://measurewise.org/terms"
+      />
       <div className="max-w-3xl mx-auto">
         <Button variant="ghost" asChild className="mb-8">
           <Link to="/">
