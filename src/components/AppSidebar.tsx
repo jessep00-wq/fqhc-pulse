@@ -51,7 +51,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3">
-          <img src={measurewiseLogo} alt="MeasureWise" className="h-8 shrink-0" />
+          <Logo size="sm" />
           {!collapsed && (
             <div className="flex flex-col">
               <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
