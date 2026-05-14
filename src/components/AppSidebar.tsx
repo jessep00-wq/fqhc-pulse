@@ -9,7 +9,7 @@ import {
   Building2,
   Shield,
 } from "lucide-react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, Link } from "react-router-dom";
 import { useOrg } from "@/contexts/OrgContext";
