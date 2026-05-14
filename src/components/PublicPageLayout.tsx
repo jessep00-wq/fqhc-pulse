@@ -15,9 +15,9 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
     <div className="min-h-screen bg-background">
       <PaymentTestModeBanner />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-14" />
+        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <Logo size="md" />
           </Link>
           <div className="flex items-center gap-3">
             {!slimNav && (
