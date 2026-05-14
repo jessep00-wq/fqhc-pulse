@@ -48,35 +48,12 @@ const steps = [
 
 export default function PersonaQIDirector() {
   return (
-    <div className="min-h-screen bg-background">
+    <PublicPageLayout>
       <SEO
         title="MeasureWise for QI Directors — PDSA + UDS in one platform"
         description="Run PDSA cycles tied to UDS measures, prove impact on SPC charts, and export HRSA-ready binders. Built for FQHC Quality Directors."
         canonical="https://measurewise.org/for/qi-directors"
       />
-      {/* Nav */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/auth?signup=true">Start 14-day free trial</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Back link */}
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Home
-        </Link>
-      </div>
 
       {/* Hero */}
       <section className="py-20 px-6">
