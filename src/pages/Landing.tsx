@@ -293,11 +293,10 @@ function ComparisonCell({ value }: { value: boolean | string }) {
 }
 
 export default function Landing() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PublicPageLayout>
       <SEO
         title="MeasureWise™ — PDSA & UDS Quality Operations for FQHCs"
         description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
@@ -305,84 +304,6 @@ export default function Landing() {
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
       />
 
-      {/* Nav */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-16" />
-          </div>
-          <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link to="/features/pdsa-cycle-manager">Features</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/how-it-works">How It Works</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/case-studies">Case Studies</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/blog">Blog</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/newsletter">Newsletter</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/about">About</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/pricing">Pricing</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card px-6 py-4 space-y-2">
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/features/pdsa-cycle-manager" onClick={() => setMobileMenuOpen(false)}>Features</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)}>How It Works</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/case-studies" onClick={() => setMobileMenuOpen(false)}>Case Studies</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/about" onClick={() => setMobileMenuOpen(false)}>About</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
-            </Button>
-            <Button asChild className="w-full">
-              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start 14-day free trial</Link>
-            </Button>
-          </div>
-        )}
-      </header>
-
-      <main>
 
       {/* Differentiator Banner */}
       <div className="bg-primary/5 border-b border-primary/10">
