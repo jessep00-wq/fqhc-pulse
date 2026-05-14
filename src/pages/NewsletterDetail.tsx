@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ContentIcon } from "@/components/ContentIcon";
 import { toast } from "sonner";
 import type { Newsletter, NewsletterSection } from "@/types/newsletter";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { Logo } from "@/components/Logo";
 
 export default function NewsletterDetail() {
   const { id } = useParams<{ id: string }>();
