@@ -882,34 +882,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">
-            Start your free PDSA tracker today
-          </h2>
-          <p className="text-primary-foreground/80 text-lg">
-            No enterprise sales call. No six-month implementation. Just the QI tools
-            your FQHC actually needs — at a price community health budgets can afford.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/70">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free to start</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> HRSA-aligned</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Audit-ready</span>
-          </div>
-          <Button
-            size="lg"
-            variant="secondary"
-            asChild
-            className="text-base px-8"
-          >
-            <Link to="/auth?signup=true">
-              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
-
       {/* Contact Form */}
       <section id="contact" className="py-20 px-6 bg-background">
         <div className="max-w-2xl mx-auto space-y-6">
@@ -926,60 +898,6 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-12 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-3">
-                <img src={measurewiseLogo} alt="MeasureWise" className="h-12" />
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Quality improvement software built for Federally Qualified Health Centers.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">PDSA Cycles</Link></li>
-                <li><Link to="/features/uds-tracking" className="hover:text-foreground transition-colors">UDS Tracking</Link></li>
-                <li><Link to="/features/hrsa-audit-binder" className="hover:text-foreground transition-colors">HRSA Audit Binder</Link></li>
-                <li><Link to="/features/spc-charts" className="hover:text-foreground transition-colors">SPC Charts</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link></li>
-                <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link to="/case-studies" className="hover:text-foreground transition-colors">Case Studies</Link></li>
-                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link to="/status" className="hover:text-foreground transition-colors">System Status</Link></li>
-                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Legal &amp; Trust</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
-                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
-                <li><Link to="/security" className="hover:text-foreground transition-colors">Security &amp; Compliance</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} MeasureWise™. All rights reserved. · Fulton, MS · <a href="mailto:support@measurewise.org" className="hover:text-foreground">support@measurewise.org</a></p>
-            <p><span aria-hidden>🔒</span> TLS 1.2+ · AES-256 at rest · Aggregate UDS data only — no PHI</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </PublicPageLayout>
   );
 }
