@@ -23,7 +23,7 @@ export default function Status() {
       <header className="border-b">
         <div className="mx-auto max-w-3xl px-6 py-4 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-7" />
+            <Logo size="sm" />
             <span className="font-bold text-foreground">MeasureWise</span>
           </Link>
           <Link to="/" className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
