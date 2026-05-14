@@ -7,7 +7,7 @@ import {
   Users,
   TrendingDown,
   ShieldCheck,
-  CheckCircle,
+  
 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
