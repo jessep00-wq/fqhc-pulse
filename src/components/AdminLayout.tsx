@@ -23,7 +23,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen flex flex-col">
       <header className="h-14 flex items-center justify-between border-b bg-card px-6">
         <div className="flex items-center gap-4">
-          <img src={measurewiseLogo} alt="MeasureWise" className="h-7" />
+          <Logo size="sm" />
           <span className="text-sm font-semibold text-muted-foreground">Admin Console</span>
           <div className="h-5 w-px bg-border" />
           <nav className="flex items-center gap-1">
