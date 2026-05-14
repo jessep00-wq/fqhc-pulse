@@ -1,4 +1,5 @@
 import { ArrowRight, MapPin, Users, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
 import { Card, CardContent } from "@/components/ui/card";
@@ -87,9 +88,9 @@ export default function CaseStudies() {
 
       <section className="max-w-6xl mx-auto px-6 pb-20 grid gap-8">
         {studies.map((s) => (
-          <a
+          <Link
             key={s.slug}
-            href={`/case-studies/${s.slug}.html`}
+            to={`/case-studies/${s.slug}`}
             className="group block"
           >
             <Card className={`overflow-hidden border-2 transition-all hover:shadow-xl hover:-translate-y-0.5`}>
@@ -126,7 +127,7 @@ export default function CaseStudies() {
                 </div>
               </CardContent>
             </Card>
-          </a>
+          </Link>
         ))}
       </section>
     </PublicPageLayout>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import ContactForm from "@/components/ContactForm";
+import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
@@ -16,8 +17,6 @@ import {
   Menu,
   X,
   Lock,
-  Download,
-  Eye,
   Zap,
   TrendingUp,
   Target,
@@ -833,18 +832,7 @@ export default function Landing() {
               will generate in one click after completing a PDSA cycle.
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <a href="/MeasureWise_Sample_Export.pdf" target="_blank" rel="noopener noreferrer">
-                <Eye className="mr-2 h-4 w-4" /> Preview Sample Export (PDF)
-              </a>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <a href="/MeasureWise_Sample_Export.docx" download>
-                <Download className="mr-2 h-4 w-4" /> Download Sample Export (Word)
-              </a>
-            </Button>
-          </div>
+          <SampleExportButtons />
           <p className="text-xs text-muted-foreground">
             This is a sample preview binder with example data. Your actual exports will reflect your health center's real QI activity.
           </p>

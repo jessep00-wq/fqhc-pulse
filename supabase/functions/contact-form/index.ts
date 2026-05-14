@@ -23,13 +23,33 @@ serve(async (req) => {
     if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
     const body = await req.json();
-    const name = typeof body.name === "string" ? body.name.slice(0, 100) : "";
-    const email = typeof body.email === "string" ? body.email.slice(0, 320) : "";
-    const message = typeof body.message === "string" ? body.message.slice(0, 2000) : "";
+    const str = (v: unknown, max: number) =>
+      typeof v === "string" ? v.slice(0, max) : "";
 
-    if (!name || !email || !message) {
+    const name = str(body.name, 100);
+    const email = str(body.email, 320);
+    const message = str(body.message, 2000);
+    const organizationName = str(body.organizationName, 120);
+    const role = str(body.role, 80);
+    const fqhcSize = str(body.fqhcSize, 60);
+    const numberOfSites = str(body.numberOfSites, 20);
+    const emr = str(body.emr, 60);
+    const emrOther = str(body.emrOther, 80);
+    const timeline = str(body.timeline, 40);
+    const interests = Array.isArray(body.interests)
+      ? body.interests.filter((i: unknown): i is string => typeof i === "string").slice(0, 20).map((i: string) => i.slice(0, 80))
+      : [];
+
+    // Required: identity. Allow either message OR an interest selection for context.
+    if (!name || !email) {
       return new Response(
-        JSON.stringify({ error: "Missing required fields: name, email, message" }),
+        JSON.stringify({ error: "Missing required fields: name, email" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    if (!message && interests.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "Provide a message or select at least one interest." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -46,13 +66,33 @@ serve(async (req) => {
     // Escape HTML in user inputs to prevent injection
     const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
+    const row = (label: string, value: string) =>
+      value
+        ? `<tr><td style="padding:6px 12px 6px 0;color:#6b7280;font-size:13px;vertical-align:top;white-space:nowrap;">${esc(label)}</td><td style="padding:6px 0;color:#111827;font-size:14px;">${esc(value)}</td></tr>`
+        : "";
+
+    const emrCombined = emr === "Other" && emrOther ? `Other — ${emrOther}` : emr;
+
     // 1) Send notification to company inbox
     const notificationHtml = `
-      <h2>New Contact Form Submission</h2>
-      <p><strong>Name:</strong> ${esc(name)}</p>
-      <p><strong>Email:</strong> ${esc(email)}</p>
-      <p><strong>Message:</strong></p>
-      <p>${esc(message)}</p>
+      <h2 style="margin:0 0 12px;color:#111827;font-family:Arial,sans-serif;">New Contact Form Submission</h2>
+      <table cellpadding="0" cellspacing="0" style="font-family:Arial,sans-serif;border-collapse:collapse;">
+        ${row("Name", name)}
+        ${row("Email", email)}
+        ${row("Organization", organizationName)}
+        ${row("Role", role)}
+        ${row("Patient panel", fqhcSize)}
+        ${row("Sites", numberOfSites)}
+        ${row("EMR", emrCombined)}
+        ${row("Timeline", timeline)}
+        ${row("Interests", interests.join(", "))}
+      </table>
+      ${
+        message
+          ? `<h3 style="margin:20px 0 8px;color:#111827;font-family:Arial,sans-serif;font-size:14px;">Message</h3>
+             <p style="font-family:Arial,sans-serif;color:#374151;line-height:1.55;white-space:pre-wrap;">${esc(message)}</p>`
+          : ""
+      }
     `;
 
     await fetch(`${GATEWAY_URL}/emails`, {
@@ -65,7 +105,7 @@ serve(async (req) => {
       body: JSON.stringify({
         from: "MeasureWise <hello@measurewise.org>",
         to: [COMPANY_INBOX],
-        subject: `Contact Form: ${esc(name)}`,
+        subject: `Contact: ${esc(name)}${organizationName ? ` (${esc(organizationName)})` : ""}`,
         html: notificationHtml,
         reply_to: email,
       }),
