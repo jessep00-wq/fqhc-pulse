@@ -1,30 +1,44 @@
-## Goal
+## The real problem
 
-Replace the current `measurewise-logo.png` with a custom-designed mark that feels cohesive with the site: clean, clinical, enterprise-grade, built around the teal primary (HSL 192 70% 35% / `#1B7A99`) with the accent green (HSL 165 60% 40%) as a secondary.
+The current logo is a PNG (`src/assets/measurewise-logo.png`) where the "MeasureWise" wordmark only takes up a small fraction of the image canvas. So even at `h-14` in the header, the actual letters render around 18–20px tall — that's why you're squinting. Generating a new PNG won't fix this reliably; AI image gen keeps producing wordmarks with tons of internal padding.
 
-## Direction
+The fix is to **stop using a raster logo** and build the lockup as code: an inline **SVG mark** + **real text wordmark**. That way the letters always fill the available height, stay razor-sharp at any zoom, and we control the exact size.
 
-A custom **wordmark + symbol** pair, not a stock checkmark-in-a-circle:
+## What I'll build
 
-- **Symbol:** an abstract "M + upward measurement tick" mark — a stylized M whose right stroke rises into a subtle data-point/checkmark, suggesting measurement, improvement, and quality. Geometric, single-weight strokes, rounded line caps. Two-tone teal → accent-green gradient on the rising stroke only; the rest of the mark in solid primary teal.
-- **Wordmark:** "MeasureWise" set in a modern geometric sans (Inter / Geist-style, the same family the app already uses), medium weight, tight tracking, true-black `foreground` color, with a small superscript ™.
-- **Lockup:** symbol left, wordmark right, optically aligned to the cap height. Also generate a symbol-only variant for favicons / small contexts.
-- **Backgrounds:** transparent PNG so it sits cleanly on both the white header and the teal CTA/footer regions. No white card behind it.
+A new `<Logo />` component (`src/components/Logo.tsx`) that renders:
 
-## Deliverables
+```
+[ M ]  MeasureWise
+```
 
-1. `src/assets/measurewise-logo.png` — full horizontal lockup, transparent, ~1200×320, used by `PublicPageLayout` header + footer and anywhere else the existing import is referenced.
-2. `src/assets/measurewise-mark.png` — symbol-only square version for favicon / compact use.
-3. `public/favicon.ico` / `public/site.webmanifest` icons — regenerated from the new mark so the browser tab matches.
-4. Quick QA: load `/`, `/about`, `/pricing` in preview at 988px viewport; confirm header logo renders crisp, no white box artifact, footer version reads on the muted card background.
+- **Mark (left):** compact inline SVG — a rounded-square teal tile with a white "M" whose right stroke rises into a tick (the measurement/improvement metaphor). Two-tone: solid `--primary` teal fill, accent-green gradient on the rising stroke. Sized to match wordmark cap height exactly.
+- **Wordmark (right):** the literal text `MeasureWise` set in the app's existing geometric sans (Inter), `font-bold`, tight tracking (`tracking-tight`), `text-foreground`. Tiny `™` superscript.
+- **Sizing prop:** `size="sm" | "md" | "lg"` →
+  - `sm` (footer): mark 28px, text `text-xl` (~20px)
+  - `md` (default header): mark 40px, text `text-2xl` (~24px) — **roughly 2× the current visual size**
+  - `lg`: mark 48px, text `text-3xl` (~30px)
+- **Accessibility:** `aria-label="MeasureWise"`, mark marked `aria-hidden`.
+
+Reference feel: the bold, high-contrast wordmark weight you liked in the "100 Performance SEO" and "Seraphina's Starlight Soirée" examples — business name reads instantly, no squinting.
+
+## Where it gets used
+
+Swap the `<img src={measurewiseLogo} … />` usage in:
+- `src/components/PublicPageLayout.tsx` header → `<Logo size="md" />`
+- `src/components/PublicPageLayout.tsx` footer → `<Logo size="sm" />`
+- Any other spot still importing `@/assets/measurewise-logo.png` (I'll grep and update them all — likely Auth, Onboarding, AppSidebar, email templates stay on raster).
+
+The header bar will also grow from `h-16` to `h-20` so the larger lockup breathes properly. The PNG file stays on disk (still used by OG/social meta + emails) — only the on-page rendering switches to the component.
 
 ## Out of scope
 
-- No changes to nav structure, layout, color tokens, or typography.
-- No rename — still "MeasureWise™".
-- No changes to email-template logos in this pass (can follow up if you want them swapped too).
+- No nav structure, color token, or routing changes.
+- No favicon change (current teal-M favicon stays).
+- No email template logo changes.
 
 ## Technical notes
 
-- Generated via `imagegen` at premium quality with `transparent_background: true` (PNG required for transparency). One generation for the lockup, one for the symbol-only mark, then a favicon export.
-- The existing import path `@/assets/measurewise-logo.png` stays the same, so no component edits are needed beyond the asset swap. Header `<img className="h-14">` and footer `h-10` sizing already work for a wide lockup.
+- Pure presentation component, no new deps.
+- SVG uses `currentColor` + a `<linearGradient>` referencing `--primary` and `--accent` via inline `style={{ color: 'hsl(var(--primary))' }}` so it auto-themes.
+- I'll verify visually in the preview at 988px after the swap (header at `/`, `/about`, `/pricing`, plus footer).

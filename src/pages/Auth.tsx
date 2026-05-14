@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Check, Circle } from "lucide-react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { Logo } from "@/components/Logo";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
@@ -140,7 +140,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-10" />
+            <Logo size="md" className="justify-center" />
           </div>
           <CardTitle className="text-xl">MeasureWise</CardTitle>
           <CardDescription>
