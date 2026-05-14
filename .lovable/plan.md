@@ -1,35 +1,30 @@
 ## Goal
 
-Eliminate the two-footer / two-navbar inconsistency. Every public marketing page should render the same full top nav (Features, How It Works, Case Studies, Blog, Newsletter, About, Pricing, Sign In, Start trial) and the same comprehensive footer (Product / Company / Legal & Trust columns, contact email, location, security line, founder credit) defined in `src/components/PublicPageLayout.tsx`.
+Replace the current `measurewise-logo.png` with a custom-designed mark that feels cohesive with the site: clean, clinical, enterprise-grade, built around the teal primary (HSL 192 70% 35% / `#1B7A99`) with the accent green (HSL 165 60% 40%) as a secondary.
 
-## Pages currently using a custom simplified header/footer
+## Direction
 
-These all hand-roll a `<header>` with only a "Back to Home" link and a one-line `<footer>`:
+A custom **wordmark + symbol** pair, not a stock checkmark-in-a-circle:
 
-- `src/pages/Landing.tsx` — has full custom header + custom slim footer
-- `src/pages/Pricing.tsx`
-- `src/pages/PersonaQIDirector.tsx`
-- `src/pages/PersonaCHCOpsManager.tsx`
-- `src/pages/PersonaPCMHCoordinator.tsx`
+- **Symbol:** an abstract "M + upward measurement tick" mark — a stylized M whose right stroke rises into a subtle data-point/checkmark, suggesting measurement, improvement, and quality. Geometric, single-weight strokes, rounded line caps. Two-tone teal → accent-green gradient on the rising stroke only; the rest of the mark in solid primary teal.
+- **Wordmark:** "MeasureWise" set in a modern geometric sans (Inter / Geist-style, the same family the app already uses), medium weight, tight tracking, true-black `foreground` color, with a small superscript ™.
+- **Lockup:** symbol left, wordmark right, optically aligned to the cap height. Also generate a symbol-only variant for favicons / small contexts.
+- **Backgrounds:** transparent PNG so it sits cleanly on both the white header and the teal CTA/footer regions. No white card behind it.
 
-`PublicPageLayout` already exists and is used correctly by About, HowItWorks, CaseStudies, Contact, Blog*, Feature*, Newsletter*, Store*, etc.
+## Deliverables
 
-## Changes
-
-1. **Landing.tsx** — wrap page content in `<PublicPageLayout>`. Remove the local `<header>` (lines ~309–) and the local `<footer>` (lines ~1012–1061) plus the duplicate CTA banner if `PublicPageLayout` already provides one (it does — remove Landing's existing pre-footer CTA section to avoid two stacked CTAs). Keep all hero/section content untouched.
-
-2. **Pricing.tsx** — wrap in `<PublicPageLayout>`. Delete custom `<header>` and slim `<footer>`. Drop the "Back to Home" arrow link (the full nav replaces it).
-
-3. **PersonaQIDirector.tsx**, **PersonaCHCOpsManager.tsx**, **PersonaPCMHCoordinator.tsx** — same treatment: wrap in `<PublicPageLayout>`, remove custom header + slim footer + "Back to Home" link.
-
-4. **No changes** to Status, Security, Privacy, Terms, Refund, Auth, NotFound, or any in-app dashboard pages — Status/Security/legal already use a minimal back-link layout that's appropriate for utility pages, and Auth/dashboard are intentionally chrome-free.
+1. `src/assets/measurewise-logo.png` — full horizontal lockup, transparent, ~1200×320, used by `PublicPageLayout` header + footer and anywhere else the existing import is referenced.
+2. `src/assets/measurewise-mark.png` — symbol-only square version for favicon / compact use.
+3. `public/favicon.ico` / `public/site.webmanifest` icons — regenerated from the new mark so the browser tab matches.
+4. Quick QA: load `/`, `/about`, `/pricing` in preview at 988px viewport; confirm header logo renders crisp, no white box artifact, footer version reads on the muted card background.
 
 ## Out of scope
 
-- Visual redesign of the footer itself.
-- Changes to authenticated app navigation (`AppLayout`).
-- Content edits inside the migrated pages.
+- No changes to nav structure, layout, color tokens, or typography.
+- No rename — still "MeasureWise™".
+- No changes to email-template logos in this pass (can follow up if you want them swapped too).
 
-## Verification
+## Technical notes
 
-After edits, load `/`, `/pricing`, `/personas/qi-director`, `/personas/chc-ops-manager`, `/personas/pcmh-coordinator` in the preview and confirm identical header + footer to `/about`.
+- Generated via `imagegen` at premium quality with `transparent_background: true` (PNG required for transparency). One generation for the lockup, one for the symbol-only mark, then a favicon export.
+- The existing import path `@/assets/measurewise-logo.png` stays the same, so no component edits are needed beyond the asset swap. Header `<img className="h-14">` and footer `h-10` sizing already work for a wide lockup.
