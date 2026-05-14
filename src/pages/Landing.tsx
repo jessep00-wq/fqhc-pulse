@@ -14,7 +14,7 @@ import {
   ClipboardCheck,
   DollarSign,
   CheckCircle,
-  Menu,
+  
   X,
   Lock,
   Zap,
@@ -23,7 +23,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useState } from "react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { PublicPageLayout } from "@/components/PublicPageLayout";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import founderPhoto from "@/assets/founder-jessica.png";
 import {
@@ -293,11 +293,10 @@ function ComparisonCell({ value }: { value: boolean | string }) {
 }
 
 export default function Landing() {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-background">
+    <PublicPageLayout>
       <SEO
         title="MeasureWise™ — PDSA & UDS Quality Operations for FQHCs"
         description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
@@ -305,84 +304,6 @@ export default function Landing() {
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
       />
 
-      {/* Nav */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-16" />
-          </div>
-          <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link to="/features/pdsa-cycle-manager">Features</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/how-it-works">How It Works</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/case-studies">Case Studies</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/blog">Blog</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/newsletter">Newsletter</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/about">About</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/pricing">Pricing</Link>
-            </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
-            </Button>
-          </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-        </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-card px-6 py-4 space-y-2">
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/features/pdsa-cycle-manager" onClick={() => setMobileMenuOpen(false)}>Features</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/how-it-works" onClick={() => setMobileMenuOpen(false)}>How It Works</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/case-studies" onClick={() => setMobileMenuOpen(false)}>Case Studies</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/newsletter" onClick={() => setMobileMenuOpen(false)}>Newsletter</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/about" onClick={() => setMobileMenuOpen(false)}>About</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</Link>
-            </Button>
-            <Button variant="ghost" asChild className="w-full justify-start">
-              <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>Sign In</Link>
-            </Button>
-            <Button asChild className="w-full">
-              <Link to="/auth?signup=true" onClick={() => setMobileMenuOpen(false)}>Start 14-day free trial</Link>
-            </Button>
-          </div>
-        )}
-      </header>
-
-      <main>
 
       {/* Differentiator Banner */}
       <div className="bg-primary/5 border-b border-primary/10">
@@ -961,34 +882,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">
-            Start your free PDSA tracker today
-          </h2>
-          <p className="text-primary-foreground/80 text-lg">
-            No enterprise sales call. No six-month implementation. Just the QI tools
-            your FQHC actually needs — at a price community health budgets can afford.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/70">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free to start</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> HRSA-aligned</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Audit-ready</span>
-          </div>
-          <Button
-            size="lg"
-            variant="secondary"
-            asChild
-            className="text-base px-8"
-          >
-            <Link to="/auth?signup=true">
-              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
-
       {/* Contact Form */}
       <section id="contact" className="py-20 px-6 bg-background">
         <div className="max-w-2xl mx-auto space-y-6">
@@ -1005,60 +898,6 @@ export default function Landing() {
           </Card>
         </div>
       </section>
-
-      </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-card py-12 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
-            <div className="col-span-2 md:col-span-1">
-              <div className="flex items-center gap-2 mb-3">
-                <img src={measurewiseLogo} alt="MeasureWise" className="h-12" />
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Quality improvement software built for Federally Qualified Health Centers.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Product</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">PDSA Cycles</Link></li>
-                <li><Link to="/features/uds-tracking" className="hover:text-foreground transition-colors">UDS Tracking</Link></li>
-                <li><Link to="/features/hrsa-audit-binder" className="hover:text-foreground transition-colors">HRSA Audit Binder</Link></li>
-                <li><Link to="/features/spc-charts" className="hover:text-foreground transition-colors">SPC Charts</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How It Works</Link></li>
-                <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Company</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link to="/case-studies" className="hover:text-foreground transition-colors">Case Studies</Link></li>
-                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
-                <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link to="/status" className="hover:text-foreground transition-colors">System Status</Link></li>
-                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold text-foreground mb-3">Legal &amp; Trust</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                <li><Link to="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
-                <li><Link to="/refund-policy" className="hover:text-foreground transition-colors">Refund Policy</Link></li>
-                <li><Link to="/security" className="hover:text-foreground transition-colors">Security &amp; Compliance</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-            <p>© {new Date().getFullYear()} MeasureWise™. All rights reserved. · Fulton, MS · <a href="mailto:support@measurewise.org" className="hover:text-foreground">support@measurewise.org</a></p>
-            <p><span aria-hidden>🔒</span> TLS 1.2+ · AES-256 at rest · Aggregate UDS data only — no PHI</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </PublicPageLayout>
   );
 }

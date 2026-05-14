@@ -7,11 +7,9 @@ import {
   FileCheck,
   FolderOpen,
   CalendarCheck,
-  CheckCircle,
-  ArrowLeft,
 } from "lucide-react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { SEO } from "@/components/SEO";
+import { PublicPageLayout } from "@/components/PublicPageLayout";
 
 const features = [
   {
@@ -49,29 +47,12 @@ const steps = [
 
 export default function PersonaPCMHCoordinator() {
   return (
-    <div className="min-h-screen bg-background">
+    <PublicPageLayout>
       <SEO
         title="MeasureWise for PCMH Coordinators — Q-PASS evidence, ready"
         description="Build NCQA PCMH evidence as you work. Map PDSA cycles to standards and export Q-PASS-ready packets in minutes."
         canonical="https://measurewise.org/for/pcmh-coordinators"
       />
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild><Link to="/auth">Sign In</Link></Button>
-            <Button asChild><Link to="/auth?signup=true">Start 14-day free trial</Link></Button>
-          </div>
-        </div>
-      </header>
-
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Home
-        </Link>
-      </div>
 
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
@@ -132,33 +113,6 @@ export default function PersonaPCMHCoordinator() {
         </div>
       </section>
 
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">Ready for your next PCMH review?</h2>
-          <p className="text-primary-foreground/80 text-lg">
-            Start documenting Q-PASS evidence as part of your daily workflow — not as a last-minute scramble.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/70">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Free to start</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> Q-PASS mapped</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> One-click export</span>
-          </div>
-          <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
-          </Button>
-        </div>
-      </section>
-
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/auth" className="hover:text-foreground transition-colors">Sign In</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </PublicPageLayout>
   );
 }

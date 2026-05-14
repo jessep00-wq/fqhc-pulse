@@ -16,9 +16,9 @@ import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
+import { PublicPageLayout } from "@/components/PublicPageLayout";
 
 const pricingJsonLd = {
   "@context": "https://schema.org",
@@ -165,36 +165,14 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <PublicPageLayout>
       <SEO
         title="Pricing — MeasureWise FQHC Quality Operations"
         description="Solo $149, Multi-Site $349, Network $699 per month. 14-day free trial on every plan. No free tier, no surprises."
         canonical="https://measurewise.org/pricing"
         jsonLd={pricingJsonLd}
       />
-      <PaymentTestModeBanner />
-      {/* Nav */}
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
-            <Button asChild>
-              <Link to="/auth?signup=true">Start 14-day free trial</Link>
-            </Button>
-          </div>
-        </div>
-      </header>
 
-      <div className="max-w-6xl mx-auto px-6 pt-6">
-        <Link to="/" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowLeft className="h-4 w-4 mr-1" /> Back to Home
-        </Link>
-      </div>
 
       {/* Hero */}
       <section className="py-20 px-6">
@@ -379,32 +357,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">Start your 14-day free trial</h2>
-          <p className="text-primary-foreground/80 text-lg">
-            No credit card. No sales call. Just the QI tools your FQHC needs.
-          </p>
-          <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <Link to="/auth?signup=true">
-              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/auth" className="hover:text-foreground transition-colors">Sign In</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </PublicPageLayout>
   );
 }
