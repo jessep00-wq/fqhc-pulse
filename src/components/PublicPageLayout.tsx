@@ -95,7 +95,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-sm">
             <div className="col-span-2 md:col-span-1 space-y-3">
               <Link to="/" className="inline-flex items-center">
-                <img src={measurewiseLogo} alt="MeasureWise" className="h-10" />
+                <Logo size="sm" />
               </Link>
               <p className="text-muted-foreground text-xs leading-relaxed">
                 Quality improvement software built by an FQHC Quality Director.
