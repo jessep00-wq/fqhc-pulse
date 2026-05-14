@@ -14,7 +14,7 @@ import {
   ClipboardCheck,
   DollarSign,
   CheckCircle,
-  Menu,
+  
   X,
   Lock,
   Zap,
