@@ -24,6 +24,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import Security from "./pages/Security";
 import Contact from "./pages/Contact";
 import CaseStudies from "./pages/CaseStudies";
+import CaseStudyRedirect from "./pages/CaseStudyRedirect";
 import About from "./pages/About";
 import Onboarding from "./pages/Onboarding";
 import PersonaQIDirector from "./pages/PersonaQIDirector";
@@ -103,6 +104,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/case-studies" element={<CaseStudies />} />
+                <Route path="/case-studies/:slug" element={<CaseStudyRedirect />} />
 
                 {/* Feature pages */}
                 <Route path="/features/pdsa-cycle-manager" element={<FeaturePDSA />} />
