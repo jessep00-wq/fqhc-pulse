@@ -8,10 +8,9 @@ import {
   TrendingDown,
   ShieldCheck,
   CheckCircle,
-  ArrowLeft,
 } from "lucide-react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { SEO } from "@/components/SEO";
+import { PublicPageLayout } from "@/components/PublicPageLayout";
 
 const features = [
   {
