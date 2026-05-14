@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { Logo } from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, LayoutDashboard, Users, CreditCard, Activity, LogOut, Newspaper, FileText, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
