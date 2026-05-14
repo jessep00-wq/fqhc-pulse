@@ -76,7 +76,7 @@ export default function Onboarding() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-3">
-          <img src={logo} alt="MeasureWise" className="h-10 mx-auto" />
+          <Logo size="md" className="justify-center" />
           <CardTitle className="text-xl">Set Up Your Health Center</CardTitle>
           <CardDescription>
             Tell us about your organization to get started with MeasureWise.
