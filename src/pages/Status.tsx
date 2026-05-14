@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { CheckCircle, ArrowLeft } from "lucide-react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { Logo } from "@/components/Logo";
 import { SEO } from "@/components/SEO";
 
 const services = [
