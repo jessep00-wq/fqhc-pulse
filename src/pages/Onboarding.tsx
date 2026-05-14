@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, Building2 } from "lucide-react";
-import logo from "@/assets/measurewise-logo.png";
+import { Logo } from "@/components/Logo";
 
 export default function Onboarding() {
   const { user } = useAuth();
