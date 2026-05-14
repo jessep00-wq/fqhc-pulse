@@ -357,32 +357,6 @@ export default function Pricing() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">Start your 14-day free trial</h2>
-          <p className="text-primary-foreground/80 text-lg">
-            No credit card. No sales call. Just the QI tools your FQHC needs.
-          </p>
-          <Button size="lg" variant="secondary" asChild className="text-base px-8">
-            <Link to="/auth?signup=true">
-              Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border py-8 px-6">
-        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} MeasureWise. All rights reserved.</p>
-          <div className="flex gap-6">
-            <Link to="/terms" className="hover:text-foreground transition-colors">Terms</Link>
-            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy</Link>
-            <Link to="/auth" className="hover:text-foreground transition-colors">Sign In</Link>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </PublicPageLayout>
   );
 }
