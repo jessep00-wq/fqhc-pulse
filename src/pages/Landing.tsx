@@ -23,7 +23,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useState } from "react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+import { PublicPageLayout } from "@/components/PublicPageLayout";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import founderPhoto from "@/assets/founder-jessica.png";
 import {
