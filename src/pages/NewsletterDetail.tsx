@@ -71,7 +71,7 @@ export default function NewsletterDetail() {
           <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-primary/10 blur-sm" />
           <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary via-primary/60 to-transparent" />
           <div className="flex items-center gap-3 mb-6">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-9" />
+            <Logo size="md" />
           </div>
           <div className="text-[11px] font-medium tracking-[2px] uppercase text-primary mb-2.5">
             FQHC Quality Newsletter &nbsp;·&nbsp; {newsletter.published_at ? new Date(newsletter.published_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "Draft"}
