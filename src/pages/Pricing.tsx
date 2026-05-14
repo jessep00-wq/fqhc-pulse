@@ -12,7 +12,7 @@ import {
   Lock,
   Loader2,
 } from "lucide-react";
-import measurewiseLogo from "@/assets/measurewise-logo.png";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
