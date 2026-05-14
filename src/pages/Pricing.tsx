@@ -16,9 +16,9 @@ import measurewiseLogo from "@/assets/measurewise-logo.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
+import { PublicPageLayout } from "@/components/PublicPageLayout";
 
 const pricingJsonLd = {
   "@context": "https://schema.org",
