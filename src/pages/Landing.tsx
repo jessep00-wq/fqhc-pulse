@@ -17,8 +17,6 @@ import {
   Menu,
   X,
   Lock,
-  Download,
-  Eye,
   Zap,
   TrendingUp,
   Target,
