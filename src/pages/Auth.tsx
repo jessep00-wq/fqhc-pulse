@@ -140,7 +140,7 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <img src={measurewiseLogo} alt="MeasureWise" className="h-10" />
+            <Logo size="md" className="justify-center" />
           </div>
           <CardTitle className="text-xl">MeasureWise</CardTitle>
           <CardDescription>
