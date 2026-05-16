@@ -253,7 +253,20 @@ export default function StoreBundleDetail() {
                   </div>
                   <p className="text-sm text-muted-foreground">One-time purchase · all files delivered together</p>
                 </div>
-                <BuyButton priceId={bundle.stripe_price_id} className="w-full" label={`Buy ${bundle.name}`} />
+                {(() => {
+                  const totalFiles = products.reduce(
+                    (n, p) => n + (p.included_file_paths?.length ?? 0),
+                    0,
+                  );
+                  return (
+                    <BuyButton
+                      priceId={bundle.stripe_price_id}
+                      className="w-full"
+                      label={`Buy ${bundle.name}`}
+                      disabledReason={totalFiles === 0 ? "Coming soon" : null}
+                    />
+                  );
+                })()}
                 <Separator />
                 <DeliverablesList items={copy.deliverables} compact />
                 <Separator />

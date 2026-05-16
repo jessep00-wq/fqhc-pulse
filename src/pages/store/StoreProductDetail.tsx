@@ -158,7 +158,12 @@ export default function StoreProductDetail() {
                   <div className="text-3xl font-bold">{formatPrice(product.price_cents, product.currency)}</div>
                   <p className="text-sm text-muted-foreground">One-time purchase · instant download</p>
                 </div>
-                <BuyButton priceId={product.stripe_price_id} className="w-full" label={`Buy ${product.name}`} />
+                <BuyButton
+                  priceId={product.stripe_price_id}
+                  className="w-full"
+                  label={`Buy ${product.name}`}
+                  disabledReason={(product.included_file_paths?.length ?? 0) === 0 ? "Coming soon" : null}
+                />
                 <Separator />
                 <ul className="text-sm space-y-1.5 text-muted-foreground">
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Editable templates</li>
