@@ -487,6 +487,26 @@ export default function Landing() {
           </Button>
         </div>
       </section>
+
+      {/* Store Teaser */}
+      <section className="py-12 px-6 border-b border-border">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="space-y-2">
+            <p className="text-xs font-bold text-primary uppercase tracking-wider">MeasureWise Store</p>
+            <h3 className="text-2xl font-bold text-foreground">
+              Templates that move UDS measures and survive HRSA audits
+            </h3>
+            <p className="text-muted-foreground">
+              UDS, PDSA, QI committee, and board reporting templates. Buy once, no subscription.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <Button asChild>
+              <Link to="/store">Browse the Store <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </div>
+      </section>
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
