@@ -40,12 +40,50 @@ Deno.serve(async (req) => {
       });
     }
 
-    const table = item.kind === "product" ? "store_products" : "store_bundles";
-    const { data: row } = await supabase
-      .from(table)
-      .select("id, name")
-      .eq("slug", item.slug)
-      .maybeSingle();
+    // Resolve the catalog row and compute the effective deliverable file paths.
+    // Block checkout if there are no files to deliver — prevents customers from paying
+    // for an item that would yield zero downloads in the email/success page.
+    let catalogId: string | null = null;
+    let effectiveFilePaths: string[] = [];
+    if (item.kind === "product") {
+      const { data: prod } = await supabase
+        .from("store_products")
+        .select("id, included_file_paths")
+        .eq("slug", item.slug)
+        .maybeSingle();
+      catalogId = prod?.id ?? null;
+      effectiveFilePaths = (prod?.included_file_paths as string[] | null) ?? [];
+    } else {
+      const { data: bundle } = await supabase
+        .from("store_bundles")
+        .select("id, included_product_ids")
+        .eq("slug", item.slug)
+        .maybeSingle();
+      catalogId = bundle?.id ?? null;
+      const includedIds = (bundle?.included_product_ids as string[] | null) ?? [];
+      if (includedIds.length) {
+        const { data: prods } = await supabase
+          .from("store_products")
+          .select("included_file_paths")
+          .in("id", includedIds);
+        for (const p of prods ?? []) {
+          effectiveFilePaths.push(...((p.included_file_paths as string[] | null) ?? []));
+        }
+      }
+    }
+
+    if (!catalogId) {
+      return new Response(JSON.stringify({ error: "Item not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (effectiveFilePaths.length === 0) {
+      return new Response(
+        JSON.stringify({ error: "This item isn't ready for purchase yet — please check back soon." }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     const stripe = createStripeClient(env);
 
@@ -70,7 +108,7 @@ Deno.serve(async (req) => {
       metadata: {
         kind: item.kind,
         slug: item.slug,
-        catalog_id: row?.id ?? "",
+        catalog_id: catalogId,
         lookup_key: lookupKey,
         environment: env,
       },

@@ -128,6 +128,18 @@ export default function StoreSuccess() {
               </div>
             ) : null}
 
+            {!loading && !order?.downloadLinks?.length ? (
+              <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                <p className="font-semibold">Payment received — your files are still processing.</p>
+                <p>
+                  This usually takes under a minute. We've also emailed your download links to the
+                  address you used at checkout. If they don't arrive within a few minutes, click
+                  <strong> Re-send the email</strong> below, or reply to your purchase email and
+                  we'll respond within one business day.
+                </p>
+              </div>
+            ) : null}
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button onClick={handleResend} disabled={!sessionId || resending || resent} variant="outline">
                 {resent ? (
