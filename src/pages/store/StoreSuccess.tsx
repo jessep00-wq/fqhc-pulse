@@ -105,25 +105,14 @@ export default function StoreSuccess() {
               </div>
             )}
 
-            {!loading && order?.downloadLinks?.length ? (
-              <div className="space-y-2 rounded-lg border border-border bg-card p-4">
-                <p className="text-sm font-semibold text-foreground">Download your files</p>
-                <ul className="space-y-2">
-                  {order.downloadLinks.map((l) => (
-                    <li key={l.path}>
-                      <a
-                        href={l.url}
-                        className="flex items-center gap-2 text-primary hover:underline text-sm font-medium"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <Download className="h-4 w-4" /> {l.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-xs text-muted-foreground pt-2">
-                  Links expire in 7 days. Use the email link or the re-send button below for a fresh copy.
+            {!loading && !order?.downloadLinks?.length ? (
+              <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+                <p className="font-semibold">Payment received — your files are still processing.</p>
+                <p>
+                  This usually takes under a minute. We've also emailed your download links to the
+                  address you used at checkout. If they don't arrive within a few minutes, click
+                  <strong> Re-send the email</strong> below, or reply to your purchase email and
+                  we'll respond within one business day.
                 </p>
               </div>
             ) : null}
