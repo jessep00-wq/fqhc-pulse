@@ -2,6 +2,7 @@ import { useParams, Navigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
 import { Calendar, Clock } from "lucide-react";
@@ -85,7 +86,7 @@ export default function BlogPostDynamic() {
         </header>
 
         <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary prose-strong:text-foreground prose-li:text-foreground/90">
-          <ReactMarkdown>{post.content_md}</ReactMarkdown>
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content_md}</ReactMarkdown>
         </div>
       </article>
     </PublicPageLayout>
