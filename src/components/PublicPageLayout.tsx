@@ -15,45 +15,46 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
     <div className="min-h-screen bg-background">
       <PaymentTestModeBanner />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-6">
           <Link to="/" className="flex items-center">
             <Logo size="md" />
           </Link>
-          <div className="flex items-center gap-3">
-            {!slimNav && (
-              <>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/features/pdsa-cycle-manager">Features</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/how-it-works">How It Works</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/case-studies">Case Studies</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/blog">Blog</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/newsletter">Newsletter</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/store">Store</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/about">About</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/pricing">Pricing</Link>
-                </Button>
-              </>
-            )}
-            <Button variant="ghost" asChild>
+
+          {!slimNav ? (
+            <nav className="justify-self-center hidden lg:flex items-center gap-1 text-sm">
+              {[
+                { to: "/features/pdsa-cycle-manager", label: "Features" },
+                { to: "/how-it-works", label: "How It Works" },
+                { to: "/case-studies", label: "Case Studies" },
+                { to: "/blog", label: "Blog" },
+                { to: "/newsletter", label: "Newsletter" },
+                { to: "/store", label: "Store" },
+                { to: "/about", label: "About" },
+                { to: "/pricing", label: "Pricing" },
+              ].map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="px-2.5 py-2 font-medium text-muted-foreground hover:text-foreground rounded-md transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          ) : (
+            <span />
+          )}
+
+          <div className="justify-self-end flex items-center gap-2">
+            <Button variant="ghost" size="sm" asChild>
               <Link to="/auth">Sign In</Link>
             </Button>
             {!slimNav && (
-              <Button asChild>
-                <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+              <Button size="sm" asChild className="ml-1 px-4 font-semibold shadow-sm whitespace-nowrap">
+                <Link to="/auth?signup=true">
+                  Start 14-day free trial
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Link>
               </Button>
             )}
           </div>
