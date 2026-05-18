@@ -1,48 +1,69 @@
-# AthenaOne Playbook Lead Magnet
 
-## 1. Assets & dependencies
-- Copy the uploaded PDF to `public/downloads/MeasureWise_AthenaOne_Optimization_Playbook.pdf` so the download URL is stable.
-- Generate a premium 3D book-cover mockup with imagegen (`src/assets/athenaone-playbook-cover.jpg`) — teal/navy brand palette, "AthenaOne Optimization Playbook" on the cover.
-- Add `canvas-confetti` (`bun add canvas-confetti @types/canvas-confetti`) for the celebration burst.
+# Operational backbone — execution plan
 
-## 2. Database (single migration)
-New table `playbook_leads`:
-- `full_name text not null`
-- `work_email text not null`
-- `health_center_name text not null`
-- `role text not null` (QI Director | PCMH Coordinator | Operations Manager | Provider | Other)
-- `source text not null default 'AthenaOne Playbook'`
-- `created_at timestamptz default now()`
-- Index on `(source, created_at)` for conversion reporting.
+Scope is large. Sequencing matters because email branding is gated on DNS verification (which you start in parallel).
 
-RLS:
-- Public `INSERT` allowed (lead form is anonymous).
-- `SELECT` restricted to `is_founder_admin(auth.uid())` so leads appear only in the founder admin console.
+## 1. Lead tracking (extend existing)
+- `playbook_leads` already exists and is wired. Add columns:
+  - `welcome_sent_at timestamptz`
+  - `reminder_sent_at timestamptz`
+  - `tags text[]` (default `'{"Playbook Lead"}'`)
+  - `notes text`
+- Add admin export: CSV download button on `AdminOverview` filtering by `source`.
+- No schema rename — keeps existing data and edge function intact.
 
-## 3. Edge function `capture-playbook-lead`
-- Validates payload with zod (name 1–120, email RFC + business-domain blocklist for gmail/yahoo/hotmail/outlook/icloud/aol/proton, health center 1–160, role enum).
-- Inserts row with `source = 'AthenaOne Playbook'` using service role.
-- Calls Resend Contacts API via the existing `RESEND_API_KEY` connector secret to upsert the contact into the default audience with tag/label `Playbook Lead` (using `unsubscribed: false` + `firstName`/`lastName`). Failure to tag is logged but does not block the lead save.
-- Sends a transactional delivery email (Resend) with the PDF download link and Jessica's signature, using existing branded template helpers in `supabase/functions/_shared/email-templates.ts`.
-- Returns `{ ok: true, downloadUrl: '/downloads/MeasureWise_AthenaOne_Optimization_Playbook.pdf' }`.
+## 2. Email infrastructure (branded, Lovable-managed)
+**Prerequisite — you do this once:** click "Set up email domain" below and add the NS records at your registrar (e.g. `notify.measurewise.org`). I scaffold the templates immediately; emails go live the moment DNS verifies.
 
-## 4. Shared React component `PlaybookLeadMagnet`
-`src/components/lead-magnets/PlaybookLeadForm.tsx` + `PlaybookLeadMagnet.tsx`:
-- Form uses react-hook-form + zod (mirrors edge fn schema) with inline business-email error.
-- On success: swap to a "Thank You" panel with a prominent `Download Now` button (anchor with `download` attr pointing at the PDF URL returned by the function) and fire `canvas-confetti` once.
-- Variants via props: `variant: "section" | "dialog" | "sidebar"` to control padding/typography.
-- Tracks `trackEvent('playbook_lead_submit', { surface })` on success for conversion attribution.
+- **Auth emails** (signup confirm, password reset, magic link, email change, reauthentication, invite): scaffold and rebrand to teal/navy with MeasureWise logo, executive tone.
+- **Welcome email** — new edge function `send-welcome-email` invoked from `AuthContext` after successful signup AND from the playbook capture function (already separately sends the PDF; welcome is a distinct nurture email branded as "Welcome from Jessica").
+- **Subscription confirmation** — fired from `payments-webhook` on `checkout.session.completed` for the **subscription** path (currently only the one-time product path sends an email). Confirms plan, trial dates, what to do next.
+- **3-day playbook follow-up** — soft nurture: "Did you get a chance to read it? Happy to chat — book 15 min." Includes Calendly placeholder link. Implementation:
+  - Edge function `send-playbook-followups` (cron via pg_cron, daily 9am ET).
+  - Queries `playbook_leads` where `created_at < now() - interval '3 days'` AND `reminder_sent_at IS NULL`.
+  - Stamps `reminder_sent_at` after send to prevent duplicates.
 
-## 5. Placement
-1. **Homepage section** (`src/pages/Landing.tsx`): insert two-column section above the existing final CTA — left column is the cover mockup with a soft teal glow, right column is heading "Master Your 2025 UDS Reporting", supporting copy, and `<PlaybookLeadForm variant="section" />`.
-2. **Exit-intent popup** (`src/components/lead-magnets/ExitIntentPlaybookDialog.tsx` mounted in `PublicPageLayout`): triggers when `mouseleave` fires with `clientY <= 0` on desktop, once per session (`sessionStorage` key `playbook_exit_shown`), and only for users who haven't already submitted (`localStorage` key `playbook_lead_submitted`). Mobile fallback: trigger after 60s + 50% scroll. Uses shadcn `Dialog` wrapping `<PlaybookLeadForm variant="dialog" />`.
-3. **Blog sidebar** (`src/pages/blog/BlogIndex.tsx` and `BlogPostDynamic.tsx`): wrap content in a `lg:grid-cols-[1fr_320px]` layout and add a sticky (`sticky top-24`) "Free Resource" card containing the cover thumbnail + condensed `<PlaybookLeadForm variant="sidebar" />`. Hidden below `lg`.
+## 3. UDS Measure Pack — "Coming Soon"
+- Add `is_coming_soon boolean` column to `store_products` (default false).
+- Set `true` for `uds-measure-template-pack`.
+- `BuyButton` and `ProductCard` render disabled state + "Coming Soon" badge when flag is true.
+- Already protected server-side: `create-checkout` rejects items with zero files.
 
-## 6. Admin visibility (small addition)
-Surface lead count on `AdminOverview.tsx`: a single KPI "AthenaOne Playbook Leads (30d)" querying `playbook_leads` filtered by `source` so Jessica can see conversion without leaving the console.
+## 4. Multi-item checkout cart
+- **State**: Zustand store `useCartStore` persisted to localStorage (`measurewise_cart`).
+- **UI**:
+  - Cart icon w/ badge in `PublicPageLayout` header (only when items > 0).
+  - `CartDrawer` (shadcn `Sheet`) — line items, remove, quantity 1 only (digital), subtotal, "Checkout" button.
+  - `ProductCard` / `BundleCard` gets second action "Add to cart" alongside "Buy now" (Buy now stays — single-click path).
+- **Server**:
+  - Update `create-checkout` to accept `items: Array<{ lookupKey, quantity }>` (back-compat: single `priceId` still works).
+  - Resolves each lookup key through the existing `PRICE_LOOKUP_KEYS` allowlist, validates each item has deliverable files, builds `line_items[]` for Stripe Checkout.
+  - Stores cart contents in session metadata so `payments-webhook` can mint download links for every item.
+- **Webhook**: extend `payments-webhook` to handle multi-item orders (loop `line_items`, aggregate `product_ids`/`bundle_ids`, generate signed URLs for all included files).
 
-## Technical notes
-- Business-email blocklist lives in `src/lib/businessEmail.ts` and is re-exported to the edge function via inline copy (edge functions can't import from `src/`).
-- The download link is a static `/public` file — no auth required, matching the existing `MeasureWise_Sample_Export.pdf` pattern.
-- All new UI uses existing semantic tokens (primary, muted, card) — no raw colors.
-- No changes to existing routes, billing, or RLS on other tables.
+## 5. Data integrity / compliance
+- All new tables get RLS:
+  - `playbook_leads` new columns inherit existing RLS (public insert, founder-admin read).
+- Cart is client-only (no PHI, no server table needed).
+- No "AI Prompt Ebooks" placeholders exist in the codebase — verified previously. Nothing to remove.
+
+## 6. Stripe configuration
+- Stripe is **already wired** via the Lovable connector gateway (`STRIPE_SANDBOX_API_KEY` / `STRIPE_LIVE_API_KEY`). No "Add API Key" step needed — that integration is the built-in path.
+- All current prices (`uds_template_pack_one_time`, etc.) work; cart just bundles multiple existing prices into one Checkout Session.
+
+---
+
+## Sequence
+1. **You**: click "Set up email domain" → add NS records (background DNS verify, ~minutes to hours).
+2. **Me, in parallel** (does not block on DNS):
+   - Migration: `playbook_leads` columns + `store_products.is_coming_soon`.
+   - Scaffold + brand auth email templates, deploy `auth-email-hook`.
+   - Build `send-welcome-email`, wire into `AuthContext`.
+   - Extend `payments-webhook` for subscription confirmation email + multi-item orders.
+   - Build `send-playbook-followups` + cron schedule.
+   - Build cart store, drawer, header icon, "Add to cart" buttons.
+   - Extend `create-checkout` for multi-item.
+   - Flag UDS Pack as Coming Soon.
+3. **Verification**: build clean, smoke-test cart → Stripe sandbox checkout, confirm webhook fires.
+
+Two-pass build because of the email-domain gate. Expect ~6–8 file groups of changes. I'll batch them.
