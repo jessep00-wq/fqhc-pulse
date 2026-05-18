@@ -1,69 +1,48 @@
-## Dashboard Information Architecture Refresh
+## Sidebar Mode-Switch + KPI Card Grid Standardization
 
-Focused refinement of `/dashboard` (and the shared app shell) per the six points. No business logic or data changes — presentation only.
+Two scoped presentation fixes. No data or logic changes.
 
-### 1. Header consolidation — facility context in top bar
-**Files:** `src/components/AppLayout.tsx`, `src/components/AppSidebar.tsx`
+### 1. Admin Console as top-anchored mode switch
+**File:** `src/components/AppSidebar.tsx`
 
-- Add an organization chip to the top header (between `SidebarTrigger` and the right-side icons):
-  ```
-  [trigger]  Building2 icon  Organization Name  ·  NPI 1234567890        [bell] [logout]
-  ```
-- Use `useOrg()` to read `organization.name` / `organization.npi`. Truncate name at ~28 chars with tooltip on overflow. Hide NPI below `sm` breakpoint, keep the name.
-- Remove the duplicate "Organization" footer block from `AppSidebar.tsx` (lines 126–134) so the data lives in one place.
-- Leaves the per-page `PageHeader` greeting clean — no more facility name competing with the greeting.
+The Admin Console link currently sits in the footer next to the upgrade chip, which conflates system administration with billing/usage messaging. Treat it as a global mode switch and anchor it at the very top of the sidebar, directly under the brand header, separated from the daily-workflow nav.
 
-### 2. Action button hierarchy
-**File:** `src/pages/Index.tsx`
+- Move the `isAdmin && <Link to="/admin">` block out of `SidebarFooter` into a new `SidebarGroup` placed first inside `SidebarContent` (above the existing "Navigation" group).
+- Render it as a single full-width `SidebarMenuButton` styled as a distinct mode pill:
+  - Shield icon + "Admin Console" label
+  - Subtle teal-tinted background (`bg-primary/10 text-primary border border-primary/20`)
+  - Right-aligned `ArrowUpRight` icon (or chevron) to signal it leaves the QI workspace
+  - When sidebar `collapsed`, show only the Shield icon centered (icon-button style) so it stays accessible in the rail.
+- Follow the group with a `Separator` (1px sidebar-border) before the "Navigation" label, visually reinforcing the workspace/admin split.
+- `SidebarFooter` keeps only the upgrade/contact chip for non-admin free-tier users; everything else moves out.
 
-- Keep `PageHeader` greeting on the left, but isolate actions in a single right-aligned utility cluster with a subtle divider:
-  - `Board Report` → `variant="ghost"` with a `FileText` icon (output / export — recedes).
-  - thin vertical separator (`Separator orientation="vertical"`).
-  - `New PDSA` → `variant="default"` primary, slightly larger (sm → default), with `FlaskConical` icon (operational trigger — pops).
-- Removes the visual tie between the buttons and the greeting; one is clearly a verb, the other an export.
+Equivalent inverse mode switch already exists in `AdminSidebar` (back to /dashboard), so this matches the symmetry.
 
-### 3. Contextual alert binding — fold attention into the KPIs
-**File:** `src/pages/Index.tsx`, small extension to `src/components/dashboard/KpiCard.tsx`
+### 2. KPI card layout standardization
+**File:** `src/components/dashboard/KpiCard.tsx` (consumers in `src/pages/Index.tsx` need no API changes — only the internal grid is restructured)
 
-- Extend `KpiCard` with an optional `badge?: { label, tone }` slot rendered in the card's top-right (next to the icon) as a small pill.
-- Remove the standalone "stalled PDSA" and "measures below target" chips from `AttentionStrip`. Keep only items that don't have a home (overdue tasks → stays in strip, or migrates into the Tasks KPI badge).
-- Active PDSAs card → if `stalledPDSA > 0`, render warning badge `"{n} stalled"`; description gets a secondary line "Tap to review".
-- Measures at Risk card → already shows count; add inline mini-list (top 2 measure abbreviations) as the description, e.g. `"BP Control 58% · HbA1c 61%"`. Tone already warning.
-- Tasks card already shows `"{n} overdue · {n} upcoming"` — fold the overdue chip in by setting destructive badge when overdue > 0 and dropping it from the strip.
-- Net effect: `AttentionStrip` likely disappears entirely on a healthy day; alerts now live where users look for the metric.
+Today the card top row mixes icon, badge, and title in a flex row, so cards with no badge collapse differently from cards with a badge, and the icon "floats right" only on some. Lock down a fixed 3-row, 2-column grid so every card hits the same coordinates:
 
-### 4. Onboarding / sample banner footprint
-**File:** `src/pages/Index.tsx`
+```
+[ TITLE ─────────────────────── ICON ]    ← row 1 (label row, fixed height)
+[ VALUE   TREND/DELTA            ]        ← row 2 (metric row)
+[ CONTEXT ─────────────── BADGE  ]        ← row 3 (footer row, fixed min-height)
+```
 
-- Sample data banner: convert from a full-width content block to a slim top-anchored strip rendered above the `PageHeader` with reduced padding (`py-1.5`, single line, smaller text), a single inline `Dismiss` link, and a left accent bar. Sticky at top of `<main>` scroll until dismissed.
-- `OnboardingChecklist`: collapse by default once `hasTrends && hasCycles`; render as a compact `SectionCard` with `collapsible` (already supported) so it doesn't dominate the fold.
+Structural rules:
+- Row 1: `flex items-center justify-between h-5` — title (uppercase muted) left, icon (16px, tone-tinted) always pinned right. Icon slot reserves space even when absent (`<span className="w-4 h-4" />`) so titles align.
+- Row 2: `flex items-baseline gap-2 min-h-[2.25rem]` — large numeric value left, optional `trailing` slot (used for ±% delta) inline.
+- Row 3 (footer): always rendered with `min-h-[1.25rem]`. Description text left (truncated to 2 lines via `line-clamp-2`), badge pinned right via `ml-auto`. Cards without badge or description still reserve the footer height so the four cards stay vertically aligned.
 
-### 5. SPC chart: full-width with right-rail activity
-**Files:** `src/pages/Index.tsx`, `src/components/SPCChart.tsx`
-
-- Restructure the analytics row from `lg:grid-cols-3` (chart 2/3 + activity 1/3) to a single full-width SPC card on top, followed by a 2-column row beneath (Trend chart left, Activity right collapsed to a compact right rail).
-- Specifically:
-  - Row A: `SectionCard` "Process Control" → full-width container, chart height bumped from 280 → 360, internal padding tightened so the chart breathes horizontally for 12–24 month lookback.
-  - Row B: `lg:grid-cols-[1fr_320px]` → trend line chart left, Activity feed as a compact collapsible right panel (default open on `lg+`, collapsed on smaller).
-- Activity feed gets a tighter row layout (single line per entry, relative timestamp only).
-
-### 6. Visual axis indicators on SPC
-**File:** `src/components/SPCChart.tsx`
-
-- Replace right-anchored `ReferenceLine` labels with explicit Y-axis tick marks for `LCL`, `CL`, `UCL`:
-  - Compute a custom `ticks={[lcl, mean, ucl]}` array merged with auto ticks, and a `tickFormatter` that renders the three thresholds with a label prefix: `"LCL 42.1"`, `"CL 58.3"`, `"UCL 74.5"`. Other ticks render as plain numbers.
-  - Color those three tick labels via a custom `tick` renderer (SVG `<text>` with `hsl(var(--destructive))` for UCL/LCL, `hsl(var(--success))` for CL, `font-weight: 600`).
-- Keep the horizontal `ReferenceLine`s but drop their floating labels (now redundant).
-- Keep the existing bottom legend for color meaning.
+Visual polish:
+- Remove the current top-right combo of icon + badge; badge moves to the footer row where it acts as a contextual alert chip (e.g. "1 stalled", "3 overdue") next to the description it qualifies.
+- Keep the existing `tone`-driven icon color and the optional `active`/`onClick` interactive states unchanged.
+- Add a thin top border accent (`border-t-2`) that uses the tone color when `tone !== "default"`, so warning/destructive/success cards read as elevated without needing the badge to carry the visual weight alone.
 
 ### Out of scope
-- No DB schema, RLS, or query changes.
-- No new routes or business logic.
-- Admin dashboard untouched in this pass (already refactored previously); changes here are dashboard-only.
+- No changes to the `KpiCard` consumer call sites — `badge`, `description`, `trailing`, `tone`, `icon` props all keep the same signature, just rendered in fixed slots.
+- No changes to `AdminSidebar`, no role/permission changes, no business logic.
 
 ### Files touched
-- `src/components/AppLayout.tsx` — add org chip in header
-- `src/components/AppSidebar.tsx` — remove footer org block
-- `src/components/dashboard/KpiCard.tsx` — add `badge` slot
-- `src/pages/Index.tsx` — header buttons, attention binding, banner slimming, layout restructure
-- `src/components/SPCChart.tsx` — Y-axis labeled thresholds, drop floating labels
+- `src/components/AppSidebar.tsx` — Admin Console moves to top group, footer trimmed
+- `src/components/dashboard/KpiCard.tsx` — fixed 3-row grid, badge moves to footer, icon slot always reserved, optional tone top-accent

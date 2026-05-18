@@ -8,7 +8,9 @@ import {
   Sparkles,
   Building2,
   Shield,
+  ArrowUpRight,
 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import { useLocation, Link } from "react-router-dom";
@@ -66,6 +68,34 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        {isAdmin && (
+          <>
+            <SidebarGroup className="pb-0">
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      asChild
+                      tooltip="Admin Console"
+                      className="border border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20"
+                    >
+                      <Link to="/admin" className="flex items-center">
+                        <Shield className="h-4 w-4 shrink-0" />
+                        {!collapsed && (
+                          <>
+                            <span className="font-medium">Admin Console</span>
+                            <ArrowUpRight className="ml-auto h-3.5 w-3.5 opacity-70" />
+                          </>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            <Separator className="mx-3 my-1 w-auto bg-sidebar-border" />
+          </>
+        )}
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-foreground/40 text-xs uppercase tracking-wider">
             Navigation
@@ -105,15 +135,6 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-3">
-        {!collapsed && isAdmin && (
-          <Link
-            to="/admin"
-            className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
-          >
-            <Shield className="h-3.5 w-3.5 shrink-0" />
-            <span>Admin Console</span>
-          </Link>
-        )}
         {!collapsed && isFreeTier && !isAdmin && (
           <Link
             to="/#contact"
