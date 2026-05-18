@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+
 import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
 import { CartButton } from "@/components/store/CartButton";
 import { CartDrawer } from "@/components/store/CartDrawer";
@@ -16,7 +16,7 @@ interface PublicPageLayoutProps {
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
-      <PaymentTestModeBanner />
+      
       <ExitIntentPlaybookDialog />
       <CartDrawer />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
