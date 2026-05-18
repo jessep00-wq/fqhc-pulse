@@ -206,6 +206,17 @@ function AtRiskDialog({
   );
 }
 
+import {
+  PageHeader,
+  KpiCard,
+  SectionCard,
+  AttentionStrip,
+  ActivityFeed,
+  StatusBadge,
+  type AttentionItem,
+  type ActivityFeedEntry,
+} from "@/components/dashboard";
+
 export default function Dashboard() {
   const { organization } = useOrg();
   const { user } = useAuth();
@@ -217,7 +228,7 @@ export default function Dashboard() {
   const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
     () => localStorage.getItem(`sample_banner_dismissed_${organization.id}`) === "true"
   );
-  const { isFreeTier, cyclesRemaining } = useTierLimits();
+  const { isFreeTier } = useTierLimits();
 
   const { data: cycles } = useQuery({
     queryKey: ["pdsa_cycles", orgId],
@@ -249,7 +260,7 @@ export default function Dashboard() {
   const { data: activity } = useQuery({
     queryKey: ["activity_log", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("activity_log").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(5);
+      const { data } = await supabase.from("activity_log").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(6);
       return data || [];
     },
     enabled: !!orgId,
@@ -270,6 +281,11 @@ export default function Dashboard() {
   });
 
   const activePDSA = cycles?.filter((c) => c.status !== "completed").length ?? 0;
+  const stalledPDSA = cycles?.filter((c) => {
+    if (c.status === "completed") return false;
+    const updated = new Date((c as any).updated_at ?? c.created_at).getTime();
+    return Date.now() - updated > 14 * 24 * 60 * 60 * 1000;
+  }).length ?? 0;
 
   const atRiskMeasures = (() => {
     if (!trends?.length) return [];
@@ -301,15 +317,6 @@ export default function Dashboard() {
     });
   })();
 
-  const formatTime = (ts: string) => {
-    const diff = Date.now() - new Date(ts).getTime();
-    const hours = Math.floor(diff / 3600000);
-    if (hours < 1) return "Just now";
-    if (hours < 24) return `${hours} hours ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days > 1 ? "s" : ""} ago`;
-  };
-
   if (!orgId) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -322,48 +329,82 @@ export default function Dashboard() {
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
+  const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
+  // Build attention strip
+  const attentionItems: AttentionItem[] = [];
+  if (overdueTasks > 0) {
+    attentionItems.push({
+      id: "overdue-tasks",
+      icon: CheckSquare,
+      label: `${overdueTasks} overdue ${overdueTasks === 1 ? "task" : "tasks"}`,
+      tone: "destructive",
+      onClick: () => navigate("/dashboard/staff-tasks"),
+    });
+  }
+  if (stalledPDSA > 0) {
+    attentionItems.push({
+      id: "stalled-pdsa",
+      icon: FlaskConical,
+      label: `${stalledPDSA} ${stalledPDSA === 1 ? "PDSA" : "PDSAs"} stalled >14 days`,
+      tone: "warning",
+      onClick: () => navigate("/dashboard/pdsa-lab"),
+    });
+  }
+  if (atRiskMeasures.length > 0) {
+    attentionItems.push({
+      id: "at-risk",
+      icon: AlertTriangle,
+      label: `${atRiskMeasures.length} ${atRiskMeasures.length === 1 ? "measure" : "measures"} below target`,
+      tone: "warning",
+      onClick: () => setAtRiskOpen(true),
+    });
+  }
+
+  // Activity feed entries
+  const feedItems: ActivityFeedEntry[] = (activity || []).map((a) => ({
+    id: a.id,
+    text: a.text,
+    timestamp: a.created_at,
+    tone: a.type === "success" ? "success" : a.type === "warning" ? "warning" : "default",
+  }));
+
+  const handleBoardReport = () => {
+    if (isFreeTier) {
+      toast.info("Board Report export is available on paid plans.", {
+        description: "Upgrade to export quarterly board reports as PDF.",
+      });
+    } else {
+      setBoardReportOpen(true);
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
-      {/* Value-prop welcome header */}
-      <div className="rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-primary/10 to-transparent p-5">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Welcome back, {firstName}
-            </h1>
-            <p className="text-base text-muted-foreground mt-1">
-              Your Quality Improvement Command Center for <span className="font-medium text-foreground">{organization.name}</span>
-            </p>
-            <p className="text-sm text-muted-foreground mt-2 max-w-2xl">
-              Track <JargonTooltip term="UDS">UDS</JargonTooltip> measures, run <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycles, and connect clinical improvements to financial outcomes — with <JargonTooltip term="SPC">SPC</JargonTooltip> charts, AI guidance, and staff task management, all in one purpose-built tool.
-            </p>
-            <div className="flex flex-wrap items-center gap-3 mt-3 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">Purpose-built for FQHCs</span>
-              <span className="inline-flex items-center gap-1.5">20+ UDS measures</span>
-              <span className="inline-flex items-center gap-1.5">·</span>
-              <span className="inline-flex items-center gap-1.5">HRSA Chapter 10 aligned</span>
-              <span className="inline-flex items-center gap-1.5">·</span>
-              <span className="inline-flex items-center gap-1.5">SPC analytics included</span>
-            </div>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            className="shrink-0 gap-1.5"
-            onClick={() => {
-              if (isFreeTier) {
-                toast.info("Board Report export is available on paid plans.", { description: "Upgrade to export quarterly board reports as PDF." });
-              } else {
-                setBoardReportOpen(true);
-              }
-            }}
-          >
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Export Board Report</span>
+      <PageHeader
+        title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstName}`}
+        description={
+          <>
+            <span>{dateLabel}</span>
+            <span className="mx-2 text-border">·</span>
+            <span className="font-medium text-foreground">{organization.name}</span>
+          </>
+        }
+        primaryAction={
+          <Button size="sm" className="gap-1.5" onClick={() => navigate("/dashboard/pdsa-lab")}>
+            <FlaskConical className="h-4 w-4" />
+            New PDSA
           </Button>
-        </div>
-      </div>
+        }
+        secondaryActions={
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={handleBoardReport}>
+            <FileText className="h-4 w-4" />
+            <span className="hidden sm:inline">Board Report</span>
+          </Button>
+        }
+      />
+
+      <AttentionStrip items={attentionItems} />
 
       <OnboardingChecklist />
 
@@ -371,7 +412,7 @@ export default function Dashboard() {
         <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
           <Info className="h-4 w-4 text-muted-foreground shrink-0" />
           <p className="text-xs text-muted-foreground flex-1">
-            <span className="font-medium text-foreground">Sample data is active.</span> The charts and metrics below include demo data seeded during onboarding. As you add real QI cycles and UDS measures, your actual data will replace these samples.
+            <span className="font-medium text-foreground">Sample data is active.</span> Charts include demo data seeded during onboarding. Your real entries will replace these as you add them.
           </p>
           <Button
             variant="ghost"
@@ -387,92 +428,43 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Upgrade indicator moved to sidebar */}
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <MetricCard
-          title={<>Active <JargonTooltip term="PDSA" showIcon={false}>PDSA</JargonTooltip> Cycles</>}
+      {/* KPI ROW */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <KpiCard
+          title="Active PDSAs"
           value={activePDSA}
           icon={FlaskConical}
-          description={`Across ${new Set(cycles?.filter(c => c.status !== 'completed').map(c => c.uds_measure)).size} UDS measures`}
+          description={`Across ${new Set(cycles?.filter(c => c.status !== "completed").map(c => c.uds_measure)).size} UDS measures`}
           onClick={() => navigate("/dashboard/pdsa-lab")}
         />
-        <MetricCard
-          title={<><JargonTooltip term="UDS" showIcon={false}>UDS</JargonTooltip> Measures at Risk</>}
+        <KpiCard
+          title="Measures at Risk"
           value={atRiskMeasures.length}
           icon={AlertTriangle}
-          description="Below target threshold — click for details"
-          variant="warning"
+          tone={atRiskMeasures.length > 0 ? "warning" : "success"}
+          description="Below the HRSA 65% threshold"
           onClick={() => setAtRiskOpen(true)}
         />
-        <MetricCard
+        <KpiCard
           title="Tasks Due This Week"
           value={tasksDue}
           icon={CheckSquare}
-          description={`${overdueTasks} overdue, ${tasksDue - overdueTasks} upcoming`}
-          variant="warning"
+          tone={overdueTasks > 0 ? "destructive" : "default"}
+          description={`${overdueTasks} overdue · ${Math.max(tasksDue - overdueTasks, 0)} upcoming`}
           onClick={() => navigate("/dashboard/staff-tasks")}
         />
-
-        {/* Financial Impact Card */}
-        <Card className="relative">
-          <Button
-            variant="ghost" size="icon"
-            className="absolute top-2 right-2 h-7 w-7 text-muted-foreground hover:text-foreground"
-            onClick={() => setFinDialogOpen(true)}
-          >
-            <Settings2 className="h-4 w-4" />
-          </Button>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Financial Impact</CardTitle>
-            <DollarSign className="h-5 w-5 text-success" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {fin ? (
-              <>
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Value-Based Care (<JargonTooltip term="ACO" showIcon={false}>ACO</JargonTooltip>)</p>
-                  <div className="text-2xl font-bold text-success">${(fin.shared_savings / 1000).toFixed(0)}K</div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <TrendingUp className="h-3 w-3 text-success" />
-                    <span className="text-xs font-medium text-success">+{fin.trend}%</span>
-                    <span className="text-xs text-muted-foreground">vs. last quarter</span>
-                  </div>
-                </div>
-                <Separator />
-                <div>
-                  <p className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Grant & FFS Protection</p>
-                  <div className="flex items-baseline gap-3">
-                    <div>
-                      <div className="text-2xl font-bold text-primary">${(fin.revenue_protected / 1000).toFixed(0)}K</div>
-                      <p className="text-[10px] text-muted-foreground">Revenue protected</p>
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1">
-                        <Award className="h-3.5 w-3.5 text-primary" />
-                        <span className="text-lg font-bold text-primary">${(fin.hrsa_quality_award / 1000).toFixed(0)}K</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground"><JargonTooltip term="HRSA" showIcon={false}>HRSA</JargonTooltip> Quality Award</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <TrendingUp className="h-3 w-3 text-primary" />
-                    <span className="text-xs font-medium text-primary">+{fin.grant_trend}%</span>
-                    <span className="text-xs text-muted-foreground">vs. last quarter</span>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center justify-center py-4 text-center space-y-2">
-                <p className="text-sm text-foreground font-medium">Link quality to revenue</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">See how your quality improvements translate to shared savings, penalty avoidance, and HRSA awards.</p>
-                <Button size="sm" variant="outline" onClick={() => setFinDialogOpen(true)}>
-                  <Settings2 className="h-3.5 w-3.5 mr-1" /> Configure Financial Data
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <KpiCard
+          title="VBC Shared Savings"
+          value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
+          icon={DollarSign}
+          tone={fin ? "success" : "default"}
+          description={
+            fin
+              ? `+${fin.trend}% vs last quarter`
+              : "Configure to track financial impact"
+          }
+          onClick={() => setFinDialogOpen(true)}
+        />
       </div>
 
       <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
@@ -486,90 +478,130 @@ export default function Dashboard() {
         financials={fin}
       />
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base"><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {!hasTrends ? (
-              <EmptyState
-                icon={TrendingUp}
-                title="No UDS trend data yet"
-                description="Add your UDS clinical measure data to see trend charts and SPC analysis. Go to Settings to seed demo data or import your own."
-                actionLabel="Go to Settings"
-                onAction={() => navigate("/dashboard/settings")}
-              />
-            ) : (
-              <Tabs defaultValue="spc" className="space-y-4">
-                <TabsList>
-                  <TabsTrigger value="spc" className="gap-1.5">
-                    <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
-                    <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="trends">UDS Trends</TabsTrigger>
-                </TabsList>
-                <TabsContent value="spc">
-                  <SPCChart trends={trends || []} />
-                </TabsContent>
-                <TabsContent value="trends" className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
-                  <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                      <XAxis dataKey="month" className="text-xs" />
-                      <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" label={{ value: "Screening & Control (%)", angle: -90, position: "insideLeft", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                      <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" label={{ value: "Poor Control (%)", angle: 90, position: "insideRight", offset: -5, style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                      <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
-                      <Legend />
-                      <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} label={{ value: "HRSA 65%", position: "insideTopLeft", style: { fontSize: 9, fill: "hsl(var(--muted-foreground))" } }} />
-                      <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} label={{ value: "Target ≤25%", position: "insideBottomLeft", style: { fontSize: 9, fill: "hsl(0, 72%, 51%)" } }} />
-                      <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
-                      <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
-                      <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
-                      <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
-                    </LineChart>
-                  </ResponsiveContainer>
-                </TabsContent>
-              </Tabs>
-            )}
-          </CardContent>
-        </Card>
+      {/* TWO-COLUMN WORKING AREA */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <SectionCard
+          className="lg:col-span-2"
+          title={<><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</>}
+          description="Statistical Process Control + trend lines for your active measures"
+        >
+          {!hasTrends ? (
+            <EmptyState
+              icon={TrendingUp}
+              title="No UDS trend data yet"
+              description="Add your UDS clinical measure data to see trend charts and SPC analysis."
+              actionLabel="Go to Settings"
+              onAction={() => navigate("/dashboard/settings")}
+            />
+          ) : (
+            <Tabs defaultValue="spc" className="space-y-4">
+              <TabsList>
+                <TabsTrigger value="spc" className="gap-1.5">
+                  <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
+                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
+                </TabsTrigger>
+                <TabsTrigger value="trends">UDS Trends</TabsTrigger>
+              </TabsList>
+              <TabsContent value="spc">
+                <SPCChart trends={trends || []} />
+              </TabsContent>
+              <TabsContent value="trends" className="space-y-2">
+                <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
+                <ResponsiveContainer width="100%" height={300}>
+                  <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="month" className="text-xs" />
+                    <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
+                    <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
+                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
+                    <Legend />
+                    <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
+                    <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
+                    <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
+                    <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
+                    <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
+                    <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
+                  </LineChart>
+                </ResponsiveContainer>
+              </TabsContent>
+            </Tabs>
+          )}
+        </SectionCard>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Recent Activity</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {activity?.map((a) => {
-              const dotColor = a.type === "success" ? "bg-success" : a.type === "warning" ? "bg-warning" : "bg-primary";
-              return (
-                <div key={a.id} className="flex items-start gap-3">
-                  <div className={`h-2.5 w-2.5 rounded-full mt-1.5 shrink-0 ${dotColor}`} />
-                  <div className="min-w-0">
-                    <p className="text-sm leading-tight">{a.text}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{formatTime(a.created_at)}</p>
-                  </div>
-                </div>
-              );
-            })}
-            {(!activity || activity.length === 0) && (
-              <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <FlaskConical className="h-5 w-5 text-primary" />
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm font-medium">No activity yet</p>
-                  <p className="text-xs text-muted-foreground">Activity appears here as you run PDSA cycles, complete tasks, and update measures.</p>
-                </div>
-                <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
-                  Start your first PDSA cycle <ArrowRight className="h-3 w-3 ml-1" />
-                </Button>
+        <SectionCard
+          title="Recent Activity"
+          description="Audit-friendly feed of changes"
+          action={
+            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              View all
+            </Button>
+          }
+        >
+          {feedItems.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <FlaskConical className="h-5 w-5 text-primary" />
               </div>
-            )}
-          </CardContent>
-        </Card>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">No activity yet</p>
+                <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
+                Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            </div>
+          ) : (
+            <ActivityFeed items={feedItems} />
+          )}
+        </SectionCard>
       </div>
+
+      {/* FINANCIAL IMPACT DETAIL (collapsible) */}
+      {fin && (
+        <SectionCard
+          title="Financial Impact"
+          description={`Period: ${fin.period}`}
+          collapsible
+          defaultOpen={false}
+          action={
+            <Button variant="ghost" size="sm" className="gap-1.5 h-7 text-xs" onClick={() => setFinDialogOpen(true)}>
+              <Settings2 className="h-3.5 w-3.5" />
+              Edit
+            </Button>
+          }
+        >
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Value-Based Care (<JargonTooltip term="ACO" showIcon={false}>ACO</JargonTooltip>)
+              </p>
+              <div className="mt-1 text-2xl font-bold text-success">${(fin.shared_savings / 1000).toFixed(0)}K</div>
+              <StatusBadge tone="success" className="mt-2">
+                <TrendingUp className="h-3 w-3" />
+                +{fin.trend}% QoQ
+              </StatusBadge>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Revenue Protected</p>
+              <div className="mt-1 text-2xl font-bold text-primary">${(fin.revenue_protected / 1000).toFixed(0)}K</div>
+              <p className="mt-2 text-xs text-muted-foreground">Grant & FFS at risk without QI</p>
+            </div>
+            <div className="rounded-lg border bg-muted/30 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                <JargonTooltip term="HRSA" showIcon={false}>HRSA</JargonTooltip> Quality Award
+              </p>
+              <div className="mt-1 flex items-center gap-2 text-2xl font-bold text-primary">
+                <Award className="h-5 w-5" />
+                ${(fin.hrsa_quality_award / 1000).toFixed(0)}K
+              </div>
+              <StatusBadge tone="info" className="mt-2">
+                <TrendingUp className="h-3 w-3" />
+                +{fin.grant_trend}% QoQ
+              </StatusBadge>
+            </div>
+          </div>
+        </SectionCard>
+      )}
     </div>
   );
 }
