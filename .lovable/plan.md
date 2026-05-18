@@ -1,52 +1,59 @@
-# Staff Tasks — Layout & Spatial Restructure
+## Settings page restructure
 
-Refactor `src/pages/StaffTasks.tsx` to address grid balance, filter alignment, row density, truncation, and state persistence.
+Reorganize `src/pages/Settings.tsx` into a focused, tabbed workspace. Frontend/presentation only — no schema or business logic changes.
 
-## 1. Layout restructure
-- Replace the 1/3 + 2/3 side-by-side grid with a **stacked layout**:
-  - **Top: Compliance Metrics Bar** — horizontal row of compact cards (one per active PDSA cycle) showing cycle name, acknowledgment count, and a thin linear progress bar. Wraps to multiple rows on narrow viewports. Full measure names visible (no `truncate`).
-  - **Below: Full-width Task Board** — gets the entire content width so columns breathe.
+### 1. Tabbed sub-navigation
 
-## 2. Toolbar (filter alignment)
-- Pull Role + Status `Select` filters out of the Card header into a dedicated **toolbar row directly above the table**, right-aligned, with a results count on the left ("Showing X of Y tasks"). Anchors visually to the table edges.
+Replace the single vertical scroll with `Tabs` (shadcn). Active tab persists to URL via `?tab=` (useSearchParams), default `account`.
 
-## 3. Table column constraints
-Set explicit widths via `<colgroup>` / `className`:
+- **Account** — Profile (name + role) and Password
+- **Facility** — Organization name + NPI (billing card stays a placeholder section if not yet wired)
+- **Clinical Data** — Manual UDS entry, CSV import, history table
+- **Team** — Existing `TeamInviteSection`
+
+Page container widens from `max-w-2xl` to `max-w-5xl` to accommodate multi-column layouts.
+
+### 2. Account tab — layout & destructive action placement
+
+- **Profile card**: Full Name and Staff Role share a single `grid md:grid-cols-2` row.
+- **Password card**: Separated visually with extra top margin and a `border-destructive/30` accent. New + Confirm Password sit in a 2-col grid on md+.
+
+### 3. Facility tab
+
+- Organization Name (full width) + NPI (constrained, with validation).
+- **NPI real-time validation**: derive `isValidNpi = /^\d{10}$/.test(orgNpi.trim())`. Show a green `Check` icon inside the input's right padding when valid; muted hint text otherwise ("10 digits"). Save button stays disabled when NPI is non-empty and invalid.
+
+### 4. Clinical Data tab — decoupled workspaces
+
+Two-column layout on `lg:` (stacked on mobile):
+
+```text
+┌─────────────────────────┬─────────────────────────┐
+│ Manual Entry            │ Bulk CSV Import         │
+│ Measure / Month / Value │ Drag-and-drop dropzone  │
+│ [Add Entry]             │ [Import] [Sample] [Seed]│
+└─────────────────────────┴─────────────────────────┘
+┌───────────────────────────────────────────────────┐
+│ Historical Entries (paginated table)              │
+└───────────────────────────────────────────────────┘
 ```
-Task        — flexible (min ~280px, w-auto)
-PDSA Cycle  — w-[180px]
-Role        — w-[140px]
-Priority    — w-[110px]
-Due Date    — w-[120px]
-Status      — w-[140px]
-```
-- Apply `whitespace-nowrap truncate` to all metadata columns (PDSA, Role, Priority, Due, Status).
-- Task title cell: single-line `truncate` with `title={task.title}` tooltip; full text lives in the detail drawer.
 
-## 4. Detail disclosure
-- Keep existing `TaskDetailDialog` (already a modal) but convert to a **right-side `Sheet` drawer** (`@/components/ui/sheet`) so long descriptions / notes have vertical room without disrupting the table. Same fields; opens on row click.
+- **Human-readable measure labels**: Render rows as `CMS124 — Cervical Cancer Screening` by looking up `UDS_MEASURES` (already defined). Apply to both the table's Measure cell and elsewhere the raw code is shown.
+- **CSV dropzone**: Wrap the file input in a dashed-border drop area that accepts drag-and-drop in addition to click-to-browse (reuses existing `handleCSVUpload` logic).
+- **History table pagination**: 10 rows per page, default sort by `month desc`. Page index and sort direction persist to URL: `?tab=clinical&page=2&sort=month_desc`. Pagination uses shadcn `Pagination` component. Sort toggles via clickable column headers (Measure, Month, Value).
 
-## 5. Compliance card truncation fix
-- In the new metrics bar, render `pdsa.title` with `text-sm font-medium leading-snug` and **no truncation** (wraps to 2 lines, `line-clamp-2` cap).
-- Progress bar full-width below the title.
+### 5. Team tab
 
-## 6. Acknowledgment status pill
-- Replace the plain "0/1 acknowledged" text with a `StatusBadge` (`@/components/dashboard/StatusBadge`):
-  - `muted` tone when pct < 100
-  - `success` tone with check dot when pct === 100
-- Format: `0 / 1 acknowledged` inside the pill.
+Move `<TeamInviteSection />` here unchanged. Add a short descriptive header.
 
-## 7. URL query param persistence
-- Use `useSearchParams` from `react-router-dom`:
-  - `?role=<role>&status=<status>`
-  - Initialize `roleFilter` / `statusFilter` state from params on mount.
-  - On change, update both state and search params (preserve other params).
-  - Default `"all"` omits the param from the URL to keep links clean.
+### Technical notes
 
-## 8. Out of scope
-- No business logic / Supabase query changes.
-- No changes to AddTaskDialog fields.
-- No changes to other pages or sidebar.
+- New imports: `Tabs`, `TabsList`, `TabsTrigger`, `TabsContent`, `Pagination*`, `Check` icon, `useSearchParams` from `react-router-dom`.
+- All state hooks, queries, and mutations stay as-is — only their JSX placement changes.
+- No changes to Supabase queries, RLS, or any other file.
 
-## Files touched
-- `src/pages/StaffTasks.tsx` (only)
+### Out of scope
+
+- Billing parameters UI (no existing fields to bind to).
+- Permissions/role-definitions UI beyond what `TeamInviteSection` already provides.
+- Backend validation or new tables.
