@@ -283,7 +283,7 @@ export default function Dashboard() {
   const activePDSA = cycles?.filter((c) => c.status !== "completed").length ?? 0;
   const stalledPDSA = cycles?.filter((c) => {
     if (c.status === "completed") return false;
-    const updated = new Date(c.updated_at ?? c.created_at).getTime();
+    const updated = new Date((c as any).updated_at ?? c.created_at).getTime();
     return Date.now() - updated > 14 * 24 * 60 * 60 * 1000;
   }).length ?? 0;
 
