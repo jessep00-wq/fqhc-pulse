@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
+import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PreviewGallery } from "@/components/store/PreviewGallery";
 import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import {
@@ -258,13 +259,31 @@ export default function StoreBundleDetail() {
                     (n, p) => n + (p.included_file_paths?.length ?? 0),
                     0,
                   );
+                  const comingSoon = totalFiles === 0;
                   return (
-                    <BuyButton
-                      priceId={bundle.stripe_price_id}
-                      className="w-full"
-                      label={`Buy ${bundle.name}`}
-                      disabledReason={totalFiles === 0 ? "Coming soon" : null}
-                    />
+                    <>
+                      <BuyButton
+                        priceId={bundle.stripe_price_id}
+                        className="w-full"
+                        label={`Buy ${bundle.name}`}
+                        disabledReason={comingSoon ? "Coming soon" : null}
+                      />
+                      {!comingSoon && bundle.stripe_price_id && (
+                        <AddToCartButton
+                          className="w-full"
+                          variant="outline"
+                          item={{
+                            lookupKey: bundle.stripe_price_id,
+                            name: bundle.name,
+                            priceCents: bundle.price_cents,
+                            currency: bundle.currency,
+                            kind: "bundle",
+                            slug: bundle.slug,
+                            heroEmoji: bundle.hero_emoji,
+                          }}
+                        />
+                      )}
+                    </>
                   );
                 })()}
                 <Separator />

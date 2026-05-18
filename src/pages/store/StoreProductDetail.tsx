@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
+import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PreviewGallery } from "@/components/store/PreviewGallery";
 import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import { CheckCircle, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
@@ -158,12 +159,39 @@ export default function StoreProductDetail() {
                   <div className="text-3xl font-bold">{formatPrice(product.price_cents, product.currency)}</div>
                   <p className="text-sm text-muted-foreground">One-time purchase · instant download</p>
                 </div>
-                <BuyButton
-                  priceId={product.stripe_price_id}
-                  className="w-full"
-                  label={`Buy ${product.name}`}
-                  disabledReason={(product.included_file_paths?.length ?? 0) === 0 ? "Coming soon" : null}
-                />
+                {(() => {
+                  const comingSoon = product.is_coming_soon || (product.included_file_paths?.length ?? 0) === 0;
+                  return (
+                    <>
+                      <BuyButton
+                        priceId={product.stripe_price_id}
+                        className="w-full"
+                        label={`Buy ${product.name}`}
+                        disabledReason={comingSoon ? "Coming soon" : null}
+                      />
+                      {!comingSoon && product.stripe_price_id && (
+                        <AddToCartButton
+                          className="w-full"
+                          variant="outline"
+                          item={{
+                            lookupKey: product.stripe_price_id,
+                            name: product.name,
+                            priceCents: product.price_cents,
+                            currency: product.currency,
+                            kind: "product",
+                            slug: product.slug,
+                            heroEmoji: product.hero_emoji,
+                          }}
+                        />
+                      )}
+                      {comingSoon && (
+                        <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md p-2 text-center">
+                          This template is launching soon. Get notified by subscribing to our newsletter.
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
                 <Separator />
                 <ul className="text-sm space-y-1.5 text-muted-foreground">
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Editable templates</li>
