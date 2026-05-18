@@ -34,7 +34,8 @@ export function CartDrawer() {
       if (error) throw error;
       if (data?.error) throw new Error(data.error as string);
       if (data?.url) {
-        window.location.href = data.url as string;
+        window.open(data.url as string, "_blank", "noopener,noreferrer");
+        setLoading(false);
       } else {
         throw new Error("No checkout URL returned");
       }
