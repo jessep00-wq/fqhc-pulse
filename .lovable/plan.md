@@ -1,48 +1,52 @@
-## Sidebar Mode-Switch + KPI Card Grid Standardization
+# Staff Tasks — Layout & Spatial Restructure
 
-Two scoped presentation fixes. No data or logic changes.
+Refactor `src/pages/StaffTasks.tsx` to address grid balance, filter alignment, row density, truncation, and state persistence.
 
-### 1. Admin Console as top-anchored mode switch
-**File:** `src/components/AppSidebar.tsx`
+## 1. Layout restructure
+- Replace the 1/3 + 2/3 side-by-side grid with a **stacked layout**:
+  - **Top: Compliance Metrics Bar** — horizontal row of compact cards (one per active PDSA cycle) showing cycle name, acknowledgment count, and a thin linear progress bar. Wraps to multiple rows on narrow viewports. Full measure names visible (no `truncate`).
+  - **Below: Full-width Task Board** — gets the entire content width so columns breathe.
 
-The Admin Console link currently sits in the footer next to the upgrade chip, which conflates system administration with billing/usage messaging. Treat it as a global mode switch and anchor it at the very top of the sidebar, directly under the brand header, separated from the daily-workflow nav.
+## 2. Toolbar (filter alignment)
+- Pull Role + Status `Select` filters out of the Card header into a dedicated **toolbar row directly above the table**, right-aligned, with a results count on the left ("Showing X of Y tasks"). Anchors visually to the table edges.
 
-- Move the `isAdmin && <Link to="/admin">` block out of `SidebarFooter` into a new `SidebarGroup` placed first inside `SidebarContent` (above the existing "Navigation" group).
-- Render it as a single full-width `SidebarMenuButton` styled as a distinct mode pill:
-  - Shield icon + "Admin Console" label
-  - Subtle teal-tinted background (`bg-primary/10 text-primary border border-primary/20`)
-  - Right-aligned `ArrowUpRight` icon (or chevron) to signal it leaves the QI workspace
-  - When sidebar `collapsed`, show only the Shield icon centered (icon-button style) so it stays accessible in the rail.
-- Follow the group with a `Separator` (1px sidebar-border) before the "Navigation" label, visually reinforcing the workspace/admin split.
-- `SidebarFooter` keeps only the upgrade/contact chip for non-admin free-tier users; everything else moves out.
-
-Equivalent inverse mode switch already exists in `AdminSidebar` (back to /dashboard), so this matches the symmetry.
-
-### 2. KPI card layout standardization
-**File:** `src/components/dashboard/KpiCard.tsx` (consumers in `src/pages/Index.tsx` need no API changes — only the internal grid is restructured)
-
-Today the card top row mixes icon, badge, and title in a flex row, so cards with no badge collapse differently from cards with a badge, and the icon "floats right" only on some. Lock down a fixed 3-row, 2-column grid so every card hits the same coordinates:
-
+## 3. Table column constraints
+Set explicit widths via `<colgroup>` / `className`:
 ```
-[ TITLE ─────────────────────── ICON ]    ← row 1 (label row, fixed height)
-[ VALUE   TREND/DELTA            ]        ← row 2 (metric row)
-[ CONTEXT ─────────────── BADGE  ]        ← row 3 (footer row, fixed min-height)
+Task        — flexible (min ~280px, w-auto)
+PDSA Cycle  — w-[180px]
+Role        — w-[140px]
+Priority    — w-[110px]
+Due Date    — w-[120px]
+Status      — w-[140px]
 ```
+- Apply `whitespace-nowrap truncate` to all metadata columns (PDSA, Role, Priority, Due, Status).
+- Task title cell: single-line `truncate` with `title={task.title}` tooltip; full text lives in the detail drawer.
 
-Structural rules:
-- Row 1: `flex items-center justify-between h-5` — title (uppercase muted) left, icon (16px, tone-tinted) always pinned right. Icon slot reserves space even when absent (`<span className="w-4 h-4" />`) so titles align.
-- Row 2: `flex items-baseline gap-2 min-h-[2.25rem]` — large numeric value left, optional `trailing` slot (used for ±% delta) inline.
-- Row 3 (footer): always rendered with `min-h-[1.25rem]`. Description text left (truncated to 2 lines via `line-clamp-2`), badge pinned right via `ml-auto`. Cards without badge or description still reserve the footer height so the four cards stay vertically aligned.
+## 4. Detail disclosure
+- Keep existing `TaskDetailDialog` (already a modal) but convert to a **right-side `Sheet` drawer** (`@/components/ui/sheet`) so long descriptions / notes have vertical room without disrupting the table. Same fields; opens on row click.
 
-Visual polish:
-- Remove the current top-right combo of icon + badge; badge moves to the footer row where it acts as a contextual alert chip (e.g. "1 stalled", "3 overdue") next to the description it qualifies.
-- Keep the existing `tone`-driven icon color and the optional `active`/`onClick` interactive states unchanged.
-- Add a thin top border accent (`border-t-2`) that uses the tone color when `tone !== "default"`, so warning/destructive/success cards read as elevated without needing the badge to carry the visual weight alone.
+## 5. Compliance card truncation fix
+- In the new metrics bar, render `pdsa.title` with `text-sm font-medium leading-snug` and **no truncation** (wraps to 2 lines, `line-clamp-2` cap).
+- Progress bar full-width below the title.
 
-### Out of scope
-- No changes to the `KpiCard` consumer call sites — `badge`, `description`, `trailing`, `tone`, `icon` props all keep the same signature, just rendered in fixed slots.
-- No changes to `AdminSidebar`, no role/permission changes, no business logic.
+## 6. Acknowledgment status pill
+- Replace the plain "0/1 acknowledged" text with a `StatusBadge` (`@/components/dashboard/StatusBadge`):
+  - `muted` tone when pct < 100
+  - `success` tone with check dot when pct === 100
+- Format: `0 / 1 acknowledged` inside the pill.
 
-### Files touched
-- `src/components/AppSidebar.tsx` — Admin Console moves to top group, footer trimmed
-- `src/components/dashboard/KpiCard.tsx` — fixed 3-row grid, badge moves to footer, icon slot always reserved, optional tone top-accent
+## 7. URL query param persistence
+- Use `useSearchParams` from `react-router-dom`:
+  - `?role=<role>&status=<status>`
+  - Initialize `roleFilter` / `statusFilter` state from params on mount.
+  - On change, update both state and search params (preserve other params).
+  - Default `"all"` omits the param from the URL to keep links clean.
+
+## 8. Out of scope
+- No business logic / Supabase query changes.
+- No changes to AddTaskDialog fields.
+- No changes to other pages or sidebar.
+
+## Files touched
+- `src/pages/StaffTasks.tsx` (only)
