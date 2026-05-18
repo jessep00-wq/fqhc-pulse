@@ -77,15 +77,15 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           <Logo size="sm" />
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="text-sm font-bold tracking-tight text-sidebar-foreground whitespace-nowrap">
                 MeasureWise
               </span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                <Shield className="h-3 w-3" /> Admin Console
+              <span className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-primary whitespace-nowrap">
+                <Shield className="h-3 w-3 shrink-0" /> Admin Console
               </span>
             </div>
           )}
