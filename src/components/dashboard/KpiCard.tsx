@@ -13,6 +13,14 @@ const TONE_ICON: Record<Tone, string> = {
   info: "text-primary",
 };
 
+const TONE_ACCENT: Record<Tone, string> = {
+  default: "border-t-transparent",
+  success: "border-t-success/60",
+  warning: "border-t-warning/60",
+  destructive: "border-t-destructive/60",
+  info: "border-t-primary/60",
+};
+
 const BADGE_TONE: Record<Tone, string> = {
   default: "bg-primary/10 text-primary border-primary/20",
   success: "bg-success/10 text-success border-success/20",
@@ -36,7 +44,9 @@ interface KpiCardProps {
 
 /**
  * Unified KPI tile used across client + admin dashboards.
- * Clickable when onClick provided (acts as a filter button).
+ * Fixed 3-row grid: [title | icon] / [value | trailing] / [description | badge].
+ * Every row reserves space so cards align across the grid regardless of which
+ * optional slots are populated.
  */
 export function KpiCard({
   title,
@@ -58,31 +68,25 @@ export function KpiCard({
       type={interactive ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "group relative flex flex-col gap-2 rounded-xl border bg-card p-5 text-left shadow-sm transition-all",
+        "group relative flex flex-col rounded-xl border border-t-2 bg-card p-5 text-left shadow-sm transition-all",
+        TONE_ACCENT[tone],
         interactive &&
           "hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.99]",
         active && "border-primary/60 ring-2 ring-primary/30",
       )}
     >
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+      {/* Row 1 — label + icon (icon slot always reserved) */}
+      <div className="flex items-center justify-between gap-3 h-5">
+        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground truncate">
           {title}
         </span>
-        <div className="flex items-center gap-1.5 shrink-0">
-          {badge && (
-            <span
-              className={cn(
-                "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none whitespace-nowrap",
-                BADGE_TONE[badge.tone ?? "warning"],
-              )}
-            >
-              {badge.label}
-            </span>
-          )}
-          {Icon && <Icon className={cn("h-4 w-4 shrink-0", TONE_ICON[tone])} />}
-        </div>
+        <span className="flex h-4 w-4 items-center justify-center shrink-0">
+          {Icon && <Icon className={cn("h-4 w-4", TONE_ICON[tone])} />}
+        </span>
       </div>
-      <div className="flex items-baseline gap-2">
+
+      {/* Row 2 — value + trailing delta */}
+      <div className="mt-2 flex items-baseline gap-2 min-h-[2.25rem]">
         {loading ? (
           <Skeleton className="h-8 w-16" />
         ) : (
@@ -92,9 +96,27 @@ export function KpiCard({
         )}
         {trailing}
       </div>
-      {description && (
-        <p className="text-xs leading-relaxed text-muted-foreground">{description}</p>
-      )}
+
+      {/* Row 3 — context (left) + alert badge (right). Always reserved. */}
+      <div className="mt-2 flex items-center gap-2 min-h-[1.25rem]">
+        {description ? (
+          <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
+            {description}
+          </p>
+        ) : (
+          <span className="text-xs">&nbsp;</span>
+        )}
+        {badge && (
+          <span
+            className={cn(
+              "ml-auto inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none whitespace-nowrap shrink-0",
+              BADGE_TONE[badge.tone ?? "warning"],
+            )}
+          >
+            {badge.label}
+          </span>
+        )}
+      </div>
     </Component>
   );
 }
