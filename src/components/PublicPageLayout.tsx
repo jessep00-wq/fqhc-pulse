@@ -16,7 +16,7 @@ interface PublicPageLayoutProps {
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
-      <PaymentTestModeBanner />
+      
       <ExitIntentPlaybookDialog />
       <CartDrawer />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
