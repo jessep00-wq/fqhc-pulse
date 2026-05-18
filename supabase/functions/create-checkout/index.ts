@@ -1,4 +1,5 @@
-// Creates a Stripe Checkout Session for a one-time storefront product or bundle.
+// Creates a Stripe Checkout Session. Supports both single-item Buy now (legacy `priceId`)
+// and multi-item cart (`items: [{ lookupKey }]`). Same allowlist; same file-deliverability guard.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { createStripeClient, type StripeEnv } from "../_shared/stripe.ts";
 
@@ -23,94 +24,133 @@ const PRICE_LOOKUP_KEYS: Record<string, { kind: "product" | "bundle"; slug: stri
   pdsa_improvement_bundle_one_time: { kind: "bundle", slug: "pdsa-improvement-bundle" },
 };
 
+async function resolveItem(lookupKey: string) {
+  const item = PRICE_LOOKUP_KEYS[lookupKey];
+  if (!item) return { error: "Unknown price", status: 400 };
+
+  let catalogId: string | null = null;
+  let fileCount = 0;
+  let comingSoon = false;
+  if (item.kind === "product") {
+    const { data: prod } = await supabase
+      .from("store_products")
+      .select("id, included_file_paths, is_coming_soon")
+      .eq("slug", item.slug)
+      .maybeSingle();
+    catalogId = prod?.id ?? null;
+    fileCount = (prod?.included_file_paths as string[] | null)?.length ?? 0;
+    comingSoon = !!prod?.is_coming_soon;
+  } else {
+    const { data: bundle } = await supabase
+      .from("store_bundles")
+      .select("id, included_product_ids")
+      .eq("slug", item.slug)
+      .maybeSingle();
+    catalogId = bundle?.id ?? null;
+    const ids = (bundle?.included_product_ids as string[] | null) ?? [];
+    if (ids.length) {
+      const { data: prods } = await supabase
+        .from("store_products")
+        .select("included_file_paths")
+        .in("id", ids);
+      for (const p of prods ?? []) {
+        fileCount += ((p.included_file_paths as string[] | null) ?? []).length;
+      }
+    }
+  }
+  if (!catalogId) return { error: "Item not found", status: 404 };
+  if (comingSoon || fileCount === 0)
+    return { error: "This item isn't ready for purchase yet.", status: 400 };
+  return { catalogId, kind: item.kind, slug: item.slug };
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
     const body = await req.json();
-    const lookupKey = String(body?.priceId ?? "");
     const env: StripeEnv = body?.environment === "live" ? "live" : "sandbox";
     const origin = req.headers.get("origin") ?? "https://measurewise.org";
 
-    const item = PRICE_LOOKUP_KEYS[lookupKey];
-    if (!item) {
-      return new Response(JSON.stringify({ error: "Unknown price" }), {
+    // Accept either `items: [{ lookupKey }]` (cart) OR `priceId: string` (single-item Buy now).
+    const rawItems: Array<{ lookupKey: string }> = Array.isArray(body?.items)
+      ? body.items
+      : body?.priceId
+        ? [{ lookupKey: String(body.priceId) }]
+        : [];
+
+    if (rawItems.length === 0) {
+      return new Response(JSON.stringify({ error: "No items in checkout" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (rawItems.length > 10) {
+      return new Response(JSON.stringify({ error: "Too many items" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Resolve the catalog row and compute the effective deliverable file paths.
-    // Block checkout if there are no files to deliver — prevents customers from paying
-    // for an item that would yield zero downloads in the email/success page.
-    let catalogId: string | null = null;
-    let effectiveFilePaths: string[] = [];
-    if (item.kind === "product") {
-      const { data: prod } = await supabase
-        .from("store_products")
-        .select("id, included_file_paths")
-        .eq("slug", item.slug)
-        .maybeSingle();
-      catalogId = prod?.id ?? null;
-      effectiveFilePaths = (prod?.included_file_paths as string[] | null) ?? [];
-    } else {
-      const { data: bundle } = await supabase
-        .from("store_bundles")
-        .select("id, included_product_ids")
-        .eq("slug", item.slug)
-        .maybeSingle();
-      catalogId = bundle?.id ?? null;
-      const includedIds = (bundle?.included_product_ids as string[] | null) ?? [];
-      if (includedIds.length) {
-        const { data: prods } = await supabase
-          .from("store_products")
-          .select("included_file_paths")
-          .in("id", includedIds);
-        for (const p of prods ?? []) {
-          effectiveFilePaths.push(...((p.included_file_paths as string[] | null) ?? []));
-        }
+    // Resolve every item, fail fast if any are bad.
+    const resolved: Array<{ lookupKey: string; catalogId: string; kind: "product" | "bundle"; slug: string }> = [];
+    for (const i of rawItems) {
+      const r = await resolveItem(i.lookupKey);
+      if ("error" in r) {
+        return new Response(JSON.stringify({ error: r.error }), {
+          status: r.status,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
-    }
-
-    if (!catalogId) {
-      return new Response(JSON.stringify({ error: "Item not found" }), {
-        status: 404,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-    if (effectiveFilePaths.length === 0) {
-      return new Response(
-        JSON.stringify({ error: "This item isn't ready for purchase yet — please check back soon." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      resolved.push({ lookupKey: i.lookupKey, catalogId: r.catalogId!, kind: r.kind!, slug: r.slug! });
     }
 
     const stripe = createStripeClient(env);
-
-    const prices = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
-    const price = prices.data[0];
-    if (!price) {
-      return new Response(JSON.stringify({ error: "Price not found in Stripe" }), {
+    const prices = await stripe.prices.list({
+      lookup_keys: resolved.map((r) => r.lookupKey),
+      active: true,
+      limit: resolved.length,
+    });
+    if (prices.data.length !== resolved.length) {
+      return new Response(JSON.stringify({ error: "One or more prices not found in Stripe" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const priceByLookup = new Map(prices.data.map((p) => [p.lookup_key as string, p.id]));
+
+    const lineItems = resolved.map((r) => ({ price: priceByLookup.get(r.lookupKey)!, quantity: 1 }));
+
+    // Cancel URL: single item → product page; multi → store index.
+    const cancelUrl =
+      resolved.length === 1
+        ? `${origin}/store/${resolved[0].kind === "bundle" ? "bundle/" : ""}${resolved[0].slug}`
+        : `${origin}/store`;
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: [{ price: price.id, quantity: 1 }],
+      line_items: lineItems,
       success_url: `${origin}/store/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/store/${item.kind === "bundle" ? "bundle/" : ""}${item.slug}`,
+      cancel_url: cancelUrl,
       customer_creation: "always",
       allow_promotion_codes: true,
-      // Stripe handles tax compliance + fraud + disputes + receipts on this session.
       managed_payments: { enabled: true },
       metadata: {
-        kind: item.kind,
-        slug: item.slug,
-        catalog_id: catalogId,
-        lookup_key: lookupKey,
+        // Back-compat metadata for single-item webhook path.
+        kind: resolved[0].kind,
+        slug: resolved[0].slug,
+        catalog_id: resolved[0].catalogId,
+        lookup_key: resolved[0].lookupKey,
         environment: env,
+        // Multi-item payload — JSON-encoded list of { kind, slug, catalog_id, lookup_key }
+        cart_items: JSON.stringify(
+          resolved.map((r) => ({
+            kind: r.kind,
+            slug: r.slug,
+            catalog_id: r.catalogId,
+            lookup_key: r.lookupKey,
+          })),
+        ),
       },
     });
 

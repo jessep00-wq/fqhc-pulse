@@ -470,8 +470,12 @@ export type Database = {
           full_name: string
           health_center_name: string
           id: string
+          notes: string | null
+          reminder_sent_at: string | null
           role: string
           source: string
+          tags: string[]
+          welcome_sent_at: string | null
           work_email: string
         }
         Insert: {
@@ -479,8 +483,12 @@ export type Database = {
           full_name: string
           health_center_name: string
           id?: string
+          notes?: string | null
+          reminder_sent_at?: string | null
           role: string
           source?: string
+          tags?: string[]
+          welcome_sent_at?: string | null
           work_email: string
         }
         Update: {
@@ -488,8 +496,12 @@ export type Database = {
           full_name?: string
           health_center_name?: string
           id?: string
+          notes?: string | null
+          reminder_sent_at?: string | null
           role?: string
           source?: string
+          tags?: string[]
+          welcome_sent_at?: string | null
           work_email?: string
         }
         Relationships: []
@@ -629,6 +641,7 @@ export type Database = {
           hero_emoji: string | null
           id: string
           included_file_paths: string[]
+          is_coming_soon: boolean
           long_description: string | null
           name: string
           preview_image_urls: string[]
@@ -654,6 +667,7 @@ export type Database = {
           hero_emoji?: string | null
           id?: string
           included_file_paths?: string[]
+          is_coming_soon?: boolean
           long_description?: string | null
           name: string
           preview_image_urls?: string[]
@@ -679,6 +693,7 @@ export type Database = {
           hero_emoji?: string | null
           id?: string
           included_file_paths?: string[]
+          is_coming_soon?: boolean
           long_description?: string | null
           name?: string
           preview_image_urls?: string[]

@@ -4,6 +4,8 @@ import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
+import { CartButton } from "@/components/store/CartButton";
+import { CartDrawer } from "@/components/store/CartDrawer";
 
 interface PublicPageLayoutProps {
   children: React.ReactNode;
@@ -16,6 +18,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
     <div className="min-h-screen bg-background">
       <PaymentTestModeBanner />
       <ExitIntentPlaybookDialog />
+      <CartDrawer />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-6">
           <Link to="/" className="flex items-center">
@@ -48,6 +51,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
           )}
 
           <div className="justify-self-end flex items-center gap-2">
+            <CartButton />
             <Button variant="ghost" size="sm" asChild>
               <Link to="/auth">Sign In</Link>
             </Button>
