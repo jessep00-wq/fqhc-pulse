@@ -331,35 +331,15 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
   const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
-  // Build attention strip
+  // Attention strip now only carries items without a natural KPI home.
   const attentionItems: AttentionItem[] = [];
-  if (overdueTasks > 0) {
-    attentionItems.push({
-      id: "overdue-tasks",
-      icon: CheckSquare,
-      label: `${overdueTasks} overdue ${overdueTasks === 1 ? "task" : "tasks"}`,
-      tone: "destructive",
-      onClick: () => navigate("/dashboard/staff-tasks"),
-    });
-  }
-  if (stalledPDSA > 0) {
-    attentionItems.push({
-      id: "stalled-pdsa",
-      icon: FlaskConical,
-      label: `${stalledPDSA} ${stalledPDSA === 1 ? "PDSA" : "PDSAs"} stalled >14 days`,
-      tone: "warning",
-      onClick: () => navigate("/dashboard/pdsa-lab"),
-    });
-  }
-  if (atRiskMeasures.length > 0) {
-    attentionItems.push({
-      id: "at-risk",
-      icon: AlertTriangle,
-      label: `${atRiskMeasures.length} ${atRiskMeasures.length === 1 ? "measure" : "measures"} below target`,
-      tone: "warning",
-      onClick: () => setAtRiskOpen(true),
-    });
-  }
+  // (stalled PDSAs and at-risk measures are now folded into their KPI cards)
+
+  const topAtRisk = atRiskMeasures
+    .slice()
+    .sort((a, b) => a.value - b.value)
+    .slice(0, 2);
+
 
   // Activity feed entries
   const feedItems: ActivityFeedEntry[] = (activity || []).map((a) => ({
