@@ -464,6 +464,36 @@ export type Database = {
           },
         ]
       }
+      playbook_leads: {
+        Row: {
+          created_at: string
+          full_name: string
+          health_center_name: string
+          id: string
+          role: string
+          source: string
+          work_email: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          health_center_name: string
+          id?: string
+          role: string
+          source?: string
+          work_email: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          health_center_name?: string
+          id?: string
+          role?: string
+          source?: string
+          work_email?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
