@@ -12,7 +12,8 @@ export type EventName =
   | "playbook_applied"
   | "task_created"
   | "task_completed"
-  | "settings_updated";
+  | "settings_updated"
+  | "playbook_lead_submit";
 
 export async function trackEvent(
   eventName: EventName,
