@@ -13,6 +13,14 @@ const TONE_ICON: Record<Tone, string> = {
   info: "text-primary",
 };
 
+const BADGE_TONE: Record<Tone, string> = {
+  default: "bg-primary/10 text-primary border-primary/20",
+  success: "bg-success/10 text-success border-success/20",
+  warning: "bg-warning/10 text-warning border-warning/30",
+  destructive: "bg-destructive/10 text-destructive border-destructive/30",
+  info: "bg-primary/10 text-primary border-primary/20",
+};
+
 interface KpiCardProps {
   title: ReactNode;
   value: ReactNode;
@@ -23,6 +31,7 @@ interface KpiCardProps {
   active?: boolean;
   onClick?: () => void;
   trailing?: ReactNode;
+  badge?: { label: ReactNode; tone?: Tone };
 }
 
 /**
@@ -39,6 +48,7 @@ export function KpiCard({
   active,
   onClick,
   trailing,
+  badge,
 }: KpiCardProps) {
   const interactive = !!onClick;
   const Component: any = interactive ? "button" : "div";
@@ -58,7 +68,19 @@ export function KpiCard({
         <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {title}
         </span>
-        {Icon && <Icon className={cn("h-4 w-4 shrink-0", TONE_ICON[tone])} />}
+        <div className="flex items-center gap-1.5 shrink-0">
+          {badge && (
+            <span
+              className={cn(
+                "inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold leading-none whitespace-nowrap",
+                BADGE_TONE[badge.tone ?? "warning"],
+              )}
+            >
+              {badge.label}
+            </span>
+          )}
+          {Icon && <Icon className={cn("h-4 w-4 shrink-0", TONE_ICON[tone])} />}
+        </div>
       </div>
       <div className="flex items-baseline gap-2">
         {loading ? (
