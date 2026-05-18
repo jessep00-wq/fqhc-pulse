@@ -601,6 +601,8 @@ export default function Dashboard() {
           </div>
         </SectionCard>
       )}
+      </div>
     </div>
   );
 }
+
