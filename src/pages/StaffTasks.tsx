@@ -1,17 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +22,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2, Plus, CalendarIcon, Users } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 type TaskStatus = "pending" | "in_progress" | "completed" | "overdue";
 type TaskPriority = "low" | "medium" | "high";
@@ -164,7 +166,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
   );
 }
 
-function TaskDetailDialog({ task, open, onClose, cycles }: { task: DBTask; open: boolean; onClose: () => void; cycles: DBCycleRef[] }) {
+function TaskDetailSheet({ task, open, onClose, cycles }: { task: DBTask; open: boolean; onClose: () => void; cycles: DBCycleRef[] }) {
   const { organization } = useOrg();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -208,13 +210,13 @@ function TaskDetailDialog({ task, open, onClose, cycles }: { task: DBTask; open:
   const pdsaTitle = task.pdsa_cycles?.title;
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Task Details</DialogTitle>
-          <DialogDescription>View and edit task information</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
+    <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
+      <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Task Details</SheetTitle>
+          <SheetDescription>View and edit task information</SheetDescription>
+        </SheetHeader>
+        <div className="space-y-4 mt-6">
           <div className="space-y-2">
             <Label>Title</Label>
             <Input value={title} onChange={(e) => setTitle(e.target.value)} />
@@ -269,27 +271,37 @@ function TaskDetailDialog({ task, open, onClose, cycles }: { task: DBTask; open:
           {pdsaTitle && (
             <div className="rounded-lg border p-3 space-y-1">
               <p className="text-xs text-muted-foreground">Linked PDSA Cycle</p>
-              <Button variant="link" className="h-auto p-0 text-sm text-primary" onClick={() => { onClose(); navigate("/pdsa-lab"); }}>
+              <Button variant="link" className="h-auto p-0 text-sm text-primary" onClick={() => { onClose(); navigate("/dashboard/pdsa-lab"); }}>
                 {pdsaTitle}
               </Button>
             </div>
           )}
         </div>
-        <DialogFooter>
+        <SheetFooter className="mt-6 flex-row justify-end gap-2">
           <Button variant="outline" onClick={onClose}>Cancel</Button>
           <Button onClick={handleSave} disabled={updateTask.isPending}>Save Changes</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 }
 
 export default function StaffTasks() {
   const { organization } = useOrg();
-  const [roleFilter, setRoleFilter] = useState<string>("all");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [roleFilter, setRoleFilter] = useState<string>(searchParams.get("role") || "all");
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get("status") || "all");
   const [addOpen, setAddOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<DBTask | null>(null);
+
+  // Sync filters to URL
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    if (roleFilter === "all") next.delete("role"); else next.set("role", roleFilter);
+    if (statusFilter === "all") next.delete("status"); else next.set("status", statusFilter);
+    setSearchParams(next, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roleFilter, statusFilter]);
 
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ["tasks", organization.id],
@@ -355,56 +367,74 @@ export default function StaffTasks() {
         <Button onClick={() => setAddOpen(true)}><Plus className="h-4 w-4 mr-1" /> Add Task</Button>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle className="text-base">Compliance Status</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
+      {/* Compliance Metrics Bar */}
+      {(cycles as DBCycleRef[]).length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Compliance Status</h2>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {(cycles as DBCycleRef[]).map((pdsa) => {
               const pdsaTasks = (tasks as DBTask[]).filter((t) => t.pdsa_cycle_id === pdsa.id);
               const acked = pdsaTasks.filter((t) => t.acknowledged).length;
-              const pct = pdsaTasks.length > 0 ? Math.round((acked / pdsaTasks.length) * 100) : 0;
+              const total = pdsaTasks.length;
+              const pct = total > 0 ? Math.round((acked / total) * 100) : 0;
+              const complete = pct === 100 && total > 0;
               return (
-                <div key={pdsa.id} className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium truncate">{pdsa.title}</span>
-                    <span className="text-xs text-muted-foreground">{acked}/{pdsaTasks.length} acknowledged</span>
-                  </div>
-                  <Progress value={pct} className="h-2" />
-                </div>
+                <Card key={pdsa.id} className="border-border/60">
+                  <CardContent className="p-4 space-y-3">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium leading-snug line-clamp-2 min-h-[2.5rem]">{pdsa.title}</p>
+                      <StatusBadge tone={complete ? "success" : "muted"} dot={complete}>
+                        {acked} / {total} acknowledged
+                      </StatusBadge>
+                    </div>
+                    <Progress value={pct} className="h-1.5" />
+                  </CardContent>
+                </Card>
               );
             })}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      )}
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <div className="flex items-center justify-between flex-wrap gap-3">
-              <CardTitle className="text-base">Task Board</CardTitle>
-              <div className="flex gap-2">
-                <Select value={roleFilter} onValueChange={setRoleFilter}>
-                  <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Filter by role" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Roles</SelectItem>
-                    {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Filter by status" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="overdue">Overdue</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+      {/* Task Board */}
+      <Card>
+        <CardContent className="p-0">
+          {/* Toolbar */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b px-4 py-3">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-medium text-foreground">{filtered.length}</span> of {(tasks as DBTask[]).length} tasks
+            </p>
+            <div className="flex gap-2">
+              <Select value={roleFilter} onValueChange={setRoleFilter}>
+                <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Filter by role" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Roles</SelectItem>
+                  {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-[160px] h-9"><SelectValue placeholder="Filter by status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="overdue">Overdue</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </CardHeader>
-          <CardContent>
-            <Table>
+          </div>
+
+          <div className="overflow-x-auto">
+            <Table className="table-fixed w-full min-w-[860px]">
+              <colgroup>
+                <col />
+                <col className="w-[180px]" />
+                <col className="w-[140px]" />
+                <col className="w-[110px]" />
+                <col className="w-[120px]" />
+                <col className="w-[140px]" />
+              </colgroup>
               <TableHeader>
                 <TableRow>
                   <TableHead>Task</TableHead>
@@ -423,12 +453,22 @@ export default function StaffTasks() {
                   const priCfg = PRIORITY_CONFIG[(task.priority as TaskPriority) || "medium"] || PRIORITY_CONFIG.medium;
                   return (
                     <TableRow key={task.id} className="cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => setSelectedTask(task)}>
-                      <TableCell className="font-medium text-sm">{task.title}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{pdsaTitle}</TableCell>
-                      <TableCell><Badge variant="secondary" className="text-xs">{task.assigned_role}</Badge></TableCell>
-                      <TableCell><Badge variant="outline" className={cn("text-xs", priCfg.badgeClass)}>{priCfg.label}</Badge></TableCell>
-                      <TableCell className="text-sm text-muted-foreground">{task.due_date}</TableCell>
-                      <TableCell>
+                      <TableCell className="font-medium text-sm">
+                        <div className="truncate" title={task.title}>{task.title}</div>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        <div className="truncate" title={pdsaTitle}>{pdsaTitle}</div>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        {task.assigned_role && (
+                          <Badge variant="secondary" className="text-xs max-w-full truncate">{task.assigned_role}</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <Badge variant="outline" className={cn("text-xs", priCfg.badgeClass)}>{priCfg.label}</Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{task.due_date || "—"}</TableCell>
+                      <TableCell className="whitespace-nowrap">
                         <Badge variant="outline" className={cn("text-xs gap-1", cfg.badgeClass)}>
                           <StatusIcon className="h-3 w-3" />
                           {cfg.label}
@@ -446,13 +486,13 @@ export default function StaffTasks() {
                 )}
               </TableBody>
             </Table>
-          </CardContent>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <AddTaskDialog open={addOpen} onClose={() => setAddOpen(false)} cycles={cycles} />
       {selectedTask && (
-        <TaskDetailDialog task={selectedTask} open={!!selectedTask} onClose={() => setSelectedTask(null)} cycles={cycles} />
+        <TaskDetailSheet task={selectedTask} open={!!selectedTask} onClose={() => setSelectedTask(null)} cycles={cycles} />
       )}
     </div>
   );
