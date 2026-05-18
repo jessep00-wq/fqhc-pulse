@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { Calendar, Clock } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ContentIcon } from "@/components/ContentIcon";
+import { PlaybookSidebarCard } from "@/components/lead-magnets/PlaybookSidebarCard";
 
 export default function BlogPostDynamic() {
   const { slug } = useParams<{ slug: string }>();
@@ -55,40 +56,43 @@ export default function BlogPostDynamic() {
           author: post.author_name,
         }}
       />
-      <article className="max-w-3xl mx-auto px-6 py-12">
-        <header className="mb-10 space-y-4">
-          {(post.cover_image_url || post.cover_emoji) && (
-            <ContentIcon imageUrl={post.cover_image_url} emoji={post.cover_emoji} size={64} />
-          )}
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-            {post.title}
-          </h1>
-          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-            {post.published_at && (
-              <span className="inline-flex items-center gap-1.5">
-                <Calendar className="h-4 w-4" />
-                <time dateTime={post.published_at}>
-                  {new Date(post.published_at).toLocaleDateString("en-US", {
-                    year: "numeric", month: "long", day: "numeric",
-                  })}
-                </time>
-              </span>
+      <div className="max-w-6xl mx-auto px-6 py-12 grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+        <article className="max-w-3xl w-full mx-auto lg:mx-0">
+          <header className="mb-10 space-y-4">
+            {(post.cover_image_url || post.cover_emoji) && (
+              <ContentIcon imageUrl={post.cover_image_url} emoji={post.cover_emoji} size={64} />
             )}
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-4 w-4" />
-              {post.read_time_minutes} min read
-            </span>
-            <span>By {post.author_name}</span>
-          </div>
-          {post.excerpt && (
-            <p className="text-lg text-muted-foreground leading-relaxed">{post.excerpt}</p>
-          )}
-        </header>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
+              {post.title}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+              {post.published_at && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="h-4 w-4" />
+                  <time dateTime={post.published_at}>
+                    {new Date(post.published_at).toLocaleDateString("en-US", {
+                      year: "numeric", month: "long", day: "numeric",
+                    })}
+                  </time>
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="h-4 w-4" />
+                {post.read_time_minutes} min read
+              </span>
+              <span>By {post.author_name}</span>
+            </div>
+            {post.excerpt && (
+              <p className="text-lg text-muted-foreground leading-relaxed">{post.excerpt}</p>
+            )}
+          </header>
 
-        <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary prose-strong:text-foreground prose-li:text-foreground/90">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content_md}</ReactMarkdown>
-        </div>
-      </article>
+          <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary prose-strong:text-foreground prose-li:text-foreground/90">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.content_md}</ReactMarkdown>
+          </div>
+        </article>
+        <PlaybookSidebarCard />
+      </div>
     </PublicPageLayout>
   );
 }

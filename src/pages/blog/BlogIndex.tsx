@@ -9,6 +9,7 @@ import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { Calendar, ArrowRight, Search, X } from "lucide-react";
 import { ContentIcon } from "@/components/ContentIcon";
+import { PlaybookSidebarCard } from "@/components/lead-magnets/PlaybookSidebarCard";
 
 type ListPost = {
   slug: string;
@@ -123,7 +124,8 @@ export default function BlogIndex() {
       />
 
       <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_320px] gap-10 items-start">
+          <div className="max-w-3xl w-full mx-auto lg:mx-0">
           <div className="text-center space-y-4 mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
               Quality Improvement Resources
@@ -204,6 +206,8 @@ export default function BlogIndex() {
               ))}
             </div>
           )}
+          </div>
+          <PlaybookSidebarCard />
         </div>
       </section>
     </PublicPageLayout>

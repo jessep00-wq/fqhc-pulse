@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
+import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import founderPhoto from "@/assets/founder-jessica.png";
 import {
@@ -760,6 +761,9 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* AthenaOne Playbook Lead Magnet */}
+      <PlaybookLeadMagnetSection />
 
       {/* Sample Export Preview */}
       <section className="py-20 px-6 bg-muted/30">

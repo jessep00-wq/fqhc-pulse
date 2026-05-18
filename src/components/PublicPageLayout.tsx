@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
 
 interface PublicPageLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
   return (
     <div className="min-h-screen bg-background">
       <PaymentTestModeBanner />
+      <ExitIntentPlaybookDialog />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-6">
           <Link to="/" className="flex items-center">
