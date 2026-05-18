@@ -360,92 +360,111 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <PageHeader
-        title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstName}`}
-        description={
-          <>
-            <span>{dateLabel}</span>
-            <span className="mx-2 text-border">·</span>
-            <span className="font-medium text-foreground">{organization.name}</span>
-          </>
-        }
-        primaryAction={
-          <Button size="sm" className="gap-1.5" onClick={() => navigate("/dashboard/pdsa-lab")}>
-            <FlaskConical className="h-4 w-4" />
-            New PDSA
-          </Button>
-        }
-        secondaryActions={
-          <Button size="sm" variant="outline" className="gap-1.5" onClick={handleBoardReport}>
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Board Report</span>
-          </Button>
-        }
-      />
-
-      <AttentionStrip items={attentionItems} />
-
-      <OnboardingChecklist />
-
+    <div className="space-y-6">
+      {/* Slim sticky sample-data strip */}
       {hasTrends && hasCycles && !sampleBannerDismissed && (
-        <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
-          <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground flex-1">
-            <span className="font-medium text-foreground">Sample data is active.</span> Charts include demo data seeded during onboarding. Your real entries will replace these as you add them.
+        <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
+          <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+          <p className="text-xs text-muted-foreground flex-1 truncate">
+            <span className="font-medium text-foreground">Sample data is active.</span>{" "}
+            Charts include demo data; your entries will replace them.
           </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground shrink-0 h-7"
+          <button
+            className="text-xs text-muted-foreground hover:text-foreground shrink-0"
             onClick={() => {
               localStorage.setItem(`sample_banner_dismissed_${orgId}`, "true");
               setSampleBannerDismissed(true);
             }}
           >
             Dismiss
-          </Button>
+          </button>
         </div>
       )}
 
-      {/* KPI ROW */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard
-          title="Active PDSAs"
-          value={activePDSA}
-          icon={FlaskConical}
-          description={`Across ${new Set(cycles?.filter(c => c.status !== "completed").map(c => c.uds_measure)).size} UDS measures`}
-          onClick={() => navigate("/dashboard/pdsa-lab")}
-        />
-        <KpiCard
-          title="Measures at Risk"
-          value={atRiskMeasures.length}
-          icon={AlertTriangle}
-          tone={atRiskMeasures.length > 0 ? "warning" : "success"}
-          description="Below the HRSA 65% threshold"
-          onClick={() => setAtRiskOpen(true)}
-        />
-        <KpiCard
-          title="Tasks Due This Week"
-          value={tasksDue}
-          icon={CheckSquare}
-          tone={overdueTasks > 0 ? "destructive" : "default"}
-          description={`${overdueTasks} overdue · ${Math.max(tasksDue - overdueTasks, 0)} upcoming`}
-          onClick={() => navigate("/dashboard/staff-tasks")}
-        />
-        <KpiCard
-          title="VBC Shared Savings"
-          value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
-          icon={DollarSign}
-          tone={fin ? "success" : "default"}
-          description={
-            fin
-              ? `+${fin.trend}% vs last quarter`
-              : "Configure to track financial impact"
+      <div className="p-6 space-y-6">
+        <PageHeader
+          title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstName}`}
+          description={<span>{dateLabel}</span>}
+          secondaryActions={
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                onClick={handleBoardReport}
+              >
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Board Report</span>
+              </Button>
+              <Separator orientation="vertical" className="h-6" />
+            </div>
           }
-          onClick={() => setFinDialogOpen(true)}
+          primaryAction={
+            <Button className="gap-1.5 shadow-sm" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              <FlaskConical className="h-4 w-4" />
+              New PDSA
+            </Button>
+          }
         />
-      </div>
+
+        <AttentionStrip items={attentionItems} />
+
+        <OnboardingChecklist />
+
+        {/* KPI ROW */}
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <KpiCard
+            title="Active PDSAs"
+            value={activePDSA}
+            icon={FlaskConical}
+            description={
+              stalledPDSA > 0
+                ? `${stalledPDSA} stalled >14 days · tap to review`
+                : `Across ${new Set(cycles?.filter(c => c.status !== "completed").map(c => c.uds_measure)).size} UDS measures`
+            }
+            badge={stalledPDSA > 0 ? { label: `${stalledPDSA} stalled`, tone: "warning" } : undefined}
+            onClick={() => navigate("/dashboard/pdsa-lab")}
+          />
+          <KpiCard
+            title="Measures at Risk"
+            value={atRiskMeasures.length}
+            icon={AlertTriangle}
+            tone={atRiskMeasures.length > 0 ? "warning" : "success"}
+            description={
+              topAtRisk.length > 0
+                ? topAtRisk.map((m) => `${MEASURE_LABELS[m.id]?.split(" ")[0] || m.id} ${m.value.toFixed(0)}%`).join(" · ")
+                : "All measures above the HRSA 65% threshold"
+            }
+            badge={
+              atRiskMeasures.length > 0
+                ? { label: "Below target", tone: "warning" }
+                : undefined
+            }
+            onClick={() => setAtRiskOpen(true)}
+          />
+          <KpiCard
+            title="Tasks Due This Week"
+            value={tasksDue}
+            icon={CheckSquare}
+            tone={overdueTasks > 0 ? "destructive" : "default"}
+            description={`${overdueTasks} overdue · ${Math.max(tasksDue - overdueTasks, 0)} upcoming`}
+            badge={overdueTasks > 0 ? { label: `${overdueTasks} overdue`, tone: "destructive" } : undefined}
+            onClick={() => navigate("/dashboard/staff-tasks")}
+          />
+          <KpiCard
+            title="VBC Shared Savings"
+            value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
+            icon={DollarSign}
+            tone={fin ? "success" : "default"}
+            description={
+              fin
+                ? `+${fin.trend}% vs last quarter`
+                : "Configure to track financial impact"
+            }
+            onClick={() => setFinDialogOpen(true)}
+          />
+        </div>
+
 
       <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
