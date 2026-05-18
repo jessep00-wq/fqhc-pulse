@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
 
 interface PublicPageLayoutProps {
   children: React.ReactNode;
