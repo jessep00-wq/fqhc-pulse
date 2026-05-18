@@ -25,6 +25,7 @@ export interface StoreProduct {
   sort_order: number;
   buyer_guidance: string | null;
   preview_image_urls: string[];
+  is_coming_soon?: boolean;
 }
 
 export interface StoreBundle {
