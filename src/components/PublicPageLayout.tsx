@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+
 import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
 import { CartButton } from "@/components/store/CartButton";
 import { CartDrawer } from "@/components/store/CartDrawer";
