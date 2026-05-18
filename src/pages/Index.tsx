@@ -477,83 +477,84 @@ export default function Dashboard() {
         financials={fin}
       />
 
-      {/* TWO-COLUMN WORKING AREA */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <SectionCard
-          className="lg:col-span-2"
-          title={<><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</>}
-          description="Statistical Process Control + trend lines for your active measures"
-        >
-          {!hasTrends ? (
-            <EmptyState
-              icon={TrendingUp}
-              title="No UDS trend data yet"
-              description="Add your UDS clinical measure data to see trend charts and SPC analysis."
-              actionLabel="Go to Settings"
-              onAction={() => navigate("/dashboard/settings")}
-            />
-          ) : (
-            <Tabs defaultValue="spc" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="spc" className="gap-1.5">
-                  <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
-                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
-                </TabsTrigger>
-                <TabsTrigger value="trends">UDS Trends</TabsTrigger>
-              </TabsList>
-              <TabsContent value="spc">
-                <SPCChart trends={trends || []} />
-              </TabsContent>
-              <TabsContent value="trends" className="space-y-2">
-                <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
-                    <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
-                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
-                    <Legend />
-                    <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
-                    <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
-                    <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
-                    <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
-                    <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
-                    <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
-                  </LineChart>
-                </ResponsiveContainer>
-              </TabsContent>
-            </Tabs>
-          )}
-        </SectionCard>
+      {/* FULL-WIDTH CLINICAL ANALYTICS */}
+      <SectionCard
+        title={<><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</>}
+        description="Statistical Process Control + trend lines for your active measures"
+      >
+        {!hasTrends ? (
+          <EmptyState
+            icon={TrendingUp}
+            title="No UDS trend data yet"
+            description="Add your UDS clinical measure data to see trend charts and SPC analysis."
+            actionLabel="Go to Settings"
+            onAction={() => navigate("/dashboard/settings")}
+          />
+        ) : (
+          <Tabs defaultValue="spc" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="spc" className="gap-1.5">
+                <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
+              </TabsTrigger>
+              <TabsTrigger value="trends">UDS Trends</TabsTrigger>
+            </TabsList>
+            <TabsContent value="spc">
+              <SPCChart trends={trends || []} />
+            </TabsContent>
+            <TabsContent value="trends" className="space-y-2">
+              <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
+              <ResponsiveContainer width="100%" height={340}>
+                <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" className="text-xs" />
+                  <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
+                  <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
+                  <Legend />
+                  <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
+                  <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
+                  <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
+                  <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
+                  <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
+                  <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
+                </LineChart>
+              </ResponsiveContainer>
+            </TabsContent>
+          </Tabs>
+        )}
+      </SectionCard>
 
-        <SectionCard
-          title="Recent Activity"
-          description="Audit-friendly feed of changes"
-          action={
-            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
-              View all
-            </Button>
-          }
-        >
-          {feedItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <FlaskConical className="h-5 w-5 text-primary" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">No activity yet</p>
-                <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
-              </div>
-              <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
-                Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
-              </Button>
+      {/* COMPACT ACTIVITY (collapsible) */}
+      <SectionCard
+        title="Recent Activity"
+        description="Audit-friendly feed of changes"
+        collapsible
+        defaultOpen={true}
+        action={
+          <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
+            View all
+          </Button>
+        }
+      >
+        {feedItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <FlaskConical className="h-5 w-5 text-primary" />
             </div>
-          ) : (
-            <ActivityFeed items={feedItems} />
-          )}
-        </SectionCard>
-      </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium">No activity yet</p>
+              <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
+        ) : (
+          <ActivityFeed items={feedItems} />
+        )}
+      </SectionCard>
+
 
       {/* FINANCIAL IMPACT DETAIL (collapsible) */}
       {fin && (
