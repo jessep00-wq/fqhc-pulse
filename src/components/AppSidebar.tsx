@@ -52,14 +52,14 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3 min-w-0">
-          <Logo size="sm" />
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Logo size="sm" markOnly />
           {!collapsed && (
             <div className="flex flex-col min-w-0 flex-1">
-              <span className="text-sm font-bold tracking-tight text-sidebar-foreground truncate">
+              <span className="text-sm font-bold tracking-tight text-sidebar-foreground whitespace-nowrap">
                 MeasureWise
               </span>
-              <span className="text-[11px] leading-tight text-sidebar-foreground/60 truncate">
+              <span className="text-[11px] leading-tight text-sidebar-foreground/60 whitespace-nowrap">
                 FQHC Quality Platform
               </span>
             </div>
