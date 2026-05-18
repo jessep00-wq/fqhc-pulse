@@ -331,35 +331,15 @@ export default function Dashboard() {
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
   const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
 
-  // Build attention strip
+  // Attention strip now only carries items without a natural KPI home.
   const attentionItems: AttentionItem[] = [];
-  if (overdueTasks > 0) {
-    attentionItems.push({
-      id: "overdue-tasks",
-      icon: CheckSquare,
-      label: `${overdueTasks} overdue ${overdueTasks === 1 ? "task" : "tasks"}`,
-      tone: "destructive",
-      onClick: () => navigate("/dashboard/staff-tasks"),
-    });
-  }
-  if (stalledPDSA > 0) {
-    attentionItems.push({
-      id: "stalled-pdsa",
-      icon: FlaskConical,
-      label: `${stalledPDSA} ${stalledPDSA === 1 ? "PDSA" : "PDSAs"} stalled >14 days`,
-      tone: "warning",
-      onClick: () => navigate("/dashboard/pdsa-lab"),
-    });
-  }
-  if (atRiskMeasures.length > 0) {
-    attentionItems.push({
-      id: "at-risk",
-      icon: AlertTriangle,
-      label: `${atRiskMeasures.length} ${atRiskMeasures.length === 1 ? "measure" : "measures"} below target`,
-      tone: "warning",
-      onClick: () => setAtRiskOpen(true),
-    });
-  }
+  // (stalled PDSAs and at-risk measures are now folded into their KPI cards)
+
+  const topAtRisk = atRiskMeasures
+    .slice()
+    .sort((a, b) => a.value - b.value)
+    .slice(0, 2);
+
 
   // Activity feed entries
   const feedItems: ActivityFeedEntry[] = (activity || []).map((a) => ({
@@ -380,92 +360,111 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <PageHeader
-        title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstName}`}
-        description={
-          <>
-            <span>{dateLabel}</span>
-            <span className="mx-2 text-border">·</span>
-            <span className="font-medium text-foreground">{organization.name}</span>
-          </>
-        }
-        primaryAction={
-          <Button size="sm" className="gap-1.5" onClick={() => navigate("/dashboard/pdsa-lab")}>
-            <FlaskConical className="h-4 w-4" />
-            New PDSA
-          </Button>
-        }
-        secondaryActions={
-          <Button size="sm" variant="outline" className="gap-1.5" onClick={handleBoardReport}>
-            <FileText className="h-4 w-4" />
-            <span className="hidden sm:inline">Board Report</span>
-          </Button>
-        }
-      />
-
-      <AttentionStrip items={attentionItems} />
-
-      <OnboardingChecklist />
-
+    <div className="space-y-6">
+      {/* Slim sticky sample-data strip */}
       {hasTrends && hasCycles && !sampleBannerDismissed && (
-        <div className="rounded-lg border border-border bg-muted/50 p-3 flex items-center gap-3">
-          <Info className="h-4 w-4 text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground flex-1">
-            <span className="font-medium text-foreground">Sample data is active.</span> Charts include demo data seeded during onboarding. Your real entries will replace these as you add them.
+        <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
+          <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+          <p className="text-xs text-muted-foreground flex-1 truncate">
+            <span className="font-medium text-foreground">Sample data is active.</span>{" "}
+            Charts include demo data; your entries will replace them.
           </p>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-xs text-muted-foreground shrink-0 h-7"
+          <button
+            className="text-xs text-muted-foreground hover:text-foreground shrink-0"
             onClick={() => {
               localStorage.setItem(`sample_banner_dismissed_${orgId}`, "true");
               setSampleBannerDismissed(true);
             }}
           >
             Dismiss
-          </Button>
+          </button>
         </div>
       )}
 
-      {/* KPI ROW */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KpiCard
-          title="Active PDSAs"
-          value={activePDSA}
-          icon={FlaskConical}
-          description={`Across ${new Set(cycles?.filter(c => c.status !== "completed").map(c => c.uds_measure)).size} UDS measures`}
-          onClick={() => navigate("/dashboard/pdsa-lab")}
-        />
-        <KpiCard
-          title="Measures at Risk"
-          value={atRiskMeasures.length}
-          icon={AlertTriangle}
-          tone={atRiskMeasures.length > 0 ? "warning" : "success"}
-          description="Below the HRSA 65% threshold"
-          onClick={() => setAtRiskOpen(true)}
-        />
-        <KpiCard
-          title="Tasks Due This Week"
-          value={tasksDue}
-          icon={CheckSquare}
-          tone={overdueTasks > 0 ? "destructive" : "default"}
-          description={`${overdueTasks} overdue · ${Math.max(tasksDue - overdueTasks, 0)} upcoming`}
-          onClick={() => navigate("/dashboard/staff-tasks")}
-        />
-        <KpiCard
-          title="VBC Shared Savings"
-          value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
-          icon={DollarSign}
-          tone={fin ? "success" : "default"}
-          description={
-            fin
-              ? `+${fin.trend}% vs last quarter`
-              : "Configure to track financial impact"
+      <div className="p-6 space-y-6">
+        <PageHeader
+          title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstName}`}
+          description={<span>{dateLabel}</span>}
+          secondaryActions={
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                onClick={handleBoardReport}
+              >
+                <FileText className="h-4 w-4" />
+                <span className="hidden sm:inline">Board Report</span>
+              </Button>
+              <Separator orientation="vertical" className="h-6" />
+            </div>
           }
-          onClick={() => setFinDialogOpen(true)}
+          primaryAction={
+            <Button className="gap-1.5 shadow-sm" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              <FlaskConical className="h-4 w-4" />
+              New PDSA
+            </Button>
+          }
         />
-      </div>
+
+        <AttentionStrip items={attentionItems} />
+
+        <OnboardingChecklist />
+
+        {/* KPI ROW */}
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <KpiCard
+            title="Active PDSAs"
+            value={activePDSA}
+            icon={FlaskConical}
+            description={
+              stalledPDSA > 0
+                ? `${stalledPDSA} stalled >14 days · tap to review`
+                : `Across ${new Set(cycles?.filter(c => c.status !== "completed").map(c => c.uds_measure)).size} UDS measures`
+            }
+            badge={stalledPDSA > 0 ? { label: `${stalledPDSA} stalled`, tone: "warning" } : undefined}
+            onClick={() => navigate("/dashboard/pdsa-lab")}
+          />
+          <KpiCard
+            title="Measures at Risk"
+            value={atRiskMeasures.length}
+            icon={AlertTriangle}
+            tone={atRiskMeasures.length > 0 ? "warning" : "success"}
+            description={
+              topAtRisk.length > 0
+                ? topAtRisk.map((m) => `${MEASURE_LABELS[m.id]?.split(" ")[0] || m.id} ${m.value.toFixed(0)}%`).join(" · ")
+                : "All measures above the HRSA 65% threshold"
+            }
+            badge={
+              atRiskMeasures.length > 0
+                ? { label: "Below target", tone: "warning" }
+                : undefined
+            }
+            onClick={() => setAtRiskOpen(true)}
+          />
+          <KpiCard
+            title="Tasks Due This Week"
+            value={tasksDue}
+            icon={CheckSquare}
+            tone={overdueTasks > 0 ? "destructive" : "default"}
+            description={`${overdueTasks} overdue · ${Math.max(tasksDue - overdueTasks, 0)} upcoming`}
+            badge={overdueTasks > 0 ? { label: `${overdueTasks} overdue`, tone: "destructive" } : undefined}
+            onClick={() => navigate("/dashboard/staff-tasks")}
+          />
+          <KpiCard
+            title="VBC Shared Savings"
+            value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
+            icon={DollarSign}
+            tone={fin ? "success" : "default"}
+            description={
+              fin
+                ? `+${fin.trend}% vs last quarter`
+                : "Configure to track financial impact"
+            }
+            onClick={() => setFinDialogOpen(true)}
+          />
+        </div>
+
 
       <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
@@ -478,83 +477,84 @@ export default function Dashboard() {
         financials={fin}
       />
 
-      {/* TWO-COLUMN WORKING AREA */}
-      <div className="grid gap-4 lg:grid-cols-3">
-        <SectionCard
-          className="lg:col-span-2"
-          title={<><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</>}
-          description="Statistical Process Control + trend lines for your active measures"
-        >
-          {!hasTrends ? (
-            <EmptyState
-              icon={TrendingUp}
-              title="No UDS trend data yet"
-              description="Add your UDS clinical measure data to see trend charts and SPC analysis."
-              actionLabel="Go to Settings"
-              onAction={() => navigate("/dashboard/settings")}
-            />
-          ) : (
-            <Tabs defaultValue="spc" className="space-y-4">
-              <TabsList>
-                <TabsTrigger value="spc" className="gap-1.5">
-                  <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
-                  <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
-                </TabsTrigger>
-                <TabsTrigger value="trends">UDS Trends</TabsTrigger>
-              </TabsList>
-              <TabsContent value="spc">
-                <SPCChart trends={trends || []} />
-              </TabsContent>
-              <TabsContent value="trends" className="space-y-2">
-                <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                    <XAxis dataKey="month" className="text-xs" />
-                    <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
-                    <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
-                    <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
-                    <Legend />
-                    <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
-                    <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
-                    <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
-                    <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
-                    <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
-                    <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
-                  </LineChart>
-                </ResponsiveContainer>
-              </TabsContent>
-            </Tabs>
-          )}
-        </SectionCard>
+      {/* FULL-WIDTH CLINICAL ANALYTICS */}
+      <SectionCard
+        title={<><JargonTooltip term="UDS">UDS</JargonTooltip> Clinical Analytics</>}
+        description="Statistical Process Control + trend lines for your active measures"
+      >
+        {!hasTrends ? (
+          <EmptyState
+            icon={TrendingUp}
+            title="No UDS trend data yet"
+            description="Add your UDS clinical measure data to see trend charts and SPC analysis."
+            actionLabel="Go to Settings"
+            onAction={() => navigate("/dashboard/settings")}
+          />
+        ) : (
+          <Tabs defaultValue="spc" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="spc" className="gap-1.5">
+                <JargonTooltip term="SPC" showIcon={false}>SPC</JargonTooltip> Analysis
+                <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold text-primary leading-none">PRO</span>
+              </TabsTrigger>
+              <TabsTrigger value="trends">UDS Trends</TabsTrigger>
+            </TabsList>
+            <TabsContent value="spc">
+              <SPCChart trends={trends || []} />
+            </TabsContent>
+            <TabsContent value="trends" className="space-y-2">
+              <p className="text-xs text-muted-foreground">Higher is better for screening measures (left axis). Lower is better for HbA1c poor control (right axis, dashed).</p>
+              <ResponsiveContainer width="100%" height={340}>
+                <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="month" className="text-xs" />
+                  <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
+                  <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
+                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
+                  <Legend />
+                  <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
+                  <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
+                  <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
+                  <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
+                  <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
+                  <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
+                </LineChart>
+              </ResponsiveContainer>
+            </TabsContent>
+          </Tabs>
+        )}
+      </SectionCard>
 
-        <SectionCard
-          title="Recent Activity"
-          description="Audit-friendly feed of changes"
-          action={
-            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
-              View all
-            </Button>
-          }
-        >
-          {feedItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
-              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <FlaskConical className="h-5 w-5 text-primary" />
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm font-medium">No activity yet</p>
-                <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
-              </div>
-              <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
-                Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
-              </Button>
+      {/* COMPACT ACTIVITY (collapsible) */}
+      <SectionCard
+        title="Recent Activity"
+        description="Audit-friendly feed of changes"
+        collapsible
+        defaultOpen={true}
+        action={
+          <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
+            View all
+          </Button>
+        }
+      >
+        {feedItems.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-6 text-center space-y-3">
+            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+              <FlaskConical className="h-5 w-5 text-primary" />
             </div>
-          ) : (
-            <ActivityFeed items={feedItems} />
-          )}
-        </SectionCard>
-      </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium">No activity yet</p>
+              <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
+            </div>
+            <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
+        ) : (
+          <ActivityFeed items={feedItems} />
+        )}
+      </SectionCard>
+
 
       {/* FINANCIAL IMPACT DETAIL (collapsible) */}
       {fin && (
@@ -602,6 +602,8 @@ export default function Dashboard() {
           </div>
         </SectionCard>
       )}
+      </div>
     </div>
   );
 }
+
