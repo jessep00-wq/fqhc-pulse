@@ -68,11 +68,57 @@ export default function SPCChart({ trends }: SPCChartProps) {
       {chartData.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">No trend data for {measureLabel}</p>
       ) : (
-        <ResponsiveContainer width="100%" height={280}>
-          <LineChart data={chartData}>
+        <ResponsiveContainer width="100%" height={360}>
+          <LineChart data={chartData} margin={{ top: 10, right: 20, left: 16, bottom: 5 }}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
             <XAxis dataKey="month" className="text-xs" />
-            <YAxis className="text-xs" domain={[Math.floor(lcl - 5), Math.ceil(ucl + 5)]} />
+            <YAxis
+              className="text-xs"
+              width={78}
+              domain={[Math.floor(lcl - 5), Math.ceil(ucl + 5)]}
+              ticks={Array.from(
+                new Set([
+                  Math.floor(lcl - 5),
+                  Number(lcl.toFixed(1)),
+                  Number(mean.toFixed(1)),
+                  Number(ucl.toFixed(1)),
+                  Math.ceil(ucl + 5),
+                ]),
+              ).sort((a, b) => a - b)}
+              tick={(props: { x: number; y: number; payload: { value: number } }) => {
+                const { x, y, payload } = props;
+                const v = payload.value;
+                const isUcl = Math.abs(v - Number(ucl.toFixed(1))) < 0.05;
+                const isLcl = Math.abs(v - Number(lcl.toFixed(1))) < 0.05;
+                const isMean = Math.abs(v - Number(mean.toFixed(1))) < 0.05;
+                const label = isUcl
+                  ? `UCL ${v.toFixed(1)}`
+                  : isLcl
+                    ? `LCL ${v.toFixed(1)}`
+                    : isMean
+                      ? `CL ${v.toFixed(1)}`
+                      : v.toString();
+                const fill = isUcl || isLcl
+                  ? "hsl(var(--destructive))"
+                  : isMean
+                    ? "hsl(var(--success))"
+                    : "hsl(var(--muted-foreground))";
+                const fontWeight = isUcl || isLcl || isMean ? 600 : 400;
+                return (
+                  <text
+                    x={x}
+                    y={y}
+                    dy={4}
+                    textAnchor="end"
+                    fontSize={11}
+                    fontWeight={fontWeight}
+                    fill={fill}
+                  >
+                    {label}
+                  </text>
+                );
+              }}
+            />
             <Tooltip
               contentStyle={{
                 backgroundColor: "hsl(var(--card))",
@@ -86,21 +132,15 @@ export default function SPCChart({ trends }: SPCChartProps) {
               stroke="hsl(var(--destructive))"
               strokeDasharray="6 3"
               strokeWidth={1.5}
-              label={{ value: `UCL ${ucl.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--destructive))" } }}
             />
-            <ReferenceLine
-              y={mean}
-              stroke="hsl(var(--success))"
-              strokeWidth={2}
-              label={{ value: `CL ${mean.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--success))" } }}
-            />
+            <ReferenceLine y={mean} stroke="hsl(var(--success))" strokeWidth={2} />
             <ReferenceLine
               y={lcl}
               stroke="hsl(var(--destructive))"
               strokeDasharray="6 3"
               strokeWidth={1.5}
-              label={{ value: `LCL ${lcl.toFixed(1)}`, position: "right", style: { fontSize: 9, fill: "hsl(var(--destructive))" } }}
             />
+
             <Line
               type="monotone"
               dataKey="value"
