@@ -104,30 +104,20 @@ export default function StoreSuccess() {
               </div>
             )}
 
-            {!loading && order?.downloadLinks?.length ? (
+            {!loading && order?.status === "paid" ? (
               <div className="space-y-2 rounded-lg border border-border bg-card p-4">
-                <p className="text-sm font-semibold text-foreground">Download your files</p>
-                <ul className="space-y-2">
-                  {order.downloadLinks.map((l) => (
-                    <li key={l.path}>
-                      <a
-                        href={l.url}
-                        className="flex items-center gap-2 text-primary hover:underline text-sm font-medium"
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        <Download className="h-4 w-4" /> {l.name}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-                <p className="text-xs text-muted-foreground pt-2">
-                  Links expire in 7 days. Use the email link or the re-send button below for a fresh copy.
+                <p className="text-sm font-semibold text-foreground inline-flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-primary" /> Check your inbox
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Your download links are on their way to
+                  {order.customerEmail ? <> <strong className="text-foreground">{order.customerEmail}</strong></> : <> the email you used at checkout</>}.
+                  Links expire in 7 days — use the re-send button below if you need a fresh copy.
                 </p>
               </div>
             ) : null}
 
-            {!loading && !order?.downloadLinks?.length ? (
+            {!loading && order?.status !== "paid" ? (
               <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
                 <p className="font-semibold">Payment received — your files are still processing.</p>
                 <p>
