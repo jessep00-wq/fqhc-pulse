@@ -4,6 +4,15 @@
 const BRAND_COLOR = "#1a8a8a";
 const BRAND_BG = "#f8fafb";
 
+// HTML escape user-controlled content to prevent HTML/script injection in emails
+const esc = (s: unknown): string =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 function layout(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -29,7 +38,7 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
   return {
     subject: "Welcome to MeasureWise — Let's Improve Quality Together",
     html: layout("Welcome to MeasureWise", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${name || "there"}!</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${esc(name) || "there"}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.
       </p>
@@ -49,7 +58,7 @@ export function contactConfirmationEmail(name: string): { subject: string; html:
   return {
     subject: "We received your message — MeasureWise",
     html: layout("Message Received", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${name}` : ""}!</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${esc(name)}` : ""}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         We've received your message and our team will get back to you within 1 business day.
       </p>
@@ -68,9 +77,9 @@ export function taskDeadlineEmail(
   const taskRows = tasks
     .map(
       (t) => `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${t.title}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${t.cycleName || "—"}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#ef4444;font-size:14px;font-weight:600;">${t.dueDate}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(t.title)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(t.cycleName || "—")}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#ef4444;font-size:14px;font-weight:600;">${esc(t.dueDate)}</td>
       </tr>`
     )
     .join("");
@@ -78,7 +87,7 @@ export function taskDeadlineEmail(
   return {
     subject: `⚠️ ${tasks.length} task${tasks.length > 1 ? "s" : ""} need${tasks.length === 1 ? "s" : ""} attention — MeasureWise`,
     html: layout("Task Deadline Reminder", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         The following tasks are overdue or due soon and need your attention:
       </p>
@@ -114,7 +123,7 @@ export function weeklyDigestEmail(
         const atOrAbove = m.gap !== null && m.gap !== undefined && m.gap <= 0;
         const valueColor = belowTarget ? "#ef4444" : atOrAbove ? "#10b981" : "#374151";
         return `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(m.name)}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${valueColor};font-weight:600;">${m.value}%</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.target != null ? `${m.target}%` : "—"}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${m.trend === "up" ? "#10b981" : m.trend === "down" ? "#ef4444" : "#6b7280"};">${m.trend === "up" ? "↑ Improving" : m.trend === "down" ? "↓ Declining" : "→ Stable"}</td>
@@ -127,15 +136,15 @@ export function weeklyDigestEmail(
   const insightSentences = (digest.topMeasures || [])
     .filter((m) => m.gap !== null && m.gap !== undefined && m.gap > 0)
     .map((m) => {
-      const cycleNote = m.activeCycleName ? ` — <strong>${m.activeCycleName}</strong> is active.` : "";
-      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${m.name}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
+      const cycleNote = m.activeCycleName ? ` — <strong>${esc(m.activeCycleName)}</strong> is active.` : "";
+      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${esc(m.name)}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
     })
     .join("");
 
   return {
     subject: customSubject || "📊 Your Weekly QI Digest — MeasureWise",
     html: layout("Weekly QI Digest", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 24px;">Here's your quality improvement summary for the past week:</p>
 
       <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
