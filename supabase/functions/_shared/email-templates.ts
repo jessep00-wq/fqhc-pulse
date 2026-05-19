@@ -123,7 +123,7 @@ export function weeklyDigestEmail(
         const atOrAbove = m.gap !== null && m.gap !== undefined && m.gap <= 0;
         const valueColor = belowTarget ? "#ef4444" : atOrAbove ? "#10b981" : "#374151";
         return `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(m.name)}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${valueColor};font-weight:600;">${m.value}%</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.target != null ? `${m.target}%` : "—"}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${m.trend === "up" ? "#10b981" : m.trend === "down" ? "#ef4444" : "#6b7280"};">${m.trend === "up" ? "↑ Improving" : m.trend === "down" ? "↓ Declining" : "→ Stable"}</td>
@@ -136,8 +136,8 @@ export function weeklyDigestEmail(
   const insightSentences = (digest.topMeasures || [])
     .filter((m) => m.gap !== null && m.gap !== undefined && m.gap > 0)
     .map((m) => {
-      const cycleNote = m.activeCycleName ? ` — <strong>${m.activeCycleName}</strong> is active.` : "";
-      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${m.name}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
+      const cycleNote = m.activeCycleName ? ` — <strong>${esc(m.activeCycleName)}</strong> is active.` : "";
+      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${esc(m.name)}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
     })
     .join("");
 
