@@ -79,6 +79,9 @@ export default function Auth() {
       toast.error(error.message);
     } else {
       // Send welcome email (fire-and-forget)
+      const escapeHtml = (s: string) =>
+        s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      const safeName = escapeHtml(fullName || "there");
       supabase.functions.invoke("send-email", {
         body: {
           to: email,
@@ -89,7 +92,7 @@ export default function Auth() {
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
 <tr><td style="background:#1a8a8a;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
 <tr><td style="padding:32px;">
-<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${fullName || "there"}!</h2>
+<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${safeName}!</h2>
 <p style="color:#374151;line-height:1.6;margin:0 0 16px;">You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.</p>
 <p style="color:#374151;line-height:1.6;margin:0 0 16px;">Here's what to do next:</p>
 <ol style="color:#374151;line-height:1.8;padding-left:20px;margin:0 0 24px;">
