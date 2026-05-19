@@ -149,6 +149,13 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Record the send so subsequent invocations short-circuit (idempotency).
+    await supabase.from("email_send_log").insert({
+      template_name: "welcome",
+      recipient_email: email,
+      status: "sent",
+    });
+
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
