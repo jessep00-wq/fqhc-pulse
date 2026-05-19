@@ -133,7 +133,7 @@ function CalloutBlock({ section }: { section: Extract<NewsletterSection, { type:
     <div className="relative rounded-xl bg-sidebar p-7 my-8 overflow-hidden">
       <div className="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-primary to-primary/60" />
       <div className="text-[10px] tracking-[2px] font-bold uppercase text-primary mb-2.5">{section.label}</div>
-      <p className="text-[15px] leading-relaxed text-sidebar-foreground/90" dangerouslySetInnerHTML={{ __html: section.text.replace(/\*\*(.*?)\*\*/g, '<strong class="text-sidebar-foreground">$1</strong>') }} />
+      <p className="text-[15px] leading-relaxed text-sidebar-foreground/90" dangerouslySetInnerHTML={{ __html: renderInline(section.text).replace(/<strong>/g, '<strong class="text-sidebar-foreground">') }} />
     </div>
   );
 }
