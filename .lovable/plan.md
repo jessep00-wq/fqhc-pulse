@@ -1,69 +1,100 @@
+## Goal
 
-# Operational backbone — execution plan
+Stop Google from seeing every route as the same "Every PDSA cycle → UDS measure" hero, and claim the "UDS-aligned PDSA" keyword family.
 
-Scope is large. Sequencing matters because email branding is gated on DNS verification (which you start in parallel).
+## Why this is happening
 
-## 1. Lead tracking (extend existing)
-- `playbook_leads` already exists and is wired. Add columns:
-  - `welcome_sent_at timestamptz`
-  - `reminder_sent_at timestamptz`
-  - `tags text[]` (default `'{"Playbook Lead"}'`)
-  - `notes text`
-- Add admin export: CSV download button on `AdminOverview` filtering by `source`.
-- No schema rename — keeps existing data and edge function intact.
+`index.html` ships a full pre-React marketing shell with the home page's title, description, og tags, and visible H1/body copy. Until the JS bundle hydrates and `react-helmet-async` swaps in per-route tags, every route (pricing, store, blog, features, about, case studies, newsletter) returns the same static HTML. Snippet crawlers and many Google passes index that shell — so the SERP shows the home hero for every URL.
 
-## 2. Email infrastructure (branded, Lovable-managed)
-**Prerequisite — you do this once:** click "Set up email domain" below and add the NS records at your registrar (e.g. `notify.measurewise.org`). I scaffold the templates immediately; emails go live the moment DNS verifies.
+Per-route `<SEO>` components exist but several titles are generic ("Pricing — MeasureWise FQHC Quality Operations", "Store — Templates for FQHC Quality Teams") and don't match the keyword strategy.
 
-- **Auth emails** (signup confirm, password reset, magic link, email change, reauthentication, invite): scaffold and rebrand to teal/navy with MeasureWise logo, executive tone.
-- **Welcome email** — new edge function `send-welcome-email` invoked from `AuthContext` after successful signup AND from the playbook capture function (already separately sends the PDF; welcome is a distinct nurture email branded as "Welcome from Jessica").
-- **Subscription confirmation** — fired from `payments-webhook` on `checkout.session.completed` for the **subscription** path (currently only the one-time product path sends an email). Confirms plan, trial dates, what to do next.
-- **3-day playbook follow-up** — soft nurture: "Did you get a chance to read it? Happy to chat — book 15 min." Includes Calendly placeholder link. Implementation:
-  - Edge function `send-playbook-followups` (cron via pg_cron, daily 9am ET).
-  - Queries `playbook_leads` where `created_at < now() - interval '3 days'` AND `reminder_sent_at IS NULL`.
-  - Stamps `reminder_sent_at` after send to prevent duplicates.
+## Plan
 
-## 3. UDS Measure Pack — "Coming Soon"
-- Add `is_coming_soon boolean` column to `store_products` (default false).
-- Set `true` for `uds-measure-template-pack`.
-- `BuyButton` and `ProductCard` render disabled state + "Coming Soon" badge when flag is true.
-- Already protected server-side: `create-checkout` rejects items with zero files.
+### 1. Fix the static-shell duplication (highest-impact change)
 
-## 4. Multi-item checkout cart
-- **State**: Zustand store `useCartStore` persisted to localStorage (`measurewise_cart`).
-- **UI**:
-  - Cart icon w/ badge in `PublicPageLayout` header (only when items > 0).
-  - `CartDrawer` (shadcn `Sheet`) — line items, remove, quantity 1 only (digital), subtotal, "Checkout" button.
-  - `ProductCard` / `BundleCard` gets second action "Add to cart" alongside "Buy now" (Buy now stays — single-click path).
-- **Server**:
-  - Update `create-checkout` to accept `items: Array<{ lookupKey, quantity }>` (back-compat: single `priceId` still works).
-  - Resolves each lookup key through the existing `PRICE_LOOKUP_KEYS` allowlist, validates each item has deliverable files, builds `line_items[]` for Stripe Checkout.
-  - Stores cart contents in session metadata so `payments-webhook` can mint download links for every item.
-- **Webhook**: extend `payments-webhook` to handle multi-item orders (loop `line_items`, aggregate `product_ids`/`bundle_ids`, generate signed URLs for all included files).
+- Strip the home-specific H1, hero subcopy, feature grid, and og:* values out of the `<noscript>` / marketing shell in `index.html`. Keep a minimal neutral shell (logo, nav, "Loading MeasureWise…", links to sitemap pages) so non-JS crawlers see navigation, not the home hero.
+- Keep sitewide `<title>`, description, and og:image as fallbacks only — make them generic ("MeasureWise™ — Quality operations platform for FQHCs"), not the PDSA tagline.
+- Remove the duplicated `og:description` "Every PDSA cycle…" line from `index.html`. Per-route Helmet will own descriptions.
+- Leave the canonical/og:url logic alone; per-route SEO already overrides.
 
-## 5. Data integrity / compliance
-- All new tables get RLS:
-  - `playbook_leads` new columns inherit existing RLS (public insert, founder-admin read).
-- Cart is client-only (no PHI, no server table needed).
-- No "AI Prompt Ebooks" placeholders exist in the codebase — verified previously. Nothing to remove.
+### 2. Rewrite per-page SEO (title, description, H1, opening paragraph)
 
-## 6. Stripe configuration
-- Stripe is **already wired** via the Lovable connector gateway (`STRIPE_SANDBOX_API_KEY` / `STRIPE_LIVE_API_KEY`). No "Add API Key" step needed — that integration is the built-in path.
-- All current prices (`uds_template_pack_one_time`, etc.) work; cart just bundles multiple existing prices into one Checkout Session.
+Each route gets a unique title aligned to a target keyword cluster, a unique meta description, a unique H1, and a unique opening paragraph (3–5 sentences) that doesn't reuse the home hero copy.
 
----
+| Route | New title | Target cluster |
+|---|---|---|
+| `/pricing` | MeasureWise pricing for FQHC quality teams | brand + intent |
+| `/store` | UDS templates and audit tools for FQHC quality teams | "FQHC quality improvement plan template", "HRSA audit binder template" |
+| `/features/spc-charts` | SPC charts for UDS measure tracking | "SPC charts for UDS measures" |
+| `/features/hrsa-audit-binder` | HRSA audit binder generator for FQHC quality improvement | "HRSA audit binder template" |
+| `/features/pdsa-cycle-manager` | UDS-aligned PDSA cycles for FQHCs | "UDS-aligned PDSA", "FQHC PDSA cycle template" |
+| `/features/uds-tracking` | UDS measure tracking software for FQHCs | "spreadsheet replacement for QI tracking" |
+| `/features/pcmh-evidence` | PCMH Q-PASS evidence collection for FQHCs | unchanged but tightened |
+| `/blog` | FQHC quality improvement, UDS, and PDSA resources | hub |
+| `/newsletter` | FQHC quality improvement newsletter | hub |
+| `/case-studies` | FQHC case studies: UDS measure gains and HRSA readiness | proof |
+| `/about` | About MeasureWise and founder Jessica Smith, BSN | brand |
+| `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/chc-ops-managers` | tightened persona titles | persona |
 
-## Sequence
-1. **You**: click "Set up email domain" → add NS records (background DNS verify, ~minutes to hours).
-2. **Me, in parallel** (does not block on DNS):
-   - Migration: `playbook_leads` columns + `store_products.is_coming_soon`.
-   - Scaffold + brand auth email templates, deploy `auth-email-hook`.
-   - Build `send-welcome-email`, wire into `AuthContext`.
-   - Extend `payments-webhook` for subscription confirmation email + multi-item orders.
-   - Build `send-playbook-followups` + cron schedule.
-   - Build cart store, drawer, header icon, "Add to cart" buttons.
-   - Extend `create-checkout` for multi-item.
-   - Flag UDS Pack as Coming Soon.
-3. **Verification**: build clean, smoke-test cart → Stripe sandbox checkout, confirm webhook fires.
+For each page above, also rewrite:
+- The visible H1 to match the title cluster.
+- The first paragraph under the H1 (no reuse of "Every PDSA cycle you run should move a UDS measure").
+- 3–6 internal links to sibling pages in the same cluster (cross-link store ↔ feature ↔ blog).
 
-Two-pass build because of the email-domain gate. Expect ~6–8 file groups of changes. I'll batch them.
+### 3. Build the "UDS-aligned PDSA" keyword moat
+
+Create eight new landing pages targeting the high-intent clusters from the screenshots. Each page: unique SEO tags, a single H1, semantic sections, 600–1,200 words, JSON-LD where appropriate, internal links into store + features.
+
+```
+/resources/uds-aligned-pdsa                  → cornerstone page for the moat
+/resources/hrsa-ready-qi-documentation
+/resources/fqhc-quality-improvement-evidence
+/resources/athenaone-documentation-workflows
+/resources/spc-charts-for-uds-measures
+/resources/audit-binder-exports
+/resources/quality-committee-proof
+/resources/spreadsheet-replacement-qi-tracking
+```
+
+Plus the deeper assets from the user's screenshots (one per cluster, lighter pages that link back to the cornerstones):
+
+```
+/resources/2025-uds-clinical-quality-measures
+/resources/hrsa-osv-quality-improvement-documentation
+/resources/fqhc-quality-director-tools
+/resources/uds-table-6b-documentation-checklist
+/templates/fqhc-pdsa-cycle-template            (redirects/links to store product)
+/templates/hrsa-audit-binder-template          (redirects/links to store product)
+/templates/fqhc-quality-improvement-plan-template
+/blog/uds-pdsa-examples-fqhc
+/blog/uds-measure-tracking-spreadsheet-alternative
+/blog/azara-drvs-data-validation-fqhc
+/athenaone/uds-documentation-guide
+/athenaone/quality-measure-workflows
+```
+
+Each new page links into the cornerstone `/resources/uds-aligned-pdsa` so authority concentrates there.
+
+### 4. Sitemap, robots, llms.txt
+
+- Add every new route to `scripts/generate-sitemap.ts` (or `public/sitemap.xml` if hand-edited).
+- Add the safe public new routes to `public/llms.txt` under appropriate `## Resources`, `## Templates`, `## Blog` sections. Skip admin/auth/dashboard.
+- No `robots.txt` changes.
+
+### 5. Verification
+
+- Trigger an SEO scan after the edits land.
+- Spot-check `view-source:` for `/pricing`, `/store`, `/features/spc-charts`, `/blog` to confirm the static shell no longer leaks the home hero copy and that per-route Helmet tags render.
+
+## Out of scope
+
+- Backend/data model changes. This is purely content + meta + new marketing pages.
+- New blog post bodies for clusters not listed above.
+- Paid-search / Google Ads changes.
+
+## Technical notes
+
+- Per-route SEO uses `src/components/SEO.tsx` (react-helmet-async). New pages follow the same pattern — `<SEO title=… description=… canonical=… jsonLd=…>` then the page body.
+- All new `/resources/*`, `/templates/*`, `/athenaone/*` routes need entries in `src/App.tsx` and matching files in `src/pages/`.
+- Reuse `PublicPageLayout` and existing card/section primitives — no new design system work.
+- Keep canonical URLs on `https://measurewise.org` exactly (matches existing SEO util default).

@@ -27,8 +27,8 @@ export default function FeatureUDSTracking() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
-        title="UDS Tracking Software for FQHCs"
-        description="Track 20+ UDS clinical quality measures with real-time trends, gap-to-target analysis, and SPC charts. Built for Federally Qualified Health Centers."
+        title="UDS measure tracking software for FQHCs"
+        description="A spreadsheet replacement for FQHC UDS measure tracking — real-time trends, gap-to-target analysis, SPC chart integration, and audit-ready exports for all 20+ UDS clinical quality measures."
         canonical="https://measurewise.org/features/uds-tracking"
         jsonLd={jsonLd}
       />
@@ -40,15 +40,16 @@ export default function FeatureUDSTracking() {
             Feature
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            UDS Measure Tracking for
+            UDS measure tracking software
             <br />
-            <span className="text-primary">Federally Qualified Health Centers</span>
+            <span className="text-primary">for FQHCs</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Your health center's UDS performance directly affects HRSA funding, grant renewals, and ACO shared savings. MeasureWise tracks every clinical quality measure in real time so your QI team can act on data — not quarterly spreadsheets.
+            The spreadsheet you inherited can't tell you which UDS measure is sliding this month — it just shows last year's UDS report. MeasureWise replaces that spreadsheet with a live, trend-aware tracker for every UDS clinical quality measure, so you act on declining numbers before they end up in HRSA's report.
           </p>
         </div>
       </section>
+
 
       <section className="py-16 px-6 bg-muted/30">
         <div className="max-w-5xl mx-auto">

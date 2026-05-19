@@ -74,6 +74,16 @@ import BlogHRSAChecklist from "./pages/blog/BlogHRSAChecklist";
 import BlogQICulture from "./pages/blog/BlogQICulture";
 import BlogPostDynamic from "./pages/blog/BlogPostDynamic";
 
+// Resource cornerstones (SEO moat)
+import UDSAlignedPDSA from "./pages/resources/UDSAlignedPDSA";
+import HRSAReadyQIDocumentation from "./pages/resources/HRSAReadyQIDocumentation";
+import FQHCQualityImprovementEvidence from "./pages/resources/FQHCQualityImprovementEvidence";
+import AthenaOneDocumentationWorkflows from "./pages/resources/AthenaOneDocumentationWorkflows";
+import SPCChartsForUDSMeasures from "./pages/resources/SPCChartsForUDSMeasures";
+import AuditBinderExports from "./pages/resources/AuditBinderExports";
+import QualityCommitteeProof from "./pages/resources/QualityCommitteeProof";
+import SpreadsheetReplacementQITracking from "./pages/resources/SpreadsheetReplacementQITracking";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -120,6 +130,16 @@ const App = () => (
                 <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
                 <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
                 <Route path="/blog/:slug" element={<BlogPostDynamic />} />
+
+                {/* Resource cornerstones (UDS-aligned PDSA SEO moat) */}
+                <Route path="/resources/uds-aligned-pdsa" element={<UDSAlignedPDSA />} />
+                <Route path="/resources/hrsa-ready-qi-documentation" element={<HRSAReadyQIDocumentation />} />
+                <Route path="/resources/fqhc-quality-improvement-evidence" element={<FQHCQualityImprovementEvidence />} />
+                <Route path="/resources/athenaone-documentation-workflows" element={<AthenaOneDocumentationWorkflows />} />
+                <Route path="/resources/spc-charts-for-uds-measures" element={<SPCChartsForUDSMeasures />} />
+                <Route path="/resources/audit-binder-exports" element={<AuditBinderExports />} />
+                <Route path="/resources/quality-committee-proof" element={<QualityCommitteeProof />} />
+                <Route path="/resources/spreadsheet-replacement-qi-tracking" element={<SpreadsheetReplacementQITracking />} />
 
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
