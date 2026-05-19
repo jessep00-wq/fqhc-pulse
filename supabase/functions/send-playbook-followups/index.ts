@@ -13,10 +13,13 @@ const CALENDLY_URL = "https://measurewise.org/contact"; // Replace with real Cal
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Optional: require a shared secret header so only cron can trigger this.
+  // Require shared secret header so only cron can trigger this. Fail closed if unset.
   const cronSecret = Deno.env.get("CRON_SECRET");
-  if (cronSecret && req.headers.get("x-cron-secret") !== cronSecret) {
-    return new Response("Unauthorized", { status: 401 });
+  if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 
   const supabase = createClient(
