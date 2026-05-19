@@ -38,7 +38,7 @@ function BodyTextBlock({ section }: { section: Extract<NewsletterSection, { type
     <div className="mb-6">
       {section.pill && <Pill text={section.pill} />}
       {section.heading && <SectionHeading text={section.heading} />}
-      <p className="text-[15px] leading-relaxed text-muted-foreground" dangerouslySetInnerHTML={{ __html: section.text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }} />
+      <p className="text-[15px] leading-relaxed text-muted-foreground" dangerouslySetInnerHTML={{ __html: renderInline(section.text) }} />
     </div>
   );
 }
