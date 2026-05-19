@@ -1,5 +1,16 @@
 import type { NewsletterSection } from "@/types/newsletter";
 
+// Escape HTML to prevent XSS, then re-apply the supported **bold** markdown shorthand.
+function renderInline(text: string): string {
+  const escaped = String(text ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+  return escaped.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+}
+
 function Pill({ text }: { text: string }) {
   return (
     <span className="inline-block bg-primary/10 text-primary text-[11px] font-bold tracking-[2px] uppercase px-3 py-1 rounded-full border border-primary/20 mb-3">
