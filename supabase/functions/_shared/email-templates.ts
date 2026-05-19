@@ -38,7 +38,7 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
   return {
     subject: "Welcome to MeasureWise — Let's Improve Quality Together",
     html: layout("Welcome to MeasureWise", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${name || "there"}!</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${esc(name) || "there"}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.
       </p>
