@@ -4,14 +4,13 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle, Mail, RefreshCw, Download, Loader2 } from "lucide-react";
+import { CheckCircle, Mail, RefreshCw, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface OrderInfo {
   status: string;
   items: string[];
-  downloadLinks: Array<{ name: string; url: string; path: string }>;
   customerEmail: string;
 }
 
