@@ -1,100 +1,53 @@
-## Goal
+# Auth Email Templates — Branded Setup
 
-Stop Google from seeing every route as the same "Every PDSA cycle → UDS measure" hero, and claim the "UDS-aligned PDSA" keyword family.
+Scaffold the 6 Lovable auth email templates (signup confirm, magic link, password recovery, invite, email change, reauthentication) and brand them with the MeasureWise signature system from the uploaded references.
 
-## Why this is happening
+## Brand system (applied to every template)
 
-`index.html` ships a full pre-React marketing shell with the home page's title, description, og tags, and visible H1/body copy. Until the JS bundle hydrates and `react-helmet-async` swaps in per-route tags, every route (pricing, store, blog, features, about, case studies, newsletter) returns the same static HTML. Snippet crawlers and many Google passes index that shell — so the SERP shows the home hero for every URL.
+- **Body background:** `#ffffff` (white, required)
+- **Inner card / accent surface:** soft ivory `#FAF8F4`
+- **Primary (name, headings, primary button):** deep teal `#0F4C5C`
+- **Secondary (title, body text):** slate `#334155`
+- **Accent (tagline, divider bar):** soft gold `#C9A96E`
+- **Font stack:** `Arial, "Inter", Calibri, "Aptos", sans-serif`
+- **Logo:** MeasureWise mark, top-left of the email card
+- **Divider:** thin gold (`#C9A96E`) vertical bar separating contact info from tagline in signature; thin teal hairline above signature block
+- **CTA:** solid teal button (`#0F4C5C` bg, white text) + plain teal text link fallback below
+- **Tone:** clear, calm, audit-ready — short sentences, no marketing fluff
 
-Per-route `<SEO>` components exist but several titles are generic ("Pricing — MeasureWise FQHC Quality Operations", "Store — Templates for FQHC Quality Teams") and don't match the keyword strategy.
+## Signature block (every auth email footer)
 
-## Plan
+```
+[MeasureWise™ logo]
 
-### 1. Fix the static-shell duplication (highest-impact change)
+Jessica Smith, RN
+Founder, MeasureWise™
+Quality systems for FQHCs, CHCs, and PCMH teams
 
-- Strip the home-specific H1, hero subcopy, feature grid, and og:* values out of the `<noscript>` / marketing shell in `index.html`. Keep a minimal neutral shell (logo, nav, "Loading MeasureWise…", links to sitemap pages) so non-JS crawlers see navigation, not the home hero.
-- Keep sitewide `<title>`, description, and og:image as fallbacks only — make them generic ("MeasureWise™ — Quality operations platform for FQHCs"), not the PDSA tagline.
-- Remove the duplicated `og:description` "Every PDSA cycle…" line from `index.html`. Per-route Helmet will own descriptions.
-- Leave the canonical/og:url logic alone; per-route SEO already overrides.
+MeasureWise.org  │  jessica@measurewise.org
+                 ↑ thin gold vertical bar
+Build the paper trail before the audit.
+```
 
-### 2. Rewrite per-page SEO (title, description, H1, opening paragraph)
+Name in deep teal, title in slate, tagline in gold, contact line in slate with gold `│` separator.
 
-Each route gets a unique title aligned to a target keyword cluster, a unique meta description, a unique H1, and a unique opening paragraph (3–5 sentences) that doesn't reuse the home hero copy.
+## Per-template copy (audit-ready tone)
 
-| Route | New title | Target cluster |
+| Template | Heading | CTA label |
 |---|---|---|
-| `/pricing` | MeasureWise pricing for FQHC quality teams | brand + intent |
-| `/store` | UDS templates and audit tools for FQHC quality teams | "FQHC quality improvement plan template", "HRSA audit binder template" |
-| `/features/spc-charts` | SPC charts for UDS measure tracking | "SPC charts for UDS measures" |
-| `/features/hrsa-audit-binder` | HRSA audit binder generator for FQHC quality improvement | "HRSA audit binder template" |
-| `/features/pdsa-cycle-manager` | UDS-aligned PDSA cycles for FQHCs | "UDS-aligned PDSA", "FQHC PDSA cycle template" |
-| `/features/uds-tracking` | UDS measure tracking software for FQHCs | "spreadsheet replacement for QI tracking" |
-| `/features/pcmh-evidence` | PCMH Q-PASS evidence collection for FQHCs | unchanged but tightened |
-| `/blog` | FQHC quality improvement, UDS, and PDSA resources | hub |
-| `/newsletter` | FQHC quality improvement newsletter | hub |
-| `/case-studies` | FQHC case studies: UDS measure gains and HRSA readiness | proof |
-| `/about` | About MeasureWise and founder Jessica Smith, BSN | brand |
-| `/for/qi-directors`, `/for/pcmh-coordinators`, `/for/chc-ops-managers` | tightened persona titles | persona |
+| signup | "Confirm your MeasureWise account" | Confirm email |
+| magic-link | "Your sign-in link" | Sign in |
+| recovery | "Reset your password" | Reset password |
+| invite | "You've been invited to MeasureWise" | Accept invite |
+| email-change | "Confirm your new email" | Confirm change |
+| reauthentication | "Verify it's you" | (shows OTP token) |
 
-For each page above, also rewrite:
-- The visible H1 to match the title cluster.
-- The first paragraph under the H1 (no reuse of "Every PDSA cycle you run should move a UDS measure").
-- 3–6 internal links to sibling pages in the same cluster (cross-link store ↔ feature ↔ blog).
+## Execution
 
-### 3. Build the "UDS-aligned PDSA" keyword moat
+1. Scaffold the 6 templates + `auth-email-hook` edge function.
+2. Copy the MeasureWise logo from `public/` into the `email-assets` storage bucket and reference it via `Img` at the top of each template.
+3. Apply the brand system (colors, fonts, divider, signature block) to every template `.tsx` file.
+4. Deploy `auth-email-hook`.
+5. Surface preview links for signup, recovery, magiclink, and invite so you can review in Cloud → Emails.
 
-Create eight new landing pages targeting the high-intent clusters from the screenshots. Each page: unique SEO tags, a single H1, semantic sections, 600–1,200 words, JSON-LD where appropriate, internal links into store + features.
-
-```
-/resources/uds-aligned-pdsa                  → cornerstone page for the moat
-/resources/hrsa-ready-qi-documentation
-/resources/fqhc-quality-improvement-evidence
-/resources/athenaone-documentation-workflows
-/resources/spc-charts-for-uds-measures
-/resources/audit-binder-exports
-/resources/quality-committee-proof
-/resources/spreadsheet-replacement-qi-tracking
-```
-
-Plus the deeper assets from the user's screenshots (one per cluster, lighter pages that link back to the cornerstones):
-
-```
-/resources/2025-uds-clinical-quality-measures
-/resources/hrsa-osv-quality-improvement-documentation
-/resources/fqhc-quality-director-tools
-/resources/uds-table-6b-documentation-checklist
-/templates/fqhc-pdsa-cycle-template            (redirects/links to store product)
-/templates/hrsa-audit-binder-template          (redirects/links to store product)
-/templates/fqhc-quality-improvement-plan-template
-/blog/uds-pdsa-examples-fqhc
-/blog/uds-measure-tracking-spreadsheet-alternative
-/blog/azara-drvs-data-validation-fqhc
-/athenaone/uds-documentation-guide
-/athenaone/quality-measure-workflows
-```
-
-Each new page links into the cornerstone `/resources/uds-aligned-pdsa` so authority concentrates there.
-
-### 4. Sitemap, robots, llms.txt
-
-- Add every new route to `scripts/generate-sitemap.ts` (or `public/sitemap.xml` if hand-edited).
-- Add the safe public new routes to `public/llms.txt` under appropriate `## Resources`, `## Templates`, `## Blog` sections. Skip admin/auth/dashboard.
-- No `robots.txt` changes.
-
-### 5. Verification
-
-- Trigger an SEO scan after the edits land.
-- Spot-check `view-source:` for `/pricing`, `/store`, `/features/spc-charts`, `/blog` to confirm the static shell no longer leaks the home hero copy and that per-route Helmet tags render.
-
-## Out of scope
-
-- Backend/data model changes. This is purely content + meta + new marketing pages.
-- New blog post bodies for clusters not listed above.
-- Paid-search / Google Ads changes.
-
-## Technical notes
-
-- Per-route SEO uses `src/components/SEO.tsx` (react-helmet-async). New pages follow the same pattern — `<SEO title=… description=… canonical=… jsonLd=…>` then the page body.
-- All new `/resources/*`, `/templates/*`, `/athenaone/*` routes need entries in `src/App.tsx` and matching files in `src/pages/`.
-- Reuse `PublicPageLayout` and existing card/section primitives — no new design system work.
-- Keep canonical URLs on `https://measurewise.org` exactly (matches existing SEO util default).
+DNS for `notify.measurewise.org` is already configured — templates activate automatically once DNS verification completes.
