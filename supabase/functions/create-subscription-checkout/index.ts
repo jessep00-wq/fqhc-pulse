@@ -86,7 +86,14 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const lookupKey = String(body?.priceId ?? "");
     const env: StripeEnv = body?.environment === "live" ? "live" : "sandbox";
-    const origin = req.headers.get("origin") ?? "https://measurewise.org";
+    const ALLOWED_ORIGINS = new Set([
+      "https://measurewise.org",
+      "https://www.measurewise.org",
+      "https://https-measurewise-org.lovable.app",
+      "https://id-preview--f577cc3a-ce5c-4ff1-9774-844720d2424d.lovable.app",
+    ]);
+    const rawOrigin = req.headers.get("origin") ?? "";
+    const origin = ALLOWED_ORIGINS.has(rawOrigin) ? rawOrigin : "https://measurewise.org";
 
     if (!SUB_PRICE_LOOKUP_KEYS.has(lookupKey)) {
       return new Response(JSON.stringify({ error: "Unknown subscription price" }), {
