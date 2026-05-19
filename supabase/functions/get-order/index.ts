@@ -1,5 +1,9 @@
-// Returns a single order's display info + (re-issued) signed download URLs
-// by Stripe checkout session id. Used by the success page to show links inline.
+// Returns minimal, non-sensitive order display info by Stripe session id.
+// SECURITY: This endpoint is unauthenticated (the caller only knows the
+// session id from the Stripe redirect). It must NEVER return signed
+// download URLs for the product-files bucket. Downloads are delivered
+// exclusively via email to the verified customer address (see
+// payments-webhook and resend-purchase-email).
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -12,7 +16,13 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7;
+function maskEmail(email: string | null | undefined): string {
+  if (!email) return "";
+  const [user, domain] = email.split("@");
+  if (!domain) return "";
+  const head = user.slice(0, 1);
+  return `${head}${"*".repeat(Math.max(1, user.length - 1))}@${domain}`;
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -27,7 +37,7 @@ Deno.serve(async (req) => {
 
     const { data: order } = await supabase
       .from("orders")
-      .select("id, customer_email, product_ids, bundle_ids, download_links, status")
+      .select("customer_email, product_ids, bundle_ids, status")
       .eq("stripe_session_id", sessionId)
       .maybeSingle();
 
@@ -38,7 +48,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Look up names of purchased items.
+    // Look up names of purchased items (display only, no file paths).
     const names: string[] = [];
     if (order.product_ids?.length) {
       const { data } = await supabase
@@ -55,28 +65,13 @@ Deno.serve(async (req) => {
       for (const r of data ?? []) names.push(r.name);
     }
 
-    // Always re-issue signed URLs so users get fresh links on every visit.
-    const stored = (order.download_links as Array<{ path: string }> | null) ?? [];
-    const fresh: Array<{ name: string; url: string; path: string }> = [];
-    for (const l of stored) {
-      const { data } = await supabase.storage
-        .from("product-files")
-        .createSignedUrl(l.path, SIGNED_URL_TTL_SECONDS);
-      if (data?.signedUrl) {
-        fresh.push({
-          name: l.path.split("/").pop() ?? l.path,
-          url: data.signedUrl,
-          path: l.path,
-        });
-      }
-    }
-
     return new Response(
       JSON.stringify({
         status: order.status,
         items: names,
-        downloadLinks: fresh,
-        customerEmail: order.customer_email,
+        // Masked so an unauthenticated caller can confirm where the email
+        // was sent without exposing the full address.
+        customerEmail: maskEmail(order.customer_email),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

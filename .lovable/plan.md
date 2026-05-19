@@ -1,53 +1,35 @@
-# Auth Email Templates — Branded Setup
+## Problem
 
-Scaffold the 6 Lovable auth email templates (signup confirm, magic link, password recovery, invite, email change, reauthentication) and brand them with the MeasureWise signature system from the uploaded references.
+The security rule states: *signed download URLs for the `product-files` bucket must never be returned in an unauthenticated HTTP response — deliver only via email to the order's verified customer address.*
 
-## Brand system (applied to every template)
+Two edge functions touch signed URLs:
 
-- **Body background:** `#ffffff` (white, required)
-- **Inner card / accent surface:** soft ivory `#FAF8F4`
-- **Primary (name, headings, primary button):** deep teal `#0F4C5C`
-- **Secondary (title, body text):** slate `#334155`
-- **Accent (tagline, divider bar):** soft gold `#C9A96E`
-- **Font stack:** `Arial, "Inter", Calibri, "Aptos", sans-serif`
-- **Logo:** MeasureWise mark, top-left of the email card
-- **Divider:** thin gold (`#C9A96E`) vertical bar separating contact info from tagline in signature; thin teal hairline above signature block
-- **CTA:** solid teal button (`#0F4C5C` bg, white text) + plain teal text link fallback below
-- **Tone:** clear, calm, audit-ready — short sentences, no marketing fluff
+1. **`payments-webhook`** — generates signed URLs after Stripe webhook, stores them on the order, and emails them. No HTTP response to a client. ✅ Compliant.
+2. **`resend-purchase-email`** — already refactored to email-only; no signed URLs in HTTP response. ✅ Compliant.
+3. **`get-order`** — called unauthenticated from `StoreSuccess.tsx` with just a `sessionId` (knowable by anyone who can see the Stripe redirect URL or guess it). It **re-issues fresh signed URLs and returns them in the JSON body**. ❌ **Violates the rule.**
 
-## Signature block (every auth email footer)
+The `StoreSuccess` page renders these inline as "Download your files" links.
 
-```
-[MeasureWise™ logo]
+## Fix
 
-Jessica Smith, RN
-Founder, MeasureWise™
-Quality systems for FQHCs, CHCs, and PCMH teams
+### `supabase/functions/get-order/index.ts`
+- Stop generating or returning any signed URLs.
+- Return only non-sensitive order display info: `status`, `items` (product/bundle names), and a masked `customerEmail` (e.g. `j***@example.com`) so the success page can confirm where the email was sent without leaking the full address to an unauthenticated caller.
+- Drop the `download_links` selection / `storage.createSignedUrl` loop entirely.
 
-MeasureWise.org  │  jessica@measurewise.org
-                 ↑ thin gold vertical bar
-Build the paper trail before the audit.
-```
+### `src/pages/store/StoreSuccess.tsx`
+- Remove the inline "Download your files" list and the `downloadLinks` field from `OrderInfo`.
+- Replace it with a confirmation block: "Your files are on the way to **j***@example.com**. Check your inbox — links expire in 7 days." with the existing **Re-send the email** button as the recovery path.
+- Keep the "still processing" amber state for the pre-webhook window.
+- No other UI/business-logic changes.
 
-Name in deep teal, title in slate, tagline in gold, contact line in slate with gold `│` separator.
+### Verification
+- Re-read `payments-webhook` and `resend-purchase-email` to confirm neither returns signed URLs in an HTTP response body (spot-check only — both already audited).
+- Re-run the security scan after the change and report results.
 
-## Per-template copy (audit-ready tone)
+### Security memory
+- No change needed — the rule already exists; this PR brings the code into compliance.
 
-| Template | Heading | CTA label |
-|---|---|---|
-| signup | "Confirm your MeasureWise account" | Confirm email |
-| magic-link | "Your sign-in link" | Sign in |
-| recovery | "Reset your password" | Reset password |
-| invite | "You've been invited to MeasureWise" | Accept invite |
-| email-change | "Confirm your new email" | Confirm change |
-| reauthentication | "Verify it's you" | (shows OTP token) |
-
-## Execution
-
-1. Scaffold the 6 templates + `auth-email-hook` edge function.
-2. Copy the MeasureWise logo from `public/` into the `email-assets` storage bucket and reference it via `Img` at the top of each template.
-3. Apply the brand system (colors, fonts, divider, signature block) to every template `.tsx` file.
-4. Deploy `auth-email-hook`.
-5. Surface preview links for signup, recovery, magiclink, and invite so you can review in Cloud → Emails.
-
-DNS for `notify.measurewise.org` is already configured — templates activate automatically once DNS verification completes.
+## Out of scope
+- Storage RLS, Stripe webhook signing, rate-limiters — already addressed in prior passes.
+- Admin-authenticated download flows (none exist for `product-files` outside the email path).
