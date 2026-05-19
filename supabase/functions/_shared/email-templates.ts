@@ -4,6 +4,15 @@
 const BRAND_COLOR = "#1a8a8a";
 const BRAND_BG = "#f8fafb";
 
+// HTML escape user-controlled content to prevent HTML/script injection in emails
+const esc = (s: unknown): string =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+
 function layout(title: string, body: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
