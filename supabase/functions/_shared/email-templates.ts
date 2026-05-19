@@ -144,7 +144,7 @@ export function weeklyDigestEmail(
   return {
     subject: customSubject || "📊 Your Weekly QI Digest — MeasureWise",
     html: layout("Weekly QI Digest", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 24px;">Here's your quality improvement summary for the past week:</p>
 
       <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
