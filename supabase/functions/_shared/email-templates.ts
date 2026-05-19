@@ -58,7 +58,7 @@ export function contactConfirmationEmail(name: string): { subject: string; html:
   return {
     subject: "We received your message — MeasureWise",
     html: layout("Message Received", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${name}` : ""}!</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${esc(name)}` : ""}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         We've received your message and our team will get back to you within 1 business day.
       </p>
