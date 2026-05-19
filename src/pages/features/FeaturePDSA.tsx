@@ -27,8 +27,8 @@ export default function FeaturePDSA() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
-        title="PDSA Cycle Manager for Health Centers"
-        description="Guided PDSA cycle management software built for FQHCs. Run Plan-Do-Study-Act cycles linked to UDS measures with templates, SPC charts, and team task tracking."
+        title="UDS-aligned PDSA cycles for FQHCs"
+        description="Guided UDS-aligned PDSA cycle management for Federally Qualified Health Centers. Pre-built FQHC PDSA cycle templates, SPC analysis per cycle, and HRSA-ready documentation."
         canonical="https://measurewise.org/features/pdsa-cycle-manager"
         jsonLd={jsonLd}
       />
@@ -40,15 +40,16 @@ export default function FeaturePDSA() {
             Feature
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            PDSA Cycle Management
+            UDS-aligned PDSA cycles
             <br />
-            <span className="text-primary">Built for FQHCs</span>
+            <span className="text-primary">built for FQHCs</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Health centers run dozens of PDSA cycles every year — but most track them in spreadsheets, binders, or not at all. MeasureWise gives your QI team a structured, guided workflow that connects every cycle to the UDS measures that matter for HRSA funding.
+            FQHC Quality Directors run dozens of Plan-Do-Study-Act cycles each year, but most live in disconnected spreadsheets that never tie back to a UDS measure. MeasureWise structures every cycle around the specific UDS clinical quality measure it's meant to move — and proves the movement with an SPC chart HRSA reviewers expect to see.
           </p>
         </div>
       </section>
+
 
       <section className="py-16 px-6 bg-muted/30">
         <div className="max-w-5xl mx-auto">

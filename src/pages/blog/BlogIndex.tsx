@@ -118,8 +118,8 @@ export default function BlogIndex() {
   return (
     <PublicPageLayout>
       <SEO
-        title="Blog — Quality Improvement Resources for FQHCs"
-        description="Guides, checklists, and best practices for FQHC quality directors. Learn about PDSA cycles, UDS measures, HRSA site visits, and healthcare quality improvement."
+        title="FQHC quality improvement, UDS, and PDSA resources"
+        description="In-depth articles on UDS-aligned PDSA cycles, HRSA OSV preparation, SPC charts for UDS measures, and quality improvement workflows for Federally Qualified Health Centers."
         canonical="https://measurewise.org/blog"
       />
 
@@ -128,14 +128,15 @@ export default function BlogIndex() {
           <div className="max-w-3xl w-full mx-auto lg:mx-0">
           <div className="text-center space-y-4 mb-12">
             <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground">
-              Quality Improvement Resources
+              FQHC quality improvement,
               <br />
-              <span className="text-primary">for FQHCs</span>
+              <span className="text-primary">UDS, and PDSA resources</span>
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Practical guides, checklists, and best practices for health center quality directors, PCMH coordinators, and operations managers.
+              In-depth guides and checklists for FQHC Quality Directors, PCMH Coordinators, and operations managers running UDS-aligned PDSA cycles.
             </p>
           </div>
+
 
           {/* Search */}
           <div className="mb-8">

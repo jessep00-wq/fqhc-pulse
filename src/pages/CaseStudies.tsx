@@ -71,19 +71,20 @@ export default function CaseStudies() {
   return (
     <PublicPageLayout>
       <SEO
-        title="Case Studies — How FQHCs Use MeasureWise to Move UDS Measures and Protect Funding"
-        description="Real customer stories from Federally Qualified Health Centers using MeasureWise to recover UDS scores, save QI admin time, and link clinical improvement to financial outcomes."
+        title="FQHC case studies: UDS measure gains and HRSA readiness"
+        description="How three Federally Qualified Health Centers used MeasureWise to move UDS measures, defend HRSA OSVs, and link clinical improvement back to grant funding."
         canonical="https://measurewise.org/case-studies"
       />
 
       <section className="max-w-6xl mx-auto px-6 pt-16 pb-12">
         <p className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Customer stories</p>
         <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 max-w-3xl leading-tight">
-          How FQHC quality teams use MeasureWise
+          FQHC case studies: UDS measure gains and HRSA readiness
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl">
-          Three Federally Qualified Health Centers. Three different problems. The same playbook: tie every PDSA cycle to a UDS measure, prove the work moved the number, and connect it back to funding.
+          Three Federally Qualified Health Centers, three different starting points, the same UDS-aligned PDSA playbook — and the numbers, OSV outcomes, and grant impact that followed.
         </p>
+
       </section>
 
       <section className="max-w-6xl mx-auto px-6 pb-20 grid gap-8">

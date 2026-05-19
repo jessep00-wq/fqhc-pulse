@@ -27,8 +27,8 @@ export default function FeatureHRSAAuditBinder() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
-        title="HRSA Audit Binder Generator for FQHCs"
-        description="Generate print-ready HRSA site visit audit binders with one click. Includes PDSA cycle logs, UDS trends, task evidence, and compliance documentation for health centers."
+        title="HRSA audit binder generator for FQHC quality improvement"
+        description="Generate an HRSA Operational Site Visit-ready audit binder for your FQHC in one click. Includes UDS-aligned PDSA evidence, SPC trends, QI committee minutes, and Chapter 10 documentation — no last-minute scramble."
         canonical="https://measurewise.org/features/hrsa-audit-binder"
         jsonLd={jsonLd}
       />
@@ -40,15 +40,16 @@ export default function FeatureHRSAAuditBinder() {
             Feature
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            Generate Your HRSA Audit Binder
+            HRSA audit binder generator for
             <br />
-            <span className="text-primary">in One Click</span>
+            <span className="text-primary">FQHC quality improvement</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            HRSA Operational Site Visits require documented evidence of your health center's quality improvement activities. Most QI directors spend 2-4 weeks assembling binders. MeasureWise generates yours in seconds because the evidence is collected as you work.
+            HRSA Operational Site Visits demand a documented trail of UDS-aligned PDSA cycles, SPC analysis, and QI committee action. Most FQHC Quality Directors spend two to four weeks assembling that binder by hand. MeasureWise generates it in seconds because the evidence is captured as you work — not retro-fitted the week before the OSV.
           </p>
         </div>
       </section>
+
 
       <section className="py-16 px-6 bg-muted/30">
         <div className="max-w-5xl mx-auto">

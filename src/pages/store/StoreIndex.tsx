@@ -54,8 +54,8 @@ export default function StoreIndex() {
   return (
     <PublicPageLayout>
       <SEO
-        title="Store — Templates for FQHC Quality Teams"
-        description="Implementation-ready UDS, PDSA, QI committee, and board reporting templates for Federally Qualified Health Centers. Instant download, HRSA-aligned."
+        title="UDS templates and audit tools for FQHC quality teams"
+        description="HRSA audit binder templates, FQHC PDSA cycle templates, QI committee packets, and board quality report templates — instant download, built by an FQHC Quality Director."
         canonical="https://measurewise.org/store"
       />
 
@@ -64,13 +64,12 @@ export default function StoreIndex() {
         <div className="max-w-5xl mx-auto text-center space-y-6">
           <Badge variant="secondary">MeasureWise Store</Badge>
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-            Templates that move UDS measures and survive HRSA audits.
+            UDS templates and audit tools for FQHC quality teams
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Built by an FQHC quality leader and used by quality directors at health centers across
-            the country — not generic forms. Every template is designed to move a measure, defend an
-            OSV, or run a real QI committee.
+            Implementation-ready PDSA, UDS, HRSA audit binder, QI committee, and board reporting templates. Authored by a working FQHC Quality Director and used inside real OSVs and quality committees — not generic forms.
           </p>
+
           <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground pt-2">
             <span className="inline-flex items-center gap-1.5"><TrendingUp className="h-4 w-4 text-primary" /> Move a UDS measure</span>
             <span className="inline-flex items-center gap-1.5"><ShieldCheck className="h-4 w-4 text-primary" /> Defend an HRSA OSV</span>

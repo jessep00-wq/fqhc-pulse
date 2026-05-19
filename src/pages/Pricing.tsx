@@ -167,8 +167,8 @@ export default function Pricing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="Pricing — MeasureWise FQHC Quality Operations"
-        description="Solo $149, Multi-Site $349, Network $699 per month. 14-day free trial on every plan. No free tier, no surprises."
+        title="MeasureWise pricing for FQHC quality teams"
+        description="Flat per-site monthly pricing for FQHC quality operations: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan, no procurement runaround."
         canonical="https://measurewise.org/pricing"
         jsonLd={pricingJsonLd}
       />
@@ -178,14 +178,14 @@ export default function Pricing() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            Transparent pricing.
+            MeasureWise pricing for
             <br />
-            <span className="text-primary">No "Contact Sales" wall.</span>
+            <span className="text-primary">FQHC quality teams</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Flat per-site monthly pricing with unlimited users and unlimited PDSA cycles.
-            Priced the way FQHCs actually budget — a QI Director can buy without procurement approval.
+            Three flat per-site monthly plans built for how Federally Qualified Health Centers actually budget for quality software. Unlimited users, unlimited PDSA cycles, and no "contact sales" wall — a QI Director can sign up without procurement approval.
           </p>
+
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
             14-day free trial — no credit card required
           </div>
