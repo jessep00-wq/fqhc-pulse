@@ -77,9 +77,9 @@ export function taskDeadlineEmail(
   const taskRows = tasks
     .map(
       (t) => `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${t.title}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${t.cycleName || "—"}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#ef4444;font-size:14px;font-weight:600;">${t.dueDate}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(t.title)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(t.cycleName || "—")}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#ef4444;font-size:14px;font-weight:600;">${esc(t.dueDate)}</td>
       </tr>`
     )
     .join("");
@@ -87,7 +87,7 @@ export function taskDeadlineEmail(
   return {
     subject: `⚠️ ${tasks.length} task${tasks.length > 1 ? "s" : ""} need${tasks.length === 1 ? "s" : ""} attention — MeasureWise`,
     html: layout("Task Deadline Reminder", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         The following tasks are overdue or due soon and need your attention:
       </p>
