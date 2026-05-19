@@ -88,7 +88,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    return new Response(JSON.stringify({ ok: true, links: fresh }), {
+    // Do NOT return signed URLs in the HTTP response — only deliver via email
+    // to the verified customer address on file.
+    return new Response(JSON.stringify({ ok: true, sent: fresh.length }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (err) {
