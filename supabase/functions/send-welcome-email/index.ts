@@ -29,13 +29,44 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // Idempotency: skip if we've already sent for this user (use profiles.last_active_at proxy? No — use a dedicated marker).
-    // For now we send on every invocation; the caller (AuthContext) only invokes once per browser session after first SIGNED_IN.
+    // AuthZ: caller must be signed in AND user_id must match the caller's JWT.
+    // This prevents anyone with a known user UUID from triggering spam to that user.
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const jwt = authHeader.replace(/^Bearer\s+/i, "");
+    if (!jwt) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const { data: caller } = await supabase.auth.getUser(jwt);
+    if (!caller?.user || caller.user.id !== parsed.data.user_id) {
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const { data: authUser } = await supabase.auth.admin.getUserById(parsed.data.user_id);
     const email = authUser?.user?.email;
     if (!email) {
       return new Response(JSON.stringify({ error: "User not found" }), {
         status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Idempotency: skip if we've already sent a welcome email to this address.
+    const { data: prior } = await supabase
+      .from("email_send_log")
+      .select("id")
+      .eq("template_name", "welcome")
+      .eq("recipient_email", email)
+      .limit(1)
+      .maybeSingle();
+    if (prior) {
+      return new Response(JSON.stringify({ ok: true, skipped: "already_sent" }), {
+        status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
