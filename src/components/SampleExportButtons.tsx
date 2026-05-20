@@ -51,6 +51,9 @@ export function SampleExportButtons() {
           <DialogContent className="max-w-5xl w-[95vw] h-[90vh] p-0 flex flex-col">
             <DialogHeader className="px-6 py-4 border-b">
               <DialogTitle>Sample HRSA Audit Binder</DialogTitle>
+              <DialogDescription className="sr-only">
+                Inline PDF preview of the MeasureWise sample HRSA audit binder.
+              </DialogDescription>
             </DialogHeader>
             <div className="flex-1 relative bg-muted/30">
               {!iframeLoaded && (
