@@ -1,34 +1,29 @@
-## Fix console warnings: Dialog descriptions + PWA manifest icons
+## Fix Chrome Issues panel: 9 unnamed form fields + 1 orphan label
 
-Two unrelated console issues showed up on the landing page. Both are small, isolated fixes.
+Both warnings come from forms on `/` (Landing).
 
-### 1. Radix Dialog missing `aria-describedby`
+### 1. Nine fields missing `id`/`name` → Radix `Select` hidden inputs
 
-Radix logs a warning whenever a `<DialogContent>` renders without either a `<DialogDescription>` child or an explicit `aria-describedby={undefined}` opt-out. Screen readers rely on this to announce the dialog's purpose.
+shadcn's `<Select>` wraps Radix Select, which renders a hidden native form control for browser autofill. That control gets its `name` from the `name` prop on `<Select>`. None of our Selects pass one, so Chrome flags every hidden field.
 
-**Approach**
-- Grep the project for every `<DialogContent>` / `<SheetContent>` / `<AlertDialogContent>` usage.
-- For each one that lacks a `<DialogDescription>`, add one — visible when there's a natural subtitle, or wrapped in `sr-only` when the title alone is self-explanatory.
-- Leave existing descriptions untouched.
+**Fix:** add a `name` prop to every `<Select>` rendered on landing-page forms:
+- `src/components/ContactForm.tsx` — 6 Selects (role, fqhcSize, numberOfSites, emr, timeline, plus any I find on a second pass)
+- `src/components/lead-magnets/PlaybookLeadForm.tsx` — 1 Select (role) × rendered on homepage + sidebar + exit-intent dialog
 
-Likely candidates based on the file list: `CreatePDSAWizard`, `PDSADetailDialog`, `AuditBinderDialog`, `BoardReportDialog`, `EvidencePacketDialog`, `ExitIntentPlaybookDialog`, `CartDrawer`, `AddSiteDialog`, admin `OrgActionsMenu` confirm dialogs, and any shadcn command/menu dialogs. I'll confirm the exact set during implementation.
+This is the lightest possible change and resolves all 9 affected resources.
 
-### 2. PWA manifest icon errors
+### 2. One `<Label>` not associated with a field
 
-`public/site.webmanifest` references `/icons/icon-192.png` and `/icons/icon-512.png`, but Chrome reports "Resource size is not correct - typo in the Manifest" — meaning the files are either missing, the wrong dimensions, or not valid PNGs.
+`ContactForm.tsx` line 299: `<Label>What are you interested in?...</Label>` introduces a checkbox group but has no `htmlFor` and no input child, so Chrome reports an orphan label.
 
-**Approach**
-- Check whether `public/icons/icon-192.png` and `public/icons/icon-512.png` exist and what their actual dimensions are.
-- If missing or wrong size: generate proper square PNGs (192×192 and 512×512) from the MeasureWise logo using the existing brand teal background, and place them at the manifest paths.
-- Leave `name`, `theme_color`, `background_color`, and `display` as-is.
+**Fix:** wrap the interests group in `<fieldset>` with the heading as `<legend>` (preserving current visual styling via Tailwind), and drop the `<Label>` element. Each individual checkbox keeps its existing associated `<label htmlFor={id}>`.
 
 ### Out of scope
 
-- No changes to auth, billing, RLS, or any business logic.
-- No redesign of any dialog — only the missing description node is added.
-- No changes to `index.html` or the Google Ads tag.
+- No changes to form validation, submission, or layout.
+- No changes to PlaybookLeadForm field labels (already correctly associated).
+- No new dependencies.
 
 ### Verification
 
-- Reload the landing page and confirm the Radix warning and both manifest icon errors disappear from the console.
-- Open one or two dialogs (e.g. PDSA detail, audit binder) to confirm nothing visual regressed.
+Reload `/`, reopen the Chrome Issues panel, and confirm both warnings clear. Visually confirm the Contact form's "What are you interested in?" heading still renders the same.

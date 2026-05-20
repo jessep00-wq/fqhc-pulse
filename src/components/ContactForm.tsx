@@ -200,7 +200,7 @@ export default function ContactForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="contact-role">Your role *</Label>
-          <Select value={form.role} onValueChange={(v) => update("role", v)}>
+          <Select name="role" value={form.role} onValueChange={(v) => update("role", v)}>
             <SelectTrigger id="contact-role">
               <SelectValue placeholder="Select your role" />
             </SelectTrigger>
