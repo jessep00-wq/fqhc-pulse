@@ -252,7 +252,7 @@ export default function ContactForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="contact-emr">EMR / EHR system</Label>
-          <Select value={form.emr} onValueChange={(v) => update("emr", v)}>
+          <Select name="emr" value={form.emr} onValueChange={(v) => update("emr", v)}>
             <SelectTrigger id="contact-emr">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
