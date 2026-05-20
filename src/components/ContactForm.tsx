@@ -234,7 +234,7 @@ export default function ContactForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="contact-sites">Number of sites</Label>
-          <Select value={form.numberOfSites} onValueChange={(v) => update("numberOfSites", v)}>
+          <Select name="numberOfSites" value={form.numberOfSites} onValueChange={(v) => update("numberOfSites", v)}>
             <SelectTrigger id="contact-sites">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
