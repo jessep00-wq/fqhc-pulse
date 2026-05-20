@@ -141,6 +141,9 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
             <BookOpen className="h-5 w-5 text-primary" />
             {step === "template" ? "Start a PDSA Cycle" : "Guided PDSA Setup"}
           </div>
+          <DialogDescription className="sr-only">
+            Create a new Plan-Do-Study-Act improvement cycle from a template or guided setup.
+          </DialogDescription>
           {step !== "template" && (
             <div className="pt-2">
               <StepIndicator current={stepIndex - 1} total={WIZARD_STEPS.length - 1} />
