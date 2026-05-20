@@ -219,7 +219,7 @@ export default function ContactForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="contact-size">Patient panel size</Label>
-          <Select value={form.fqhcSize} onValueChange={(v) => update("fqhcSize", v)}>
+          <Select name="fqhcSize" value={form.fqhcSize} onValueChange={(v) => update("fqhcSize", v)}>
             <SelectTrigger id="contact-size">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
