@@ -295,8 +295,10 @@ export default function ContactForm() {
       </div>
 
       {/* Interests */}
-      <div className="space-y-2">
-        <Label>What are you interested in? (select all that apply)</Label>
+      <fieldset className="space-y-2 border-0 p-0 m-0">
+        <legend className="text-sm font-medium text-foreground">
+          What are you interested in? (select all that apply)
+        </legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {INTERESTS.map((interest) => {
             const id = `interest-${interest.replace(/\s+/g, "-")}`;
@@ -317,7 +319,7 @@ export default function ContactForm() {
             );
           })}
         </div>
-      </div>
+      </fieldset>
 
       {/* Message */}
       <div className="space-y-2">
