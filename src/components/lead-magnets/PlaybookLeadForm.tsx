@@ -204,6 +204,7 @@ export function PlaybookLeadForm({
       <div className="space-y-1.5">
         <Label htmlFor={`pl-role-${surface}`}>Role</Label>
         <Select
+          name={`pl-role-${surface}`}
           value={form.role}
           onValueChange={(v) => setForm({ ...form, role: v as FormState["role"] })}
         >
