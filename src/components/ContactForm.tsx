@@ -279,7 +279,7 @@ export default function ContactForm() {
         )}
         <div className="space-y-2">
           <Label htmlFor="contact-timeline">Timeline</Label>
-          <Select value={form.timeline} onValueChange={(v) => update("timeline", v)}>
+          <Select name="timeline" value={form.timeline} onValueChange={(v) => update("timeline", v)}>
             <SelectTrigger id="contact-timeline">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
