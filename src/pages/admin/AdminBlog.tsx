@@ -182,6 +182,7 @@ export default function AdminBlog() {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Post" : "New Post"}</DialogTitle>
+              <DialogDescription className="sr-only">Author or edit a blog post with title, slug, body, and SEO metadata.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
