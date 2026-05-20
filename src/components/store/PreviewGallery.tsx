@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { ImageIcon } from "lucide-react";
 
 interface PreviewGalleryProps {
@@ -35,6 +35,8 @@ export function PreviewGallery({ images, title = "Preview" }: PreviewGalleryProp
       </div>
       <Dialog open={!!open} onOpenChange={(v) => !v && setOpen(null)}>
         <DialogContent className="max-w-4xl p-2 bg-background">
+          <DialogTitle className="sr-only">Deliverable preview</DialogTitle>
+          <DialogDescription className="sr-only">Enlarged image preview of the selected deliverable.</DialogDescription>
           {open && <img src={open} alt="Deliverable preview" className="w-full h-auto rounded" />}
         </DialogContent>
       </Dialog>
