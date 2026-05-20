@@ -327,6 +327,7 @@ export default function AdminNewsletter() {
           <DialogContent className="max-w-4xl max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>{editId ? "Edit Issue" : "New Issue"}</DialogTitle>
+              <DialogDescription className="sr-only">Author or edit a newsletter issue, then save as draft or send.</DialogDescription>
             </DialogHeader>
             <NewsletterEditor key={editId ?? "new"} newsletter={editNewsletter} onClose={() => { setCreating(false); setEditId(null); }} />
           </DialogContent>
