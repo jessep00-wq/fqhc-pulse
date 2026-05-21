@@ -169,10 +169,11 @@ export default function Pricing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="MeasureWise pricing for FQHC quality teams"
+        title={`${BRAND.name} pricing for FQHC quality teams`}
         description="Flat per-site monthly pricing for FQHC quality operations: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan, no procurement runaround."
-        canonical="https://measurewise.org/pricing"
+        canonical={`${BRAND.url}/pricing`}
         jsonLd={pricingJsonLd}
+
       />
 
 
