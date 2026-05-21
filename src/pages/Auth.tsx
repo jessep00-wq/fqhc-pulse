@@ -148,7 +148,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <Logo size="md" className="justify-center" />
           </div>
-          <CardTitle className="text-xl">MeasureWise</CardTitle>
+          <CardTitle className="text-xl">{BRAND.name}</CardTitle>
           <CardDescription>
             {showForgot ? "Reset your password" : "Quality operations, simplified for FQHCs"}
           </CardDescription>
