@@ -423,38 +423,56 @@ export type Database = {
         Row: {
           archived_at: string | null
           created_at: string
+          data_mode: string
           id: string
           is_test: boolean
           name: string
           npi: string | null
           onboarding_status: string
+          org_type: string | null
           owner_id: string | null
+          quality_lead_email: string | null
+          quality_lead_name: string | null
+          reporting_period: string | null
           source: string | null
           stage: string
+          timezone: string | null
         }
         Insert: {
           archived_at?: string | null
           created_at?: string
+          data_mode?: string
           id?: string
           is_test?: boolean
           name: string
           npi?: string | null
           onboarding_status?: string
+          org_type?: string | null
           owner_id?: string | null
+          quality_lead_email?: string | null
+          quality_lead_name?: string | null
+          reporting_period?: string | null
           source?: string | null
           stage?: string
+          timezone?: string | null
         }
         Update: {
           archived_at?: string | null
           created_at?: string
+          data_mode?: string
           id?: string
           is_test?: boolean
           name?: string
           npi?: string | null
           onboarding_status?: string
+          org_type?: string | null
           owner_id?: string | null
+          quality_lead_email?: string | null
+          quality_lead_name?: string | null
+          reporting_period?: string | null
           source?: string | null
           stage?: string
+          timezone?: string | null
         }
         Relationships: []
       }
