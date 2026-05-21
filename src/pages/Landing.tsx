@@ -172,44 +172,41 @@ const howItWorksSteps = [
 const outcomes = [
   {
     icon: BarChart3,
-    title: "Stronger UDS performance",
-    description: "See which PDSA cycles actually moved your clinical quality measures — and double down on what works. No more guessing at year-end.",
+    title: "Measurable UDS movement",
+    description: "Year-over-year gains on the specific clinical measures you targeted — not just more reports.",
   },
   {
     icon: Shield,
-    title: "HRSA site visit readiness",
-    description: "Walk into your Operational Site Visit with audit-ready binders already built. Reviewers see structured, linked evidence — not a folder of spreadsheets.",
+    title: "Binder built before OSV",
+    description: "Walk into your Operational Site Visit with documentation already assembled — not reconstructed the week before.",
   },
   {
     icon: Clock,
     title: "Hours saved per cycle",
-    description: "Teams report cutting PDSA documentation time by 60–80%. The time you save goes back to patient care and clinical operations.",
+    description: "Teams report cutting PDSA documentation time by 60–80%. The time you save goes back to patient care.",
   },
   {
     icon: DollarSign,
     title: "Visible funding impact",
-    description: "Link your quality improvement work directly to value-based care revenue, HRSA Quality Awards, and grant deliverables. Show your board the ROI of QI.",
+    description: "Link quality work directly to value-based care revenue, HRSA Quality Awards, and grant deliverables for your board.",
   },
 ];
 
 const objectionItems = [
   {
-    title: "Not another dashboard",
-    description: "MeasureWise connects the improvement work to the measure, not just the data point. Azara shows you where your rates are. MeasureWise helps you change them — and proves you did.",
+    title: "Not another dashboard — PDSA-first",
+    description: "Azara and similar tools show you where your rates are. MeasureWise structures the change you're testing and ties it to the UDS line it should move.",
   },
   {
-    title: "PDSA-first, not report-first",
-    description: "Start with the change you're testing and see exactly how it affects your UDS line. Most tools show you historical data. MeasureWise structures the work that creates better data.",
-  },
-  {
-    title: "Audit-ready by default",
-    description: "Every cycle automatically builds the documentation your surveyors ask for. No more end-of-year scrambles to reconstruct what you did and why.",
+    title: "Audit-ready without the year-end scramble",
+    description: "Instead of reconstructing months of work from spreadsheets before a site visit, surveyors see structured, linked evidence the moment they ask.",
   },
   {
     title: "Built for CHC budgets",
-    description: "No per-seat licensing, no enterprise sales calls, no six-month implementations. Start free, upgrade when you need SPC charts and multi-site support.",
+    description: "No per-seat licensing, no enterprise sales cycle, no six-month implementation.",
   },
 ];
+
 
 const faqItems = [
   {
