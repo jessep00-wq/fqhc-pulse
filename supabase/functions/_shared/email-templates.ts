@@ -147,7 +147,7 @@ export function weeklyDigestEmail(
     .join("");
 
   return {
-    subject: customSubject || "📊 Your Weekly QI Digest — MeasureWise",
+    subject: customSubject || `📊 Your Weekly QI Digest — ${BRAND.name}`,
     html: layout("Weekly QI Digest", `
       <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 24px;">Here's your quality improvement summary for the past week:</p>
