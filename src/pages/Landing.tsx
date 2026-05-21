@@ -100,12 +100,6 @@ const personas = [
   },
 ];
 
-const stats = [
-  { value: "20+", label: "UDS Measures Tracked" },
-  { value: "HRSA", label: "Chapter 10 Aligned" },
-  { value: "PCMH", label: "Q-PASS Ready" },
-  { value: "$0", label: "Enterprise Sales Calls" },
-];
 
 const securityItems = [
   { icon: Lock, label: "256-bit AES encryption at rest" },
