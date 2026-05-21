@@ -60,17 +60,18 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
 
 export function contactConfirmationEmail(name: string): { subject: string; html: string } {
   return {
-    subject: "We received your message — MeasureWise",
+    subject: `We received your message — ${BRAND.name}`,
     html: layout("Message Received", `
       <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${esc(name)}` : ""}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         We've received your message and our team will get back to you within 1 business day.
       </p>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
-        In the meantime, feel free to explore MeasureWise with a free account — no credit card required.
+        In the meantime, feel free to explore ${BRAND.name} with a free account — no credit card required.
       </p>
-      <a href="https://measurewise.org/auth?signup=true" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Try MeasureWise Free</a>
+      <a href="${BRAND.url}/auth?signup=true" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Try ${BRAND.name} Free</a>
     `),
+
   };
 }
 
