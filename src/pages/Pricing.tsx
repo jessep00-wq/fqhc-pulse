@@ -25,7 +25,7 @@ import { BRAND } from "@/lib/brand";
 const pricingJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "MeasureWise",
+  name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA-ready audit binders.",
