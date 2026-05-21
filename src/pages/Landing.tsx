@@ -289,10 +289,11 @@ export default function Landing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="MeasureWise™ — PDSA & UDS Quality Operations for FQHCs"
+        title={`${BRAND.nameTm} — ${BRAND.tagline}`}
         description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
-        canonical="https://measurewise.org/"
+        canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
+
       />
 
 
