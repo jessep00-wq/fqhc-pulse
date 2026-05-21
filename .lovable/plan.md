@@ -1,81 +1,77 @@
+# Tighten Landing.tsx above-the-fold and de-dupe arrays
 
 ## Goal
 
-Replace the single-screen `Onboarding.tsx` with a 2-step wizard that captures operational metadata and an explicit Demo vs Live mode choice. Persist the new fields on `organizations`, watermark demo data in the dashboard, and warn before exports while in demo mode.
+Refocus the hero on a single, narrative-driven conversion block (audience → problem → outcome), strip away duplicate "founder credibility / 3-step workflow / stats / badges / pricing" noise that currently lives above the fold, and remove copy that repeats across `features`, `outcomes`, and `objectionItems`.
 
-## Step 1 — Organization Profile
+All work is presentation-only inside `src/pages/Landing.tsx`. No routes, data, or other components change.
 
-Fields collected on `organizations`:
-- `name` (existing, required)
-- `npi` (existing, optional)
-- `org_type` — enum: `FQHC`, `FQHC Look-Alike`, `RHC`, `Other`
-- `reporting_period` — enum: `Calendar Year`, `Fiscal Year (Jul–Jun)`, `HRSA UDS (Jan–Dec)`
-- `quality_lead_name` — text
-- `quality_lead_email` — text (defaults to current user email)
-- `timezone` — select, defaults to browser `Intl.DateTimeFormat().resolvedOptions().timeZone`
+## Above-the-fold (new hero, lines ~309–407 today)
 
-Validation: name, org_type, reporting_period, quality_lead_name, timezone required. "Next" disabled until valid.
+Replace the current hero region (differentiator banner + hero grid + founder-led credibility row) with one tight block:
 
-## Step 2 — Data Governance Confirmation
+- **One headline** (audience + problem):
+  "FQHC quality leaders: stop running PDSA cycles that never show up in your UDS results."
+- **One subheadline** (outcome):
+  "MeasureWise turns scattered audit prep and measure-tracking spreadsheets into one defensible workflow — so every cycle produces HRSA-ready evidence and a UDS measure you can prove moved."
+- **One primary CTA**: `Start 14-day free trial` → `/auth?signup=true`
+- **One secondary CTA**: `See how it works` → `/how-it-works`
+- **Exactly 3 proof bullets** (short, icon + line):
+  1. `Shield` — HRSA Chapter 10 + NCQA PCMH aligned
+  2. `TrendingUp` — Real UDS measure movement on SPC charts
+  3. `FileCheck` — Audit binder exported in one click
+- Keep the right-side `dashboardPreview` image.
+- Keep the "14-day free trial · No credit card · Cancel anytime" microcopy under the CTAs.
 
-- Radio: **Demo Mode** (seed sample UDS/PDSA data, watermark everywhere, exports warn) vs **Live Mode** (no seed, production-grade data only).
-- Acknowledgement checkbox: "I understand demo data is for evaluation only and must not be used for HRSA submissions or board reporting."
-- Submit button labeled "Create Workspace".
+Remove from above the fold:
+- Differentiator banner strip (`The only quality improvement platform built exclusively for FQHCs`)
+- `complianceBadges` chip row (replaced by the 3 proof bullets)
+- Founder-led credibility 3-card row (defer — founder section already exists lower)
+- Three-Step Workflow section (`/* Three-Step Workflow */`) — duplicates `howItWorksSteps` further down
+- Stats strip and the Credibility Badge Bar (both duplicate the 3 proof bullets)
 
-On submit:
-- Insert `organizations` row with all step-1 + step-2 fields and `data_mode`.
-- Update `profiles.organization_id`.
-- If `data_mode = 'demo'`, call `seed_demo_data` RPC. If `live`, skip.
-- Redirect to `/dashboard`.
+## Section order below the hero (narrative)
 
-## Database changes (migration)
+1. Hero (audience + problem + outcome)
+2. "What MeasureWise actually does" (existing, outcome framing)
+3. `howItWorksSteps` (single source of truth for the 3/4-step flow)
+4. SPC chart hero (proof of outcome)
+5. Key features (`features`)
+6. Outcomes (`outcomes`)
+7. Pricing teaser
+8. Store teaser
+9. Comparison table
+10. Objections (`objectionItems`)
+11. Playbook lead magnet
+12. Sample export preview
+13. Personas (deferred well below first conversion block)
+14. Founder authority
+15. Security
+16. FAQ
+17. Contact
 
-Add to `public.organizations`:
-- `org_type text`
-- `reporting_period text`
-- `quality_lead_name text`
-- `quality_lead_email text`
-- `timezone text`
-- `data_mode text not null default 'live'` with check (`'demo'`, `'live'`)
+Pricing + Store teasers move down from their current near-top position so the first conversion block is the hero CTA, not pricing.
 
-Existing RLS on `organizations` already covers these columns (row-level, not column-level), so no policy changes needed. Existing `prevent_org_id_change` trigger is unaffected.
+## De-duplication across `features`, `outcomes`, `objectionItems`
 
-## Demo watermarking
+Current overlaps to remove:
 
-Expose `dataMode` on `OrgContext` (extend the `Organization` interface and the org fetch select).
+- `features[0]` "One-Click HRSA / NCQA Evidence Packet" and `objectionItems[2]` "Audit-ready by default" both say "every cycle automatically builds the documentation your surveyors ask for." → Keep in `features`; rewrite `objectionItems[2]` to focus on the *contrast* ("vs. end-of-year reconstruction from spreadsheets"), drop the duplicate sentence.
+- `features[2]` "Real-Time UDS Measure Tracking" and `outcomes[0]` "Stronger UDS performance" both promise "see which PDSA cycles moved the measure." → Keep tracking mechanics in `features`; rewrite `outcomes[0]` to be result-focused only ("Measurable year-over-year UDS gains on the measures you targeted"), drop the SPC/real-time language.
+- `features[2]` and the SPC hero section both explain SPC "real improvement vs. random variation." → Trim that phrase from `features[2]` description; SPC hero owns it.
+- `outcomes[1]` "HRSA site visit readiness" duplicates `features[0]`. → Rewrite `outcomes[1]` as a *time-to-readiness* outcome ("Walk into OSV with the binder already built — not assembled the week before").
+- `objectionItems[0]` "Not another dashboard" and `objectionItems[1]` "PDSA-first, not report-first" both contrast with Azara using nearly the same phrasing. → Merge into a single item ("Not another dashboard — PDSA-first") and drop the second.
+- `objectionItems[3]` "Built for CHC budgets" duplicates the Pricing teaser copy ("no per-seat licensing, no enterprise sales calls"). → Shorten to one line about budget fit; remove pricing specifics.
 
-New `<DemoWatermark />` component — fixed diagonal "DEMO DATA — NOT FOR HRSA SUBMISSION" overlay (low-opacity, `pointer-events: none`), rendered by `AppLayout` when `dataMode === 'demo'`.
+Net result: `objectionItems` drops from 4 → 3 entries, `outcomes` copy is rewritten (count unchanged at 4), `features` descriptions trimmed of SPC/audit-binder overlap.
 
-Add a persistent top-of-page banner via existing `AttentionStrip` / a new `DemoModeBanner` in `AppLayout` linking to Settings to switch to Live.
+## Files
 
-## Export gating
-
-Affected components: `SampleExportButtons`, `AuditBinderDialog`, `BoardReportDialog`, `EvidencePacketDialog`.
-
-Wrap each export trigger in a confirmation dialog when `dataMode === 'demo'`:
-- Title: "Exporting demo data"
-- Body: "This workspace is in Demo Mode. The exported file will be watermarked 'DEMO — NOT FOR SUBMISSION'. Switch to Live Mode in Settings before generating HRSA-grade reports."
-- Buttons: "Cancel" / "Export anyway"
-
-PDF generators stamp a `DEMO — NOT FOR SUBMISSION` footer on every page when in demo mode (small helper in the existing canvas/PDF pagination utility).
-
-## Settings page
-
-Add a "Data Mode" card in `Settings.tsx` allowing the org owner / founder_admin to flip `data_mode` between `demo` and `live`. Flipping to live shows a confirmation modal warning that demo records will remain visible until manually purged (optional follow-up: add a purge action).
-
-## Files touched
-
-- `supabase/migrations/*` — new migration (new tool call)
-- `src/pages/Onboarding.tsx` — rewrite as 2-step wizard
-- `src/contexts/OrgContext.tsx` — expose `dataMode`, `orgType`, etc.
-- `src/components/AppLayout.tsx` — render `DemoWatermark` + `DemoModeBanner` when demo
-- `src/components/DemoWatermark.tsx` (new)
-- `src/components/DemoModeBanner.tsx` (new)
-- `src/components/ExportGateDialog.tsx` (new) — shared demo-export confirmation
-- `src/components/SampleExportButtons.tsx`, `AuditBinderDialog.tsx`, `BoardReportDialog.tsx`, `EvidencePacketDialog.tsx` — wire through gate + PDF footer stamp
-- `src/pages/Settings.tsx` — Data Mode card
+- `src/pages/Landing.tsx` (only file touched)
 
 ## Out of scope
 
-- Automatic purge of demo records when switching to live (call out as follow-up).
-- Per-record `is_demo` flagging — relying on org-level `data_mode` is enough for v1 since demo records are seeded only in demo orgs.
+- SEO metadata, JSON-LD, routes
+- Visual restyle of retained sections
+- Any changes to imported components (`ContactForm`, `SampleExportButtons`, `PlaybookLeadMagnetSection`, `PublicPageLayout`)
+- Copy in FAQ, founder, security, personas sections
