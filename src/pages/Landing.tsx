@@ -752,7 +752,7 @@ export default function Landing() {
             the gap between what happens in clinics and what shows up in your UDS tables.
           </p>
           <p className="text-sm text-muted-foreground/70 italic">
-            — Jessica R. Smith, BSN · Founder, MeasureWise
+            — {BRAND.founder.formalName} · {BRAND.founder.title}
           </p>
         </div>
       </section>
