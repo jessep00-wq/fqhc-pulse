@@ -140,14 +140,20 @@ export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    trackAnonEvent("pricing_viewed", { source: "pricing_page" });
+  }, []);
+
   const handleSubscribe = async (lookupKey: string | null) => {
     if (!lookupKey) {
       navigate("/auth?signup=true");
       return;
     }
+    const billing: "monthly" | "annual" = annual ? "annual" : "monthly";
+    trackAnonEvent("plan_selected", { priceId: lookupKey, billing });
+    savePlanIntent(lookupKey, billing);
     if (!user) {
-      // Send to signup; after onboarding the user can come back here.
-      navigate(`/auth?signup=true&plan=${lookupKey}`);
+      navigate(`/auth?signup=true&plan=${lookupKey}&billing=${billing}`);
       return;
     }
     setLoadingKey(lookupKey);
