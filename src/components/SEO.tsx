@@ -1,4 +1,5 @@
 import { Helmet } from "react-helmet-async";
+import { BRAND, brandTitle } from "@/lib/brand";
 
 interface SEOProps {
   title: string;
@@ -13,8 +14,9 @@ interface SEOProps {
 }
 
 export function SEO({ title, description, canonical, type = "website", jsonLd, article }: SEOProps) {
-  const fullTitle = title.includes("MeasureWise") ? title : `${title} | MeasureWise™`;
-  const url = canonical || "https://measurewise.org";
+  const fullTitle = brandTitle(title);
+  const url = canonical || BRAND.url;
+  const ogImage = `${BRAND.url}/og-image.png`;
 
   return (
     <Helmet>
@@ -26,12 +28,12 @@ export function SEO({ title, description, canonical, type = "website", jsonLd, a
       <meta property="og:url" content={url} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
-      <meta property="og:image" content="https://measurewise.org/og-image.png" />
+      <meta property="og:image" content={ogImage} />
 
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content="https://measurewise.org/og-image.png" />
+      <meta name="twitter:image" content={ogImage} />
 
       {article?.publishedTime && (
         <meta property="article:published_time" content={article.publishedTime} />
