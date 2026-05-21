@@ -349,7 +349,7 @@ export default function Landing() {
             <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
               <img
                 src={dashboardPreview}
-                alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking"
+                alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking`}
                 className="w-full"
                 width={1280}
                 height={720}
