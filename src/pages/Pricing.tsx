@@ -181,7 +181,7 @@ export default function Pricing() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            MeasureWise pricing for
+            {BRAND.name} pricing for
             <br />
             <span className="text-primary">FQHC quality teams</span>
           </h1>
