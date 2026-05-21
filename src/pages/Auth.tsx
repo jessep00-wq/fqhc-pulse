@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Check, Circle } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { BRAND, copyright } from "@/lib/brand";
+
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
