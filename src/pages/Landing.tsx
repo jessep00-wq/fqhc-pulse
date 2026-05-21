@@ -64,8 +64,9 @@ const features = [
     title: "Real-Time UDS Measure Tracking",
     painPoint: "Waiting until year-end to see if your QI work moved the needle?",
     description:
-      "Track 20+ UDS clinical quality measures with real-time trend analysis and SPC charts. See whether your PDSA cycle actually improved that screening rate — or if it was random variation — before you report to HRSA.",
+      "Track 20+ UDS clinical quality measures with live trend updates as your team completes cycles — so you know whether to scale an intervention or pivot before HRSA reporting.",
   },
+
   {
     icon: ClipboardCheck,
     title: "NCQA Q-PASS Evidence Collection",
