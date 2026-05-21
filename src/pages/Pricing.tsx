@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { BRAND } from "@/lib/brand";
+import { savePlanIntent } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 
 const pricingJsonLd = {
