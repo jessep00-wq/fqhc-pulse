@@ -3,18 +3,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { Button } from "@/components/ui/button";
 import { FileText, Loader2 } from "lucide-react";
 import { useOrg } from "@/contexts/OrgContext";
+import { confirmDemoExport } from "@/lib/demoExportGate";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import type { DBCycle } from "@/types/pdsa";
 
 export function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle: DBCycle | null; open: boolean; onClose: () => void; isFreeTier?: boolean }) {
-  const { organization } = useOrg();
+  const { organization, isDemo } = useOrg();
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
 
   const handleExportPDF = useCallback(async () => {
     if (!printRef.current || !cycle) return;
+    if (!confirmDemoExport(isDemo, "The HRSA audit binder")) return;
     setExporting(true);
     try {
       const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
