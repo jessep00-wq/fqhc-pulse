@@ -432,6 +432,8 @@ export default function Settings() {
               </Button>
             </CardContent>
           </Card>
+
+          <DataModeCard />
         </TabsContent>
 
         {/* ─── Clinical Data ─── */}
