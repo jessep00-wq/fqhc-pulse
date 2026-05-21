@@ -136,7 +136,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
+                <li><a href={`mailto:${BRAND.supportEmail}`} className="hover:text-foreground transition-colors">{BRAND.supportEmail}</a></li>
               </ul>
             </div>
 
