@@ -78,18 +78,24 @@ export default function Auth() {
       return;
     }
     setLoading(true);
+    const intent = readPlanIntent();
+    trackAnonEvent("signup_started", intent ? { priceId: intent.priceId } : undefined);
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName, staff_role: staffRole },
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: appendPlanToUrl(window.location.origin, intent),
       },
     });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
+      trackAnonEvent("signup_completed", {
+        priceId: intent?.priceId,
+        userId: data?.user?.id,
+      });
       // Send welcome email (fire-and-forget)
       const escapeHtml = (s: string) =>
         s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
