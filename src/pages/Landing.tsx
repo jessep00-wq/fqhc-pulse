@@ -732,7 +732,7 @@ export default function Landing() {
           <div className="flex justify-center">
             <img
               src={founderPhoto}
-              alt="Jessica R. Smith, Founder of MeasureWise"
+              alt={`${BRAND.founder.formalName}, Founder of ${BRAND.name}`}
               className="h-36 w-36 md:h-44 md:w-44 rounded-full object-cover border-2 border-primary/20 shadow-lg"
               loading="lazy"
             />
