@@ -7,6 +7,8 @@ import { useOrg } from "@/contexts/OrgContext";
 import { NotificationDropdown } from "@/components/NotificationDropdown";
 import { TrialBanner } from "@/components/TrialBanner";
 import { TrialGuard } from "@/components/TrialGuard";
+import { DemoWatermark } from "@/components/DemoWatermark";
+import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface AppLayoutProps {
@@ -15,7 +17,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   const { signOut } = useAuth();
-  const { organization, hasOrg } = useOrg();
+  const { organization, hasOrg, isDemo } = useOrg();
 
   const truncated =
     organization.name.length > 28 ? `${organization.name.slice(0, 27)}…` : organization.name;
@@ -25,6 +27,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
+          {isDemo && <DemoModeBanner />}
           <TrialBanner />
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 gap-3">
             <div className="flex items-center gap-3 min-w-0">
@@ -46,6 +49,11 @@ export function AppLayout({ children }: AppLayoutProps) {
                             </span>
                           </>
                         )}
+                        {isDemo && (
+                          <span className="ml-1 rounded bg-amber-500/20 text-amber-900 dark:text-amber-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                            Demo
+                          </span>
+                        )}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="bottom">
@@ -65,10 +73,11 @@ export function AppLayout({ children }: AppLayoutProps) {
               </Button>
             </div>
           </header>
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto relative">
             <TrialGuard>{children}</TrialGuard>
           </main>
         </div>
+        {isDemo && <DemoWatermark />}
       </div>
     </SidebarProvider>
   );
