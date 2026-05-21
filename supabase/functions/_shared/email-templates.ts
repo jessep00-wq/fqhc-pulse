@@ -90,7 +90,7 @@ export function taskDeadlineEmail(
     .join("");
 
   return {
-    subject: `⚠️ ${tasks.length} task${tasks.length > 1 ? "s" : ""} need${tasks.length === 1 ? "s" : ""} attention — MeasureWise`,
+    subject: `⚠️ ${tasks.length} task${tasks.length > 1 ? "s" : ""} need${tasks.length === 1 ? "s" : ""} attention — ${BRAND.name}`,
     html: layout("Task Deadline Reminder", `
       <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
