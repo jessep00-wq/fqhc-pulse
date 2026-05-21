@@ -47,6 +47,12 @@ export default function Auth() {
     [password]
   );
 
+  // Capture incoming ?plan=&billing= from /pricing → relay through signup,
+  // email verification, and onboarding so we can launch checkout afterward.
+  useEffect(() => {
+    captureFromUrl(searchParams);
+  }, [searchParams]);
+
   if (session) return <Navigate to="/dashboard" replace />;
 
   const handleLogin = async () => {
@@ -56,6 +62,8 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
+      // If the user came from /pricing with a plan intent, let the
+      // post-login dashboard/onboarding redirect logic pick it up.
       navigate("/dashboard");
     }
   };
