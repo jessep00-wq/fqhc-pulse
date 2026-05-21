@@ -13,6 +13,9 @@ import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, Building2, ShieldCheck, FlaskConical, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { readPlanIntent, clearPlanIntent } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 const ORG_TYPES = ["FQHC", "FQHC Look-Alike", "RHC", "Other"];
 const REPORTING_PERIODS = [
@@ -108,6 +111,38 @@ export default function Onboarding() {
 
       if (dataMode === "demo") {
         await supabase.rpc("seed_demo_data", { org_id: orgId });
+      }
+
+      const intent = readPlanIntent();
+      trackAnonEvent("onboarding_completed", {
+        organization_id: orgId,
+        priceId: intent?.priceId,
+      });
+
+      // If the user came from /pricing with a plan intent, kick straight
+      // into Stripe checkout instead of the dashboard onboarding checklist.
+      if (intent?.priceId) {
+        try {
+          const { data, error } = await supabase.functions.invoke(
+            "create-subscription-checkout",
+            { body: { priceId: intent.priceId, environment: getStripeEnvironment() } }
+          );
+          if (error) throw error;
+          if (data?.url) {
+            trackAnonEvent("checkout_started", {
+              priceId: intent.priceId,
+              organization_id: orgId,
+            });
+            clearPlanIntent();
+            window.location.href = data.url as string;
+            return;
+          }
+          throw new Error("No checkout URL returned");
+        } catch (e) {
+          console.warn("Checkout launch failed; falling back to dashboard", e);
+          clearPlanIntent();
+          toast.error("Couldn't launch checkout — opening your dashboard instead.");
+        }
       }
 
       toast.success(

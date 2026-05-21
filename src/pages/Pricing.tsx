@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -20,6 +20,8 @@ import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { BRAND } from "@/lib/brand";
+import { savePlanIntent } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 
 const pricingJsonLd = {
@@ -138,14 +140,20 @@ export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    trackAnonEvent("pricing_viewed", { source: "pricing_page" });
+  }, []);
+
   const handleSubscribe = async (lookupKey: string | null) => {
     if (!lookupKey) {
       navigate("/auth?signup=true");
       return;
     }
+    const billing: "monthly" | "annual" = annual ? "annual" : "monthly";
+    trackAnonEvent("plan_selected", { priceId: lookupKey, billing });
+    savePlanIntent(lookupKey, billing);
     if (!user) {
-      // Send to signup; after onboarding the user can come back here.
-      navigate(`/auth?signup=true&plan=${lookupKey}`);
+      navigate(`/auth?signup=true&plan=${lookupKey}&billing=${billing}`);
       return;
     }
     setLoadingKey(lookupKey);
@@ -155,6 +163,7 @@ export default function Pricing() {
       });
       if (error) throw error;
       if (data?.url) {
+        trackAnonEvent("checkout_started", { priceId: lookupKey });
         window.location.href = data.url as string;
         return;
       }

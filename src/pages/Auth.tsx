@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Check, Circle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { BRAND, copyright } from "@/lib/brand";
+import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,6 +47,12 @@ export default function Auth() {
     [password]
   );
 
+  // Capture incoming ?plan=&billing= from /pricing → relay through signup,
+  // email verification, and onboarding so we can launch checkout afterward.
+  useEffect(() => {
+    captureFromUrl(searchParams);
+  }, [searchParams]);
+
   if (session) return <Navigate to="/dashboard" replace />;
 
   const handleLogin = async () => {
@@ -54,6 +62,8 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
+      // If the user came from /pricing with a plan intent, let the
+      // post-login dashboard/onboarding redirect logic pick it up.
       navigate("/dashboard");
     }
   };
@@ -68,18 +78,24 @@ export default function Auth() {
       return;
     }
     setLoading(true);
+    const intent = readPlanIntent();
+    trackAnonEvent("signup_started", intent ? { priceId: intent.priceId } : undefined);
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName, staff_role: staffRole },
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: appendPlanToUrl(window.location.origin, intent),
       },
     });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
+      trackAnonEvent("signup_completed", {
+        priceId: intent?.priceId,
+        userId: data?.user?.id,
+      });
       // Send welcome email (fire-and-forget)
       const escapeHtml = (s: string) =>
         s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");

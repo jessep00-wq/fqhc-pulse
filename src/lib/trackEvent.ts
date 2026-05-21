@@ -13,7 +13,26 @@ export type EventName =
   | "task_created"
   | "task_completed"
   | "settings_updated"
-  | "playbook_lead_submit";
+  | "playbook_lead_submit"
+  | "pricing_viewed"
+  | "plan_selected"
+  | "signup_started"
+  | "signup_completed"
+  | "onboarding_completed"
+  | "checkout_started";
+
+/**
+ * Fire-and-forget PostHog event for pre-auth funnel steps where there is
+ * no authenticated user yet (pricing_viewed, plan_selected, signup_started).
+ * Skips the org-scoped usage_events DB insert.
+ */
+export function trackAnonEvent(eventName: EventName, metadata?: Record<string, unknown>) {
+  try {
+    trackPostHogEvent(eventName, metadata ?? {});
+  } catch {
+    console.warn("Failed to track anon event:", eventName);
+  }
+}
 
 export async function trackEvent(
   eventName: EventName,
