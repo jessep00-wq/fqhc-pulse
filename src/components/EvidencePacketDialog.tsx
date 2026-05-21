@@ -9,6 +9,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { confirmDemoExport } from "@/lib/demoExportGate";
 import { CalendarIcon, FileText, Loader2, Download } from "lucide-react";
 import { format } from "date-fns";
 import html2canvas from "html2canvas";
@@ -136,7 +137,7 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
 }
 
 export default function EvidencePacketDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const { organization } = useOrg();
+  const { organization, isDemo } = useOrg();
   const { isFreeTier } = useTierLimits();
   const [startDate, setStartDate] = useState<Date>(getFiscalYearStart());
   const [endDate, setEndDate] = useState<Date>(getFiscalYearEnd());
