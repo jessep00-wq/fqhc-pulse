@@ -1,8 +1,10 @@
 // Shared email HTML templates for MeasureWise
 // Brand: teal primary (#1a8a8a), clean white background
+import { BRAND, copyright } from "./brand.ts";
 
 const BRAND_COLOR = "#1a8a8a";
 const BRAND_BG = "#f8fafb";
+
 
 // HTML escape user-controlled content to prevent HTML/script injection in emails
 const esc = (s: unknown): string =>
