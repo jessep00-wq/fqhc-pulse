@@ -153,11 +153,12 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
 
           <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row gap-3 justify-between items-start md:items-center text-xs text-muted-foreground">
             <p>
-              © {new Date().getFullYear()} MeasureWise. All rights reserved. · Fulton, MS
+              {copyright()} · {BRAND.legalLocation}
             </p>
             <p>
-              Built by Jessica R. Smith, BSN — FQHC Quality Director
+              Built by {BRAND.founder.formalName} — FQHC Quality Director
             </p>
+
           </div>
         </div>
       </footer>
