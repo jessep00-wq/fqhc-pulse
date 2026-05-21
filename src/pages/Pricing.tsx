@@ -19,6 +19,8 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
+import { BRAND } from "@/lib/brand";
+
 
 const pricingJsonLd = {
   "@context": "https://schema.org",
