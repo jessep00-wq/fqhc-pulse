@@ -163,6 +163,7 @@ export default function Pricing() {
       });
       if (error) throw error;
       if (data?.url) {
+        trackAnonEvent("checkout_started", { priceId: lookupKey });
         window.location.href = data.url as string;
         return;
       }
