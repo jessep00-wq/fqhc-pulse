@@ -17,7 +17,7 @@ import {
   
   X,
   Lock,
-  Zap,
+  
   TrendingUp,
   Target,
   Clock,
