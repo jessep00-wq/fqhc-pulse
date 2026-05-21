@@ -563,6 +563,60 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Pricing Teaser */}
+      <section className="py-12 px-6 bg-primary/5 border-y border-primary/10">
+        <div className="max-w-5xl mx-auto text-center space-y-5">
+          <p className="text-xs font-bold text-primary uppercase tracking-wider">Simple, FQHC-friendly pricing</p>
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Solo</span>
+              <span className="text-primary">$149</span>
+              <span className="text-muted-foreground text-xs">/mo</span>
+            </span>
+            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Multi-Site</span>
+              <span className="text-primary">$349</span>
+              <span className="text-muted-foreground text-xs">/mo</span>
+            </span>
+            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
+              <span className="text-foreground">Network</span>
+              <span className="text-primary">$699</span>
+              <span className="text-muted-foreground text-xs">/mo</span>
+            </span>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            14-day free trial on every plan. No credit card to start. No per-seat licensing.
+          </p>
+          <Button variant="outline" asChild>
+            <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* Store Teaser */}
+      <section className="py-12 px-6 border-b border-border">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="space-y-2">
+            <p className="text-xs font-bold text-primary uppercase tracking-wider">MeasureWise Store</p>
+            <h3 className="text-2xl font-bold text-foreground">
+              Templates that move UDS measures and survive HRSA audits
+            </h3>
+            <p className="text-muted-foreground">
+              UDS, PDSA, QI committee, and board reporting templates. Buy once, no subscription.
+            </p>
+          </div>
+          <div className="shrink-0">
+            <Button asChild>
+              <Link to="/store">Browse the Store <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+
+
       {/* Comparison Table */}
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-4xl mx-auto">
