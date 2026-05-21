@@ -304,41 +304,19 @@ export default function Landing() {
       />
 
 
-      {/* Differentiator Banner */}
-      <div className="bg-primary/5 border-b border-primary/10">
-        <div className="max-w-6xl mx-auto px-6 py-2.5 text-center">
-          <p className="text-sm font-semibold text-primary tracking-wide">
-            <Zap className="h-3.5 w-3.5 inline-block mr-1.5 -mt-0.5" />
-            The only quality improvement platform built exclusively for FQHCs
-          </p>
-        </div>
-      </div>
-
-      {/* Hero — text-left / image-right */}
-      <section className="py-16 md:py-20 px-6">
+      {/* Hero — audience → problem → outcome */}
+      <section className="py-16 md:py-24 px-6">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: copy + CTA */}
           <div className="space-y-7 text-center lg:text-left">
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2">
-              {complianceBadges.map((b) => (
-                <div
-                  key={b.label}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-semibold text-primary"
-                >
-                  <b.icon className="h-3.5 w-3.5" />
-                  {b.label}
-                </div>
-              ))}
-            </div>
-
             <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight text-foreground leading-[1.08]">
-              Every PDSA cycle you run should move a UDS measure. Now you can prove it.
+              FQHC quality leaders: stop running PDSA cycles that never show up in your UDS results.
             </h1>
 
             <p className="text-lg text-muted-foreground leading-relaxed">
-              The QI platform for FQHC quality directors who are tired of running cycles that
-              never show up in UDS results. Plan a PDSA cycle, watch the measure move on an SPC
-              chart, and export an HRSA-ready binder — all in one place.
+              MeasureWise turns scattered audit prep and measure-tracking spreadsheets into one
+              defensible workflow — so every cycle produces HRSA-ready evidence and a UDS
+              measure you can prove moved.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
@@ -355,6 +333,21 @@ export default function Landing() {
             <p className="text-sm text-muted-foreground">
               14-day free trial · No credit card · Cancel anytime
             </p>
+
+            <ul className="space-y-2.5 pt-2 text-left max-w-md mx-auto lg:mx-0">
+              <li className="flex items-start gap-3">
+                <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm text-foreground">HRSA Chapter 10 + NCQA PCMH aligned</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <TrendingUp className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm text-foreground">Real UDS measure movement on SPC charts</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <FileCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                <span className="text-sm text-foreground">Audit binder exported in one click</span>
+              </li>
+            </ul>
           </div>
 
           {/* Right: dashboard preview */}
@@ -373,139 +366,9 @@ export default function Landing() {
             </div>
           </div>
         </div>
-
-        {/* Founder-led credibility row */}
-        <div className="max-w-6xl mx-auto mt-16 grid md:grid-cols-3 gap-4">
-          <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
-            <img src={founderPhoto} alt="Jessica Smith, founder" className="h-12 w-12 rounded-full object-cover shrink-0 border border-border" />
-            <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Built by an FQHC QI leader</p>
-              <p className="text-sm text-foreground leading-snug">Designed by Jessica Smith, an FQHC quality director who ran the same audits and PDSA cycles you do.</p>
-            </div>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
-              <Shield className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Standards-aligned</p>
-              <p className="text-sm text-foreground leading-snug">Aligned with HRSA Chapter 10, UDS Tables 6B/7, and NCQA PCMH 2024 standards — not generic QI software.</p>
-            </div>
-          </div>
-          <div className="rounded-xl border border-border bg-card p-5 flex items-start gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
-              <Clock className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-primary uppercase tracking-wider mb-1">Designed to save hours</p>
-              <p className="text-sm text-foreground leading-snug">Built to cut PDSA documentation from days to a single 30-minute committee meeting.</p>
-            </div>
-          </div>
-        </div>
       </section>
 
-      {/* Three-Step Workflow */}
-      <section className="py-12 px-6 border-y border-border bg-muted/30">
-        <div className="max-w-5xl mx-auto">
-          <p className="text-center text-sm font-semibold text-primary uppercase tracking-wider mb-6">How it works</p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 items-stretch">
-            {[
-              { icon: FlaskConical, step: "1", title: "Plan PDSA", desc: "Use guided templates linked to UDS measures" },
-              { icon: TrendingUp, step: "2", title: "Track UDS Impact", desc: "SPC charts show real improvement vs. noise" },
-              { icon: FileCheck, step: "3", title: "Export Audit Binder", desc: "One-click HRSA & NCQA-ready documentation" },
-            ].map((s, i) => (
-              <div key={s.step} className="flex items-center">
-                <div className="flex-1 text-center space-y-3 p-5 rounded-xl border border-border bg-card shadow-sm">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mx-auto">
-                    <s.icon className="h-6 w-6" />
-                  </div>
-                  <p className="text-xs font-bold text-primary uppercase tracking-wider">Step {s.step}</p>
-                  <h3 className="font-semibold text-foreground text-base">{s.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{s.desc}</p>
-                </div>
-                {i < 2 && (
-                  <ArrowRight className="h-5 w-5 text-primary/40 shrink-0 mx-1 hidden sm:block" />
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section className="border-y border-border bg-muted/50 py-12 px-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-          {stats.map((s) => (
-            <div key={s.label} className="text-center">
-              <p className="text-3xl font-bold text-primary">{s.value}</p>
-              <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Credibility Badge Bar */}
-      <section className="py-6 px-6 border-b border-border bg-card">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
-          <span className="inline-flex items-center gap-2 font-medium"><Shield className="h-4 w-4 text-primary" /> HRSA Chapter 10 Aligned</span>
-          <span className="hidden sm:inline text-border">|</span>
-          <span className="inline-flex items-center gap-2 font-medium"><ClipboardCheck className="h-4 w-4 text-primary" /> NCQA PCMH & Q-PASS Ready</span>
-          <span className="hidden sm:inline text-border">|</span>
-          <span className="inline-flex items-center gap-2 font-medium"><FileCheck className="h-4 w-4 text-primary" /> One-Click Audit Binder Exports</span>
-        </div>
-      </section>
-
-      {/* Pricing Teaser */}
-      <section className="py-12 px-6 bg-primary/5 border-b border-primary/10">
-        <div className="max-w-5xl mx-auto text-center space-y-5">
-          <p className="text-xs font-bold text-primary uppercase tracking-wider">Simple, FQHC-friendly pricing</p>
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
-              <span className="text-foreground">Solo</span>
-              <span className="text-primary">$149</span>
-              <span className="text-muted-foreground text-xs">/mo</span>
-            </span>
-            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
-            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
-              <span className="text-foreground">Multi-Site</span>
-              <span className="text-primary">$349</span>
-              <span className="text-muted-foreground text-xs">/mo</span>
-            </span>
-            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
-            <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
-              <span className="text-foreground">Network</span>
-              <span className="text-primary">$699</span>
-              <span className="text-muted-foreground text-xs">/mo</span>
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            14-day free trial on every plan. No credit card to start. No per-seat licensing.
-          </p>
-          <Button variant="outline" asChild>
-            <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
-          </Button>
-        </div>
-      </section>
-
-      {/* Store Teaser */}
-      <section className="py-12 px-6 border-b border-border">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
-          <div className="space-y-2">
-            <p className="text-xs font-bold text-primary uppercase tracking-wider">MeasureWise Store</p>
-            <h3 className="text-2xl font-bold text-foreground">
-              Templates that move UDS measures and survive HRSA audits
-            </h3>
-            <p className="text-muted-foreground">
-              UDS, PDSA, QI committee, and board reporting templates. Buy once, no subscription.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <Button asChild>
-              <Link to="/store">Browse the Store <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          </div>
-        </div>
-      </section>
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground">
