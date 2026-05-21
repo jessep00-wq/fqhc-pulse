@@ -39,8 +39,8 @@ function layout(title: string, body: string): string {
 
 export function welcomeEmail(name: string): { subject: string; html: string } {
   return {
-    subject: "Welcome to MeasureWise — Let's Improve Quality Together",
-    html: layout("Welcome to MeasureWise", `
+    subject: `Welcome to ${BRAND.name} — Let's Improve Quality Together`,
+    html: layout(`Welcome to ${BRAND.name}`, `
       <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${esc(name) || "there"}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.
@@ -51,9 +51,10 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
         <li><strong>Start your first PDSA cycle</strong> — pick a UDS measure to improve</li>
         <li><strong>Invite your team</strong> — assign tasks to MA/RN, providers, and coordinators</li>
       </ol>
-      <a href="https://measurewise.org/dashboard" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
-      <p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— Jessica R. Smith, BSN | Founder, MeasureWise</p>
+      <a href="${BRAND.url}/dashboard" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
+      <p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— ${BRAND.founder.formalName} | ${BRAND.founder.title}</p>
     `),
+
   };
 }
 
