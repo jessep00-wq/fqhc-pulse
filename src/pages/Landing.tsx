@@ -255,9 +255,9 @@ const faqJsonLd = {
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "MeasureWise",
-  url: "https://measurewise.org",
-  logo: "https://measurewise.org/measurewise-logo.png",
+  name: BRAND.name,
+  url: BRAND.url,
+  logo: `${BRAND.url}/measurewise-logo.png`,
   description: "Quality improvement software built exclusively for Federally Qualified Health Centers.",
   sameAs: [],
 };
@@ -265,7 +265,7 @@ const orgJsonLd = {
 const softwareJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "MeasureWise",
+  name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "The only quality improvement platform built exclusively for FQHCs. Link PDSA cycles to UDS measures and HRSA funding outcomes.",
@@ -275,6 +275,7 @@ const softwareJsonLd = {
     { "@type": "Offer", name: "Network", price: "699", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "699", priceCurrency: "USD", unitText: "MONTH" } },
   ],
 };
+
 
 function ComparisonCell({ value }: { value: boolean | string }) {
   if (value === true) return <CheckCircle className="h-5 w-5 text-primary mx-auto" />;
