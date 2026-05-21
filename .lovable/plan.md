@@ -1,29 +1,24 @@
-## Fix Chrome Issues panel: 9 unnamed form fields + 1 orphan label
+# Diagnosis: not a code bug
 
-Both warnings come from forms on `/` (Landing).
+The two errors in the screenshot come from an external sandbox (`/workspace/fqhc-pulse/`) and are caused by its npm registry policy, not the project.
 
-### 1. Nine fields missing `id`/`name` → Radix `Select` hidden inputs
+## Error 1 — `Cannot find package '@eslint/js'`
+- `@eslint/js@^9.32.0` is already declared in `package.json` → `devDependencies`.
+- `eslint.config.js` imports it correctly.
+- The module is only "missing" because Error 2 prevented `node_modules` from being populated. Once `npm install` succeeds, this error disappears on its own.
 
-shadcn's `<Select>` wraps Radix Select, which renders a hidden native form control for browser autofill. That control gets its `name` from the `name` prop on `<Select>`. None of our Selects pass one, so Chrome flags every hidden field.
+## Error 2 — `npm ERR! 403 Forbidden — @types/canvas-confetti`
+- `@types/canvas-confetti` is a normal public package on npmjs.org and installs without auth.
+- A 403 from `registry.npmjs.org` indicates the sandbox is going through a proxy / allowlist that is blocking this specific package (or DefinitelyTyped scope).
+- This cannot be fixed from inside the repo. The sandbox/CI environment must allow the package.
 
-**Fix:** add a `name` prop to every `<Select>` rendered on landing-page forms:
-- `src/components/ContactForm.tsx` — 6 Selects (role, fqhcSize, numberOfSites, emr, timeline, plus any I find on a second pass)
-- `src/components/lead-magnets/PlaybookLeadForm.tsx` — 1 Select (role) × rendered on homepage + sidebar + exit-intent dialog
+## Recommended action (environment side, not code)
+Pick one:
+1. **Allowlist `@types/*` (or at least `@types/canvas-confetti`)** in the sandbox's npm proxy/firewall. Preferred.
+2. **Mirror the package** into the internal registry that sandbox uses.
+3. **Last resort — remove the type dep**: drop `@types/canvas-confetti` from `package.json` and add a 1-line ambient declaration (`declare module 'canvas-confetti';`) in `src/vite-env.d.ts`. This works but loses type safety on confetti calls and only helps if option 1/2 are impossible.
 
-This is the lightest possible change and resolves all 9 affected resources.
+## What I will change in the repo
+Nothing, unless you want option 3. The Lovable preview already builds and runs — this is purely about that external lint sandbox.
 
-### 2. One `<Label>` not associated with a field
-
-`ContactForm.tsx` line 299: `<Label>What are you interested in?...</Label>` introduces a checkbox group but has no `htmlFor` and no input child, so Chrome reports an orphan label.
-
-**Fix:** wrap the interests group in `<fieldset>` with the heading as `<legend>` (preserving current visual styling via Tailwind), and drop the `<Label>` element. Each individual checkbox keeps its existing associated `<label htmlFor={id}>`.
-
-### Out of scope
-
-- No changes to form validation, submission, or layout.
-- No changes to PlaybookLeadForm field labels (already correctly associated).
-- No new dependencies.
-
-### Verification
-
-Reload `/`, reopen the Chrome Issues panel, and confirm both warnings clear. Visually confirm the Contact form's "What are you interested in?" heading still renders the same.
+Tell me if you want me to apply option 3, or leave the repo as-is and have the sandbox env adjusted.
