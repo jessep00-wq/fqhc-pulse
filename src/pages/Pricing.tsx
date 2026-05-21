@@ -19,11 +19,13 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
+import { BRAND } from "@/lib/brand";
+
 
 const pricingJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "MeasureWise",
+  name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA-ready audit binders.",
@@ -167,10 +169,11 @@ export default function Pricing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="MeasureWise pricing for FQHC quality teams"
+        title={`${BRAND.name} pricing for FQHC quality teams`}
         description="Flat per-site monthly pricing for FQHC quality operations: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan, no procurement runaround."
-        canonical="https://measurewise.org/pricing"
+        canonical={`${BRAND.url}/pricing`}
         jsonLd={pricingJsonLd}
+
       />
 
 
@@ -178,7 +181,7 @@ export default function Pricing() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            MeasureWise pricing for
+            {BRAND.name} pricing for
             <br />
             <span className="text-primary">FQHC quality teams</span>
           </h1>

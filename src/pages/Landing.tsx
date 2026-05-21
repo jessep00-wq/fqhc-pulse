@@ -4,6 +4,8 @@ import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
+import { BRAND } from "@/lib/brand";
+
 import {
   FlaskConical,
   BarChart3,
@@ -253,9 +255,9 @@ const faqJsonLd = {
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "MeasureWise",
-  url: "https://measurewise.org",
-  logo: "https://measurewise.org/measurewise-logo.png",
+  name: BRAND.name,
+  url: BRAND.url,
+  logo: `${BRAND.url}/measurewise-logo.png`,
   description: "Quality improvement software built exclusively for Federally Qualified Health Centers.",
   sameAs: [],
 };
@@ -263,7 +265,7 @@ const orgJsonLd = {
 const softwareJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "MeasureWise",
+  name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "The only quality improvement platform built exclusively for FQHCs. Link PDSA cycles to UDS measures and HRSA funding outcomes.",
@@ -273,6 +275,7 @@ const softwareJsonLd = {
     { "@type": "Offer", name: "Network", price: "699", priceCurrency: "USD", priceSpecification: { "@type": "UnitPriceSpecification", price: "699", priceCurrency: "USD", unitText: "MONTH" } },
   ],
 };
+
 
 function ComparisonCell({ value }: { value: boolean | string }) {
   if (value === true) return <CheckCircle className="h-5 w-5 text-primary mx-auto" />;
@@ -286,10 +289,11 @@ export default function Landing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="MeasureWise™ — PDSA & UDS Quality Operations for FQHCs"
+        title={`${BRAND.nameTm} — ${BRAND.tagline}`}
         description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
-        canonical="https://measurewise.org/"
+        canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
+
       />
 
 
@@ -345,7 +349,7 @@ export default function Landing() {
             <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
               <img
                 src={dashboardPreview}
-                alt="MeasureWise dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking"
+                alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking`}
                 className="w-full"
                 width={1280}
                 height={720}
@@ -728,7 +732,7 @@ export default function Landing() {
           <div className="flex justify-center">
             <img
               src={founderPhoto}
-              alt="Jessica R. Smith, Founder of MeasureWise"
+              alt={`${BRAND.founder.formalName}, Founder of ${BRAND.name}`}
               className="h-36 w-36 md:h-44 md:w-44 rounded-full object-cover border-2 border-primary/20 shadow-lg"
               loading="lazy"
             />
@@ -748,7 +752,7 @@ export default function Landing() {
             the gap between what happens in clinics and what shows up in your UDS tables.
           </p>
           <p className="text-sm text-muted-foreground/70 italic">
-            — Jessica R. Smith, BSN · Founder, MeasureWise
+            — {BRAND.founder.formalName} · {BRAND.founder.title}
           </p>
         </div>
       </section>

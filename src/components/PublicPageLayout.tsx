@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { BRAND, copyright } from "@/lib/brand";
+
 
 import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
 import { CartButton } from "@/components/store/CartButton";
@@ -134,7 +136,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
+                <li><a href={`mailto:${BRAND.supportEmail}`} className="hover:text-foreground transition-colors">{BRAND.supportEmail}</a></li>
               </ul>
             </div>
 
@@ -151,11 +153,12 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
 
           <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row gap-3 justify-between items-start md:items-center text-xs text-muted-foreground">
             <p>
-              © {new Date().getFullYear()} MeasureWise. All rights reserved. · Fulton, MS
+              {copyright()} · {BRAND.legalLocation}
             </p>
             <p>
-              Built by Jessica R. Smith, BSN — FQHC Quality Director
+              Built by {BRAND.founder.formalName} — FQHC Quality Director
             </p>
+
           </div>
         </div>
       </footer>

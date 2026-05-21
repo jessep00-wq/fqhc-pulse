@@ -1,77 +1,109 @@
-# Tighten Landing.tsx above-the-fold and de-dupe arrays
+# Centralize brand naming + standardize legal/email signatures
 
 ## Goal
 
-Refocus the hero on a single, narrative-driven conversion block (audience → problem → outcome), strip away duplicate "founder credibility / 3-step workflow / stats / badges / pricing" noise that currently lives above the fold, and remove copy that repeats across `features`, `outcomes`, and `objectionItems`.
+Replace ad-hoc `"MeasureWise"` / `"MeasureWise™"` / `"measurewise.org"` / footer-and-signature string literals scattered across the app and edge functions with a single source of truth, and standardize:
 
-All work is presentation-only inside `src/pages/Landing.tsx`. No routes, data, or other components change.
+- Where the `™` symbol appears (first/prominent mention only)
+- Legal entity line in footer + email footers
+- Founder email signature
+- Canonical domain string used in SEO, emails, and CTAs
 
-## Above-the-fold (new hero, lines ~309–407 today)
+Audit scope confirmed:
+- Only brand variants in use today are `MeasureWise` and `MeasureWise™` (no `Measure-Wise`, `MeasureWise.com`, `measurewise.io`, etc.).
+- Only canonical domain in use is `measurewise.org` (no alternates).
+- ~309 occurrences of `MeasureWise` across ~70 files; the highest-density files are `src/pages/Landing.tsx`, `src/pages/Auth.tsx`, `src/pages/Pricing.tsx`, `src/components/SEO.tsx`, `src/components/PublicPageLayout.tsx`, and `supabase/functions/*`.
 
-Replace the current hero region (differentiator banner + hero grid + founder-led credibility row) with one tight block:
+## 1. Frontend constants module
 
-- **One headline** (audience + problem):
-  "FQHC quality leaders: stop running PDSA cycles that never show up in your UDS results."
-- **One subheadline** (outcome):
-  "MeasureWise turns scattered audit prep and measure-tracking spreadsheets into one defensible workflow — so every cycle produces HRSA-ready evidence and a UDS measure you can prove moved."
-- **One primary CTA**: `Start 14-day free trial` → `/auth?signup=true`
-- **One secondary CTA**: `See how it works` → `/how-it-works`
-- **Exactly 3 proof bullets** (short, icon + line):
-  1. `Shield` — HRSA Chapter 10 + NCQA PCMH aligned
-  2. `TrendingUp` — Real UDS measure movement on SPC charts
-  3. `FileCheck` — Audit binder exported in one click
-- Keep the right-side `dashboardPreview` image.
-- Keep the "14-day free trial · No credit card · Cancel anytime" microcopy under the CTAs.
+Create **`src/lib/brand.ts`** as the single naming source for client code:
 
-Remove from above the fold:
-- Differentiator banner strip (`The only quality improvement platform built exclusively for FQHCs`)
-- `complianceBadges` chip row (replaced by the 3 proof bullets)
-- Founder-led credibility 3-card row (defer — founder section already exists lower)
-- Three-Step Workflow section (`/* Three-Step Workflow */`) — duplicates `howItWorksSteps` further down
-- Stats strip and the Credibility Badge Bar (both duplicate the 3 proof bullets)
+```ts
+export const BRAND = {
+  name: "MeasureWise",               // bare name, used in body copy
+  nameTm: "MeasureWise\u2122",       // with ™, for first/prominent mention
+  tagline: "PDSA & UDS Quality Operations for FQHCs",
+  legalEntity: "MeasureWise",        // shown in © line; update if entity changes
+  legalLocation: "Fulton, MS",
+  domain: "measurewise.org",
+  url: "https://measurewise.org",
+  supportEmail: "support@measurewise.org",
+  helloEmail: "hello@measurewise.org",
+  founder: {
+    name: "Jessica Smith",
+    formalName: "Jessica R. Smith, BSN",
+    title: "Founder, MeasureWise",
+    email: "jessica@measurewise.org",
+  },
+} as const;
 
-## Section order below the hero (narrative)
+export const copyright = (year = new Date().getFullYear()) =>
+  `© ${year} ${BRAND.legalEntity}. All rights reserved.`;
+```
 
-1. Hero (audience + problem + outcome)
-2. "What MeasureWise actually does" (existing, outcome framing)
-3. `howItWorksSteps` (single source of truth for the 3/4-step flow)
-4. SPC chart hero (proof of outcome)
-5. Key features (`features`)
-6. Outcomes (`outcomes`)
-7. Pricing teaser
-8. Store teaser
-9. Comparison table
-10. Objections (`objectionItems`)
-11. Playbook lead magnet
-12. Sample export preview
-13. Personas (deferred well below first conversion block)
-14. Founder authority
-15. Security
-16. FAQ
-17. Contact
+Helper exports (`brandTitle(pageTitle)`, `footerLine()`) only if they remove real repetition — keep the module small.
 
-Pricing + Store teasers move down from their current near-top position so the first conversion block is the hero CTA, not pricing.
+## 2. Edge-function constants module
 
-## De-duplication across `features`, `outcomes`, `objectionItems`
+Edge functions cannot import from `src/`. Create the Deno-side mirror at **`supabase/functions/_shared/brand.ts`**:
 
-Current overlaps to remove:
+```ts
+export const BRAND = { /* same shape as src/lib/brand.ts */ };
+export const copyright = (year = new Date().getFullYear()) =>
+  `© ${year} ${BRAND.legalEntity}. All rights reserved.`;
+export const fromAddress = (mailbox: "hello" | "jessica" | "newsletter") => /* … */;
+```
 
-- `features[0]` "One-Click HRSA / NCQA Evidence Packet" and `objectionItems[2]` "Audit-ready by default" both say "every cycle automatically builds the documentation your surveyors ask for." → Keep in `features`; rewrite `objectionItems[2]` to focus on the *contrast* ("vs. end-of-year reconstruction from spreadsheets"), drop the duplicate sentence.
-- `features[2]` "Real-Time UDS Measure Tracking" and `outcomes[0]` "Stronger UDS performance" both promise "see which PDSA cycles moved the measure." → Keep tracking mechanics in `features`; rewrite `outcomes[0]` to be result-focused only ("Measurable year-over-year UDS gains on the measures you targeted"), drop the SPC/real-time language.
-- `features[2]` and the SPC hero section both explain SPC "real improvement vs. random variation." → Trim that phrase from `features[2]` description; SPC hero owns it.
-- `outcomes[1]` "HRSA site visit readiness" duplicates `features[0]`. → Rewrite `outcomes[1]` as a *time-to-readiness* outcome ("Walk into OSV with the binder already built — not assembled the week before").
-- `objectionItems[0]` "Not another dashboard" and `objectionItems[1]` "PDSA-first, not report-first" both contrast with Azara using nearly the same phrasing. → Merge into a single item ("Not another dashboard — PDSA-first") and drop the second.
-- `objectionItems[3]` "Built for CHC budgets" duplicates the Pricing teaser copy ("no per-seat licensing, no enterprise sales calls"). → Shorten to one line about budget fit; remove pricing specifics.
+Both files hold the same values; a short comment in each points at the other so they stay in sync. (A build-time sync script is out of scope — two files, ~30 lines each, is acceptable duplication for the boundary between Vite and Deno.)
 
-Net result: `objectionItems` drops from 4 → 3 entries, `outcomes` copy is rewritten (count unchanged at 4), `features` descriptions trimmed of SPC/audit-binder overlap.
+## 3. Apply constants across files
 
-## Files
+For each target file, replace string literals with `BRAND.*` references. Visible-copy sentences inside long paragraphs are *not* mechanically replaced — only branded references (name, domain, email, signature, copyright, page-title prefix) become constants. Body copy that happens to mention "MeasureWise" stays as-is (replacing every word would hurt readability and is not what the user asked for).
 
-- `src/pages/Landing.tsx` (only file touched)
+### Frontend files
 
-## Out of scope
+- **`src/components/SEO.tsx`** — replace `"MeasureWise"`, `"MeasureWise™"`, and `"https://measurewise.org"` with `BRAND.name`, `BRAND.nameTm`, `BRAND.url`. Page-title formatter becomes `${title} | ${BRAND.nameTm}`.
+- **`src/components/PublicPageLayout.tsx`** — footer copyright uses `copyright()` + `BRAND.legalLocation`; support email link uses `BRAND.supportEmail`.
+- **`src/pages/Landing.tsx`** — `SEO` title, JSON-LD `name`/`url`, hero `<img alt>`, founder authority sig, store/comparison/persona labels reference `BRAND.name` / `BRAND.nameTm`. FAQ/long-form paragraphs keep their inline "MeasureWise" mentions.
+- **`src/pages/Auth.tsx`** — `<CardTitle>` brand label, welcome-email HTML (subject, header `<h1>`, founder sig line, copyright row) read from `BRAND` + `copyright()`. The transactional HTML in this file is the duplicated welcome path; it should call into `supabase/functions/_shared/email-templates.ts` longer-term, but for this pass we just swap the string literals for constants in place.
+- **`src/pages/Pricing.tsx`** — JSON-LD `name`, SEO title, hero headline, and the few FAQ answers that hard-code the brand name use `BRAND.name` / `BRAND.nameTm`.
 
-- SEO metadata, JSON-LD, routes
-- Visual restyle of retained sections
-- Any changes to imported components (`ContactForm`, `SampleExportButtons`, `PlaybookLeadMagnetSection`, `PublicPageLayout`)
-- Copy in FAQ, founder, security, personas sections
+### Edge functions
+
+For each function below, replace the corresponding literals with `BRAND.*` from `supabase/functions/_shared/brand.ts`:
+
+- `_shared/email-templates.ts` — header `<h1>`, footer copyright, dashboard URL, founder sig.
+- `send-welcome-email/index.ts` — header, copyright, dashboard URL, founder sig block, `from:` address, subject.
+- `send-playbook-followups/index.ts` — header, copyright, founder sig, `from:`, `CALENDLY_URL` (currently `https://measurewise.org/contact`).
+- `send-newsletter/index.ts` — `baseUrl`, `from:`, header/footer brand mentions.
+- `contact-form/index.ts` — `COMPANY_INBOX`, header, copyright, `from:`, subject, CTA URL.
+- `check-task-deadlines/index.ts` — `from:`.
+- `weekly-digest/index.ts` — subject suffix, `from:`.
+- `send-email/index.ts` — default `from:`.
+- `resend-purchase-email/index.ts` — `from:`, subject.
+- `capture-playbook-lead/index.ts` — `ABSOLUTE_DOWNLOAD_URL` base, `from:`, founder sig.
+- `create-checkout/index.ts` + `create-billing-portal/index.ts` — `ALLOWED_ORIGINS` set + fallback origin.
+
+### ™ standardization rule
+
+After this change, `™` appears exactly in: the static `<title>` / SEO page title (via `BRAND.nameTm`), the Auth/email `<h1>` header (via `BRAND.nameTm`), the newsletter footer (already uses ™). Everywhere else (body copy, footer copyright, founder sig, comparison-table column header, store/store-card labels) uses bare `BRAND.name`. This matches the common "trademark on first prominent mention" convention and removes the current inconsistency where ™ sometimes appears in body copy and sometimes doesn't.
+
+### Legal entity / signature standardization
+
+- Footer copyright everywhere: `© {year} MeasureWise. All rights reserved.` plus `· Fulton, MS` only on the public site footer + welcome email (consistent with current behavior).
+- Founder signature block everywhere: line 1 `— Jessica R. Smith, BSN`, line 2 `Founder, MeasureWise` (matches current Auth.tsx; aligns the welcome-email / playbook-lead emails that today render the title inline).
+- Canonical URL everywhere: `https://measurewise.org` (no trailing slash; per-route paths append).
+
+## 4. Out of scope
+
+- Renaming the legal entity itself (still "MeasureWise"; the constant exists so a future rename is one edit).
+- Rewriting body-copy paragraphs that mention the brand name.
+- Migrating the inline `Auth.tsx` welcome-email HTML to the shared `_shared/email-templates.ts` template (separate refactor).
+- The other 60+ files containing the brand string — they keep inline mentions for now; the request lists Landing/Auth/Pricing/SEO/email templates as the standardization surface.
+- Any visual or layout change.
+
+## Files touched
+
+- New: `src/lib/brand.ts`, `supabase/functions/_shared/brand.ts`
+- Edited (frontend): `src/components/SEO.tsx`, `src/components/PublicPageLayout.tsx`, `src/pages/Landing.tsx`, `src/pages/Auth.tsx`, `src/pages/Pricing.tsx`
+- Edited (edge): `supabase/functions/_shared/email-templates.ts`, `send-welcome-email`, `send-playbook-followups`, `send-newsletter`, `contact-form`, `check-task-deadlines`, `weekly-digest`, `send-email`, `resend-purchase-email`, `capture-playbook-lead`, `create-checkout`, `create-billing-portal`
