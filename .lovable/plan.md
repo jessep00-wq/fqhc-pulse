@@ -1,109 +1,64 @@
-# Centralize brand naming + standardize legal/email signatures
+## Goals
 
-## Goal
+1. Confirm the codebase contains no "HealthAxis" string (verified — 0 matches). No code change needed; will add a lightweight CI guard comment in `src/lib/brand.ts` noting forbidden alternate names.
+2. Capture `plan` (and optional `billing=annual`) query params on `/auth`, persist them across email verification + onboarding, then auto-route to Stripe checkout after onboarding completes.
+3. Instrument the funnel with 6 explicit events via the existing `trackEvent` + PostHog wrapper.
 
-Replace ad-hoc `"MeasureWise"` / `"MeasureWise™"` / `"measurewise.org"` / footer-and-signature string literals scattered across the app and edge functions with a single source of truth, and standardize:
+## Plan-intent relay
 
-- Where the `™` symbol appears (first/prominent mention only)
-- Legal entity line in footer + email footers
-- Founder email signature
-- Canonical domain string used in SEO, emails, and CTAs
+**Storage**: `sessionStorage["mw_plan_intent"] = { priceId, billing, ts }`. Session storage survives the email verification round-trip (same tab) and onboarding. Fallback: read from URL on every entry point so a fresh tab from the verification email still works.
 
-Audit scope confirmed:
-- Only brand variants in use today are `MeasureWise` and `MeasureWise™` (no `Measure-Wise`, `MeasureWise.com`, `measurewise.io`, etc.).
-- Only canonical domain in use is `measurewise.org` (no alternates).
-- ~309 occurrences of `MeasureWise` across ~70 files; the highest-density files are `src/pages/Landing.tsx`, `src/pages/Auth.tsx`, `src/pages/Pricing.tsx`, `src/components/SEO.tsx`, `src/components/PublicPageLayout.tsx`, and `supabase/functions/*`.
+**URL relay**: append `?plan=...&billing=...` to:
+- `emailRedirectTo` in `supabase.auth.signUp` (Auth.tsx)
+- Navigation from Auth → Onboarding
+- Navigation from Onboarding → checkout trigger
 
-## 1. Frontend constants module
+**Helper**: new `src/lib/planIntent.ts` exporting `savePlanIntent`, `readPlanIntent`, `clearPlanIntent`, `appendPlanToUrl(url)`.
 
-Create **`src/lib/brand.ts`** as the single naming source for client code:
+## Routing changes
 
-```ts
-export const BRAND = {
-  name: "MeasureWise",               // bare name, used in body copy
-  nameTm: "MeasureWise\u2122",       // with ™, for first/prominent mention
-  tagline: "PDSA & UDS Quality Operations for FQHCs",
-  legalEntity: "MeasureWise",        // shown in © line; update if entity changes
-  legalLocation: "Fulton, MS",
-  domain: "measurewise.org",
-  url: "https://measurewise.org",
-  supportEmail: "support@measurewise.org",
-  helloEmail: "hello@measurewise.org",
-  founder: {
-    name: "Jessica Smith",
-    formalName: "Jessica R. Smith, BSN",
-    title: "Founder, MeasureWise",
-    email: "jessica@measurewise.org",
-  },
-} as const;
+- **Pricing.tsx** `handleSubscribe`: before navigating to `/auth`, call `savePlanIntent` and fire `plan_selected`. Fire `pricing_viewed` on mount.
+- **Auth.tsx**:
+  - On mount, read `plan` from URL → `savePlanIntent`.
+  - On signup submit: fire `signup_started`; include plan in `emailRedirectTo`.
+  - On signup success (session present immediately, e.g. auto-confirm off path still returns user): fire `signup_completed`.
+  - On login success when plan intent exists: route to `/onboarding` or `/pricing-checkout` as appropriate.
+- **Onboarding.tsx**:
+  - On successful org creation/join (the existing `window.location.href = "/dashboard"` site): fire `onboarding_completed`, then:
+    - If `readPlanIntent()` returns a priceId → redirect to new `/checkout?plan=...` route (or call `create-subscription-checkout` directly and `window.location.href = data.url`), fire `checkout_started`, clear intent.
+    - Else → `/dashboard` (existing behavior).
+- **AuthCallback / email verification landing** (if present): forward `plan` query through to `/onboarding`. If not present, sessionStorage covers same-tab case.
 
-export const copyright = (year = new Date().getFullYear()) =>
-  `© ${year} ${BRAND.legalEntity}. All rights reserved.`;
-```
+## Events (extend `EventName` union in `src/lib/trackEvent.ts`)
 
-Helper exports (`brandTitle(pageTitle)`, `footerLine()`) only if they remove real repetition — keep the module small.
+Add: `pricing_viewed`, `plan_selected`, `signup_started`, `signup_completed`, `onboarding_completed`, `checkout_started`.
 
-## 2. Edge-function constants module
+Note: `trackEvent` currently no-ops when there is no authenticated user (needed for `usage_events` org scoping). For `pricing_viewed`, `plan_selected`, and `signup_started` (pre-auth), call `trackPostHogEvent` directly so we still capture funnel data anonymously; skip the DB insert. Will add a thin `trackAnonEvent(name, props)` helper in `trackEvent.ts` that wraps `trackPostHogEvent` only.
 
-Edge functions cannot import from `src/`. Create the Deno-side mirror at **`supabase/functions/_shared/brand.ts`**:
+Event payloads:
+- `pricing_viewed`: `{ source: "pricing_page" }`
+- `plan_selected`: `{ priceId, billing }`
+- `signup_started`: `{ priceId? }`
+- `signup_completed`: `{ priceId?, userId }`
+- `onboarding_completed`: `{ organization_id, priceId? }`
+- `checkout_started`: `{ priceId, organization_id }`
 
-```ts
-export const BRAND = { /* same shape as src/lib/brand.ts */ };
-export const copyright = (year = new Date().getFullYear()) =>
-  `© ${year} ${BRAND.legalEntity}. All rights reserved.`;
-export const fromAddress = (mailbox: "hello" | "jessica" | "newsletter") => /* … */;
-```
+## Files
 
-Both files hold the same values; a short comment in each points at the other so they stay in sync. (A build-time sync script is out of scope — two files, ~30 lines each, is acceptable duplication for the boundary between Vite and Deno.)
+**New**
+- `src/lib/planIntent.ts` — storage + URL helpers.
 
-## 3. Apply constants across files
+**Edited**
+- `src/lib/trackEvent.ts` — extend `EventName`; add `trackAnonEvent`.
+- `src/pages/Pricing.tsx` — `pricing_viewed` on mount; `plan_selected` + `savePlanIntent` in `handleSubscribe`.
+- `src/pages/Auth.tsx` — capture `plan` on mount, persist, append to `emailRedirectTo`; fire `signup_started` / `signup_completed`; on post-login presence of plan intent + org, route to checkout.
+- `src/pages/Onboarding.tsx` — on completion, fire `onboarding_completed`; if plan intent exists, invoke `create-subscription-checkout` and redirect (fire `checkout_started`), else `/dashboard`.
+- `src/lib/brand.ts` — add `FORBIDDEN_BRAND_NAMES` constant comment ("HealthAxis", etc.) to prevent reintroduction.
 
-For each target file, replace string literals with `BRAND.*` references. Visible-copy sentences inside long paragraphs are *not* mechanically replaced — only branded references (name, domain, email, signature, copyright, page-title prefix) become constants. Body copy that happens to mention "MeasureWise" stays as-is (replacing every word would hurt readability and is not what the user asked for).
+**Out of scope**: server-side webhooks, new edge functions, Pricing UI redesign, post-checkout success page changes.
 
-### Frontend files
+## Verification
 
-- **`src/components/SEO.tsx`** — replace `"MeasureWise"`, `"MeasureWise™"`, and `"https://measurewise.org"` with `BRAND.name`, `BRAND.nameTm`, `BRAND.url`. Page-title formatter becomes `${title} | ${BRAND.nameTm}`.
-- **`src/components/PublicPageLayout.tsx`** — footer copyright uses `copyright()` + `BRAND.legalLocation`; support email link uses `BRAND.supportEmail`.
-- **`src/pages/Landing.tsx`** — `SEO` title, JSON-LD `name`/`url`, hero `<img alt>`, founder authority sig, store/comparison/persona labels reference `BRAND.name` / `BRAND.nameTm`. FAQ/long-form paragraphs keep their inline "MeasureWise" mentions.
-- **`src/pages/Auth.tsx`** — `<CardTitle>` brand label, welcome-email HTML (subject, header `<h1>`, founder sig line, copyright row) read from `BRAND` + `copyright()`. The transactional HTML in this file is the duplicated welcome path; it should call into `supabase/functions/_shared/email-templates.ts` longer-term, but for this pass we just swap the string literals for constants in place.
-- **`src/pages/Pricing.tsx`** — JSON-LD `name`, SEO title, hero headline, and the few FAQ answers that hard-code the brand name use `BRAND.name` / `BRAND.nameTm`.
-
-### Edge functions
-
-For each function below, replace the corresponding literals with `BRAND.*` from `supabase/functions/_shared/brand.ts`:
-
-- `_shared/email-templates.ts` — header `<h1>`, footer copyright, dashboard URL, founder sig.
-- `send-welcome-email/index.ts` — header, copyright, dashboard URL, founder sig block, `from:` address, subject.
-- `send-playbook-followups/index.ts` — header, copyright, founder sig, `from:`, `CALENDLY_URL` (currently `https://measurewise.org/contact`).
-- `send-newsletter/index.ts` — `baseUrl`, `from:`, header/footer brand mentions.
-- `contact-form/index.ts` — `COMPANY_INBOX`, header, copyright, `from:`, subject, CTA URL.
-- `check-task-deadlines/index.ts` — `from:`.
-- `weekly-digest/index.ts` — subject suffix, `from:`.
-- `send-email/index.ts` — default `from:`.
-- `resend-purchase-email/index.ts` — `from:`, subject.
-- `capture-playbook-lead/index.ts` — `ABSOLUTE_DOWNLOAD_URL` base, `from:`, founder sig.
-- `create-checkout/index.ts` + `create-billing-portal/index.ts` — `ALLOWED_ORIGINS` set + fallback origin.
-
-### ™ standardization rule
-
-After this change, `™` appears exactly in: the static `<title>` / SEO page title (via `BRAND.nameTm`), the Auth/email `<h1>` header (via `BRAND.nameTm`), the newsletter footer (already uses ™). Everywhere else (body copy, footer copyright, founder sig, comparison-table column header, store/store-card labels) uses bare `BRAND.name`. This matches the common "trademark on first prominent mention" convention and removes the current inconsistency where ™ sometimes appears in body copy and sometimes doesn't.
-
-### Legal entity / signature standardization
-
-- Footer copyright everywhere: `© {year} MeasureWise. All rights reserved.` plus `· Fulton, MS` only on the public site footer + welcome email (consistent with current behavior).
-- Founder signature block everywhere: line 1 `— Jessica R. Smith, BSN`, line 2 `Founder, MeasureWise` (matches current Auth.tsx; aligns the welcome-email / playbook-lead emails that today render the title inline).
-- Canonical URL everywhere: `https://measurewise.org` (no trailing slash; per-route paths append).
-
-## 4. Out of scope
-
-- Renaming the legal entity itself (still "MeasureWise"; the constant exists so a future rename is one edit).
-- Rewriting body-copy paragraphs that mention the brand name.
-- Migrating the inline `Auth.tsx` welcome-email HTML to the shared `_shared/email-templates.ts` template (separate refactor).
-- The other 60+ files containing the brand string — they keep inline mentions for now; the request lists Landing/Auth/Pricing/SEO/email templates as the standardization surface.
-- Any visual or layout change.
-
-## Files touched
-
-- New: `src/lib/brand.ts`, `supabase/functions/_shared/brand.ts`
-- Edited (frontend): `src/components/SEO.tsx`, `src/components/PublicPageLayout.tsx`, `src/pages/Landing.tsx`, `src/pages/Auth.tsx`, `src/pages/Pricing.tsx`
-- Edited (edge): `supabase/functions/_shared/email-templates.ts`, `send-welcome-email`, `send-playbook-followups`, `send-newsletter`, `contact-form`, `check-task-deadlines`, `weekly-digest`, `send-email`, `resend-purchase-email`, `capture-playbook-lead`, `create-checkout`, `create-billing-portal`
+- Manual: visit `/pricing` → click Solo plan → land on `/auth?signup=true&plan=solo_monthly` → sign up → verify email → onboarding → auto-redirect to Stripe checkout.
+- PostHog: confirm 6 events fire in order with correct properties.
+- Grep `HealthAxis` → 0 results (already verified).
