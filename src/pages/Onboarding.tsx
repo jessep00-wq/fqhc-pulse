@@ -13,6 +13,9 @@ import { useOrg } from "@/contexts/OrgContext";
 import { toast } from "sonner";
 import { Loader2, Building2, ShieldCheck, FlaskConical, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { readPlanIntent, clearPlanIntent } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
+import { getStripeEnvironment } from "@/lib/stripe";
 
 const ORG_TYPES = ["FQHC", "FQHC Look-Alike", "RHC", "Other"];
 const REPORTING_PERIODS = [
