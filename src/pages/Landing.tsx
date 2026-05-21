@@ -4,6 +4,8 @@ import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
+import { BRAND } from "@/lib/brand";
+
 import {
   FlaskConical,
   BarChart3,
