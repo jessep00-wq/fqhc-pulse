@@ -38,11 +38,6 @@ import {
   ReferenceLine,
 } from "recharts";
 
-const complianceBadges = [
-  { label: "HRSA Chapter 10 Aligned", icon: Shield },
-  { label: "NCQA PCMH Q-PASS Ready", icon: ClipboardCheck },
-  { label: "UDS-Friendly Reporting", icon: BarChart3 },
-];
 
 const features = [
   {
