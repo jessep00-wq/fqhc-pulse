@@ -77,6 +77,7 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends, financ
 
   const handleExportPDF = useCallback(async () => {
     if (!printRef.current) return;
+    if (!confirmDemoExport(isDemo, "The board report")) return;
     setExporting(true);
     try {
       const canvas = await html2canvas(printRef.current, {

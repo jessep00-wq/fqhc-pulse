@@ -181,6 +181,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
   const openTasks = allTasks.filter((t) => t.status !== "completed");
 
   const handleGenerate = useCallback(async () => {
+    if (!confirmDemoExport(isDemo, "The PCMH evidence packet")) return;
     setShowPreview(true);
     await new Promise((r) => setTimeout(r, 600));
     if (!printRef.current) return;
