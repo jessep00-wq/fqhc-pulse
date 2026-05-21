@@ -25,12 +25,13 @@ function layout(title: string, body: string): string {
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
 <tr><td style="background:${BRAND_COLOR};padding:24px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">MeasureWise™</h1>
+  <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">${BRAND.nameTm}</h1>
 </td></tr>
 <tr><td style="padding:32px;">${body}</td></tr>
 <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
-  <p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p>
+  <p style="margin:0;color:#9ca3af;font-size:12px;">${copyright()}</p>
 </td></tr>
+
 </table>
 </td></tr></table>
 </body></html>`;
