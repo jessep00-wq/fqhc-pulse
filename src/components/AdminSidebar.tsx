@@ -1,6 +1,5 @@
 import {
   LayoutDashboard,
-  Users,
   CreditCard,
   Activity,
   Newspaper,
@@ -27,12 +26,11 @@ import {
 } from "@/components/ui/sidebar";
 
 const oversight = [
-  { title: "Overview", url: "/admin", icon: LayoutDashboard, end: true },
+  { title: "Accounts", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Adoption", url: "/admin/adoption", icon: Activity },
 ];
 
 const growth = [
-  { title: "Pipeline", url: "/admin/pipeline", icon: Users },
   { title: "Billing", url: "/admin/billing", icon: CreditCard },
 ];
 
@@ -56,7 +54,7 @@ export function AdminSidebar() {
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.url}>
-              <SidebarMenuButton asChild isActive={location.pathname === item.url}>
+              <SidebarMenuButton asChild isActive={location.pathname === item.url} tooltip={item.title}>
                 <NavLink
                   to={item.url}
                   end={item.end}
