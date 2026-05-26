@@ -1,74 +1,80 @@
-## PDSA Lab + cross-feature improvements (13 items)
+## Admin Console Improvements (10 items)
 
-All work is frontend-only — no schema or RLS changes. Existing tables (`pdsa_cycles`, `tasks`) already carry the data needed.
+Mapping: "Operations" in your feedback = the **Overview** page (`/admin`). I'll keep the existing label but treat it as the ops/health dashboard.
 
-### 1. Responsive board (Lab)
-- Keep horizontal scroll on desktop, but add a soft gradient fade on the right edge + a small `ChevronRight` hint when more columns are off-screen (computed from scroll position).
-- Under `md` breakpoint: swap the 5-column grid for a `Tabs` UI (Plan / Do / Study / Act / Completed) with counts on each trigger. Drag-and-drop only renders on `md+` to avoid touch DnD friction.
+### 1. Adoption — Run Health Computation
+- Add a primary `Run Health Computation` button in the `AdminAdoption` header that calls the existing scoring path and refetches snapshots.
+- Also auto-trigger it on first mount when no snapshot exists for the current period, so the page is never empty.
+- Show last-run timestamp + loading state on the button.
 
-### 2. Smarter empty state per column
-- Replace plain "No cycles" with a faint dashed ghost card + phase-specific coaching copy:
-  - Plan: "Draft your next aim. → New PDSA Cycle"
-  - Do: "Move a Plan card here when your test begins."
-  - Study: "Drop a Do card here once data is in."
-  - Act: "Decide: adopt, adapt, or abandon."
-  - Completed: "Finish strong — completed cycles unlock the OSV Binder."
-- "Plan" column ghost includes a small "Start a cycle" button that opens the wizard.
+### 2. Fix the Edit action (org)
+- `OrgActionsMenu` "Edit" currently routes to the detail view. Replace with a new `EditOrgDialog` (shadcn Dialog + react-hook-form + zod) editing: `name`, `stage`, `quality_lead_email`, `quality_lead_name`, `npi`, `notes` (new field, see #4), and `plan` (writes to latest `subscriptions` row for current env).
+- On save: update `organizations`, then upsert `subscriptions.plan` for that org+env. Invalidate org queries.
 
-### 3. Phase progress dots on each card
-- Add a 4-dot `PhaseDots` (Plan ● Do ● Study ○ Act ○) above the title. Filled = phase reached or passed (based on `status`). Completed shows all 4 filled + a check icon.
+### 3. Last Active column on Overview
+- Add `Last Active` and `Days Since Active` columns to the Overview accounts table, sourced from `max(profiles.last_active_at)` per org (single grouped query).
+- Color the chip: green ≤7d, amber 8–30d, red >30d or never.
+- Keep `Created` available but de-emphasize.
 
-### 4. Legible role chips
-- Replace `AvatarGroup` with compact text chips: e.g. `MA/RN · Provider · +1`. Hovering shows full list via shadcn `Tooltip`. Keep the existing role color tokens.
+### 4. Founder Notes on org detail
+- Add `notes text` column to `organizations` (migration). Founder-admin-only RLS already covers update via existing "Founder admins can update all orgs".
+- On `AdminAccountDetail`, add a "Founder Notes" card: textarea + auto-save on blur, with last-saved timestamp.
+- Notes also editable from the Edit dialog (#2).
 
-### 5. Due date badges
-- Each card derives the earliest open task due date from already-fetched `tasks`. Render a small badge like `Due Oct 31`:
-  - red when overdue, amber when ≤ 7 days, green when > 7 days, hidden if no linked task with a due date.
+### 5. Trial expiration urgency
+- On Overview, add a dismissible banner at the top: "N trials expiring in ≤7 days" listing org names with quick links — driven by `subscriptions.trial_end` for current env.
+- Per-row: red `Trial ends in Xd` badge when ≤7d, amber ≤14d.
+- Same badge surfaces on `AdminAccountDetail` header.
 
-### 6. Stalled indicator
-- A card is "stalled" if `status !== completed` AND `created_at` (later: last status change) is > 14 days ago AND there's no completed task in the last 14 days. Show an amber `Clock` badge + left-border switches to amber-dashed.
-- Reuse the same stalled definition the Dashboard tile already uses; if it differs, align to a single helper in `src/lib/pdsaStatus.ts`.
+### 6. Conversion actions
+- On `AdminAccountDetail` (and as menu items in `OrgActionsMenu`), add two actions:
+  - **Convert to Paid** → opens dialog to pick plan (`solo` / `multi` / `network`) → updates the org's `subscriptions` row to `status='active'`, sets `plan`, clears `trial_end`, sets `current_period_end = now()+30d` placeholder. Manual/admin override; no Stripe call.
+  - **Extend Trial** → number-of-days input → bumps `trial_end` forward.
+- Both write `activity_log` entries.
 
-### 7. Filters + sort toolbar
-- New `PDSAFilters` bar above the board: filters by CMS measure (from distinct `uds_measure` values), assigned role (from `STAFF_ROLES`), and "Stalled only" toggle. Sort by Newest / Oldest / Due soonest.
-- State held in the URL via `useSearchParams` so filters survive refresh and are shareable.
+### 7. Consolidate Pipeline + Overview
+- Rename Overview → **Accounts** as the single source of truth, with a view toggle: `Pipeline` (groups by `stage`, kanban-ish) vs `Operations` (flat table with health, last active, trial countdown, MRR).
+- Keep `/admin/pipeline` as a redirect to `/admin?view=pipeline` for back-compat. Remove the duplicate Pipeline sidebar item.
 
-### 8. AI Assistant → Create PDSA
-- In `AIAssistant.tsx`, each assistant message gets a "Create PDSA from this →" button.
-- Click writes `{ title, rootCause, aim }` derived from the message to `sessionStorage["mw_pdsa_seed"]` and routes to `/dashboard/pdsa-lab?from=ai`.
-- `PDSALab` reads the seed on mount, opens the wizard at the `aim` step, and pre-fills the fields; clears the seed once consumed.
+### 8. Newsletter engagement column
+- Add `Subscribers at send` column to the Newsletter list. Computed at publish time from `count(newsletter_subscribers where unsubscribed_at is null)` and stored on `newsletters` (new `sent_count int` column).
+- Display "Sent to N subscribers" on each published row. (No open-rate without Resend webhook; out of scope — note this in the column header tooltip.)
 
-### 9. One-click Playbook → PDSA
-- On each `PlaybookGrid` card add a secondary `Start PDSA from this Playbook` button next to "View Playbook →". Clicking calls the existing `deployMutation` directly (skips the dialog) and toasts + navigates.
+### 9. MRR/ARR tile on Overview
+- Add a KPI row at the top of Overview with tiles: **MRR**, **ARR**, **Active subs**, **Trials**, **Churn (30d)**.
+- MRR derived from `subscriptions` where `status in ('active','trialing','past_due')` and `plan != 'free'`, mapped via static plan→price table (Solo 149 / Multi 349 / Network 699). ARR = MRR × 12.
 
-### 10. Cycle history view inside a PDSA
-- In `PDSADetailDialog`, add a "Cycle history" section: queries `pdsa_cycles` for the same `organization_id` + same `uds_measure`, ordered by `created_at`. Renders as a compact vertical timeline (date · title · status · improvement_pct). Current cycle marked "This cycle". No new tables — uses existing measure grouping.
+### 10. Collapsed sidebar tooltips
+- In `AdminSidebar`, pass `tooltip={item.title}` to every `SidebarMenuButton` (shadcn supports it natively and only renders when collapsed). Applies to oversight, growth, content groups + the bottom "Back to App" button.
 
-### 11. Staff Tasks ↔ PDSA linkage
-- The "PDSA Cycle" column already joins `pdsa_cycles(title)`. When `pdsa_cycle_id` is null, render an inline `Link to PDSA…` button that opens a small popover with the existing `cycles` select and inline-updates the row instead of showing "—". For rows with a cycle, the title becomes a link that opens `PDSADetailDialog` for that cycle.
+---
 
-### 12. Better truncation
-- Replace `line-clamp-2` on card aim text with `line-clamp-3` and add a `Tooltip` showing the full text on hover. Long titles get a `title` attribute fallback. Keep card width unchanged.
+### Schema changes (single migration, requires approval)
 
-### 13. Header `+` button clarity
-- The header already says "New PDSA Cycle" — no separate `+` button exists at the page level, but the bare `Plus` icon variant lives on the empty-state ghost card and on the wizard's template grid. Add an `aria-label="New PDSA Cycle"` to each, and ensure every Plus icon is accompanied by visible text. Add a `Tooltip` ("New PDSA Cycle") on any icon-only Plus that remains (e.g. column add buttons if introduced).
+```sql
+ALTER TABLE public.organizations ADD COLUMN IF NOT EXISTS notes text;
+ALTER TABLE public.newsletters   ADD COLUMN IF NOT EXISTS sent_count integer NOT NULL DEFAULT 0;
+```
+No new RLS needed — existing founder-admin policies cover both.
 
-### Files changed (no new tables)
-- `src/pages/PDSALab.tsx` — responsive board, phase dots, role chips, due/stalled badges, ghost empty states, filters, AI seed consumer, tooltips, a11y labels.
-- `src/components/PDSADetailDialog.tsx` — cycle history section.
-- `src/pages/AIAssistant.tsx` — per-message "Create PDSA from this" button + sessionStorage handoff.
-- `src/pages/PlaybookLibrary.tsx` — secondary one-click deploy button on each card.
-- `src/pages/StaffTasks.tsx` — inline PDSA link in the cycle column, clickable cycle titles.
-- New `src/lib/pdsaStatus.ts` — shared helpers: `isStalled(cycle, tasks)`, `getEarliestDueDate(cycle, tasks)`, `getPhaseIndex(status)`, `derivePdsaSeedFromAi(text)`.
-- New `src/components/pdsa/PhaseDots.tsx`, `src/components/pdsa/RoleChips.tsx`, `src/components/pdsa/PDSAFilters.tsx`, `src/components/pdsa/ColumnGhostCard.tsx`.
+### Files to add
+- `src/components/admin/EditOrgDialog.tsx`
+- `src/components/admin/ConvertToPaidDialog.tsx`
+- `src/components/admin/ExtendTrialDialog.tsx`
+- `src/components/admin/TrialExpiryBanner.tsx`
+- `src/components/admin/MrrKpiTiles.tsx`
+- `src/lib/planPricing.ts` (plan→cents map)
+
+### Files to edit
+- `src/pages/admin/AdminAdoption.tsx` — run-health button + auto-run
+- `src/pages/admin/AdminOverview.tsx` — KPI tiles, trial banner, last-active cols, view toggle
+- `src/pages/admin/AdminPipeline.tsx` — turn into redirect
+- `src/pages/admin/AdminAccountDetail.tsx` — notes card, trial badge, conversion actions
+- `src/pages/admin/AdminNewsletter.tsx` — sent_count column; bump count in publish action
+- `src/components/admin/OrgActionsMenu.tsx` — wire Edit/Convert/Extend dialogs
+- `src/components/AdminSidebar.tsx` — tooltips, drop Pipeline item
 
 ### Out of scope
-- Schema changes (no new "stalled" column, no PDSA→PDSA parent linkage, no audit table for status-change timestamps).
-- Touch-native drag-and-drop on mobile (tabs handle the small-screen case).
-- Restyling the wizard itself beyond a11y labels.
-- AI-side schema changes — the "Create PDSA from this" extraction is a simple regex/heuristic in the client.
-
-### Technical notes
-- "Stalled" v1 uses `created_at` because there's no `status_changed_at` column yet; we'll note this in code so it can be upgraded later without a UI rewrite.
-- AI seed payload is intentionally tiny (`{title, rootCause, aim, source: "ai"}`) to fit comfortably in sessionStorage.
-- Cycle history grouping by `uds_measure` matches the way FQHCs already think about "measure X, iteration N" without requiring a new join table.
+- Real email open/click rates (needs Resend webhook integration)
+- Real Stripe-side plan changes from "Convert to Paid" (admin override only; Stripe stays source of truth via existing webhook)
+- Touch interactions / mobile-specific admin redesign
