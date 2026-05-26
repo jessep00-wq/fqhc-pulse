@@ -288,6 +288,7 @@ export type Database = {
           id: string
           published_at: string | null
           sections: Json
+          sent_count: number
           status: string
           subtitle: string | null
           title: string
@@ -301,6 +302,7 @@ export type Database = {
           id?: string
           published_at?: string | null
           sections?: Json
+          sent_count?: number
           status?: string
           subtitle?: string | null
           title: string
@@ -314,6 +316,7 @@ export type Database = {
           id?: string
           published_at?: string | null
           sections?: Json
+          sent_count?: number
           status?: string
           subtitle?: string | null
           title?: string
@@ -427,6 +430,7 @@ export type Database = {
           id: string
           is_test: boolean
           name: string
+          notes: string | null
           npi: string | null
           onboarding_status: string
           org_type: string | null
@@ -445,6 +449,7 @@ export type Database = {
           id?: string
           is_test?: boolean
           name: string
+          notes?: string | null
           npi?: string | null
           onboarding_status?: string
           org_type?: string | null
@@ -463,6 +468,7 @@ export type Database = {
           id?: string
           is_test?: boolean
           name?: string
+          notes?: string | null
           npi?: string | null
           onboarding_status?: string
           org_type?: string | null
