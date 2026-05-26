@@ -38,7 +38,7 @@ const DOMAINS: { value: string; label: string }[] = [
   { value: "Financial/ACO", label: "Financial / ACO" },
 ];
 
-function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSelect: (pb: UDSPlaybook) => void }) {
+function PlaybookGrid({ playbooks, onSelect, onQuickDeploy, deployingId }: { playbooks: UDSPlaybook[]; onSelect: (pb: UDSPlaybook) => void; onQuickDeploy: (pb: UDSPlaybook) => void; deployingId: string | null }) {
   if (playbooks.length === 0) {
     return <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">No playbooks in this category yet.</div>;
   }
@@ -47,8 +47,8 @@ function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSel
       {playbooks.map((pb) => {
         const Icon = ICONS[pb.measure_id] || BookOpen;
         return (
-          <Card key={pb.id} className="cursor-pointer hover:shadow-md transition-shadow group" onClick={() => onSelect(pb)}>
-            <CardHeader>
+          <Card key={pb.id} className="hover:shadow-md transition-shadow group">
+            <CardHeader className="cursor-pointer" onClick={() => onSelect(pb)}>
               <div className="flex items-center gap-3 mb-2">
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10"><Icon className="h-5 w-5 text-primary" /></div>
                 <Badge variant="outline">{pb.measure_id}</Badge>
@@ -57,7 +57,6 @@ function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSel
               <CardDescription className="line-clamp-2">{pb.description}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <div className="flex items-center text-sm text-primary font-medium group-hover:gap-2 transition-all">View Playbook <ArrowRight className="h-4 w-4 ml-1" /></div>
               <div className="flex items-center gap-1.5 flex-wrap">
                 {pb.pdsa_template.assigned_staff.map((role) => (
                   <Badge key={role} variant="secondary" className="text-[10px] px-1.5 py-0">{role}</Badge>
@@ -67,6 +66,20 @@ function PlaybookGrid({ playbooks, onSelect }: { playbooks: UDSPlaybook[]; onSel
                 <Badge variant="outline" className={cn("text-[10px]", getDomainColor(pb.domain))}>{pb.domain}</Badge>
               </div>
               <Badge className="bg-success/10 text-success border-success/20 text-[10px]"><TrendingUp className="h-3 w-3 mr-1" />{pb.financial_impact}</Badge>
+              <div className="flex flex-col gap-1.5 pt-1">
+                <Button
+                  size="sm"
+                  className="w-full"
+                  onClick={(e) => { e.stopPropagation(); onQuickDeploy(pb); }}
+                  disabled={deployingId === pb.id}
+                >
+                  <FlaskConical className="h-3.5 w-3.5 mr-1" />
+                  {deployingId === pb.id ? "Starting…" : "Start PDSA from this Playbook"}
+                </Button>
+                <Button size="sm" variant="ghost" className="w-full text-primary" onClick={() => onSelect(pb)}>
+                  View Playbook <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                </Button>
+              </div>
             </CardContent>
           </Card>
         );
