@@ -397,13 +397,24 @@ const emptyWizard: WizardData = {
   clinicalWorkflowImpact: "",
 };
 
-function CreatePDSAWizard({ open, onClose, onCreate }: {
+function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }: {
   open: boolean;
   onClose: () => void;
   onCreate: (data: WizardData) => void;
+  initialData?: Partial<WizardData>;
+  initialStep?: WizardStep;
 }) {
-  const [step, setStep] = useState<WizardStep>("template");
-  const [data, setData] = useState<WizardData>({ ...emptyWizard });
+  const [step, setStep] = useState<WizardStep>(initialStep ?? "template");
+  const [data, setData] = useState<WizardData>({ ...emptyWizard, ...(initialData ?? {}) });
+
+  // When opened (or initial seed changes), reset to seeded state.
+  useEffect(() => {
+    if (open) {
+      setStep(initialStep ?? "template");
+      setData({ ...emptyWizard, ...(initialData ?? {}) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialStep, initialData?.title, initialData?.aim, initialData?.rootCause]);
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
 
