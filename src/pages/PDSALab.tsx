@@ -100,6 +100,7 @@ interface DBTask {
   pdsa_cycle_id: string | null;
   status: string;
   acknowledged?: boolean;
+  due_date?: string | null;
 }
 
 function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
