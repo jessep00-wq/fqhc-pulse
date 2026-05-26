@@ -130,7 +130,12 @@ export default function PlaybookLibrary() {
         </TabsList>
         {DOMAINS.map((d) => (
           <TabsContent key={d.value} value={d.value}>
-            <PlaybookGrid playbooks={d.value === "all" ? mockPlaybooks : mockPlaybooks.filter((pb) => pb.domain === d.value)} onSelect={setSelected} />
+            <PlaybookGrid
+              playbooks={d.value === "all" ? mockPlaybooks : mockPlaybooks.filter((pb) => pb.domain === d.value)}
+              onSelect={setSelected}
+              onQuickDeploy={(pb) => deployMutation.mutate(pb)}
+              deployingId={deployMutation.isPending ? (deployMutation.variables as UDSPlaybook | undefined)?.id ?? "" : ""}
+            />
           </TabsContent>
         ))}
       </Tabs>
