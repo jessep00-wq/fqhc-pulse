@@ -108,21 +108,75 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
   const totalTasks = cycleTasks.length;
   const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const staff = cycle.assigned_staff || [];
+  const stalled = isStalled(cycle, tasks);
+  const earliestDue = getEarliestOpenDue(cycle.id, tasks);
+  const aimText = cycle.aim_statement || cycle.root_cause || "";
 
   return (
-    <Card className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${borderColor}`} onClick={onClick}>
-      <CardContent className="p-4">
-        <h4 className="text-sm font-semibold leading-tight mb-2">{cycle.title}</h4>
-        <Badge variant="outline" className="text-xs mb-2">{cycle.uds_measure?.split(":")[0]}</Badge>
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{cycle.aim_statement || cycle.root_cause}</p>
-        <div className="flex items-center justify-between mb-2">
-          <AvatarGroup roles={staff} />
-          {cycle.improvement_pct && (
-            <div className="flex items-center gap-1 text-xs text-success font-medium">
+    <Card
+      className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
+      onClick={onClick}
+    >
+      <CardContent className="p-4 space-y-2.5">
+        {/* Phase + stalled badge */}
+        <div className="flex items-center justify-between">
+          <PhaseDots status={cycle.status} />
+          {stalled && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 text-warning border border-warning/30 px-1.5 py-0.5 text-[10px] font-medium">
+                  <Clock className="h-3 w-3" /> Stalled
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>No activity in 14+ days. Move it forward or close it out.</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+
+        <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          {cycle.uds_measure && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{cycle.uds_measure.split(":")[0]}</Badge>
+          )}
+          {earliestDue && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium border ${
+                    dueTone(earliestDue) === "destructive"
+                      ? "bg-destructive/15 text-destructive border-destructive/30"
+                      : dueTone(earliestDue) === "warning"
+                        ? "bg-warning/15 text-warning border-warning/30"
+                        : "bg-success/15 text-success border-success/30"
+                  }`}
+                >
+                  <CalendarClock className="h-3 w-3" /> Due {format(earliestDue, "MMM d")}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Earliest open task due date</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+
+        {aimText && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="text-xs text-muted-foreground line-clamp-3 cursor-help">{aimText}</p>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm">{aimText}</TooltipContent>
+          </Tooltip>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <RoleChips roles={staff} max={2} />
+          {cycle.improvement_pct != null && (
+            <div className="flex items-center gap-1 text-xs text-success font-medium whitespace-nowrap">
               <TrendingUp className="h-3 w-3" />+{cycle.improvement_pct}%
             </div>
           )}
         </div>
+
         {totalTasks > 0 && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-[10px] text-muted-foreground">
@@ -137,7 +191,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
           </div>
         )}
         {cycle.status === "completed" && (
-          <Button size="sm" className="w-full mt-3 bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={() => onGenerateBinder(cycle)}>
+          <Button size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
             <FileText className="h-3 w-3 mr-1 shrink-0" />Generate OSV Binder
           </Button>
         )}
