@@ -17,7 +17,7 @@ interface CycleLike {
 interface TaskLike {
   pdsa_cycle_id: string | null;
   status: string;
-  due_date: string | null;
+  due_date?: string | null;
 }
 
 export const STALL_DAYS = 14;
