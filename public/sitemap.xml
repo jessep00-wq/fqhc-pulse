@@ -146,6 +146,36 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://measurewise.org/reset-password</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/onboarding</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/newsletter/unsubscribe</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/store/success</loc>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/store/bundle/governance-bundle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/store/bundle/pdsa-improvement-bundle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://measurewise.org/status</loc>
     <changefreq>daily</changefreq>
     <priority>0.4</priority>

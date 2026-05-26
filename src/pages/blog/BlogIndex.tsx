@@ -118,7 +118,7 @@ export default function BlogIndex() {
   return (
     <PublicPageLayout>
       <SEO
-        title="FQHC quality improvement, UDS, and PDSA resources"
+        title="FQHC Quality and UDS Resources"
         description="In-depth articles on UDS-aligned PDSA cycles, HRSA OSV preparation, SPC charts for UDS measures, and quality improvement workflows for Federally Qualified Health Centers."
         canonical="https://measurewise.org/blog"
       />

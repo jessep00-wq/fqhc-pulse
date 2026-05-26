@@ -44,6 +44,15 @@ export default function BlogPostDynamic() {
     return <Navigate to="/blog" replace />;
   }
 
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    datePublished: post.published_at || undefined,
+    author: { "@type": "Person", name: post.author_name },
+    description: post.excerpt || post.title,
+  };
+
   return (
     <PublicPageLayout backTo={{ label: "All posts", href: "/blog" }}>
       <SEO
@@ -51,6 +60,7 @@ export default function BlogPostDynamic() {
         description={post.excerpt || post.title}
         canonical={`https://measurewise.org/blog/${post.slug}`}
         type="article"
+        jsonLd={articleJsonLd}
         article={{
           publishedTime: post.published_at || undefined,
           author: post.author_name,

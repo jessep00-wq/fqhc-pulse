@@ -137,6 +137,19 @@ export default function StoreBundleDetail() {
         title={`${bundle.name} — MeasureWise Store`}
         description={bundle.short_description ?? bundle.name}
         canonical={`https://measurewise.org/store/bundle/${bundle.slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: bundle.name,
+          description: bundle.short_description ?? bundle.name,
+          offers: {
+            "@type": "Offer",
+            price: (bundle.price_cents / 100).toFixed(2),
+            priceCurrency: bundle.currency,
+            availability: "https://schema.org/InStock",
+            url: `https://measurewise.org/store/bundle/${bundle.slug}`,
+          },
+        }}
       />
 
       <article className="max-w-5xl mx-auto px-6 py-10">
