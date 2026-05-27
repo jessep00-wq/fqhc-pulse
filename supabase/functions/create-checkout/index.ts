@@ -20,6 +20,7 @@ const PRICE_LOOKUP_KEYS: Record<string, { kind: "product" | "bundle"; slug: stri
   board_quality_report_one_time: { kind: "product", slug: "board-quality-report-template" },
   htn_pdsa_bundle_one_time: { kind: "product", slug: "hypertension-pdsa-bundle" },
   a1c_pdsa_bundle_one_time: { kind: "product", slug: "diabetes-a1c-pdsa-bundle" },
+  athenaone_operations_manual_one_time: { kind: "product", slug: "athenaone-operations-manual" },
   governance_bundle_one_time: { kind: "bundle", slug: "governance-bundle" },
   pdsa_improvement_bundle_one_time: { kind: "bundle", slug: "pdsa-improvement-bundle" },
 };
