@@ -38,6 +38,14 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
     return;
   }
 
+  // Watermarked-manual flow: provision a one-time download token instead of signed URLs.
+  if (meta.delivery === "watermarked_manual") {
+    await provisionManualDownload(env, session, customerEmail);
+    return;
+  }
+
+
+
   // Parse cart items (multi-item) — fall back to single-item legacy metadata.
   let cartLines: CartLine[] = [];
   if (meta.cart_items) {
