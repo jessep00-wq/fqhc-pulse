@@ -137,38 +137,59 @@ Deno.serve(async (req) => {
 
     const lineItems = resolved.map((r) => ({ price: priceByLookup.get(r.lookupKey)!, quantity: 1 }));
 
+    // Detect the watermarked-manual flow: single AthenaOne item + buyer info.
+    const isManualFlow =
+      !!buyer?.name &&
+      !!buyer?.email &&
+      !!buyer?.org &&
+      resolved.length === 1 &&
+      resolved[0].lookupKey === "athenaone_operations_manual_one_time";
+
     // Cancel URL: single item → product page; multi → store index.
-    const cancelUrl =
-      resolved.length === 1
+    const cancelUrl = isManualFlow
+      ? `${origin}/manual`
+      : resolved.length === 1
         ? `${origin}/store/${resolved[0].kind === "bundle" ? "bundle/" : ""}${resolved[0].slug}`
         : `${origin}/store`;
+
+    const successUrl = isManualFlow
+      ? `${origin}/manual/thank-you?session_id={CHECKOUT_SESSION_ID}`
+      : `${origin}/store/success?session_id={CHECKOUT_SESSION_ID}`;
+
+    const baseMetadata: Record<string, string> = {
+      kind: resolved[0].kind,
+      slug: resolved[0].slug,
+      catalog_id: resolved[0].catalogId,
+      lookup_key: resolved[0].lookupKey,
+      environment: env,
+      cart_items: JSON.stringify(
+        resolved.map((r) => ({
+          kind: r.kind,
+          slug: r.slug,
+          catalog_id: r.catalogId,
+          lookup_key: r.lookupKey,
+        })),
+      ),
+    };
+    if (isManualFlow) {
+      baseMetadata.delivery = "watermarked_manual";
+      baseMetadata.buyer_name = buyer!.name!.slice(0, 200);
+      baseMetadata.buyer_email = buyer!.email!.slice(0, 200);
+      baseMetadata.buyer_org = buyer!.org!.slice(0, 200);
+    }
 
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: lineItems,
-      success_url: `${origin}/store/success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: successUrl,
       cancel_url: cancelUrl,
       customer_creation: "always",
       allow_promotion_codes: true,
       managed_payments: { enabled: true },
-      metadata: {
-        // Back-compat metadata for single-item webhook path.
-        kind: resolved[0].kind,
-        slug: resolved[0].slug,
-        catalog_id: resolved[0].catalogId,
-        lookup_key: resolved[0].lookupKey,
-        environment: env,
-        // Multi-item payload — JSON-encoded list of { kind, slug, catalog_id, lookup_key }
-        cart_items: JSON.stringify(
-          resolved.map((r) => ({
-            kind: r.kind,
-            slug: r.slug,
-            catalog_id: r.catalogId,
-            lookup_key: r.lookupKey,
-          })),
-        ),
-      },
+      ...(isManualFlow && buyer?.email ? { customer_email: buyer.email } : {}),
+      metadata: baseMetadata,
     });
+
 
     return new Response(JSON.stringify({ url: session.url }), {
       status: 200,
