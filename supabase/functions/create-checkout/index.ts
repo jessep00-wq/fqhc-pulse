@@ -80,6 +80,14 @@ Deno.serve(async (req) => {
     const rawOrigin = req.headers.get("origin") ?? "";
     const origin = ALLOWED_ORIGINS.has(rawOrigin) ? rawOrigin : "https://measurewise.org";
 
+    // Optional buyer info collected on the /manual landing page (name, email, org).
+    // When present AND the order is the AthenaOne manual, we route to the
+    // watermarked-delivery flow instead of the standard signed-URL fulfillment.
+    const buyer = body?.buyer as
+      | { name?: string; email?: string; org?: string }
+      | undefined;
+
+
     // Accept either `items: [{ lookupKey }]` (cart) OR `priceId: string` (single-item Buy now).
     const rawItems: Array<{ lookupKey: string }> = Array.isArray(body?.items)
       ? body.items
