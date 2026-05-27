@@ -65,6 +65,9 @@ import StoreProductDetail from "./pages/store/StoreProductDetail";
 import StoreBundleDetail from "./pages/store/StoreBundleDetail";
 import StoreSuccess from "./pages/store/StoreSuccess";
 import AdminStore from "./pages/admin/AdminStore";
+import ManualLanding from "./pages/ManualLanding";
+import ManualThankYou from "./pages/ManualThankYou";
+
 
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
@@ -151,6 +154,12 @@ const App = () => (
                 <Route path="/store/success" element={<StoreSuccess />} />
                 <Route path="/store/bundle/:slug" element={<StoreBundleDetail />} />
                 <Route path="/store/:slug" element={<StoreProductDetail />} />
+
+                {/* Standalone watermarked-manual sales flow */}
+                <Route path="/manual" element={<ManualLanding />} />
+                <Route path="/manual/thank-you" element={<ManualThankYou />} />
+
+
 
                 <Route
                   path="/admin/*"

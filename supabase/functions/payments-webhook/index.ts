@@ -38,6 +38,14 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
     return;
   }
 
+  // Watermarked-manual flow: provision a one-time download token instead of signed URLs.
+  if (meta.delivery === "watermarked_manual") {
+    await provisionManualDownload(env, session, customerEmail);
+    return;
+  }
+
+
+
   // Parse cart items (multi-item) — fall back to single-item legacy metadata.
   let cartLines: CartLine[] = [];
   if (meta.cart_items) {
@@ -155,7 +163,104 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
   }
 }
 
+// ── Watermarked manual: one-time download provisioning ──
+
+function generateToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// deno-lint-ignore no-explicit-any
+async function provisionManualDownload(env: StripeEnv, session: any, customerEmail: string) {
+  const meta = session.metadata ?? {};
+  const buyerName = (meta.buyer_name as string | undefined) ?? session.customer_details?.name ?? "Customer";
+  const buyerOrg = (meta.buyer_org as string | undefined) ?? "—";
+  const buyerEmail = (meta.buyer_email as string | undefined) ?? customerEmail;
+
+  // Upsert by stripe_session_id so webhook retries are idempotent.
+  const { data: existing } = await supabase
+    .from("manual_downloads")
+    .select("id, token")
+    .eq("stripe_session_id", session.id)
+    .maybeSingle();
+
+  let token: string;
+  if (existing?.token) {
+    token = existing.token as string;
+  } else {
+    token = generateToken();
+    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const { error } = await supabase.from("manual_downloads").insert({
+      token,
+      stripe_session_id: session.id,
+      buyer_name: buyerName,
+      buyer_email: buyerEmail,
+      buyer_org: buyerOrg,
+      expires_at: expiresAt,
+    });
+    if (error) {
+      console.error("manual_downloads insert failed", error);
+      return;
+    }
+  }
+
+  const downloadUrl = `https://${Deno.env.get("SUPABASE_URL")!.replace("https://", "")}/functions/v1/download-watermarked-manual?token=${encodeURIComponent(token)}`;
+  await sendManualDeliveryEmail({ to: buyerEmail, name: buyerName, org: buyerOrg, downloadUrl });
+}
+
+async function sendManualDeliveryEmail(opts: {
+  to: string;
+  name: string;
+  org: string;
+  downloadUrl: string;
+}) {
+  const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!RESEND_API_KEY || !LOVABLE_API_KEY) return;
+
+  const html = renderEmailShell({
+    title: `Your AthenaOne Operations Manual is ready`,
+    bodyHtml: `
+      <p style="font-size:15px;line-height:1.6;color:#334155;margin:0 0 16px">
+        Thanks ${escapeHtml(opts.name)} — your personalized copy of the
+        <strong>MeasureWise FQHC AthenaOne Operations Manual</strong> is ready to download.
+      </p>
+      <p style="margin:24px 0;text-align:center">
+        <a href="${opts.downloadUrl}" style="display:inline-block;background:#1a8a9b;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px">⬇ Download your manual</a>
+      </p>
+      <p style="font-size:13px;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;padding:10px 14px;border-radius:6px;margin:16px 0">
+        ⚠ This link expires after the first successful download or 24 hours, whichever comes first. Save the PDF locally as soon as it opens.
+      </p>
+      <p style="font-size:13px;color:#64748b;line-height:1.6;margin-top:24px">
+        Your PDF is watermarked on every page with your name and organization
+        (<strong>${escapeHtml(opts.org)}</strong>) — licensed for internal use by your purchasing organization only.
+      </p>
+      <p style="font-size:13px;color:#475569;margin-top:24px">— The MeasureWise team</p>
+    `,
+  });
+
+  await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": RESEND_API_KEY,
+    },
+    body: JSON.stringify({
+      from: "MeasureWise <hello@measurewise.org>",
+      to: [opts.to],
+      subject: "Your AthenaOne Operations Manual — download link inside",
+      html,
+      tags: [{ name: "category", value: "manual_delivery" }],
+    }),
+  }).catch((err) => console.warn("manual delivery email failed", err));
+}
+
 async function sendPurchaseEmail(opts: {
+
   to: string;
   itemName: string;
   downloadLinks: Array<{ name: string; url: string }>;
