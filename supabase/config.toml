@@ -9,6 +9,11 @@ project_id = "eeyigxcwewdqfeidqbxk"
     verify_jwt = false
   [functions.create-subscription-checkout]
     verify_jwt = false
+  [functions.download-watermarked-manual]
+    verify_jwt = false
+  [functions.get-manual-token]
+    verify_jwt = false
+
   [functions.get-order]
     verify_jwt = false
   [functions.payments-webhook]
