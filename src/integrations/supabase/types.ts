@@ -255,6 +255,48 @@ export type Database = {
         }
         Relationships: []
       }
+      manual_downloads: {
+        Row: {
+          buyer_email: string
+          buyer_name: string
+          buyer_org: string
+          created_at: string
+          download_ip: string | null
+          downloaded_at: string | null
+          expires_at: string
+          id: string
+          paid_at: string
+          stripe_session_id: string
+          token: string
+        }
+        Insert: {
+          buyer_email: string
+          buyer_name: string
+          buyer_org: string
+          created_at?: string
+          download_ip?: string | null
+          downloaded_at?: string | null
+          expires_at: string
+          id?: string
+          paid_at?: string
+          stripe_session_id: string
+          token: string
+        }
+        Update: {
+          buyer_email?: string
+          buyer_name?: string
+          buyer_org?: string
+          created_at?: string
+          download_ip?: string | null
+          downloaded_at?: string | null
+          expires_at?: string
+          id?: string
+          paid_at?: string
+          stripe_session_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string
