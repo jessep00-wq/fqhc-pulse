@@ -186,7 +186,7 @@ Deno.serve(async (req) => {
       customer_creation: "always",
       allow_promotion_codes: true,
       managed_payments: { enabled: true },
-      ...(isManualFlow && buyer?.email ? { customer_email: buyer.email } : {}),
+      // customer_email isn't compatible with managed_payments; Stripe prompts for email.
       metadata: baseMetadata,
     });
 
