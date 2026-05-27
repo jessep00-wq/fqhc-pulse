@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
+
 
 interface TokenResult {
   ready: boolean;
@@ -26,23 +26,11 @@ export default function ManualThankYou() {
     let timer: ReturnType<typeof setTimeout>;
 
     const poll = async (n: number) => {
-      try {
-        const { data } = await supabase.functions.invoke("get-manual-token", {
-          method: "GET" as never,
-          body: undefined as never,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        } as any);
-        // Fallback: invoke doesn't pass query params cleanly across versions —
-        // hit the function directly with fetch instead.
-        void data;
-      } catch {
-        // ignore — handled by direct fetch path below
-      }
-
       const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-manual-token?session_id=${encodeURIComponent(sessionId)}`;
       const res = await fetch(url, {
         headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
       }).catch(() => null);
+
       if (cancelled) return;
       if (res?.ok) {
         const json: TokenResult = await res.json();
