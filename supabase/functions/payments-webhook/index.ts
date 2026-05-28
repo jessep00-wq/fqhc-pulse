@@ -1,6 +1,7 @@
 // Stripe webhook handler. Fulfills storefront orders (single- and multi-item),
 // syncs SaaS subscriptions, and sends branded confirmation emails.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import Stripe from "https://esm.sh/stripe@22.0.2";
 import {
   createStripeClient,
   getWebhookSecret,
