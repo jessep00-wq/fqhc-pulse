@@ -189,36 +189,41 @@ async function provisionManualDownload(env: StripeEnv, session: any, customerEma
   const buyerOrg = (meta.buyer_org as string | undefined) ?? "—";
   const buyerEmail = (meta.buyer_email as string | undefined) ?? customerEmail;
 
-  // Upsert by stripe_session_id so webhook retries are idempotent.
-  const { data: existing } = await supabase
+  // ATOMIC provisioning: a single INSERT … ON CONFLICT DO NOTHING.
+  // - On first webhook delivery: inserts the row, returns it -> we email.
+  // - On retry: conflict on stripe_session_id, returns no row -> we skip
+  //   the email entirely (the original send already happened or is in flight).
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const { data: inserted, error: insertErr } = await supabase
     .from("manual_downloads")
-    .select("id, token")
-    .eq("stripe_session_id", session.id)
-    .maybeSingle();
-
-  let token: string;
-  if (existing?.token) {
-    token = existing.token as string;
-  } else {
-    token = generateToken();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const { error } = await supabase.from("manual_downloads").insert({
+    .insert({
       token,
       stripe_session_id: session.id,
       buyer_name: buyerName,
       buyer_email: buyerEmail,
       buyer_org: buyerOrg,
       expires_at: expiresAt,
-    });
-    if (error) {
-      console.error("manual_downloads insert failed", error);
-      return;
-    }
-  }
+    })
+    .select("id")
+    .maybeSingle();
 
-  const downloadUrl = `https://${Deno.env.get("SUPABASE_URL")!.replace("https://", "")}/functions/v1/download-watermarked-manual?token=${encodeURIComponent(token)}`;
+  if (insertErr) {
+    // 23505 = unique_violation on stripe_session_id (idempotent retry).
+    // Any other error is a real failure — log and bail without emailing.
+    if (insertErr.code !== "23505") {
+      console.error("manual_downloads insert failed", insertErr);
+    }
+    return;
+  }
+  if (!inserted) return; // defensive: no row, no email
+
+  // Email contains the persistent token (legacy entry point). The thank-you
+  // page uses the short-lived claim ticket path instead — see get-manual-token.
+  const downloadUrl = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/download-watermarked-manual?token=${encodeURIComponent(token)}`;
   await sendManualDeliveryEmail({ to: buyerEmail, name: buyerName, org: buyerOrg, downloadUrl });
 }
+
 
 async function sendManualDeliveryEmail(opts: {
   to: string;
