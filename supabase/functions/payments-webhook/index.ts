@@ -481,23 +481,33 @@ async function markSubscriptionDeleted(env: StripeEnv, subscriptionId: string) {
 // ─────────────────────────────  Server  ─────────────────────────────
 
 Deno.serve(async (req) => {
-  const url = new URL(req.url);
-  const env: StripeEnv = url.searchParams.get("env") === "live" ? "live" : "sandbox";
-
   const sig = req.headers.get("stripe-signature");
   if (!sig) return new Response("Missing signature", { status: 400 });
 
   const body = await req.text();
-  const secret = getWebhookSecret(env);
-  const stripe = createStripeClient(env);
 
-  let event;
-  try {
-    event = await stripe.webhooks.constructEventAsync(body, sig, secret);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Invalid signature";
-    console.error("Webhook signature failed", message);
-    return new Response(`Webhook Error: ${message}`, { status: 400 });
+  // SECURITY: do NOT trust ?env=. Determine env by trying both secrets and
+  // accepting whichever signature actually verifies. This prevents a
+  // sandbox-signed event from triggering live fulfillment via ?env=live.
+  // Try live first (more dangerous if mis-routed), then sandbox.
+  const tryEnvs: StripeEnv[] = ["live", "sandbox"];
+  let event: Stripe.Event | null = null;
+  let env: StripeEnv | null = null;
+  let lastErr: string = "";
+  for (const candidate of tryEnvs) {
+    try {
+      const stripe = createStripeClient(candidate);
+      const secret = getWebhookSecret(candidate);
+      event = await stripe.webhooks.constructEventAsync(body, sig, secret);
+      env = candidate;
+      break;
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : "Invalid signature";
+    }
+  }
+  if (!event || !env) {
+    console.error("Webhook signature failed against both envs:", lastErr);
+    return new Response(`Webhook Error: ${lastErr}`, { status: 400 });
   }
 
   try {
@@ -534,3 +544,4 @@ Deno.serve(async (req) => {
 
   return new Response("ok", { status: 200 });
 });
+
