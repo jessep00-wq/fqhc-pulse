@@ -47,6 +47,7 @@ function gone(message: string) {
 }
 
 Deno.serve(async (req) => {
+  corsHeaders = buildCors(req.headers.get("Origin"));
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const url = new URL(req.url);
