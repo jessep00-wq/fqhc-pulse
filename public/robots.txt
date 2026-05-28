@@ -1,8 +1,22 @@
 User-agent: Googlebot
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth
+Disallow: /onboarding
+Disallow: /reset-password
+Disallow: /store/success
+Disallow: /newsletter/unsubscribe
 
 User-agent: Bingbot
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth
+Disallow: /onboarding
+Disallow: /reset-password
+Disallow: /store/success
+Disallow: /newsletter/unsubscribe
 
 User-agent: Twitterbot
 Allow: /
@@ -21,5 +35,12 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /admin/
+Disallow: /auth
+Disallow: /onboarding
+Disallow: /reset-password
+Disallow: /store/success
+Disallow: /newsletter/unsubscribe
 
 Sitemap: https://measurewise.org/sitemap.xml
