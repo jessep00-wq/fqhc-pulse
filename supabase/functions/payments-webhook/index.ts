@@ -1,6 +1,7 @@
 // Stripe webhook handler. Fulfills storefront orders (single- and multi-item),
 // syncs SaaS subscriptions, and sends branded confirmation emails.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import Stripe from "https://esm.sh/stripe@22.0.2";
 import {
   createStripeClient,
   getWebhookSecret,
@@ -146,22 +147,30 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
       },
       { onConflict: "stripe_session_id" },
     )
-    .select("id, email_sent_at")
+    .select("id")
     .maybeSingle();
 
-  if (orderRow && !orderRow.email_sent_at) {
-    await sendPurchaseEmail({
-      to: customerEmail,
-      itemName: displayNames.join(", "),
-      downloadLinks,
-      sessionId: session.id,
-    });
-    await supabase
+  if (orderRow) {
+    // ATOMIC email-send claim: only the request that flips email_sent_at
+    // from NULL to now() actually sends. Stripe webhook retries are safe.
+    const { data: claimed } = await supabase
       .from("orders")
       .update({ email_sent_at: new Date().toISOString() })
-      .eq("id", orderRow.id);
+      .eq("id", orderRow.id)
+      .is("email_sent_at", null)
+      .select("id")
+      .maybeSingle();
+    if (claimed) {
+      await sendPurchaseEmail({
+        to: customerEmail,
+        itemName: displayNames.join(", "),
+        downloadLinks,
+        sessionId: session.id,
+      });
+    }
   }
 }
+
 
 // ── Watermarked manual: one-time download provisioning ──
 
@@ -180,36 +189,41 @@ async function provisionManualDownload(env: StripeEnv, session: any, customerEma
   const buyerOrg = (meta.buyer_org as string | undefined) ?? "—";
   const buyerEmail = (meta.buyer_email as string | undefined) ?? customerEmail;
 
-  // Upsert by stripe_session_id so webhook retries are idempotent.
-  const { data: existing } = await supabase
+  // ATOMIC provisioning: a single INSERT … ON CONFLICT DO NOTHING.
+  // - On first webhook delivery: inserts the row, returns it -> we email.
+  // - On retry: conflict on stripe_session_id, returns no row -> we skip
+  //   the email entirely (the original send already happened or is in flight).
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const { data: inserted, error: insertErr } = await supabase
     .from("manual_downloads")
-    .select("id, token")
-    .eq("stripe_session_id", session.id)
-    .maybeSingle();
-
-  let token: string;
-  if (existing?.token) {
-    token = existing.token as string;
-  } else {
-    token = generateToken();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-    const { error } = await supabase.from("manual_downloads").insert({
+    .insert({
       token,
       stripe_session_id: session.id,
       buyer_name: buyerName,
       buyer_email: buyerEmail,
       buyer_org: buyerOrg,
       expires_at: expiresAt,
-    });
-    if (error) {
-      console.error("manual_downloads insert failed", error);
-      return;
-    }
-  }
+    })
+    .select("id")
+    .maybeSingle();
 
-  const downloadUrl = `https://${Deno.env.get("SUPABASE_URL")!.replace("https://", "")}/functions/v1/download-watermarked-manual?token=${encodeURIComponent(token)}`;
+  if (insertErr) {
+    // 23505 = unique_violation on stripe_session_id (idempotent retry).
+    // Any other error is a real failure — log and bail without emailing.
+    if (insertErr.code !== "23505") {
+      console.error("manual_downloads insert failed", insertErr);
+    }
+    return;
+  }
+  if (!inserted) return; // defensive: no row, no email
+
+  // Email contains the persistent token (legacy entry point). The thank-you
+  // page uses the short-lived claim ticket path instead — see get-manual-token.
+  const downloadUrl = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/download-watermarked-manual?token=${encodeURIComponent(token)}`;
   await sendManualDeliveryEmail({ to: buyerEmail, name: buyerName, org: buyerOrg, downloadUrl });
 }
+
 
 async function sendManualDeliveryEmail(opts: {
   to: string;
@@ -481,23 +495,33 @@ async function markSubscriptionDeleted(env: StripeEnv, subscriptionId: string) {
 // ─────────────────────────────  Server  ─────────────────────────────
 
 Deno.serve(async (req) => {
-  const url = new URL(req.url);
-  const env: StripeEnv = url.searchParams.get("env") === "live" ? "live" : "sandbox";
-
   const sig = req.headers.get("stripe-signature");
   if (!sig) return new Response("Missing signature", { status: 400 });
 
   const body = await req.text();
-  const secret = getWebhookSecret(env);
-  const stripe = createStripeClient(env);
 
-  let event;
-  try {
-    event = await stripe.webhooks.constructEventAsync(body, sig, secret);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Invalid signature";
-    console.error("Webhook signature failed", message);
-    return new Response(`Webhook Error: ${message}`, { status: 400 });
+  // SECURITY: do NOT trust ?env=. Determine env by trying both secrets and
+  // accepting whichever signature actually verifies. This prevents a
+  // sandbox-signed event from triggering live fulfillment via ?env=live.
+  // Try live first (more dangerous if mis-routed), then sandbox.
+  const tryEnvs: StripeEnv[] = ["live", "sandbox"];
+  let event: Stripe.Event | null = null;
+  let env: StripeEnv | null = null;
+  let lastErr: string = "";
+  for (const candidate of tryEnvs) {
+    try {
+      const stripe = createStripeClient(candidate);
+      const secret = getWebhookSecret(candidate);
+      event = await stripe.webhooks.constructEventAsync(body, sig, secret);
+      env = candidate;
+      break;
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : "Invalid signature";
+    }
+  }
+  if (!event || !env) {
+    console.error("Webhook signature failed against both envs:", lastErr);
+    return new Response(`Webhook Error: ${lastErr}`, { status: 400 });
   }
 
   try {
@@ -534,3 +558,4 @@ Deno.serve(async (req) => {
 
   return new Response("ok", { status: 200 });
 });
+

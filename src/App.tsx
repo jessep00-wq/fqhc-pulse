@@ -91,12 +91,12 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <OrgProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <OrgProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <ScrollToTop />
             <ErrorBoundary>
               <Routes>
@@ -159,8 +159,6 @@ const App = () => (
                 <Route path="/manual" element={<ManualLanding />} />
                 <Route path="/manual/thank-you" element={<ManualThankYou />} />
 
-
-
                 <Route
                   path="/admin/*"
                   element={
@@ -168,14 +166,14 @@ const App = () => (
                       <AdminLayout>
                         <ErrorBoundary>
                           <Routes>
-                            <Route path="/" element={<AdminOverview />} />
-                            <Route path="/pipeline" element={<AdminPipeline />} />
-                            <Route path="/billing" element={<AdminBilling />} />
-                            <Route path="/adoption" element={<AdminAdoption />} />
-                            <Route path="/newsletter" element={<AdminNewsletter />} />
-                            <Route path="/store" element={<AdminStore />} />
-                            <Route path="/blog" element={<AdminBlog />} />
-                            <Route path="/account/:orgId" element={<AdminAccountDetail />} />
+                            <Route index element={<AdminOverview />} />
+                            <Route path="pipeline" element={<AdminPipeline />} />
+                            <Route path="billing" element={<AdminBilling />} />
+                            <Route path="adoption" element={<AdminAdoption />} />
+                            <Route path="newsletter" element={<AdminNewsletter />} />
+                            <Route path="store" element={<AdminStore />} />
+                            <Route path="blog" element={<AdminBlog />} />
+                            <Route path="account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </ErrorBoundary>
@@ -191,13 +189,13 @@ const App = () => (
                       <AppLayout>
                         <ErrorBoundary>
                           <Routes>
-                            <Route path="/" element={<Index />} />
-                           <Route path="/pdsa-lab" element={<PDSALab />} />
-                           <Route path="/network" element={<NetworkDashboard />} />
-                            <Route path="/playbooks" element={<PlaybookLibrary />} />
-                            <Route path="/ai-assistant" element={<AIAssistant />} />
-                            <Route path="/staff-tasks" element={<StaffTasks />} />
-                            <Route path="/settings" element={<Settings />} />
+                            <Route index element={<Index />} />
+                            <Route path="pdsa-lab" element={<PDSALab />} />
+                            <Route path="network" element={<NetworkDashboard />} />
+                            <Route path="playbooks" element={<PlaybookLibrary />} />
+                            <Route path="ai-assistant" element={<AIAssistant />} />
+                            <Route path="staff-tasks" element={<StaffTasks />} />
+                            <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </ErrorBoundary>
@@ -208,10 +206,10 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ErrorBoundary>
-          </BrowserRouter>
-        </TooltipProvider>
-      </OrgProvider>
-    </AuthProvider>
+          </TooltipProvider>
+        </OrgProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

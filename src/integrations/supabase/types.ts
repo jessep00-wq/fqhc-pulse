@@ -260,6 +260,8 @@ export type Database = {
           buyer_email: string
           buyer_name: string
           buyer_org: string
+          claim_ticket: string | null
+          claim_ticket_expires_at: string | null
           created_at: string
           download_ip: string | null
           downloaded_at: string | null
@@ -273,6 +275,8 @@ export type Database = {
           buyer_email: string
           buyer_name: string
           buyer_org: string
+          claim_ticket?: string | null
+          claim_ticket_expires_at?: string | null
           created_at?: string
           download_ip?: string | null
           downloaded_at?: string | null
@@ -286,6 +290,8 @@ export type Database = {
           buyer_email?: string
           buyer_name?: string
           buyer_org?: string
+          claim_ticket?: string | null
+          claim_ticket_expires_at?: string | null
           created_at?: string
           download_ip?: string | null
           downloaded_at?: string | null
