@@ -10,10 +10,26 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { PDFDocument, StandardFonts, degrees, rgb } from "npm:pdf-lib@1.17.1";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = new Set([
+  "https://measurewise.org",
+  "https://www.measurewise.org",
+  "https://https-measurewise-org.lovable.app",
+  "https://id-preview--f577cc3a-ce5c-4ff1-9774-844720d2424d.lovable.app",
+]);
+
+function buildCors(origin: string | null) {
+  const allow = origin && ALLOWED_ORIGINS.has(origin) ? origin : "https://measurewise.org";
+  return {
+    "Access-Control-Allow-Origin": allow,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "GET, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+// Per-request CORS — populated inside the handler. Kept as a module-level
+// stub so the existing `corsHeaders` references in error helpers still resolve.
+let corsHeaders: Record<string, string> = buildCors(null);
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
