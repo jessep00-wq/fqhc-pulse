@@ -61,11 +61,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Note: onAuthStateChange fires an INITIAL_SESSION event on mount,
+    // so we do not call getSession() — avoids a logged-out flash race.
 
     return () => subscription.unsubscribe();
   }, []);

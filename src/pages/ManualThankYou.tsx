@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 
 interface TokenResult {
@@ -26,18 +27,15 @@ export default function ManualThankYou() {
     let timer: ReturnType<typeof setTimeout>;
 
     const poll = async (n: number) => {
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/get-manual-token?session_id=${encodeURIComponent(sessionId)}`;
-      const res = await fetch(url, {
-        headers: { apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY },
-      }).catch(() => null);
+      const { data, error } = await supabase.functions.invoke<TokenResult>(
+        "get-manual-token",
+        { body: { session_id: sessionId } },
+      );
 
       if (cancelled) return;
-      if (res?.ok) {
-        const json: TokenResult = await res.json();
-        if (json.ready) {
-          setState(json);
-          return;
-        }
+      if (!error && data?.ready) {
+        setState(data);
+        return;
       }
       if (n >= 15) {
         setTimedOut(true);

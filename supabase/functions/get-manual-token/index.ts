@@ -8,10 +8,23 @@
 // browser history, referrer headers, or shoulder-surfing the URL bar.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+const ALLOWED_ORIGINS = new Set([
+  "https://measurewise.org",
+  "https://www.measurewise.org",
+  "https://https-measurewise-org.lovable.app",
+  "https://id-preview--f577cc3a-ce5c-4ff1-9774-844720d2424d.lovable.app",
+]);
+
+function buildCors(req: Request) {
+  const origin = req.headers.get("Origin") ?? "";
+  const allowOrigin = ALLOWED_ORIGINS.has(origin) ? origin : "https://measurewise.org";
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
 
 const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
@@ -29,10 +42,19 @@ function generateTicket(): string {
 }
 
 Deno.serve(async (req) => {
+  const corsHeaders = buildCors(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
     const url = new URL(req.url);
-    const sessionId = url.searchParams.get("session_id");
+    let sessionId = url.searchParams.get("session_id");
+    if (!sessionId && (req.method === "POST")) {
+      try {
+        const body = await req.json();
+        sessionId = body?.session_id ?? null;
+      } catch {
+        // ignore — fall through to error below
+      }
+    }
     if (!sessionId) {
       return new Response(JSON.stringify({ error: "session_id required" }), {
         status: 400,
