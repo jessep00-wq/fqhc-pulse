@@ -147,22 +147,30 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
       },
       { onConflict: "stripe_session_id" },
     )
-    .select("id, email_sent_at")
+    .select("id")
     .maybeSingle();
 
-  if (orderRow && !orderRow.email_sent_at) {
-    await sendPurchaseEmail({
-      to: customerEmail,
-      itemName: displayNames.join(", "),
-      downloadLinks,
-      sessionId: session.id,
-    });
-    await supabase
+  if (orderRow) {
+    // ATOMIC email-send claim: only the request that flips email_sent_at
+    // from NULL to now() actually sends. Stripe webhook retries are safe.
+    const { data: claimed } = await supabase
       .from("orders")
       .update({ email_sent_at: new Date().toISOString() })
-      .eq("id", orderRow.id);
+      .eq("id", orderRow.id)
+      .is("email_sent_at", null)
+      .select("id")
+      .maybeSingle();
+    if (claimed) {
+      await sendPurchaseEmail({
+        to: customerEmail,
+        itemName: displayNames.join(", "),
+        downloadLinks,
+        sessionId: session.id,
+      });
+    }
   }
 }
+
 
 // ── Watermarked manual: one-time download provisioning ──
 
