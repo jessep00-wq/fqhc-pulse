@@ -147,7 +147,7 @@ const App = () => (
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
                 <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
-                <Route path="/newsletter/:id" element={<NewsletterDetail />} />
+                <Route path="/newsletter/:slug" element={<NewsletterDetail />} />
 
                 {/* Store */}
                 <Route path="/store" element={<StoreIndex />} />

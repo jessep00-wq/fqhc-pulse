@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -19,6 +19,7 @@ interface OrgContextType {
   loading: boolean;
   hasOrg: boolean;
   isDemo: boolean;
+  error: string | null;
   refetchOrg: () => void;
 }
 
@@ -40,6 +41,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const [organization, setOrganization] = useState<Organization>(fallbackOrg);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // Sticky flag: once we've confirmed an org exists, transient errors won't
+  // bounce the user back to /onboarding.
+  const confirmedOrgRef = useRef(false);
+  const [hasOrgState, setHasOrgState] = useState(false);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
@@ -48,46 +54,75 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) {
       setOrganization(fallbackOrg);
+      setHasOrgState(false);
+      confirmedOrgRef.current = false;
+      setError(null);
       setLoading(false);
       return;
     }
 
     const fetchOrg = async () => {
       setLoading(true);
-      const { data: profile } = await supabase
+      setError(null);
+
+      const { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("organization_id")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (profile?.organization_id) {
-        const { data: org } = await supabase
-          .from("organizations")
-          .select("*")
-          .eq("id", profile.organization_id)
-          .single();
+      if (profileErr) {
+        console.error("[OrgContext] profile fetch failed", profileErr);
+        setError(profileErr.message);
+        // Don't clear hasOrg on transient errors — avoids /onboarding loop.
+        setLoading(false);
+        return;
+      }
 
-        if (org) {
-          const o = org as typeof org & {
-            data_mode?: string;
-            org_type?: string | null;
-            reporting_period?: string | null;
-            quality_lead_name?: string | null;
-            quality_lead_email?: string | null;
-            timezone?: string | null;
-          };
-          setOrganization({
-            id: o.id,
-            name: o.name,
-            npi: o.npi || "",
-            dataMode: (o.data_mode === "demo" ? "demo" : "live"),
-            orgType: o.org_type ?? null,
-            reportingPeriod: o.reporting_period ?? null,
-            qualityLeadName: o.quality_lead_name ?? null,
-            qualityLeadEmail: o.quality_lead_email ?? null,
-            timezone: o.timezone ?? null,
-          });
-        }
+      if (!profile || !profile.organization_id) {
+        // Authoritative "no org" — safe to send to onboarding.
+        setOrganization(fallbackOrg);
+        setHasOrgState(false);
+        confirmedOrgRef.current = false;
+        setLoading(false);
+        return;
+      }
+
+      const { data: org, error: orgErr } = await supabase
+        .from("organizations")
+        .select("*")
+        .eq("id", profile.organization_id)
+        .maybeSingle();
+
+      if (orgErr) {
+        console.error("[OrgContext] org fetch failed", orgErr);
+        setError(orgErr.message);
+        setLoading(false);
+        return;
+      }
+
+      if (org) {
+        const o = org as typeof org & {
+          data_mode?: string;
+          org_type?: string | null;
+          reporting_period?: string | null;
+          quality_lead_name?: string | null;
+          quality_lead_email?: string | null;
+          timezone?: string | null;
+        };
+        setOrganization({
+          id: o.id,
+          name: o.name,
+          npi: o.npi || "",
+          dataMode: (o.data_mode === "demo" ? "demo" : "live"),
+          orgType: o.org_type ?? null,
+          reportingPeriod: o.reporting_period ?? null,
+          qualityLeadName: o.quality_lead_name ?? null,
+          qualityLeadEmail: o.quality_lead_email ?? null,
+          timezone: o.timezone ?? null,
+        });
+        confirmedOrgRef.current = true;
+        setHasOrgState(true);
       }
       setLoading(false);
     };
@@ -95,11 +130,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     fetchOrg();
   }, [user, refreshKey]);
 
-  const hasOrg = !!organization.id && organization.id !== "";
+  const hasOrg = hasOrgState || confirmedOrgRef.current;
   const isDemo = hasOrg && organization.dataMode === "demo";
 
   return (
-    <OrgContext.Provider value={{ organization, loading, hasOrg, isDemo, refetchOrg }}>
+    <OrgContext.Provider value={{ organization, loading, hasOrg, isDemo, error, refetchOrg }}>
       {children}
     </OrgContext.Provider>
   );

@@ -337,6 +337,7 @@ export type Database = {
           published_at: string | null
           sections: Json
           sent_count: number
+          slug: string
           status: string
           subtitle: string | null
           title: string
@@ -351,6 +352,7 @@ export type Database = {
           published_at?: string | null
           sections?: Json
           sent_count?: number
+          slug: string
           status?: string
           subtitle?: string | null
           title: string
@@ -365,6 +367,7 @@ export type Database = {
           published_at?: string | null
           sections?: Json
           sent_count?: number
+          slug?: string
           status?: string
           subtitle?: string | null
           title?: string
@@ -1210,6 +1213,7 @@ export type Database = {
         }[]
       }
       seed_demo_data: { Args: { org_id: string }; Returns: undefined }
+      slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
       app_role:
