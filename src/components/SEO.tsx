@@ -6,6 +6,7 @@ interface SEOProps {
   description: string;
   canonical?: string;
   type?: "website" | "article";
+  image?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
   article?: {
     publishedTime?: string;
@@ -13,10 +14,12 @@ interface SEOProps {
   };
 }
 
-export function SEO({ title, description, canonical, type = "website", jsonLd, article }: SEOProps) {
+export function SEO({ title, description, canonical, type = "website", image, jsonLd, article }: SEOProps) {
   const fullTitle = brandTitle(title);
   const url = canonical || BRAND.url;
-  const ogImage = `${BRAND.url}/og-image.png`;
+  const ogImage = image
+    ? (image.startsWith("http") ? image : `${BRAND.url}${image.startsWith("/") ? "" : "/"}${image}`)
+    : `${BRAND.url}/og-image.png`;
 
   return (
     <Helmet>

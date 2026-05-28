@@ -70,18 +70,37 @@ export default function ManualLanding() {
         title="FQHC AthenaOne Operations Manual — $197"
         description="The only operations manual built for FQHCs running AthenaOne. Workflows, CPT codes, macros, SOPs, and staff guides aligned with UDS 2025 and HEDIS MY 2026."
         canonical="https://measurewise.org/manual"
+        image="https://measurewise.org/manual-og.jpg"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Product",
           name: "MeasureWise FQHC AthenaOne Operations Manual",
           description:
             "32-page audit-ready AthenaOne operations manual: CPT codes, text macros, order sets, encounter plans, and SOPs for FQHC quality teams.",
+          image: ["https://measurewise.org/manual-og.jpg"],
+          sku: "MW-ATHENAONE-MANUAL",
+          brand: { "@type": "Brand", name: "MeasureWise" },
           offers: {
             "@type": "Offer",
             price: "197.00",
             priceCurrency: "USD",
             availability: "https://schema.org/InStock",
             url: "https://measurewise.org/manual",
+            hasMerchantReturnPolicy: {
+              "@type": "MerchantReturnPolicy",
+              applicableCountry: "US",
+              returnPolicyCategory: "https://schema.org/MerchantReturnNotPermitted",
+            },
+            shippingDetails: {
+              "@type": "OfferShippingDetails",
+              shippingRate: { "@type": "MonetaryAmount", value: "0", currency: "USD" },
+              shippingDestination: { "@type": "DefinedRegion", addressCountry: "US" },
+              deliveryTime: {
+                "@type": "ShippingDeliveryTime",
+                handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+                transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 0, unitCode: "DAY" },
+              },
+            },
           },
         }}
       />
