@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { formatPrice, type StoreProduct } from "@/types/store";
+import { mapStoreProduct } from "@/lib/storeMappers";
 
 interface Order {
   id: string;
@@ -31,10 +32,10 @@ export default function AdminStore() {
 
   async function load() {
     const [{ data: p }, { data: o }] = await Promise.all([
-      supabase.from("store_products" as never).select("*").order("sort_order"),
-      supabase.from("orders" as never).select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("store_products").select("*").order("sort_order"),
+      supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(50),
     ]);
-    setProducts((p as unknown as StoreProduct[]) ?? []);
+    setProducts((p ?? []).map(mapStoreProduct));
     setOrders((o as unknown as Order[]) ?? []);
   }
 
