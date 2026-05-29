@@ -2,21 +2,24 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 
 type AuthCallback = (event: string, session: unknown) => void;
-let capturedCb: AuthCallback | null = null;
-const invokeMock = vi.fn();
-const profilesUpdate = vi.fn(() => ({ eq: () => ({ then: (fn: () => void) => fn() }) }));
+const h = vi.hoisted(() => ({
+  capturedCb: null as AuthCallback | null,
+  invokeMock: vi.fn(),
+}));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: {
       onAuthStateChange: (cb: AuthCallback) => {
-        capturedCb = cb;
+        h.capturedCb = cb;
         return { data: { subscription: { unsubscribe: () => {} } } };
       },
       signOut: vi.fn(),
     },
-    from: () => ({ update: profilesUpdate }),
-    functions: { invoke: invokeMock },
+    from: () => ({
+      update: () => ({ eq: () => ({ then: (fn: () => void) => fn() }) }),
+    }),
+    functions: { invoke: h.invokeMock },
   },
 }));
 vi.mock("@/lib/trackEvent", () => ({ trackEvent: vi.fn() }));
