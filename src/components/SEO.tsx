@@ -10,6 +10,7 @@ interface SEOProps {
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
   article?: {
     publishedTime?: string;
+    modifiedTime?: string;
     author?: string;
   };
 }
@@ -19,7 +20,7 @@ export function SEO({ title, description, canonical, type = "website", image, js
   const url = canonical || BRAND.url;
   const ogImage = image
     ? (image.startsWith("http") ? image : `${BRAND.url}${image.startsWith("/") ? "" : "/"}${image}`)
-    : `${BRAND.url}/og-image.png`;
+    : `${BRAND.url}/og-image.jpg`;
 
   return (
     <Helmet>
@@ -27,19 +28,23 @@ export function SEO({ title, description, canonical, type = "website", image, js
       <meta name="description" content={description} />
       <link rel="canonical" href={url} />
 
+      <meta property="og:site_name" content={BRAND.name} />
       <meta property="og:type" content={type} />
       <meta property="og:url" content={url} />
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
 
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={ogImage} />
 
       {article?.publishedTime && (
         <meta property="article:published_time" content={article.publishedTime} />
+      )}
+      {article?.modifiedTime && (
+        <meta property="article:modified_time" content={article.modifiedTime} />
       )}
       {article?.author && <meta property="article:author" content={article.author} />}
 

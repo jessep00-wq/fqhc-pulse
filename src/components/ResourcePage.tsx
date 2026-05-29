@@ -25,7 +25,13 @@ export interface ResourcePageProps {
   checklist?: string[];
   /** Cross-link cards. */
   related: ResourcePageLink[];
+  /** ISO-8601 publication date. Defaults to a stable historical date. */
+  publishedAt?: string;
+  /** ISO-8601 last-modified date. Defaults to publishedAt. */
+  updatedAt?: string;
 }
+
+const DEFAULT_PUBLISHED_AT = "2026-01-15";
 
 export function ResourcePage({
   title,
@@ -35,14 +41,19 @@ export function ResourcePage({
   body,
   checklist,
   related,
+  publishedAt = DEFAULT_PUBLISHED_AT,
+  updatedAt,
 }: ResourcePageProps) {
   const canonical = `https://measurewise.org${path}`;
+  const dateModified = updatedAt ?? publishedAt;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
     headline: title,
     description,
     url: canonical,
+    datePublished: publishedAt,
+    dateModified,
     author: { "@type": "Person", name: "Jessica R. Smith, BSN" },
     publisher: {
       "@type": "Organization",
@@ -53,7 +64,14 @@ export function ResourcePage({
 
   return (
     <PublicPageLayout backTo={{ label: "All resources", href: "/blog" }}>
-      <SEO title={title} description={description} canonical={canonical} jsonLd={jsonLd} type="article" />
+      <SEO
+        title={title}
+        description={description}
+        canonical={canonical}
+        jsonLd={jsonLd}
+        type="article"
+        article={{ publishedTime: publishedAt, modifiedTime: dateModified, author: "Jessica R. Smith, BSN" }}
+      />
 
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto space-y-6">
