@@ -1,71 +1,58 @@
-## Fixes 12–20
+## Fixes 21–32
 
-### 12. ProtectedRoute → `/auth`
-Already done in the prior pass (`src/components/ProtectedRoute.tsx` line 18 now redirects to `/auth`). Verify and skip.
+### 1. Store type casts (`useQuery` in StoreIndex/StoreProductDetail/StoreBundleDetail/AdminStore)
+Replace `as never` / `as unknown as StoreProduct[]` with a small mapper `mapStoreProduct(row)` and `mapStoreBundle(row)` that explicitly reads each field from the Supabase row type. Drift now surfaces as a TS error at the mapper.
 
-### 13. OrgContext swallows query errors
-`src/contexts/OrgContext.tsx` — rewrite the fetch:
-- Capture `error` from both `profiles` and `organizations` queries.
-- On error: keep previous org state, set `loading=false`, log via `console.error`, and expose an `error` field on the context so callers can react. Do NOT clear `organization.id` on transient errors (that's what triggers the `/onboarding` loop).
-- Treat "no profile row" or "profile.organization_id is null" as the only valid "no org" signal — network/RLS errors leave `hasOrg` as its prior value.
-- Add `error: string | null` to `OrgContextType` (non-breaking, optional consumers).
+### 2. `useUserRole` non-null assertion
+Replace `user!.id` with a guarded query — `enabled: !!user?.id` already gates it, but switch the queryFn to accept `user?.id` and early-return `[]` when undefined. Removes the `!`.
 
-### 14. AuthContext double-init race
-`src/contexts/AuthContext.tsx` — drop the `supabase.auth.getSession()` block (lines 64–68). `onAuthStateChange` fires an `INITIAL_SESSION` event on mount, which already sets state and clears `loading`. Single source of truth, no flash.
+### 3. Welcome-email localStorage race (AuthContext)
+Reorder: call `supabase.functions.invoke("send-welcome-email")` first, set the `mw_welcome_sent_${userId}` flag only inside `.then()` on success, clear nothing on failure (no flag was set). Keeps "exactly once" semantics without permanent lockout on crash.
 
-### 15. StoreSuccess null-order warning
-`src/pages/store/StoreSuccess.tsx` line 120 — change condition from `!loading && order?.status !== "paid"` to `!loading && order && order.status !== "paid"`. Add a separate "Order not found" block when `!loading && !order` pointing users to re-check email / contact support.
+### 4. NetworkDashboard free-tier guard
+At top of component, after `useSubscription()` loads, if plan tier is not `network`, render the upgrade banner and `return` before any `useQuery` for sites/aggregates. Move the queries below the guard or gate them with `enabled: tier === "network"`.
 
-### 16. ManualThankYou raw fetch
-`src/pages/ManualThankYou.tsx` — replace the raw `fetch` + `apikey` header with:
-```ts
-const { data, error } = await supabase.functions.invoke<TokenResult>("get-manual-token", {
-  body: { session_id: sessionId },
-});
-```
-Update `supabase/functions/get-manual-token/index.ts` to accept `session_id` from JSON body in addition to the query string (keep backward compat).
+### 5. SEO.tsx meta cleanup
+- Add `<meta property="og:site_name" content={BRAND.name} />`.
+- Add `<meta property="og:image:width" content="1200" />` and `og:image:height" content="630"`.
+- Remove redundant `twitter:title` / `twitter:description` (Twitter falls back to `og:*`); keep `twitter:card` and `twitter:image`.
 
-### 17. Missing `verify_jwt = false` entries
-Add blocks in `supabase/config.toml` for public/cron edge functions:
-- `contact-form`, `capture-playbook-lead`, `newsletter-unsubscribe`, `check-task-deadlines`, `weekly-digest`, `ai-root-cause`, `send-newsletter` (cron), `send-playbook-followups` (cron), `compute-account-health` (cron), `send-welcome-email`, `send-email`.
-Keep `process-email-queue` as `verify_jwt = true` (cron uses service role header). Cron-triggered functions that rely on `CRON_SECRET` header must be `verify_jwt = false`.
+### 6. apple-touch-icon path (index.html)
+Change `<link rel="apple-touch-icon" href="/favicon.png">` → `href="/icons/apple-touch-icon.png"`. Verify file exists in `public/icons/`; if missing, fall back to existing `/icons/icon-192.png`.
 
-### 18. CORS wildcard on PII endpoint
-`supabase/functions/get-manual-token/index.ts` — replace `Access-Control-Allow-Origin: *` with an allowlist echo:
-```ts
-const ALLOWED = new Set([
-  "https://measurewise.org",
-  "https://www.measurewise.org",
-  "https://https-measurewise-org.lovable.app",
-  "https://id-preview--f577cc3a-ce5c-4ff1-9774-844720d2424d.lovable.app",
-]);
-const origin = req.headers.get("Origin") ?? "";
-const allowOrigin = ALLOWED.has(origin) ? origin : "https://measurewise.org";
-```
-Add `Vary: Origin` to responses. Also apply to `download-watermarked-manual` since it streams buyer-watermarked PDFs.
+### 7. /manual in sitemap + llms.txt
+- `public/sitemap.xml`: add `<url><loc>https://measurewise.org/manual</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>`.
+- `public/llms.txt`: add `- [FQHC QI Manual](/manual): Operations manual for FQHC quality directors.` under a relevant section.
 
-### 19. Duplicate `<noscript>` page in index.html
-`index.html` lines 217–271 — collapse the `<noscript>` block to just the small banner (current lines 218–220). Delete the duplicated `mw-fallback` shell (221–270). The pre-rendered marketing shell already inside `#root` (the "static fallback" memory) serves the no-JS audience.
+### 8. site.webmanifest
+Add `"start_url": "/"`, `"scope": "/"`, `"description": "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, HRSA audit binders."`, and `"id": "/"`.
 
-### 20. Sitemap UUID newsletter URLs
-Two-step:
-1. **Migration** — add `slug text unique` to `public.newsletters`, backfill from `title` (lowercase, hyphenated, dedup with `-{shortid}` if collision), add NOT NULL constraint after backfill. Add a `BEFORE INSERT` trigger that auto-generates `slug` from `title` when null.
-2. **Route** — change `<Route path="/newsletter/:id" …>` to `:slug`; update `NewsletterDetail` to fetch by `slug` (fallback to UUID lookup so old links keep working).
-3. **Sitemap** — replace the four hard-coded UUID `<loc>` lines in `public/sitemap.xml` with slug-based URLs from the backfill.
+### 9. LCP image WebP + preload type
+- Generate `public/dashboard-preview.webp` (use existing JPG; skip if user prefers no new asset — fallback option: just add `type` to preload).
+- Update Landing's hero `<img>` to `<picture>` with `<source srcset="/dashboard-preview.webp" type="image/webp">` + `<img src="/dashboard-preview.jpg">`.
+- In `index.html`, change `<link rel="preload" as="image" href="/dashboard-preview.jpg">` to preload the WebP with `type="image/webp"` and `imagesrcset`.
+
+### 10. Resource pages Article JSON-LD dates
+In `src/components/ResourcePage.tsx` (or wherever the Article JSON-LD is emitted), add `datePublished` and `dateModified` fields. Source from a per-resource constant map keyed by slug (use today's date or last edit; hardcode reasonable historical dates for existing resources).
+
+### 11. Unconditional PDF prefetch in index.html
+Remove the `<link rel="prefetch" href="/MeasureWise_Sample_Export.pdf">` from `index.html`. If we want it on the landing page only, move it into `<Landing>` via `<Helmet>`.
+
+### 12. ManualLanding double-Helmet
+Remove the bare `<Helmet>` block in `ManualLanding.tsx`; consolidate all meta into the single `<SEO>` component call (add any missing props like `image` or `jsonLd` to SEO if needed).
 
 ### Files touched
-- `src/components/ProtectedRoute.tsx` (verify only)
-- `src/contexts/OrgContext.tsx`
+- `src/pages/store/StoreIndex.tsx`, `StoreProductDetail.tsx`, `StoreBundleDetail.tsx`, `src/pages/admin/AdminStore.tsx`, new `src/lib/storeMappers.ts`
+- `src/hooks/useUserRole.ts`
 - `src/contexts/AuthContext.tsx`
-- `src/pages/store/StoreSuccess.tsx`
-- `src/pages/ManualThankYou.tsx`
-- `src/pages/NewsletterDetail.tsx` + `src/App.tsx`
-- `supabase/config.toml`
-- `supabase/functions/get-manual-token/index.ts`
-- `supabase/functions/download-watermarked-manual/index.ts` (CORS only)
+- `src/pages/NetworkDashboard.tsx`
+- `src/components/SEO.tsx`
+- `src/components/ResourcePage.tsx`
+- `src/pages/ManualLanding.tsx`
+- `src/pages/Landing.tsx` (picture tag)
 - `index.html`
-- `public/sitemap.xml`
-- New migration: `newsletters.slug`
+- `public/sitemap.xml`, `public/llms.txt`, `public/site.webmanifest`
+- `public/dashboard-preview.webp` (new, optional)
 
-### Out of scope (deferred)
-Code splitting, manifest, prefetch, double-SEO, LCP webp, ProtectedRoute UX polish — pick up in a follow-up.
+### Out of scope
+Code-splitting, broader perf work, manifest icon redesign.
