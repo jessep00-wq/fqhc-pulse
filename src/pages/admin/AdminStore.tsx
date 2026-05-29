@@ -51,7 +51,7 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newPaths = Array.from(new Set([...(product?.included_file_paths ?? []), path]));
     const { error: dbErr } = await supabase
-      .from("store_products" as never)
+      .from("store_products")
       .update({ included_file_paths: newPaths } as never)
       .eq("id", productId);
     if (dbErr) {
@@ -75,7 +75,7 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newUrls = Array.from(new Set([...(product?.preview_image_urls ?? []), pub.publicUrl]));
     const { error: dbErr } = await supabase
-      .from("store_products" as never)
+      .from("store_products")
       .update({ preview_image_urls: newUrls } as never)
       .eq("id", productId);
     if (dbErr) {
@@ -90,7 +90,7 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newUrls = (product?.preview_image_urls ?? []).filter((u) => u !== url);
     await supabase
-      .from("store_products" as never)
+      .from("store_products")
       .update({ preview_image_urls: newUrls } as never)
       .eq("id", productId);
     toast.success("Preview removed");
@@ -102,7 +102,7 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newPaths = (product?.included_file_paths ?? []).filter((p) => p !== path);
     await supabase
-      .from("store_products" as never)
+      .from("store_products")
       .update({ included_file_paths: newPaths } as never)
       .eq("id", productId);
     toast.success("File removed");
@@ -116,7 +116,7 @@ export default function AdminStore() {
       return;
     }
     const { error } = await supabase
-      .from("store_products" as never)
+      .from("store_products")
       .update({ price_cents: newPrice } as never)
       .eq("id", productId);
     if (error) {
@@ -130,7 +130,7 @@ export default function AdminStore() {
   async function saveGuidance(productId: string) {
     const text = (guidance[productId] ?? "").trim() || null;
     const { error } = await supabase
-      .from("store_products" as never)
+      .from("store_products")
       .update({ buyer_guidance: text } as never)
       .eq("id", productId);
     if (error) {
