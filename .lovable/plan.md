@@ -1,34 +1,37 @@
-## Frontend Tests Plan
+## Goal
+Update only the static HTML fallback inside `<div class="mw-fallback">` in `index.html` so it matches the React landing page on first paint. No other files, no meta/script/JSON-LD changes.
 
-Add Vitest + React Testing Library tests covering the recently-fixed regressions, then run them.
+## Changes (scoped strictly to `<div class="mw-fallback">`)
 
-### Test files to create
+### 1. Header nav (`<nav class="mw-nav">`)
+Replace current 3 links (Store, Sign In, CTA) with the full React navbar set, in this order:
 
-1. **`src/lib/storeMappers.test.ts`** — unit tests for `mapStoreProduct` / `mapStoreBundle`: required-field mapping, defaults for nullable fields, array passthrough, drift-safety (missing optional fields don't throw).
+- Features → `/features/pdsa-cycle-manager`
+- How It Works → `/how-it-works`
+- Case Studies → `/case-studies`
+- Blog → `/blog`
+- Newsletter → `/newsletter`
+- Store → `/store`
+- About → `/about`
+- Pricing → `/pricing`
+- Sign In → `/auth` (using existing `.mw-link` style)
+- CTA button → `/auth?signup=true`, text: `Start 14-day free trial →` (matches React's "Start 14-day free trial" + arrow icon; existing `.mw-btn` class)
 
-2. **`src/hooks/useUserRole.test.tsx`** — verifies the hook returns `[]` (no crash) when `user` is `undefined` during the auth loading window; verifies query is disabled without a user id. Mocks `useAuth` and `supabase`.
+All link items reuse existing `.mw-link` class so no CSS changes are needed. The nav already wraps via existing flex styles.
 
-3. **`src/contexts/AuthContext.test.tsx`** — welcome-email race regression: assert `localStorage` flag is only written **after** `send-welcome-email` resolves successfully, and is **not** written on error. Mocks `supabase.auth.onAuthStateChange` and `supabase.functions.invoke`.
+### 2. Hero headline (`<h1 class="mw-h1">`)
+Replace current text with exactly:
 
-4. **`src/contexts/OrgContext.test.tsx`** — RLS/network error regression: when the profile query errors after a successful prior load, `hasOrg` stays `true` (no `/onboarding` bounce). When profile is authoritatively null, `hasOrg` is `false`.
+> FQHC quality leaders: stop running PDSA cycles that never show up in your UDS results.
 
-5. **`src/components/SEO.test.tsx`** — renders required meta tags: `og:site_name`, `og:image:width=1200`, `og:image:height=630`, and confirms `twitter:title` / `twitter:description` are NOT emitted (Twitter falls back to `og:*`).
+### 3. Hero CTA button text
+Confirm the hero `.mw-btn` already reads `Start 14-day free trial →` — leave as-is (already matches).
 
-6. **`src/components/ProtectedRoute.test.tsx`** — unauthenticated users redirect to `/auth` (not `/`).
+## Out of scope
+- No edits to `<head>`, `<meta>`, `<script>`, JSON-LD, `<style>`, `<noscript>`, the footer, pricing cards, hero subcopy, or any other section.
+- No CSS additions or token changes.
+- No other files touched.
 
-### Shared setup
-
-- Reuse existing `src/test/setup.ts` and `vitest.config.ts` (already configured).
-- Add a small `src/test/mocks/supabase.ts` helper that returns a chainable mock for `.from().select().eq().maybeSingle()` and `.auth.onAuthStateChange`, used by AuthContext/OrgContext tests.
-- Use `vi.mock("@/integrations/supabase/client", ...)` per test file.
-- Wrap context tests in a `MemoryRouter` + `QueryClientProvider` where needed.
-
-### Run
-
-After writing the tests, run `bunx vitest run` and iterate on any failures until green. Report pass/fail summary.
-
-### Out of scope
-
-- E2E / Playwright tests.
-- Tests for edge functions (Deno runtime, separate harness).
-- Coverage thresholds / CI config changes.
+## Verification
+- Diff `index.html` to confirm only the `<nav class="mw-nav">` block and the `<h1 class="mw-h1">` text changed.
+- Visually compare first-paint fallback header + hero headline against `/` route in the React app.
