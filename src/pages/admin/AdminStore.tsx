@@ -52,7 +52,7 @@ export default function AdminStore() {
     const newPaths = Array.from(new Set([...(product?.included_file_paths ?? []), path]));
     const { error: dbErr } = await supabase
       .from("store_products")
-      .update({ included_file_paths: newPaths } as never)
+      .update({ included_file_paths: newPaths })
       .eq("id", productId);
     if (dbErr) {
       toast.error(dbErr.message);
@@ -76,7 +76,7 @@ export default function AdminStore() {
     const newUrls = Array.from(new Set([...(product?.preview_image_urls ?? []), pub.publicUrl]));
     const { error: dbErr } = await supabase
       .from("store_products")
-      .update({ preview_image_urls: newUrls } as never)
+      .update({ preview_image_urls: newUrls })
       .eq("id", productId);
     if (dbErr) {
       toast.error(dbErr.message);
@@ -91,7 +91,7 @@ export default function AdminStore() {
     const newUrls = (product?.preview_image_urls ?? []).filter((u) => u !== url);
     await supabase
       .from("store_products")
-      .update({ preview_image_urls: newUrls } as never)
+      .update({ preview_image_urls: newUrls })
       .eq("id", productId);
     toast.success("Preview removed");
     void load();
@@ -103,7 +103,7 @@ export default function AdminStore() {
     const newPaths = (product?.included_file_paths ?? []).filter((p) => p !== path);
     await supabase
       .from("store_products")
-      .update({ included_file_paths: newPaths } as never)
+      .update({ included_file_paths: newPaths })
       .eq("id", productId);
     toast.success("File removed");
     void load();
@@ -117,7 +117,7 @@ export default function AdminStore() {
     }
     const { error } = await supabase
       .from("store_products")
-      .update({ price_cents: newPrice } as never)
+      .update({ price_cents: newPrice })
       .eq("id", productId);
     if (error) {
       toast.error(error.message);
@@ -131,7 +131,7 @@ export default function AdminStore() {
     const text = (guidance[productId] ?? "").trim() || null;
     const { error } = await supabase
       .from("store_products")
-      .update({ buyer_guidance: text } as never)
+      .update({ buyer_guidance: text })
       .eq("id", productId);
     if (error) {
       toast.error(error.message);
