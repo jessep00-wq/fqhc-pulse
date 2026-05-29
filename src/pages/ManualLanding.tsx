@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Helmet } from "react-helmet-async";
 import { SEO } from "@/components/SEO";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,12 +59,10 @@ export default function ManualLanding() {
 
   return (
     <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC] font-sans antialiased">
-      <Helmet>
-        <link
-          href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap"
-          rel="stylesheet"
-        />
-      </Helmet>
+      <link
+        href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap"
+        rel="stylesheet"
+      />
       <SEO
         title="FQHC AthenaOne Operations Manual — $197"
         description="The only operations manual built for FQHCs running AthenaOne. Workflows, CPT codes, macros, SOPs, and staff guides aligned with UDS 2025 and HEDIS MY 2026."

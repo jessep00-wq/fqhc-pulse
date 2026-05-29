@@ -29,6 +29,7 @@ import {
   LineChart,
 } from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
+import { mapStoreBundle, mapStoreProduct } from "@/lib/storeMappers";
 
 interface BundleCopy {
   subhead: string;
@@ -81,19 +82,19 @@ export default function StoreBundleDetail() {
     if (!slug) return;
     (async () => {
       const { data: b } = await supabase
-        .from("store_bundles" as never)
+        .from("store_bundles")
         .select("*")
         .eq("slug", slug)
         .eq("status", "published")
         .maybeSingle();
-      const bundleRow = b as unknown as StoreBundle | null;
+      const bundleRow = b ? mapStoreBundle(b) : null;
       setBundle(bundleRow);
       if (bundleRow?.included_product_ids?.length) {
         const { data: p } = await supabase
-          .from("store_products" as never)
+          .from("store_products")
           .select("*")
           .in("id", bundleRow.included_product_ids);
-        setProducts((p as unknown as StoreProduct[]) ?? []);
+        setProducts((p ?? []).map(mapStoreProduct));
       }
       setLoading(false);
     })();

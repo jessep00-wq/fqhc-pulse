@@ -26,13 +26,17 @@ export default function NetworkDashboard() {
   const [selectedSite, setSelectedSite] = useState<string>("all");
   const [addSiteOpen, setAddSiteOpen] = useState(false);
 
+  // Gate Supabase queries behind tier — free/locked workspaces should not
+  // fire org-scoped network requests before the upgrade banner renders.
+  const queriesEnabled = !!orgId && !isFreeTier;
+
   const { data: sites } = useQuery({
     queryKey: ["sites", orgId],
     queryFn: async () => {
       const { data } = await supabase.from("sites").select("*").eq("organization_id", orgId).order("name");
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   const { data: cycles } = useQuery({
@@ -41,7 +45,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   const { data: tasks } = useQuery({
@@ -50,7 +54,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   const { data: trends } = useQuery({
@@ -59,7 +63,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   if (isFreeTier) {

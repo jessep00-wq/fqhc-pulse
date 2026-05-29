@@ -28,6 +28,7 @@ import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
+import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
 import founderPhoto from "@/assets/founder-jessica.png";
 import {
   LineChart as RechartsLineChart,
@@ -347,15 +348,18 @@ export default function Landing() {
           <div className="relative">
             <div className="absolute -inset-6 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
             <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
-              <img
-                src={dashboardPreview}
-                alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking`}
-                className="w-full"
-                width={1280}
-                height={720}
-                fetchPriority="high"
-                decoding="async"
-              />
+              <picture>
+                <source srcSet={dashboardPreviewWebp} type="image/webp" />
+                <img
+                  src={dashboardPreview}
+                  alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking`}
+                  className="w-full"
+                  width={1280}
+                  height={720}
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </picture>
             </div>
           </div>
         </div>
