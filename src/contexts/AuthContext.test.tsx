@@ -3,15 +3,15 @@ import { render, waitFor } from "@testing-library/react";
 
 type AuthCallback = (event: string, session: unknown) => void;
 const h = vi.hoisted(() => ({
-  h.capturedCb: null as AuthCallback | null,
-  h.invokeMock: vi.fn(),
+  capturedCb: null as AuthCallback | null,
+  invokeMock: vi.fn(),
 }));
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
     auth: {
       onAuthStateChange: (cb: AuthCallback) => {
-        h.h.capturedCb = cb;
+        h.capturedCb = cb;
         return { data: { subscription: { unsubscribe: () => {} } } };
       },
       signOut: vi.fn(),
@@ -19,7 +19,7 @@ vi.mock("@/integrations/supabase/client", () => ({
     from: () => ({
       update: () => ({ eq: () => ({ then: (fn: () => void) => fn() }) }),
     }),
-    functions: { invoke: h.h.invokeMock },
+    functions: { invoke: h.invokeMock },
   },
 }));
 vi.mock("@/lib/trackEvent", () => ({ trackEvent: vi.fn() }));
@@ -42,7 +42,6 @@ describe("AuthContext welcome email flag", () => {
     render(<AuthProvider><div /></AuthProvider>);
     h.capturedCb!("SIGNED_IN", SESSION);
 
-    // Not set synchronously — must wait for the promise to resolve.
     expect(window.localStorage.getItem(WELCOME_KEY)).toBeNull();
     await waitFor(() => {
       expect(window.localStorage.getItem(WELCOME_KEY)).toBe("1");
@@ -55,7 +54,6 @@ describe("AuthContext welcome email flag", () => {
     render(<AuthProvider><div /></AuthProvider>);
     h.capturedCb!("SIGNED_IN", SESSION);
     await waitFor(() => expect(h.invokeMock).toHaveBeenCalled());
-    // Give the promise microtask a tick.
     await new Promise((r) => setTimeout(r, 0));
     expect(window.localStorage.getItem(WELCOME_KEY)).toBeNull();
   });
