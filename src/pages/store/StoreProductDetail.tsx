@@ -161,7 +161,7 @@ export default function StoreProductDetail() {
                   <p className="text-sm text-muted-foreground">One-time purchase · instant download</p>
                 </div>
                 {(() => {
-                  const comingSoon = product.is_coming_soon || (product.included_file_paths?.length ?? 0) === 0;
+                  const comingSoon = product.is_coming_soon || (product.file_count ?? 0) === 0;
                   return (
                     <>
                       <BuyButton

@@ -6,7 +6,7 @@ import { formatPrice, type StoreProduct } from "@/types/store";
 
 export function ProductCard({ product }: { product: StoreProduct }) {
   const audience = (product.who_its_for ?? []).slice(0, 2).join(" · ");
-  const fileCount = product.included_file_paths?.length ?? 0;
+  const fileCount = product.file_count ?? 0;
   const firstDeliverable = product.whats_inside?.[0];
 
   return (
