@@ -212,9 +212,9 @@ export default function AdminStore() {
               </div>
 
               <div>
-                <Label className="text-xs">Files ({product.included_file_paths?.length ?? 0})</Label>
+                <Label className="text-xs">Files ({(productFiles[product.id] ?? []).length})</Label>
                 <ul className="mt-1 space-y-1">
-                  {(product.included_file_paths ?? []).map((path) => (
+                  {(productFiles[product.id] ?? []).map((path) => (
                     <li key={path} className="flex items-center justify-between text-sm bg-muted px-2 py-1 rounded">
                       <span className="truncate">{path}</span>
                       <Button size="sm" variant="ghost" onClick={() => removeFile(product.id, path)}>
