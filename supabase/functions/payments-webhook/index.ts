@@ -78,13 +78,15 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
       productIds.push(line.catalog_id);
       const { data } = await supabase
         .from("store_products")
-        .select("name, included_file_paths")
+        .select("name")
         .eq("id", line.catalog_id)
         .maybeSingle();
-      if (data) {
-        displayNames.push(data.name as string);
-        filePaths.push(...(((data.included_file_paths as string[] | null) ?? [])));
-      }
+      if (data) displayNames.push(data.name as string);
+      const { data: files } = await supabase
+        .from("store_product_files")
+        .select("file_path")
+        .eq("product_id", line.catalog_id);
+      for (const f of files ?? []) filePaths.push(f.file_path as string);
     } else {
       bundleIds.push(line.catalog_id);
       const { data: bundle } = await supabase
@@ -96,13 +98,11 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
         displayNames.push(bundle.name as string);
         const includedIds = ((bundle.included_product_ids as string[] | null) ?? []);
         if (includedIds.length) {
-          const { data: products } = await supabase
-            .from("store_products")
-            .select("included_file_paths")
-            .in("id", includedIds);
-          for (const p of products ?? []) {
-            filePaths.push(...(((p.included_file_paths as string[] | null) ?? [])));
-          }
+          const { data: files } = await supabase
+            .from("store_product_files")
+            .select("file_path")
+            .in("product_id", includedIds);
+          for (const f of files ?? []) filePaths.push(f.file_path as string);
         }
       }
     }
