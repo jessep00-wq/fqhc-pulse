@@ -34,7 +34,7 @@ export function mapStoreProduct(row: Row): StoreProduct {
     whats_inside: asStringArray(row.whats_inside),
     who_its_for: asStringArray(row.who_its_for),
     uds_framing: asStringOrNull(row.uds_framing),
-    included_file_paths: asStringArray(row.included_file_paths),
+    file_count: asNumber(row.file_count),
     sample_preview_url: asStringOrNull(row.sample_preview_url),
     stripe_price_id: asStringOrNull(row.stripe_price_id),
     sort_order: asNumber(row.sort_order),

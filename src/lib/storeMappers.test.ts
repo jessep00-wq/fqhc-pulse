@@ -18,7 +18,7 @@ describe("mapStoreProduct", () => {
       whats_inside: ["x"],
       who_its_for: ["QI"],
       uds_framing: "frame",
-      included_file_paths: ["path/a.pdf"],
+      file_count: 1,
       sample_preview_url: "https://x/y",
       stripe_price_id: "price_123",
       sort_order: 2,
@@ -29,7 +29,7 @@ describe("mapStoreProduct", () => {
     expect(p.id).toBe("p1");
     expect(p.price_cents).toBe(4900);
     expect(p.bullets).toEqual(["a", "b"]);
-    expect(p.included_file_paths).toEqual(["path/a.pdf"]);
+    expect(p.file_count).toBe(1);
   });
 
   it("applies safe defaults for missing/null fields", () => {
