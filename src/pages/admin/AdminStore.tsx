@@ -23,6 +23,7 @@ interface Order {
 export default function AdminStore() {
   const [products, setProducts] = useState<StoreProduct[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [productFiles, setProductFiles] = useState<Record<string, string[]>>({});
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [guidance, setGuidance] = useState<Record<string, string>>({});
 
@@ -31,12 +32,21 @@ export default function AdminStore() {
   }, []);
 
   async function load() {
-    const [{ data: p }, { data: o }] = await Promise.all([
+    const [{ data: p }, { data: o }, { data: f }] = await Promise.all([
       supabase.from("store_products").select("*").order("sort_order"),
       supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(50),
+      supabase
+        .from("store_product_files")
+        .select("product_id, file_path")
+        .order("sort_order"),
     ]);
     setProducts((p ?? []).map(mapStoreProduct));
     setOrders((o as unknown as Order[]) ?? []);
+    const grouped: Record<string, string[]> = {};
+    for (const row of (f ?? []) as Array<{ product_id: string; file_path: string }>) {
+      (grouped[row.product_id] ||= []).push(row.file_path);
+    }
+    setProductFiles(grouped);
   }
 
   async function handleUpload(productId: string, file: File) {
@@ -48,15 +58,15 @@ export default function AdminStore() {
       toast.error(upErr.message);
       return;
     }
-    const product = products.find((p) => p.id === productId);
-    const newPaths = Array.from(new Set([...(product?.included_file_paths ?? []), path]));
-    const { error: dbErr } = await supabase
-      .from("store_products")
-      .update({ included_file_paths: newPaths })
-      .eq("id", productId);
-    if (dbErr) {
-      toast.error(dbErr.message);
-      return;
+    const existing = productFiles[productId] ?? [];
+    if (!existing.includes(path)) {
+      const { error: dbErr } = await supabase
+        .from("store_product_files")
+        .insert({ product_id: productId, file_path: path, sort_order: existing.length });
+      if (dbErr) {
+        toast.error(dbErr.message);
+        return;
+      }
     }
     toast.success(`Uploaded ${file.name}`);
     void load();
@@ -99,12 +109,11 @@ export default function AdminStore() {
 
   async function removeFile(productId: string, path: string) {
     await supabase.storage.from("product-files").remove([path]);
-    const product = products.find((p) => p.id === productId);
-    const newPaths = (product?.included_file_paths ?? []).filter((p) => p !== path);
     await supabase
-      .from("store_products")
-      .update({ included_file_paths: newPaths })
-      .eq("id", productId);
+      .from("store_product_files")
+      .delete()
+      .eq("product_id", productId)
+      .eq("file_path", path);
     toast.success("File removed");
     void load();
   }
@@ -203,9 +212,9 @@ export default function AdminStore() {
               </div>
 
               <div>
-                <Label className="text-xs">Files ({product.included_file_paths?.length ?? 0})</Label>
+                <Label className="text-xs">Files ({(productFiles[product.id] ?? []).length})</Label>
                 <ul className="mt-1 space-y-1">
-                  {(product.included_file_paths ?? []).map((path) => (
+                  {(productFiles[product.id] ?? []).map((path) => (
                     <li key={path} className="flex items-center justify-between text-sm bg-muted px-2 py-1 rounded">
                       <span className="truncate">{path}</span>
                       <Button size="sm" variant="ghost" onClick={() => removeFile(product.id, path)}>

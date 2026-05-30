@@ -19,7 +19,7 @@ export interface StoreProduct {
   whats_inside: string[];
   who_its_for: string[];
   uds_framing: string | null;
-  included_file_paths: string[];
+  file_count: number;
   sample_preview_url: string | null;
   stripe_price_id: string | null;
   sort_order: number;

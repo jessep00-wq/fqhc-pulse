@@ -35,11 +35,11 @@ async function resolveItem(lookupKey: string) {
   if (item.kind === "product") {
     const { data: prod } = await supabase
       .from("store_products")
-      .select("id, included_file_paths, is_coming_soon")
+      .select("id, file_count, is_coming_soon")
       .eq("slug", item.slug)
       .maybeSingle();
     catalogId = prod?.id ?? null;
-    fileCount = (prod?.included_file_paths as string[] | null)?.length ?? 0;
+    fileCount = (prod?.file_count as number | null) ?? 0;
     comingSoon = !!prod?.is_coming_soon;
   } else {
     const { data: bundle } = await supabase
@@ -52,10 +52,10 @@ async function resolveItem(lookupKey: string) {
     if (ids.length) {
       const { data: prods } = await supabase
         .from("store_products")
-        .select("included_file_paths")
+        .select("file_count")
         .in("id", ids);
       for (const p of prods ?? []) {
-        fileCount += ((p.included_file_paths as string[] | null) ?? []).length;
+        fileCount += (p.file_count as number | null) ?? 0;
       }
     }
   }

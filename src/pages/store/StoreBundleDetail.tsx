@@ -270,7 +270,7 @@ export default function StoreBundleDetail() {
                 </div>
                 {(() => {
                   const totalFiles = products.reduce(
-                    (n, p) => n + (p.included_file_paths?.length ?? 0),
+                    (n, p) => n + (p.file_count ?? 0),
                     0,
                   );
                   const comingSoon = totalFiles === 0;
