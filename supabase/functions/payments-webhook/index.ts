@@ -1,6 +1,7 @@
 // Stripe webhook handler. Fulfills storefront orders (single- and multi-item),
 // syncs SaaS subscriptions, and sends branded confirmation emails.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import Stripe from "https://esm.sh/stripe@22.0.2";
 import {
   createStripeClient,
   getWebhookSecret,
@@ -37,6 +38,14 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
     console.error("Missing email on session", sessionId);
     return;
   }
+
+  // Watermarked-manual flow: provision a one-time download token instead of signed URLs.
+  if (meta.delivery === "watermarked_manual") {
+    await provisionManualDownload(env, session, customerEmail);
+    return;
+  }
+
+
 
   // Parse cart items (multi-item) — fall back to single-item legacy metadata.
   let cartLines: CartLine[] = [];
@@ -138,24 +147,134 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
       },
       { onConflict: "stripe_session_id" },
     )
-    .select("id, email_sent_at")
+    .select("id")
     .maybeSingle();
 
-  if (orderRow && !orderRow.email_sent_at) {
-    await sendPurchaseEmail({
-      to: customerEmail,
-      itemName: displayNames.join(", "),
-      downloadLinks,
-      sessionId: session.id,
-    });
-    await supabase
+  if (orderRow) {
+    // ATOMIC email-send claim: only the request that flips email_sent_at
+    // from NULL to now() actually sends. Stripe webhook retries are safe.
+    const { data: claimed } = await supabase
       .from("orders")
       .update({ email_sent_at: new Date().toISOString() })
-      .eq("id", orderRow.id);
+      .eq("id", orderRow.id)
+      .is("email_sent_at", null)
+      .select("id")
+      .maybeSingle();
+    if (claimed) {
+      await sendPurchaseEmail({
+        to: customerEmail,
+        itemName: displayNames.join(", "),
+        downloadLinks,
+        sessionId: session.id,
+      });
+    }
   }
 }
 
+
+// ── Watermarked manual: one-time download provisioning ──
+
+function generateToken(): string {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// deno-lint-ignore no-explicit-any
+async function provisionManualDownload(env: StripeEnv, session: any, customerEmail: string) {
+  const meta = session.metadata ?? {};
+  const buyerName = (meta.buyer_name as string | undefined) ?? session.customer_details?.name ?? "Customer";
+  const buyerOrg = (meta.buyer_org as string | undefined) ?? "—";
+  const buyerEmail = (meta.buyer_email as string | undefined) ?? customerEmail;
+
+  // ATOMIC provisioning: a single INSERT … ON CONFLICT DO NOTHING.
+  // - On first webhook delivery: inserts the row, returns it -> we email.
+  // - On retry: conflict on stripe_session_id, returns no row -> we skip
+  //   the email entirely (the original send already happened or is in flight).
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  const { data: inserted, error: insertErr } = await supabase
+    .from("manual_downloads")
+    .insert({
+      token,
+      stripe_session_id: session.id,
+      buyer_name: buyerName,
+      buyer_email: buyerEmail,
+      buyer_org: buyerOrg,
+      expires_at: expiresAt,
+    })
+    .select("id")
+    .maybeSingle();
+
+  if (insertErr) {
+    // 23505 = unique_violation on stripe_session_id (idempotent retry).
+    // Any other error is a real failure — log and bail without emailing.
+    if (insertErr.code !== "23505") {
+      console.error("manual_downloads insert failed", insertErr);
+    }
+    return;
+  }
+  if (!inserted) return; // defensive: no row, no email
+
+  // Email contains the persistent token (legacy entry point). The thank-you
+  // page uses the short-lived claim ticket path instead — see get-manual-token.
+  const downloadUrl = `${Deno.env.get("SUPABASE_URL")!}/functions/v1/download-watermarked-manual?token=${encodeURIComponent(token)}`;
+  await sendManualDeliveryEmail({ to: buyerEmail, name: buyerName, org: buyerOrg, downloadUrl });
+}
+
+
+async function sendManualDeliveryEmail(opts: {
+  to: string;
+  name: string;
+  org: string;
+  downloadUrl: string;
+}) {
+  const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+  const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+  if (!RESEND_API_KEY || !LOVABLE_API_KEY) return;
+
+  const html = renderEmailShell({
+    title: `Your AthenaOne Operations Manual is ready`,
+    bodyHtml: `
+      <p style="font-size:15px;line-height:1.6;color:#334155;margin:0 0 16px">
+        Thanks ${escapeHtml(opts.name)} — your personalized copy of the
+        <strong>MeasureWise FQHC AthenaOne Operations Manual</strong> is ready to download.
+      </p>
+      <p style="margin:24px 0;text-align:center">
+        <a href="${opts.downloadUrl}" style="display:inline-block;background:#1a8a9b;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:15px">⬇ Download your manual</a>
+      </p>
+      <p style="font-size:13px;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;padding:10px 14px;border-radius:6px;margin:16px 0">
+        ⚠ This link expires after the first successful download or 24 hours, whichever comes first. Save the PDF locally as soon as it opens.
+      </p>
+      <p style="font-size:13px;color:#64748b;line-height:1.6;margin-top:24px">
+        Your PDF is watermarked on every page with your name and organization
+        (<strong>${escapeHtml(opts.org)}</strong>) — licensed for internal use by your purchasing organization only.
+      </p>
+      <p style="font-size:13px;color:#475569;margin-top:24px">— The MeasureWise team</p>
+    `,
+  });
+
+  await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": RESEND_API_KEY,
+    },
+    body: JSON.stringify({
+      from: "MeasureWise <hello@measurewise.org>",
+      to: [opts.to],
+      subject: "Your AthenaOne Operations Manual — download link inside",
+      html,
+      tags: [{ name: "category", value: "manual_delivery" }],
+    }),
+  }).catch((err) => console.warn("manual delivery email failed", err));
+}
+
 async function sendPurchaseEmail(opts: {
+
   to: string;
   itemName: string;
   downloadLinks: Array<{ name: string; url: string }>;
@@ -376,23 +495,33 @@ async function markSubscriptionDeleted(env: StripeEnv, subscriptionId: string) {
 // ─────────────────────────────  Server  ─────────────────────────────
 
 Deno.serve(async (req) => {
-  const url = new URL(req.url);
-  const env: StripeEnv = url.searchParams.get("env") === "live" ? "live" : "sandbox";
-
   const sig = req.headers.get("stripe-signature");
   if (!sig) return new Response("Missing signature", { status: 400 });
 
   const body = await req.text();
-  const secret = getWebhookSecret(env);
-  const stripe = createStripeClient(env);
 
-  let event;
-  try {
-    event = await stripe.webhooks.constructEventAsync(body, sig, secret);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Invalid signature";
-    console.error("Webhook signature failed", message);
-    return new Response(`Webhook Error: ${message}`, { status: 400 });
+  // SECURITY: do NOT trust ?env=. Determine env by trying both secrets and
+  // accepting whichever signature actually verifies. This prevents a
+  // sandbox-signed event from triggering live fulfillment via ?env=live.
+  // Try live first (more dangerous if mis-routed), then sandbox.
+  const tryEnvs: StripeEnv[] = ["live", "sandbox"];
+  let event: Stripe.Event | null = null;
+  let env: StripeEnv | null = null;
+  let lastErr: string = "";
+  for (const candidate of tryEnvs) {
+    try {
+      const stripe = createStripeClient(candidate);
+      const secret = getWebhookSecret(candidate);
+      event = await stripe.webhooks.constructEventAsync(body, sig, secret);
+      env = candidate;
+      break;
+    } catch (err) {
+      lastErr = err instanceof Error ? err.message : "Invalid signature";
+    }
+  }
+  if (!event || !env) {
+    console.error("Webhook signature failed against both envs:", lastErr);
+    return new Response(`Webhook Error: ${lastErr}`, { status: 400 });
   }
 
   try {
@@ -429,3 +558,4 @@ Deno.serve(async (req) => {
 
   return new Response("ok", { status: 200 });
 });
+

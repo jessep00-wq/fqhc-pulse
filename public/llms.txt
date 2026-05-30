@@ -14,6 +14,7 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 - [Contact](/contact): Get in touch with the MeasureWise team.
 - [Status](/status): System uptime and incident history.
 - [Security & Compliance](/security): TLS 1.2+, AES-256, aggregate UDS data only, no PHI stored.
+- [AthenaOne Operations Manual](/manual): $197 one-time PDF — FQHC AthenaOne workflows, CPT codes, macros, SOPs.
 
 ## Features
 

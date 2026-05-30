@@ -13,24 +13,29 @@ import { toast } from "sonner";
 import type { Newsletter, NewsletterSection } from "@/types/newsletter";
 import { Logo } from "@/components/Logo";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default function NewsletterDetail() {
-  const { id } = useParams<{ id: string }>();
+  // Route is /newsletter/:slug — `slug` param doubles as a legacy UUID fallback.
+  const { slug } = useParams<{ slug: string }>();
 
   const { data: newsletter, isLoading } = useQuery({
-    queryKey: ["newsletter-detail", id],
+    queryKey: ["newsletter-detail", slug],
     queryFn: async () => {
+      const column = slug && UUID_RE.test(slug) ? "id" : "slug";
       const { data, error } = await supabase
         .from("newsletters")
         .select("*")
-        .eq("id", id!)
-        .single();
+        .eq(column, slug!)
+        .maybeSingle();
       if (error) throw error;
+      if (!data) return null;
       return {
         ...data,
         sections: (data.sections as unknown as NewsletterSection[]) || [],
       } as Newsletter;
     },
-    enabled: !!id,
+    enabled: !!slug,
   });
 
   const copyLink = () => {

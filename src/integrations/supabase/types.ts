@@ -255,6 +255,54 @@ export type Database = {
         }
         Relationships: []
       }
+      manual_downloads: {
+        Row: {
+          buyer_email: string
+          buyer_name: string
+          buyer_org: string
+          claim_ticket: string | null
+          claim_ticket_expires_at: string | null
+          created_at: string
+          download_ip: string | null
+          downloaded_at: string | null
+          expires_at: string
+          id: string
+          paid_at: string
+          stripe_session_id: string
+          token: string
+        }
+        Insert: {
+          buyer_email: string
+          buyer_name: string
+          buyer_org: string
+          claim_ticket?: string | null
+          claim_ticket_expires_at?: string | null
+          created_at?: string
+          download_ip?: string | null
+          downloaded_at?: string | null
+          expires_at: string
+          id?: string
+          paid_at?: string
+          stripe_session_id: string
+          token: string
+        }
+        Update: {
+          buyer_email?: string
+          buyer_name?: string
+          buyer_org?: string
+          claim_ticket?: string | null
+          claim_ticket_expires_at?: string | null
+          created_at?: string
+          download_ip?: string | null
+          downloaded_at?: string | null
+          expires_at?: string
+          id?: string
+          paid_at?: string
+          stripe_session_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -288,6 +336,8 @@ export type Database = {
           id: string
           published_at: string | null
           sections: Json
+          sent_count: number
+          slug: string
           status: string
           subtitle: string | null
           title: string
@@ -301,6 +351,8 @@ export type Database = {
           id?: string
           published_at?: string | null
           sections?: Json
+          sent_count?: number
+          slug: string
           status?: string
           subtitle?: string | null
           title: string
@@ -314,6 +366,8 @@ export type Database = {
           id?: string
           published_at?: string | null
           sections?: Json
+          sent_count?: number
+          slug?: string
           status?: string
           subtitle?: string | null
           title?: string
@@ -427,6 +481,7 @@ export type Database = {
           id: string
           is_test: boolean
           name: string
+          notes: string | null
           npi: string | null
           onboarding_status: string
           org_type: string | null
@@ -445,6 +500,7 @@ export type Database = {
           id?: string
           is_test?: boolean
           name: string
+          notes?: string | null
           npi?: string | null
           onboarding_status?: string
           org_type?: string | null
@@ -463,6 +519,7 @@ export type Database = {
           id?: string
           is_test?: boolean
           name?: string
+          notes?: string | null
           npi?: string | null
           onboarding_status?: string
           org_type?: string | null
@@ -1156,6 +1213,7 @@ export type Database = {
         }[]
       }
       seed_demo_data: { Args: { org_id: string }; Returns: undefined }
+      slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
       app_role:

@@ -12,6 +12,7 @@ import { PreviewGallery } from "@/components/store/PreviewGallery";
 import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import { CheckCircle, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreProduct } from "@/types/store";
+import { mapStoreProduct } from "@/lib/storeMappers";
 
 export default function StoreProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -22,12 +23,12 @@ export default function StoreProductDetail() {
     if (!slug) return;
     (async () => {
       const { data } = await supabase
-        .from("store_products" as never)
+        .from("store_products")
         .select("*")
         .eq("slug", slug)
         .eq("status", "published")
         .maybeSingle();
-      setProduct((data as unknown as StoreProduct) ?? null);
+      setProduct(data ? mapStoreProduct(data) : null);
       setLoading(false);
     })();
   }, [slug]);

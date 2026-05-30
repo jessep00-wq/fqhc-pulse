@@ -9,6 +9,10 @@ project_id = "eeyigxcwewdqfeidqbxk"
     verify_jwt = false
   [functions.create-subscription-checkout]
     verify_jwt = false
+  [functions.download-watermarked-manual]
+    verify_jwt = false
+  [functions.get-manual-token]
+    verify_jwt = false
   [functions.get-order]
     verify_jwt = false
   [functions.payments-webhook]
@@ -16,4 +20,26 @@ project_id = "eeyigxcwewdqfeidqbxk"
   [functions.process-email-queue]
     verify_jwt = true
   [functions.resend-purchase-email]
+    verify_jwt = false
+  [functions.contact-form]
+    verify_jwt = false
+  [functions.capture-playbook-lead]
+    verify_jwt = false
+  [functions.newsletter-unsubscribe]
+    verify_jwt = false
+  [functions.check-task-deadlines]
+    verify_jwt = false
+  [functions.weekly-digest]
+    verify_jwt = false
+  [functions.ai-root-cause]
+    verify_jwt = false
+  [functions.send-newsletter]
+    verify_jwt = false
+  [functions.send-playbook-followups]
+    verify_jwt = false
+  [functions.compute-account-health]
+    verify_jwt = false
+  [functions.send-welcome-email]
+    verify_jwt = false
+  [functions.send-email]
     verify_jwt = false

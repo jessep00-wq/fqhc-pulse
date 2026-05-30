@@ -8,7 +8,10 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Eye, Pencil, Archive, ArchiveRestore, Trash2 } from "lucide-react";
+import { MoreHorizontal, Eye, Pencil, Archive, ArchiveRestore, Trash2, BadgeCheck, CalendarClock } from "lucide-react";
+import { EditOrgDialog } from "./EditOrgDialog";
+import { ConvertToPaidDialog } from "./ConvertToPaidDialog";
+import { ExtendTrialDialog } from "./ExtendTrialDialog";
 
 interface Props {
   orgId: string;
@@ -22,6 +25,9 @@ interface Props {
 export function OrgActionsMenu({ orgId, orgName, isArchived, onArchive, onUnarchive, onDelete }: Props) {
   const navigate = useNavigate();
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [extendOpen, setExtendOpen] = useState(false);
 
   return (
     <>
@@ -35,8 +41,15 @@ export function OrgActionsMenu({ orgId, orgName, isArchived, onArchive, onUnarch
           <DropdownMenuItem onClick={() => navigate(`/admin/account/${orgId}`)}>
             <Eye className="mr-2 h-4 w-4" /> View
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => navigate(`/admin/account/${orgId}`)}>
+          <DropdownMenuItem onClick={() => setEditOpen(true)}>
             <Pencil className="mr-2 h-4 w-4" /> Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={() => setConvertOpen(true)}>
+            <BadgeCheck className="mr-2 h-4 w-4" /> Convert to paid
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setExtendOpen(true)}>
+            <CalendarClock className="mr-2 h-4 w-4" /> Extend trial
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           {isArchived ? (
@@ -56,6 +69,10 @@ export function OrgActionsMenu({ orgId, orgName, isArchived, onArchive, onUnarch
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <EditOrgDialog orgId={editOpen ? orgId : null} open={editOpen} onOpenChange={setEditOpen} />
+      <ConvertToPaidDialog orgId={convertOpen ? orgId : null} orgName={orgName} open={convertOpen} onOpenChange={setConvertOpen} />
+      <ExtendTrialDialog orgId={extendOpen ? orgId : null} orgName={orgName} open={extendOpen} onOpenChange={setExtendOpen} />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>

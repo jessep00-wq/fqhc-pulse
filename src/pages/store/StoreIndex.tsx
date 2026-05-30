@@ -14,6 +14,7 @@ import {
   type StoreProduct,
   type StoreCategory,
 } from "@/types/store";
+import { mapStoreBundle, mapStoreProduct } from "@/lib/storeMappers";
 
 export default function StoreIndex() {
   const [products, setProducts] = useState<StoreProduct[]>([]);
@@ -25,18 +26,18 @@ export default function StoreIndex() {
     (async () => {
       const [{ data: p }, { data: b }] = await Promise.all([
         supabase
-          .from("store_products" as never)
+          .from("store_products")
           .select("*")
           .eq("status", "published")
           .order("sort_order"),
         supabase
-          .from("store_bundles" as never)
+          .from("store_bundles")
           .select("*")
           .eq("status", "published")
           .order("sort_order"),
       ]);
-      setProducts((p as unknown as StoreProduct[]) ?? []);
-      setBundles((b as unknown as StoreBundle[]) ?? []);
+      setProducts((p ?? []).map(mapStoreProduct));
+      setBundles((b ?? []).map(mapStoreBundle));
       setLoading(false);
     })();
   }, []);
@@ -54,7 +55,7 @@ export default function StoreIndex() {
   return (
     <PublicPageLayout>
       <SEO
-        title="UDS templates and audit tools for FQHC quality teams"
+        title="UDS Templates and FQHC Audit Tools"
         description="HRSA audit binder templates, FQHC PDSA cycle templates, QI committee packets, and board quality report templates — instant download, built by an FQHC Quality Director."
         canonical="https://measurewise.org/store"
       />

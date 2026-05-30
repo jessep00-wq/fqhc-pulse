@@ -41,16 +41,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             .eq("id", userId)
             .then(() => {});
 
-          // Send welcome email exactly once per user. Guard via localStorage key
-          // so password resets / re-logins don't re-trigger it.
+          // Send welcome email exactly once per user. Set the localStorage flag
+          // only after the function call resolves successfully, so a crash or
+          // network failure doesn't permanently suppress the email.
           const welcomeKey = `mw_welcome_sent_${userId}`;
           if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
-            window.localStorage.setItem(welcomeKey, "1");
             supabase.functions
               .invoke("send-welcome-email", { body: { user_id: userId } })
+              .then(({ error }) => {
+                if (!error) window.localStorage.setItem(welcomeKey, "1");
+              })
               .catch(() => {
-                // Non-blocking — clear the marker so a retry can happen on next login.
-                window.localStorage.removeItem(welcomeKey);
+                // Swallow — flag not set, so a retry happens on next login.
               });
           }
         }
@@ -61,16 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Note: onAuthStateChange fires an INITIAL_SESSION event on mount,
+    // so we do not call getSession() — avoids a logged-out flash race.
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
+    resetPostHog();
     await supabase.auth.signOut();
   };
 

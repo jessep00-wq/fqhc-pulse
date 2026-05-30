@@ -117,7 +117,7 @@ export default function StoreSuccess() {
               </div>
             ) : null}
 
-            {!loading && order?.status !== "paid" ? (
+            {!loading && order && order.status !== "paid" ? (
               <div className="space-y-2 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
                 <p className="font-semibold">Payment received — your files are still processing.</p>
                 <p>
@@ -125,6 +125,20 @@ export default function StoreSuccess() {
                   address you used at checkout. If they don't arrive within a few minutes, click
                   <strong> Re-send the email</strong> below, or reply to your purchase email and
                   we'll respond within one business day.
+                </p>
+              </div>
+            ) : null}
+
+            {!loading && !order ? (
+              <div className="space-y-2 rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+                <p className="font-semibold text-foreground">We couldn't locate your order.</p>
+                <p>
+                  If you just completed checkout, the receipt and download links were emailed to the
+                  address you used. Still nothing? Email{" "}
+                  <a href="mailto:support@measurewise.org" className="text-primary underline">
+                    support@measurewise.org
+                  </a>{" "}
+                  and we'll sort it out within one business day.
                 </p>
               </div>
             ) : null}
