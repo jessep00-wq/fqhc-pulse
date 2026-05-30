@@ -793,6 +793,38 @@ export type Database = {
         }
         Relationships: []
       }
+      store_product_files: {
+        Row: {
+          created_at: string
+          file_path: string
+          id: string
+          product_id: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          file_path: string
+          id?: string
+          product_id: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          file_path?: string
+          id?: string
+          product_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_product_files_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_products: {
         Row: {
           bullets: Json
@@ -800,9 +832,9 @@ export type Database = {
           category: string
           created_at: string
           currency: string
+          file_count: number
           hero_emoji: string | null
           id: string
-          included_file_paths: string[]
           is_coming_soon: boolean
           long_description: string | null
           name: string
@@ -826,9 +858,9 @@ export type Database = {
           category: string
           created_at?: string
           currency?: string
+          file_count?: number
           hero_emoji?: string | null
           id?: string
-          included_file_paths?: string[]
           is_coming_soon?: boolean
           long_description?: string | null
           name: string
@@ -852,9 +884,9 @@ export type Database = {
           category?: string
           created_at?: string
           currency?: string
+          file_count?: number
           hero_emoji?: string | null
           id?: string
-          included_file_paths?: string[]
           is_coming_soon?: boolean
           long_description?: string | null
           name?: string
