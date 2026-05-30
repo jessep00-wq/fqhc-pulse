@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
+import { AddToCartButton } from "@/components/store/AddToCartButton";
 import { PreviewGallery } from "@/components/store/PreviewGallery";
 import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import {
@@ -28,6 +29,7 @@ import {
   LineChart,
 } from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
+import { mapStoreBundle, mapStoreProduct } from "@/lib/storeMappers";
 
 interface BundleCopy {
   subhead: string;
@@ -80,19 +82,19 @@ export default function StoreBundleDetail() {
     if (!slug) return;
     (async () => {
       const { data: b } = await supabase
-        .from("store_bundles" as never)
+        .from("store_bundles")
         .select("*")
         .eq("slug", slug)
         .eq("status", "published")
         .maybeSingle();
-      const bundleRow = b as unknown as StoreBundle | null;
+      const bundleRow = b ? mapStoreBundle(b) : null;
       setBundle(bundleRow);
       if (bundleRow?.included_product_ids?.length) {
         const { data: p } = await supabase
-          .from("store_products" as never)
+          .from("store_products")
           .select("*")
           .in("id", bundleRow.included_product_ids);
-        setProducts((p as unknown as StoreProduct[]) ?? []);
+        setProducts((p ?? []).map(mapStoreProduct));
       }
       setLoading(false);
     })();
@@ -136,6 +138,19 @@ export default function StoreBundleDetail() {
         title={`${bundle.name} — MeasureWise Store`}
         description={bundle.short_description ?? bundle.name}
         canonical={`https://measurewise.org/store/bundle/${bundle.slug}`}
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Product",
+          name: bundle.name,
+          description: bundle.short_description ?? bundle.name,
+          offers: {
+            "@type": "Offer",
+            price: (bundle.price_cents / 100).toFixed(2),
+            priceCurrency: bundle.currency,
+            availability: "https://schema.org/InStock",
+            url: `https://measurewise.org/store/bundle/${bundle.slug}`,
+          },
+        }}
       />
 
       <article className="max-w-5xl mx-auto px-6 py-10">
@@ -253,7 +268,38 @@ export default function StoreBundleDetail() {
                   </div>
                   <p className="text-sm text-muted-foreground">One-time purchase · all files delivered together</p>
                 </div>
-                <BuyButton priceId={bundle.stripe_price_id} className="w-full" label={`Buy ${bundle.name}`} />
+                {(() => {
+                  const totalFiles = products.reduce(
+                    (n, p) => n + (p.included_file_paths?.length ?? 0),
+                    0,
+                  );
+                  const comingSoon = totalFiles === 0;
+                  return (
+                    <>
+                      <BuyButton
+                        priceId={bundle.stripe_price_id}
+                        className="w-full"
+                        label={`Buy ${bundle.name}`}
+                        disabledReason={comingSoon ? "Coming soon" : null}
+                      />
+                      {!comingSoon && bundle.stripe_price_id && (
+                        <AddToCartButton
+                          className="w-full"
+                          variant="outline"
+                          item={{
+                            lookupKey: bundle.stripe_price_id,
+                            name: bundle.name,
+                            priceCents: bundle.price_cents,
+                            currency: bundle.currency,
+                            kind: "bundle",
+                            slug: bundle.slug,
+                            heroEmoji: bundle.hero_emoji,
+                          }}
+                        />
+                      )}
+                    </>
+                  );
+                })()}
                 <Separator />
                 <DeliverablesList items={copy.deliverables} compact />
                 <Separator />

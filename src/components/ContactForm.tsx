@@ -200,7 +200,7 @@ export default function ContactForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="contact-role">Your role *</Label>
-          <Select value={form.role} onValueChange={(v) => update("role", v)}>
+          <Select name="role" value={form.role} onValueChange={(v) => update("role", v)}>
             <SelectTrigger id="contact-role">
               <SelectValue placeholder="Select your role" />
             </SelectTrigger>
@@ -219,7 +219,7 @@ export default function ContactForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="contact-size">Patient panel size</Label>
-          <Select value={form.fqhcSize} onValueChange={(v) => update("fqhcSize", v)}>
+          <Select name="fqhcSize" value={form.fqhcSize} onValueChange={(v) => update("fqhcSize", v)}>
             <SelectTrigger id="contact-size">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
@@ -234,7 +234,7 @@ export default function ContactForm() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="contact-sites">Number of sites</Label>
-          <Select value={form.numberOfSites} onValueChange={(v) => update("numberOfSites", v)}>
+          <Select name="numberOfSites" value={form.numberOfSites} onValueChange={(v) => update("numberOfSites", v)}>
             <SelectTrigger id="contact-sites">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
@@ -252,7 +252,7 @@ export default function ContactForm() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor="contact-emr">EMR / EHR system</Label>
-          <Select value={form.emr} onValueChange={(v) => update("emr", v)}>
+          <Select name="emr" value={form.emr} onValueChange={(v) => update("emr", v)}>
             <SelectTrigger id="contact-emr">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
@@ -279,7 +279,7 @@ export default function ContactForm() {
         )}
         <div className="space-y-2">
           <Label htmlFor="contact-timeline">Timeline</Label>
-          <Select value={form.timeline} onValueChange={(v) => update("timeline", v)}>
+          <Select name="timeline" value={form.timeline} onValueChange={(v) => update("timeline", v)}>
             <SelectTrigger id="contact-timeline">
               <SelectValue placeholder="Optional" />
             </SelectTrigger>
@@ -295,8 +295,10 @@ export default function ContactForm() {
       </div>
 
       {/* Interests */}
-      <div className="space-y-2">
-        <Label>What are you interested in? (select all that apply)</Label>
+      <fieldset className="space-y-2 border-0 p-0 m-0">
+        <legend className="text-sm font-medium text-foreground">
+          What are you interested in? (select all that apply)
+        </legend>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
           {INTERESTS.map((interest) => {
             const id = `interest-${interest.replace(/\s+/g, "-")}`;
@@ -317,7 +319,7 @@ export default function ContactForm() {
             );
           })}
         </div>
-      </div>
+      </fieldset>
 
       {/* Message */}
       <div className="space-y-2">

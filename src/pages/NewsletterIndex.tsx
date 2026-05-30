@@ -26,14 +26,15 @@ export default function NewsletterIndex() {
 
   return (
     <PublicPageLayout>
-      <SEO title="Newsletter — MeasureWise" description="Weekly quality improvement insights for FQHC teams. Subscribe to get actionable PDSA, UDS, and compliance strategies." />
+      <SEO title="FQHC quality improvement newsletter" description="A weekly newsletter for FQHC Quality Directors covering UDS-aligned PDSA, HRSA-ready documentation, and SPC chart analysis on real UDS measures." canonical="https://measurewise.org/newsletter" />
       <div className="max-w-3xl mx-auto px-6 py-16">
         {/* Hero */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-3">FQHC Quality Newsletter</h1>
+          <h1 className="text-4xl font-bold mb-3">FQHC quality improvement newsletter</h1>
           <p className="text-lg text-muted-foreground mb-8 max-w-xl mx-auto">
-            Weekly insights on PDSA cycles, UDS measures, and compliance — written for Quality Directors who link clinical improvement to funding outcomes.
+            A weekly briefing on UDS-aligned PDSA, HRSA-ready documentation, and SPC charts — written for Quality Directors who connect clinical improvement to funding outcomes.
           </p>
+
           <SubscribeForm className="mx-auto justify-center" />
         </div>
 

@@ -1,0 +1,1 @@
+REVOKE SELECT (included_file_paths) ON public.store_products FROM anon, authenticated, PUBLIC;

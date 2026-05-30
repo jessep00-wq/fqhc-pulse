@@ -37,11 +37,12 @@ export default function About() {
   return (
     <PublicPageLayout>
       <SEO
-        title="About Jessica Smith, RN — Founder of MeasureWise"
-        description="Jessica Smith, RN, BSN — FQHC Quality, Risk, and Data Integrity leader and founder of MeasureWise. Building QI systems that work in real clinic life."
+        title="About MeasureWise and founder Jessica Smith, BSN"
+        description="MeasureWise is the FQHC quality operations platform built by Jessica R. Smith, BSN — a working FQHC Quality Director — to link UDS-aligned PDSA cycles, HRSA documentation, and SPC analysis in one place."
         canonical="https://measurewise.org/about"
         jsonLd={personJsonLd}
       />
+
 
       <section className="py-16 px-6 border-b border-border bg-card/30">
         <div className="max-w-4xl mx-auto space-y-4">

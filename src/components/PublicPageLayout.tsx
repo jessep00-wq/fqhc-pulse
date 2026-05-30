@@ -2,7 +2,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { BRAND, copyright } from "@/lib/brand";
+
+
+import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
+import { CartButton } from "@/components/store/CartButton";
+import { CartDrawer } from "@/components/store/CartDrawer";
 
 interface PublicPageLayoutProps {
   children: React.ReactNode;
@@ -13,44 +18,51 @@ interface PublicPageLayoutProps {
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
     <div className="min-h-screen bg-background">
-      <PaymentTestModeBanner />
+      
+      <ExitIntentPlaybookDialog />
+      <CartDrawer />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-6">
           <Link to="/" className="flex items-center">
             <Logo size="md" />
           </Link>
-          <div className="flex items-center gap-3">
-            {!slimNav && (
-              <>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/features/pdsa-cycle-manager">Features</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/how-it-works">How It Works</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/case-studies">Case Studies</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/blog">Blog</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/newsletter">Newsletter</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/about">About</Link>
-                </Button>
-                <Button variant="ghost" asChild className="hidden sm:inline-flex">
-                  <Link to="/pricing">Pricing</Link>
-                </Button>
-              </>
-            )}
-            <Button variant="ghost" asChild>
+
+          {!slimNav ? (
+            <nav className="justify-self-center hidden lg:flex items-center gap-1 text-sm">
+              {[
+                { to: "/features/pdsa-cycle-manager", label: "Features" },
+                { to: "/how-it-works", label: "How It Works" },
+                { to: "/case-studies", label: "Case Studies" },
+                { to: "/blog", label: "Blog" },
+                { to: "/newsletter", label: "Newsletter" },
+                { to: "/store", label: "Store" },
+                { to: "/about", label: "About" },
+                { to: "/pricing", label: "Pricing" },
+              ].map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className="px-2.5 py-2 font-medium text-muted-foreground hover:text-foreground rounded-md transition-colors"
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          ) : (
+            <span />
+          )}
+
+          <div className="justify-self-end flex items-center gap-2">
+            <CartButton />
+            <Button variant="ghost" size="sm" asChild>
               <Link to="/auth">Sign In</Link>
             </Button>
             {!slimNav && (
-              <Button asChild>
-                <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+              <Button size="sm" asChild className="ml-1 px-4 font-semibold shadow-sm whitespace-nowrap">
+                <Link to="/auth?signup=true">
+                  Start 14-day free trial
+                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Link>
               </Button>
             )}
           </div>
@@ -110,6 +122,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <ul className="space-y-1.5 text-muted-foreground">
                 <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">Features</Link></li>
                 <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                <li><Link to="/store" className="hover:text-foreground transition-colors">Store</Link></li>
                 <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How it works</Link></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">Status</Link></li>
               </ul>
@@ -123,7 +136,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><a href="mailto:support@measurewise.org" className="hover:text-foreground transition-colors">support@measurewise.org</a></li>
+                <li><a href={`mailto:${BRAND.supportEmail}`} className="hover:text-foreground transition-colors">{BRAND.supportEmail}</a></li>
               </ul>
             </div>
 
@@ -140,11 +153,12 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
 
           <div className="mt-10 pt-6 border-t border-border flex flex-col md:flex-row gap-3 justify-between items-start md:items-center text-xs text-muted-foreground">
             <p>
-              © {new Date().getFullYear()} MeasureWise. All rights reserved. · Fulton, MS
+              {copyright()} · {BRAND.legalLocation}
             </p>
             <p>
-              Built by Jessica R. Smith, BSN — FQHC Quality Director
+              Built by {BRAND.founder.formalName} — FQHC Quality Director
             </p>
+
           </div>
         </div>
       </footer>

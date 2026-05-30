@@ -1,13 +1,30 @@
-import { useQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, Pencil, BadgeCheck, CalendarClock } from "lucide-react";
+import { toast } from "sonner";
+import { getStripeEnvironment } from "@/lib/stripe";
+import { EditOrgDialog } from "@/components/admin/EditOrgDialog";
+import { ConvertToPaidDialog } from "@/components/admin/ConvertToPaidDialog";
+import { ExtendTrialDialog } from "@/components/admin/ExtendTrialDialog";
+
+function daysBetween(future: Date) {
+  return Math.ceil((future.getTime() - Date.now()) / 86_400_000);
+}
 
 export default function AdminAccountDetail() {
   const { orgId } = useParams<{ orgId: string }>();
+  const qc = useQueryClient();
+  const env = getStripeEnvironment();
+
+  const [editOpen, setEditOpen] = useState(false);
+  const [convertOpen, setConvertOpen] = useState(false);
+  const [extendOpen, setExtendOpen] = useState(false);
 
   const { data: org } = useQuery({
     queryKey: ["admin_org_detail", orgId],
@@ -19,9 +36,16 @@ export default function AdminAccountDetail() {
   });
 
   const { data: sub } = useQuery({
-    queryKey: ["admin_org_sub", orgId],
+    queryKey: ["admin_org_sub", orgId, env],
     queryFn: async () => {
-      const { data } = await supabase.from("subscriptions").select("*").eq("organization_id", orgId!).single();
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("organization_id", orgId!)
+        .eq("environment", env)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
       return data;
     },
     enabled: !!orgId,
@@ -64,6 +88,28 @@ export default function AdminAccountDetail() {
     enabled: !!orgId,
   });
 
+  // Notes auto-save
+  const [notes, setNotes] = useState("");
+  const [savedAt, setSavedAt] = useState<Date | null>(null);
+  useEffect(() => {
+    if (org) setNotes((org as any).notes ?? "");
+  }, [org?.id]);
+
+  const notesMutation = useMutation({
+    mutationFn: async (text: string) => {
+      const { error } = await supabase
+        .from("organizations")
+        .update({ notes: text || null } as any)
+        .eq("id", orgId!);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      setSavedAt(new Date());
+      qc.invalidateQueries({ queryKey: ["admin_org_detail", orgId] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
   if (!org) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -72,17 +118,46 @@ export default function AdminAccountDetail() {
     );
   }
 
+  const trialEnd = sub?.trial_end ? new Date(sub.trial_end) : null;
+  const trialDays = trialEnd ? daysBetween(trialEnd) : null;
+  const isTrialing = sub?.status === "trialing";
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/admin/adoption">
+      <div className="flex flex-wrap items-center gap-4">
+        <Link to="/admin">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <div>
-          <h1 className="text-2xl font-bold">{org.name}</h1>
-          <p className="text-muted-foreground">NPI: {org.npi ?? "—"}</p>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-2xl font-bold">{org.name}</h1>
+            {isTrialing && trialDays !== null && (
+              <Badge variant="secondary" className={
+                trialDays <= 0 ? "bg-red-100 text-red-800"
+                : trialDays <= 7 ? "bg-red-100 text-red-800"
+                : trialDays <= 14 ? "bg-amber-100 text-amber-800"
+                : "bg-blue-100 text-blue-800"
+              }>
+                {trialDays <= 0 ? "Trial expired" : `Trial ends in ${trialDays}d`}
+              </Badge>
+            )}
+          </div>
+          <p className="text-muted-foreground text-sm">NPI: {org.npi ?? "—"}</p>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={() => setEditOpen(true)} className="gap-1.5">
+            <Pencil className="h-4 w-4" /> Edit
+          </Button>
+          {isTrialing && (
+            <Button variant="outline" size="sm" onClick={() => setExtendOpen(true)} className="gap-1.5">
+              <CalendarClock className="h-4 w-4" /> Extend trial
+            </Button>
+          )}
+          <Button size="sm" onClick={() => setConvertOpen(true)} className="gap-1.5">
+            <BadgeCheck className="h-4 w-4" /> Convert to paid
+          </Button>
         </div>
       </div>
 
@@ -113,6 +188,29 @@ export default function AdminAccountDetail() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Founder Notes */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">Founder Notes</CardTitle>
+            <span className="text-xs text-muted-foreground">
+              {notesMutation.isPending ? "Saving…" : savedAt ? `Saved ${savedAt.toLocaleTimeString()}` : "Auto-saves on blur"}
+            </span>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Textarea
+            rows={5}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            onBlur={() => {
+              if (notes !== ((org as any).notes ?? "")) notesMutation.mutate(notes);
+            }}
+            placeholder="Call notes, next steps, renewal conversations, contract details…"
+          />
+        </CardContent>
+      </Card>
 
       {/* Users */}
       <Card>
@@ -212,6 +310,10 @@ export default function AdminAccountDetail() {
           )}
         </CardContent>
       </Card>
+
+      <EditOrgDialog orgId={editOpen ? (orgId ?? null) : null} open={editOpen} onOpenChange={setEditOpen} />
+      <ConvertToPaidDialog orgId={convertOpen ? (orgId ?? null) : null} orgName={org.name} open={convertOpen} onOpenChange={setConvertOpen} />
+      <ExtendTrialDialog orgId={extendOpen ? (orgId ?? null) : null} orgName={org.name} open={extendOpen} onOpenChange={setExtendOpen} />
     </div>
   );
 }

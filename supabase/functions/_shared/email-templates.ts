@@ -1,8 +1,19 @@
 // Shared email HTML templates for MeasureWise
 // Brand: teal primary (#1a8a8a), clean white background
+import { BRAND, copyright } from "./brand.ts";
 
 const BRAND_COLOR = "#1a8a8a";
 const BRAND_BG = "#f8fafb";
+
+
+// HTML escape user-controlled content to prevent HTML/script injection in emails
+const esc = (s: unknown): string =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 function layout(title: string, body: string): string {
   return `<!DOCTYPE html>
@@ -14,12 +25,13 @@ function layout(title: string, body: string): string {
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
 <tr><td style="background:${BRAND_COLOR};padding:24px 32px;">
-  <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">MeasureWise™</h1>
+  <h1 style="margin:0;color:#ffffff;font-size:22px;font-weight:700;">${BRAND.nameTm}</h1>
 </td></tr>
 <tr><td style="padding:32px;">${body}</td></tr>
 <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;">
-  <p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p>
+  <p style="margin:0;color:#9ca3af;font-size:12px;">${copyright()}</p>
 </td></tr>
+
 </table>
 </td></tr></table>
 </body></html>`;
@@ -27,9 +39,9 @@ function layout(title: string, body: string): string {
 
 export function welcomeEmail(name: string): { subject: string; html: string } {
   return {
-    subject: "Welcome to MeasureWise — Let's Improve Quality Together",
-    html: layout("Welcome to MeasureWise", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${name || "there"}!</h2>
+    subject: `Welcome to ${BRAND.name} — Let's Improve Quality Together`,
+    html: layout(`Welcome to ${BRAND.name}`, `
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${esc(name) || "there"}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.
       </p>
@@ -39,25 +51,27 @@ export function welcomeEmail(name: string): { subject: string; html: string } {
         <li><strong>Start your first PDSA cycle</strong> — pick a UDS measure to improve</li>
         <li><strong>Invite your team</strong> — assign tasks to MA/RN, providers, and coordinators</li>
       </ol>
-      <a href="https://measurewise.org/dashboard" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
-      <p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— Jessica R. Smith, BSN | Founder, MeasureWise</p>
+      <a href="${BRAND.url}/dashboard" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
+      <p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— ${BRAND.founder.formalName} | ${BRAND.founder.title}</p>
     `),
+
   };
 }
 
 export function contactConfirmationEmail(name: string): { subject: string; html: string } {
   return {
-    subject: "We received your message — MeasureWise",
+    subject: `We received your message — ${BRAND.name}`,
     html: layout("Message Received", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${name}` : ""}!</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${esc(name)}` : ""}!</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         We've received your message and our team will get back to you within 1 business day.
       </p>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
-        In the meantime, feel free to explore MeasureWise with a free account — no credit card required.
+        In the meantime, feel free to explore ${BRAND.name} with a free account — no credit card required.
       </p>
-      <a href="https://measurewise.org/auth?signup=true" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Try MeasureWise Free</a>
+      <a href="${BRAND.url}/auth?signup=true" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Try ${BRAND.name} Free</a>
     `),
+
   };
 }
 
@@ -68,17 +82,17 @@ export function taskDeadlineEmail(
   const taskRows = tasks
     .map(
       (t) => `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${t.title}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${t.cycleName || "—"}</td>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#ef4444;font-size:14px;font-weight:600;">${t.dueDate}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(t.title)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(t.cycleName || "—")}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#ef4444;font-size:14px;font-weight:600;">${esc(t.dueDate)}</td>
       </tr>`
     )
     .join("");
 
   return {
-    subject: `⚠️ ${tasks.length} task${tasks.length > 1 ? "s" : ""} need${tasks.length === 1 ? "s" : ""} attention — MeasureWise`,
+    subject: `⚠️ ${tasks.length} task${tasks.length > 1 ? "s" : ""} need${tasks.length === 1 ? "s" : ""} attention — ${BRAND.name}`,
     html: layout("Task Deadline Reminder", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
         The following tasks are overdue or due soon and need your attention:
       </p>
@@ -90,7 +104,7 @@ export function taskDeadlineEmail(
         </tr>
         ${taskRows}
       </table>
-      <a href="https://measurewise.org/dashboard/tasks" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">View Tasks</a>
+      <a href="${BRAND.url}/dashboard/tasks" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">View Tasks</a>
     `),
   };
 }
@@ -114,7 +128,7 @@ export function weeklyDigestEmail(
         const atOrAbove = m.gap !== null && m.gap !== undefined && m.gap <= 0;
         const valueColor = belowTarget ? "#ef4444" : atOrAbove ? "#10b981" : "#374151";
         return `<tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${esc(m.name)}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${valueColor};font-weight:600;">${m.value}%</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#374151;font-size:14px;">${m.target != null ? `${m.target}%` : "—"}</td>
         <td style="padding:8px 12px;border-bottom:1px solid #f3f4f6;font-size:14px;color:${m.trend === "up" ? "#10b981" : m.trend === "down" ? "#ef4444" : "#6b7280"};">${m.trend === "up" ? "↑ Improving" : m.trend === "down" ? "↓ Declining" : "→ Stable"}</td>
@@ -127,15 +141,15 @@ export function weeklyDigestEmail(
   const insightSentences = (digest.topMeasures || [])
     .filter((m) => m.gap !== null && m.gap !== undefined && m.gap > 0)
     .map((m) => {
-      const cycleNote = m.activeCycleName ? ` — <strong>${m.activeCycleName}</strong> is active.` : "";
-      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${m.name}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
+      const cycleNote = m.activeCycleName ? ` — <strong>${esc(m.activeCycleName)}</strong> is active.` : "";
+      return `<p style="color:#374151;line-height:1.6;margin:0 0 8px;">⚠️ Your <strong>${esc(m.name)}</strong> rate is <strong style="color:#ef4444;">${m.gap} points below</strong> your ${m.target}% target${cycleNote}</p>`;
     })
     .join("");
 
   return {
-    subject: customSubject || "📊 Your Weekly QI Digest — MeasureWise",
+    subject: customSubject || `📊 Your Weekly QI Digest — ${BRAND.name}`,
     html: layout("Weekly QI Digest", `
-      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${recipientName || "there"},</h2>
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Hi ${esc(recipientName) || "there"},</h2>
       <p style="color:#374151;line-height:1.6;margin:0 0 24px;">Here's your quality improvement summary for the past week:</p>
 
       <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
@@ -174,7 +188,7 @@ export function weeklyDigestEmail(
           : ""
       }
 
-      <a href="https://measurewise.org/dashboard" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Open Dashboard</a>
+      <a href="${BRAND.url}/dashboard" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Open Dashboard</a>
     `),
   };
 }

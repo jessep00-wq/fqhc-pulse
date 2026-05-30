@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -10,6 +10,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Check, Circle } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { BRAND, copyright } from "@/lib/brand";
+import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
+
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, Link } from "react-router-dom";
@@ -43,6 +47,12 @@ export default function Auth() {
     [password]
   );
 
+  // Capture incoming ?plan=&billing= from /pricing → relay through signup,
+  // email verification, and onboarding so we can launch checkout afterward.
+  useEffect(() => {
+    captureFromUrl(searchParams);
+  }, [searchParams]);
+
   if (session) return <Navigate to="/dashboard" replace />;
 
   const handleLogin = async () => {
@@ -52,6 +62,8 @@ export default function Auth() {
     if (error) {
       toast.error(error.message);
     } else {
+      // If the user came from /pricing with a plan intent, let the
+      // post-login dashboard/onboarding redirect logic pick it up.
       navigate("/dashboard");
     }
   };
@@ -66,30 +78,39 @@ export default function Auth() {
       return;
     }
     setLoading(true);
+    const intent = readPlanIntent();
+    trackAnonEvent("signup_started", intent ? { priceId: intent.priceId } : undefined);
     const { error, data } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: { full_name: fullName, staff_role: staffRole },
-        emailRedirectTo: window.location.origin,
+        emailRedirectTo: appendPlanToUrl(window.location.origin, intent),
       },
     });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
+      trackAnonEvent("signup_completed", {
+        priceId: intent?.priceId,
+        userId: data?.user?.id,
+      });
       // Send welcome email (fire-and-forget)
+      const escapeHtml = (s: string) =>
+        s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+      const safeName = escapeHtml(fullName || "there");
       supabase.functions.invoke("send-email", {
         body: {
           to: email,
-          subject: "Welcome to MeasureWise — Let's Improve Quality Together",
+          subject: `Welcome to ${BRAND.name} — Let's Improve Quality Together`,
           html: `<!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#f8fafb;font-family:Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafb;padding:40px 20px;"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-<tr><td style="background:#1a8a8a;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
+<tr><td style="background:#1a8a8a;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">${BRAND.nameTm}</h1></td></tr>
 <tr><td style="padding:32px;">
-<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${fullName || "there"}!</h2>
+<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Welcome aboard, ${safeName}!</h2>
 <p style="color:#374151;line-height:1.6;margin:0 0 16px;">You've just taken a big step toward making quality improvement measurable, trackable, and audit-ready for your FQHC.</p>
 <p style="color:#374151;line-height:1.6;margin:0 0 16px;">Here's what to do next:</p>
 <ol style="color:#374151;line-height:1.8;padding-left:20px;margin:0 0 24px;">
@@ -97,12 +118,13 @@ export default function Auth() {
 <li><strong>Start your first PDSA cycle</strong> — pick a UDS measure to improve</li>
 <li><strong>Invite your team</strong> — assign tasks to staff</li>
 </ol>
-<a href="https://measurewise.org/dashboard" style="display:inline-block;background:#1a8a8a;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
-<p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— Jessica R. Smith, BSN | Founder, MeasureWise</p>
+<a href="${BRAND.url}/dashboard" style="display:inline-block;background:#1a8a8a;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Go to Dashboard</a>
+<p style="color:#6b7280;font-size:13px;margin:24px 0 0;">— ${BRAND.founder.formalName} | ${BRAND.founder.title}</p>
 </td></tr>
-<tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;"><p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p></td></tr>
+<tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;"><p style="margin:0;color:#9ca3af;font-size:12px;">${copyright()}</p></td></tr>
 </table></td></tr></table></body></html>`,
         },
+
       }).catch(() => {}); // Non-blocking
       setShowVerifyEmail(true);
     }
@@ -142,7 +164,7 @@ export default function Auth() {
           <div className="flex justify-center mb-4">
             <Logo size="md" className="justify-center" />
           </div>
-          <CardTitle className="text-xl">MeasureWise</CardTitle>
+          <CardTitle className="text-xl">{BRAND.name}</CardTitle>
           <CardDescription>
             {showForgot ? "Reset your password" : "Quality operations, simplified for FQHCs"}
           </CardDescription>

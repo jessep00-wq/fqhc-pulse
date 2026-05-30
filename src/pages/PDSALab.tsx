@@ -1,5 +1,6 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,21 +10,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { UDS_MEASURES, type StaffRole } from "@/data/mockData";
 import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
 import { useOrg } from "@/contexts/OrgContext";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activityLogger";
-import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical } from "lucide-react";
+import { Plus, FileText, TrendingUp, Sparkles, Loader2, ArrowLeft, ArrowRight, CheckCircle, Lightbulb, BookOpen, Download, FlaskConical, Clock, ChevronRight, CalendarClock } from "lucide-react";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { UpgradePrompt, UpgradeBanner } from "@/components/UpgradePrompt";
 import { EmptyState } from "@/components/EmptyState";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import PDSADetailDialog from "@/components/PDSADetailDialog";
 import EvidencePacketDialog from "@/components/EvidencePacketDialog";
+import { PhaseDots } from "@/components/pdsa/PhaseDots";
+import { RoleChips } from "@/components/pdsa/RoleChips";
+import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
+import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
+import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
@@ -91,6 +100,7 @@ interface DBTask {
   pdsa_cycle_id: string | null;
   status: string;
   acknowledged?: boolean;
+  due_date?: string | null;
 }
 
 function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
@@ -99,21 +109,75 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
   const totalTasks = cycleTasks.length;
   const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
   const staff = cycle.assigned_staff || [];
+  const stalled = isStalled(cycle, tasks);
+  const earliestDue = getEarliestOpenDue(cycle.id, tasks);
+  const aimText = cycle.aim_statement || cycle.root_cause || "";
 
   return (
-    <Card className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${borderColor}`} onClick={onClick}>
-      <CardContent className="p-4">
-        <h4 className="text-sm font-semibold leading-tight mb-2">{cycle.title}</h4>
-        <Badge variant="outline" className="text-xs mb-2">{cycle.uds_measure?.split(":")[0]}</Badge>
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{cycle.aim_statement || cycle.root_cause}</p>
-        <div className="flex items-center justify-between mb-2">
-          <AvatarGroup roles={staff} />
-          {cycle.improvement_pct && (
-            <div className="flex items-center gap-1 text-xs text-success font-medium">
+    <Card
+      className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
+      onClick={onClick}
+    >
+      <CardContent className="p-4 space-y-2.5">
+        {/* Phase + stalled badge */}
+        <div className="flex items-center justify-between">
+          <PhaseDots status={cycle.status} />
+          {stalled && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 text-warning border border-warning/30 px-1.5 py-0.5 text-[10px] font-medium">
+                  <Clock className="h-3 w-3" /> Stalled
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>No activity in 14+ days. Move it forward or close it out.</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+
+        <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
+
+        <div className="flex flex-wrap items-center gap-1.5">
+          {cycle.uds_measure && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{cycle.uds_measure.split(":")[0]}</Badge>
+          )}
+          {earliestDue && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span
+                  className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium border ${
+                    dueTone(earliestDue) === "destructive"
+                      ? "bg-destructive/15 text-destructive border-destructive/30"
+                      : dueTone(earliestDue) === "warning"
+                        ? "bg-warning/15 text-warning border-warning/30"
+                        : "bg-success/15 text-success border-success/30"
+                  }`}
+                >
+                  <CalendarClock className="h-3 w-3" /> Due {format(earliestDue, "MMM d")}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>Earliest open task due date</TooltipContent>
+            </Tooltip>
+          )}
+        </div>
+
+        {aimText && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <p className="text-xs text-muted-foreground line-clamp-3 cursor-help">{aimText}</p>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-sm">{aimText}</TooltipContent>
+          </Tooltip>
+        )}
+
+        <div className="flex items-center justify-between gap-2">
+          <RoleChips roles={staff} max={2} />
+          {cycle.improvement_pct != null && (
+            <div className="flex items-center gap-1 text-xs text-success font-medium whitespace-nowrap">
               <TrendingUp className="h-3 w-3" />+{cycle.improvement_pct}%
             </div>
           )}
         </div>
+
         {totalTasks > 0 && (
           <div className="space-y-1">
             <div className="flex items-center justify-between text-[10px] text-muted-foreground">
@@ -128,7 +192,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
           </div>
         )}
         {cycle.status === "completed" && (
-          <Button size="sm" className="w-full mt-3 bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={() => onGenerateBinder(cycle)}>
+          <Button size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
             <FileText className="h-3 w-3 mr-1 shrink-0" />Generate OSV Binder
           </Button>
         )}
@@ -333,13 +397,24 @@ const emptyWizard: WizardData = {
   clinicalWorkflowImpact: "",
 };
 
-function CreatePDSAWizard({ open, onClose, onCreate }: {
+function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }: {
   open: boolean;
   onClose: () => void;
   onCreate: (data: WizardData) => void;
+  initialData?: Partial<WizardData>;
+  initialStep?: WizardStep;
 }) {
-  const [step, setStep] = useState<WizardStep>("template");
-  const [data, setData] = useState<WizardData>({ ...emptyWizard });
+  const [step, setStep] = useState<WizardStep>(initialStep ?? "template");
+  const [data, setData] = useState<WizardData>({ ...emptyWizard, ...(initialData ?? {}) });
+
+  // When opened (or initial seed changes), reset to seeded state.
+  useEffect(() => {
+    if (open) {
+      setStep(initialStep ?? "template");
+      setData({ ...emptyWizard, ...(initialData ?? {}) });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialStep, initialData?.title, initialData?.aim, initialData?.rootCause]);
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
 
@@ -406,6 +481,9 @@ function CreatePDSAWizard({ open, onClose, onCreate }: {
             <BookOpen className="h-5 w-5 text-primary" />
             {step === "template" ? "Start a PDSA Cycle" : "Guided PDSA Setup"}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Create a new Plan-Do-Study-Act improvement cycle from a template or guided setup.
+          </DialogDescription>
           {step !== "template" && (
             <div className="pt-2">
               <StepIndicator current={stepIndex - 1} total={WIZARD_STEPS.length - 1} />
@@ -660,21 +738,58 @@ function CreatePDSAWizard({ open, onClose, onCreate }: {
 export default function PDSALab() {
   const { organization } = useOrg();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [binderCycle, setBinderCycle] = useState<DBCycle | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+  const [wizardSeed, setWizardSeed] = useState<Partial<WizardData> | undefined>(undefined);
+  const [wizardStartStep, setWizardStartStep] = useState<WizardStep | undefined>(undefined);
   const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
   const { canCreateCycle, cyclesRemaining, isFreeTier } = useTierLimits();
 
-  const handleNewCycle = () => {
+  // Responsive: narrower than 1100px → tabbed view (DnD board overflows there).
+  const [isCompact, setIsCompact] = useState<boolean>(() =>
+    typeof window !== "undefined" ? window.innerWidth < 1100 : false,
+  );
+  useEffect(() => {
+    const onResize = () => setIsCompact(window.innerWidth < 1100);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // Filter / sort state (URL-synced)
+  const filters: PdsaFilterState = {
+    measure: searchParams.get("measure") || "all",
+    role: searchParams.get("role") || "all",
+    stalledOnly: searchParams.get("stalled") === "1",
+    sort: (searchParams.get("sort") as PdsaFilterState["sort"]) || "newest",
+  };
+  const updateFilters = (next: Partial<PdsaFilterState>) => {
+    const sp = new URLSearchParams(searchParams);
+    const merged = { ...filters, ...next };
+    if (merged.measure === "all") sp.delete("measure"); else sp.set("measure", merged.measure);
+    if (merged.role === "all") sp.delete("role"); else sp.set("role", merged.role);
+    if (merged.stalledOnly) sp.set("stalled", "1"); else sp.delete("stalled");
+    if (merged.sort === "newest") sp.delete("sort"); else sp.set("sort", merged.sort);
+    setSearchParams(sp, { replace: true });
+  };
+  const clearFilters = () => {
+    const sp = new URLSearchParams(searchParams);
+    ["measure", "role", "stalled", "sort"].forEach((k) => sp.delete(k));
+    setSearchParams(sp, { replace: true });
+  };
+
+  const handleNewCycle = useCallback(() => {
     if (!canCreateCycle) {
       setUpgradeOpen(true);
       return;
     }
+    setWizardSeed(undefined);
+    setWizardStartStep(undefined);
     setNewOpen(true);
-  };
+  }, [canCreateCycle]);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
@@ -693,6 +808,38 @@ export default function PDSALab() {
     },
     enabled: !!organization.id,
   });
+
+  // Consume AI-Assistant seed when ?from=ai is present.
+  useEffect(() => {
+    if (searchParams.get("from") !== "ai") return;
+    const seed: PdsaSeed | null = readPdsaSeed();
+    if (seed && canCreateCycle) {
+      setWizardSeed({ title: seed.title, aim: seed.aim, rootCause: seed.rootCause });
+      setWizardStartStep("aim");
+      setNewOpen(true);
+      clearPdsaSeed();
+    } else if (seed && !canCreateCycle) {
+      setUpgradeOpen(true);
+      clearPdsaSeed();
+    }
+    const sp = new URLSearchParams(searchParams);
+    sp.delete("from");
+    setSearchParams(sp, { replace: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("from"), canCreateCycle]);
+
+  // Open a specific cycle via ?openCycle=<id> (used from Staff Tasks).
+  useEffect(() => {
+    const id = searchParams.get("openCycle");
+    if (id && cycles.length) {
+      const found = cycles.find((c) => c.id === id);
+      if (found) setSelectedCycle(found);
+      const sp = new URLSearchParams(searchParams);
+      sp.delete("openCycle");
+      setSearchParams(sp, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams.get("openCycle"), cycles.length]);
 
   const updateStatus = useMutation({
     mutationFn: async ({ id, status, title }: { id: string; status: string; title?: string }) => {
@@ -747,104 +894,207 @@ export default function PDSALab() {
     toast.info(`Moved to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
   };
 
+  // Derive filter source data + filtered/sorted cycles.
+  const measureOptions = useMemo(() => {
+    const set = new Set<string>();
+    cycles.forEach((c) => {
+      if (c.uds_measure) set.add(c.uds_measure.split(":")[0]);
+    });
+    return Array.from(set).sort();
+  }, [cycles]);
+
+  const filteredCycles = useMemo(() => {
+    let out = [...cycles];
+    if (filters.measure !== "all") {
+      out = out.filter((c) => c.uds_measure?.split(":")[0] === filters.measure);
+    }
+    if (filters.role !== "all") {
+      out = out.filter((c) => (c.assigned_staff || []).includes(filters.role));
+    }
+    if (filters.stalledOnly) {
+      out = out.filter((c) => isStalled(c, tasks));
+    }
+    if (filters.sort === "oldest") {
+      out.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+    } else if (filters.sort === "due") {
+      out.sort((a, b) => {
+        const da = getEarliestOpenDue(a.id, tasks)?.getTime() ?? Infinity;
+        const db = getEarliestOpenDue(b.id, tasks)?.getTime() ?? Infinity;
+        return da - db;
+      });
+    } else {
+      out.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at));
+    }
+    return out;
+  }, [cycles, tasks, filters.measure, filters.role, filters.stalledOnly, filters.sort]);
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
   }
 
-  return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & Evidence Packet</h1>
-          <p className="text-muted-foreground">Guided quality improvement cycles — walk into your next site visit ready</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
-            <Download className="h-4 w-4 mr-1" /> Evidence Packet
-          </Button>
-          <Button onClick={handleNewCycle}><Plus className="h-4 w-4 mr-1" /> New PDSA Cycle</Button>
-        </div>
-      </div>
-
-      {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
-        <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
-      )}
-
-      {cycles.length === 0 ? (
-        <EmptyState
-          icon={FlaskConical}
-          title="No PDSA cycles yet"
-          description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
-          actionLabel="Create Your First PDSA Cycle"
-          onAction={handleNewCycle}
-        />
-      ) : (
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="overflow-x-auto">
-          <div className="grid grid-cols-5 gap-4 pb-2" style={{ minWidth: "1100px" }}>
-            {STATUS_COLUMNS.map((col) => {
-              const colCycles = cycles.filter((c) => c.status === col.key);
-              return (
-                <div key={col.key} className="min-w-[220px]">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Badge className={col.color}>{col.label}</Badge>
-                    <span className="text-xs text-muted-foreground">{colCycles.length}</span>
+  const renderColumnContent = (col: typeof STATUS_COLUMNS[number]) => {
+    const colCycles = filteredCycles.filter((c) => c.status === col.key);
+    return (
+      <Droppable droppableId={col.key}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`min-h-[120px] rounded-lg transition-colors ${snapshot.isDraggingOver ? "bg-primary/5 ring-2 ring-primary/20" : ""}`}
+          >
+            {colCycles.map((cycle, index) => (
+              <Draggable key={cycle.id} draggableId={cycle.id} index={index}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}
+                    onMouseDown={(e) => { dragStartPos.current = { x: e.clientX, y: e.clientY }; }}
+                    onMouseUp={(e) => {
+                      if (dragStartPos.current) {
+                        const dx = Math.abs(e.clientX - dragStartPos.current.x);
+                        const dy = Math.abs(e.clientY - dragStartPos.current.y);
+                        if (dx < 5 && dy < 5) setSelectedCycle(cycle);
+                      }
+                      dragStartPos.current = null;
+                    }}
+                  >
+                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
                   </div>
-                  <Droppable droppableId={col.key}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`min-h-[120px] rounded-lg transition-colors ${snapshot.isDraggingOver ? "bg-primary/5 ring-2 ring-primary/20" : ""}`}
-                      >
-                        {colCycles.map((cycle, index) => (
-                          <Draggable key={cycle.id} draggableId={cycle.id} index={index}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={snapshot.isDragging ? "opacity-90 rotate-2" : ""}
-                                onMouseDown={(e) => { dragStartPos.current = { x: e.clientX, y: e.clientY }; }}
-                                onMouseUp={(e) => {
-                                  if (dragStartPos.current) {
-                                    const dx = Math.abs(e.clientX - dragStartPos.current.x);
-                                    const dy = Math.abs(e.clientY - dragStartPos.current.y);
-                                    if (dx < 5 && dy < 5) setSelectedCycle(cycle);
-                                  }
-                                  dragStartPos.current = null;
-                                }}
-                              >
-                                <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                        {colCycles.length === 0 && !snapshot.isDraggingOver && (
-                          <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">No cycles</div>
-                        )}
-                      </div>
-                    )}
-                  </Droppable>
-                </div>
-              );
-            })}
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+            {colCycles.length === 0 && !snapshot.isDraggingOver && (
+              <ColumnGhostCard phase={col.key} onCreate={col.key === "plan" ? handleNewCycle : undefined} />
+            )}
           </div>
-          </div>
-        </DragDropContext>
-      )}
+        )}
+      </Droppable>
+    );
+  };
 
-      <CreatePDSAWizard open={newOpen} onClose={() => setNewOpen(false)} onCreate={(data) => createCycle.mutate(data)} />
-      <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
-      <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
-      <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
-      <UpgradePrompt
-        open={upgradeOpen}
-        onClose={() => setUpgradeOpen(false)}
-        feature="Free Plan Limit Reached"
-        description={`Your free plan includes up to 3 active PDSA cycles. Upgrade to Solo Clinic or higher for unlimited cycles, watermark-free exports, and more.`}
-      />
-    </div>
+  return (
+    <TooltipProvider delayDuration={200}>
+      <div className="p-6 space-y-6">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & Evidence Packet</h1>
+            <p className="text-muted-foreground">Guided quality improvement cycles — walk into your next site visit ready</p>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
+              <Download className="h-4 w-4 mr-1" /> Evidence Packet
+            </Button>
+            <Button onClick={handleNewCycle} aria-label="New PDSA Cycle">
+              <Plus className="h-4 w-4 mr-1" /> New PDSA Cycle
+            </Button>
+          </div>
+        </div>
+
+        {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
+          <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
+        )}
+
+        {cycles.length === 0 ? (
+          <EmptyState
+            icon={FlaskConical}
+            title="No PDSA cycles yet"
+            description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
+            actionLabel="Create Your First PDSA Cycle"
+            onAction={handleNewCycle}
+          />
+        ) : (
+          <>
+            <PDSAFilters
+              measures={measureOptions}
+              roles={STAFF_ROLES}
+              value={filters}
+              onChange={updateFilters}
+              onClear={clearFilters}
+            />
+
+            {isCompact ? (
+              // Tabbed view for narrow screens. DnD disabled here — tap a card to open detail.
+              <Tabs defaultValue="plan" className="w-full">
+                <TabsList className="grid w-full grid-cols-5">
+                  {STATUS_COLUMNS.map((col) => {
+                    const count = filteredCycles.filter((c) => c.status === col.key).length;
+                    return (
+                      <TabsTrigger key={col.key} value={col.key} className="text-xs">
+                        {col.label}
+                        <span className="ml-1 text-muted-foreground">({count})</span>
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
+                {STATUS_COLUMNS.map((col) => {
+                  const colCycles = filteredCycles.filter((c) => c.status === col.key);
+                  return (
+                    <TabsContent key={col.key} value={col.key} className="space-y-2 mt-4">
+                      {colCycles.length === 0 ? (
+                        <ColumnGhostCard phase={col.key} onCreate={col.key === "plan" ? handleNewCycle : undefined} />
+                      ) : (
+                        colCycles.map((cycle) => (
+                          <div key={cycle.id} onClick={() => setSelectedCycle(cycle)}>
+                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                          </div>
+                        ))
+                      )}
+                    </TabsContent>
+                  );
+                })}
+              </Tabs>
+            ) : (
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <div className="relative">
+                  <div className="overflow-x-auto">
+                    <div className="grid grid-cols-5 gap-4 pb-2" style={{ minWidth: "1100px" }}>
+                      {STATUS_COLUMNS.map((col) => {
+                        const colCycles = filteredCycles.filter((c) => c.status === col.key);
+                        return (
+                          <div key={col.key} className="min-w-[220px]">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Badge className={col.color}>{col.label}</Badge>
+                              <span className="text-xs text-muted-foreground">{colCycles.length}</span>
+                            </div>
+                            {renderColumnContent(col)}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  {/* Soft fade hint that more columns may be off-screen */}
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent flex items-center justify-end pr-1"
+                  >
+                    <ChevronRight className="h-4 w-4 text-muted-foreground/60" />
+                  </div>
+                </div>
+              </DragDropContext>
+            )}
+          </>
+        )}
+
+        <CreatePDSAWizard
+          open={newOpen}
+          onClose={() => { setNewOpen(false); setWizardSeed(undefined); setWizardStartStep(undefined); }}
+          onCreate={(data) => createCycle.mutate(data)}
+          initialData={wizardSeed}
+          initialStep={wizardStartStep}
+        />
+        <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
+        <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
+        <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
+        <UpgradePrompt
+          open={upgradeOpen}
+          onClose={() => setUpgradeOpen(false)}
+          feature="Free Plan Limit Reached"
+          description={`Your free plan includes up to 3 active PDSA cycles. Upgrade to Solo Clinic or higher for unlimited cycles, watermark-free exports, and more.`}
+        />
+      </div>
+    </TooltipProvider>
   );
 }

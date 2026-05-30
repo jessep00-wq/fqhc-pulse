@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, ExternalLink, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { IconUploader } from "@/components/admin/IconUploader";
 import { ContentIcon } from "@/components/ContentIcon";
 
@@ -181,6 +182,7 @@ export default function AdminBlog() {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Post" : "New Post"}</DialogTitle>
+              <DialogDescription className="sr-only">Author or edit a blog post with title, slug, body, and SEO metadata.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -270,8 +272,32 @@ export default function AdminBlog() {
                     />
                   </TabsContent>
                   <TabsContent value="preview">
-                    <div className="prose prose-slate dark:prose-invert max-w-none border rounded-md p-4 min-h-[300px]">
-                      <ReactMarkdown>{form.content_md || "_Nothing to preview yet._"}</ReactMarkdown>
+                    <div className="border rounded-md p-6 min-h-[300px] bg-background">
+                      <article className="max-w-3xl mx-auto">
+                        <header className="mb-8 space-y-3">
+                          {(form.cover_image_url || form.cover_emoji) && (
+                            <ContentIcon imageUrl={form.cover_image_url} emoji={form.cover_emoji} size={56} />
+                          )}
+                          <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
+                            {form.title || "Untitled post"}
+                          </h1>
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                            <span>{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+                            <span>·</span>
+                            <span>{form.read_time_minutes} min read</span>
+                            <span>·</span>
+                            <span>By {form.author_name}</span>
+                          </div>
+                          {form.excerpt && (
+                            <p className="text-base text-muted-foreground leading-relaxed">{form.excerpt}</p>
+                          )}
+                        </header>
+                        <div className="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary prose-strong:text-foreground prose-li:text-foreground/90">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {form.content_md || "_Nothing to preview yet._"}
+                          </ReactMarkdown>
+                        </div>
+                      </article>
                     </div>
                   </TabsContent>
                 </Tabs>

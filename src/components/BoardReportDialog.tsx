@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { FileText, Loader2, Download } from "lucide-react";
 import { useOrg } from "@/contexts/OrgContext";
+import { confirmDemoExport } from "@/lib/demoExportGate";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
@@ -40,7 +41,7 @@ const quarters = [
 ];
 
 export function BoardReportDialog({ open, onClose, cycles, tasks, trends, financials }: BoardReportDialogProps) {
-  const { organization } = useOrg();
+  const { organization, isDemo } = useOrg();
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [period, setPeriod] = useState(quarters[0]);
@@ -77,6 +78,7 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends, financ
 
   const handleExportPDF = useCallback(async () => {
     if (!printRef.current) return;
+    if (!confirmDemoExport(isDemo, "The board report")) return;
     setExporting(true);
     try {
       const canvas = await html2canvas(printRef.current, {

@@ -11,6 +11,8 @@ interface BuyButtonProps {
   size?: "default" | "sm" | "lg";
   variant?: "default" | "secondary" | "outline";
   className?: string;
+  /** When set, the button renders disabled with this label (e.g. "Coming soon"). */
+  disabledReason?: string | null;
 }
 
 export function BuyButton({
@@ -19,10 +21,12 @@ export function BuyButton({
   size = "lg",
   variant = "default",
   className,
+  disabledReason,
 }: BuyButtonProps) {
   const [loading, setLoading] = useState(false);
 
   const onClick = async () => {
+    if (disabledReason) return;
     if (!priceId) {
       toast.error("This item isn't available for purchase yet.");
       return;
@@ -33,8 +37,10 @@ export function BuyButton({
         body: { priceId, environment: getStripeEnvironment() },
       });
       if (error) throw error;
+      if (data?.error) throw new Error(data.error as string);
       if (data?.url) {
-        window.location.href = data.url as string;
+        window.open(data.url as string, "_blank", "noopener,noreferrer");
+        setLoading(false);
       } else {
         throw new Error("No checkout URL returned");
       }
@@ -45,9 +51,12 @@ export function BuyButton({
     }
   };
 
+  const isDisabled = loading || !priceId || !!disabledReason;
+  const buttonLabel = disabledReason ?? label;
+
   return (
-    <Button onClick={onClick} disabled={loading || !priceId} size={size} variant={variant} className={className}>
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : label}
+    <Button onClick={onClick} disabled={isDisabled} size={size} variant={variant} className={className}>
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : buttonLabel}
     </Button>
   );
 }

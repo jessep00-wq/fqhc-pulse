@@ -66,6 +66,9 @@ import StoreProductDetail from "./pages/store/StoreProductDetail";
 import StoreBundleDetail from "./pages/store/StoreBundleDetail";
 import StoreSuccess from "./pages/store/StoreSuccess";
 import AdminStore from "./pages/admin/AdminStore";
+import ManualLanding from "./pages/ManualLanding";
+import ManualThankYou from "./pages/ManualThankYou";
+
 
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
@@ -75,17 +78,27 @@ import BlogHRSAChecklist from "./pages/blog/BlogHRSAChecklist";
 import BlogQICulture from "./pages/blog/BlogQICulture";
 import BlogPostDynamic from "./pages/blog/BlogPostDynamic";
 
+// Resource cornerstones (SEO moat)
+import UDSAlignedPDSA from "./pages/resources/UDSAlignedPDSA";
+import HRSAReadyQIDocumentation from "./pages/resources/HRSAReadyQIDocumentation";
+import FQHCQualityImprovementEvidence from "./pages/resources/FQHCQualityImprovementEvidence";
+import AthenaOneDocumentationWorkflows from "./pages/resources/AthenaOneDocumentationWorkflows";
+import SPCChartsForUDSMeasures from "./pages/resources/SPCChartsForUDSMeasures";
+import AuditBinderExports from "./pages/resources/AuditBinderExports";
+import QualityCommitteeProof from "./pages/resources/QualityCommitteeProof";
+import SpreadsheetReplacementQITracking from "./pages/resources/SpreadsheetReplacementQITracking";
+
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <OrgProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Analytics />
-          <BrowserRouter>
+    <BrowserRouter>
+      <AuthProvider>
+        <OrgProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <Analytics />
             <ScrollToTop />
             <ErrorBoundary>
               <Routes>
@@ -123,16 +136,30 @@ const App = () => (
                 <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
                 <Route path="/blog/:slug" element={<BlogPostDynamic />} />
 
+                {/* Resource cornerstones (UDS-aligned PDSA SEO moat) */}
+                <Route path="/resources/uds-aligned-pdsa" element={<UDSAlignedPDSA />} />
+                <Route path="/resources/hrsa-ready-qi-documentation" element={<HRSAReadyQIDocumentation />} />
+                <Route path="/resources/fqhc-quality-improvement-evidence" element={<FQHCQualityImprovementEvidence />} />
+                <Route path="/resources/athenaone-documentation-workflows" element={<AthenaOneDocumentationWorkflows />} />
+                <Route path="/resources/spc-charts-for-uds-measures" element={<SPCChartsForUDSMeasures />} />
+                <Route path="/resources/audit-binder-exports" element={<AuditBinderExports />} />
+                <Route path="/resources/quality-committee-proof" element={<QualityCommitteeProof />} />
+                <Route path="/resources/spreadsheet-replacement-qi-tracking" element={<SpreadsheetReplacementQITracking />} />
+
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
                 <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
-                <Route path="/newsletter/:id" element={<NewsletterDetail />} />
+                <Route path="/newsletter/:slug" element={<NewsletterDetail />} />
 
                 {/* Store */}
                 <Route path="/store" element={<StoreIndex />} />
                 <Route path="/store/success" element={<StoreSuccess />} />
                 <Route path="/store/bundle/:slug" element={<StoreBundleDetail />} />
                 <Route path="/store/:slug" element={<StoreProductDetail />} />
+
+                {/* Standalone watermarked-manual sales flow */}
+                <Route path="/manual" element={<ManualLanding />} />
+                <Route path="/manual/thank-you" element={<ManualThankYou />} />
 
                 <Route
                   path="/admin/*"
@@ -141,14 +168,14 @@ const App = () => (
                       <AdminLayout>
                         <ErrorBoundary>
                           <Routes>
-                            <Route path="/" element={<AdminOverview />} />
-                            <Route path="/pipeline" element={<AdminPipeline />} />
-                            <Route path="/billing" element={<AdminBilling />} />
-                            <Route path="/adoption" element={<AdminAdoption />} />
-                            <Route path="/newsletter" element={<AdminNewsletter />} />
-                            <Route path="/store" element={<AdminStore />} />
-                            <Route path="/blog" element={<AdminBlog />} />
-                            <Route path="/account/:orgId" element={<AdminAccountDetail />} />
+                            <Route index element={<AdminOverview />} />
+                            <Route path="pipeline" element={<AdminPipeline />} />
+                            <Route path="billing" element={<AdminBilling />} />
+                            <Route path="adoption" element={<AdminAdoption />} />
+                            <Route path="newsletter" element={<AdminNewsletter />} />
+                            <Route path="store" element={<AdminStore />} />
+                            <Route path="blog" element={<AdminBlog />} />
+                            <Route path="account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </ErrorBoundary>
@@ -164,13 +191,13 @@ const App = () => (
                       <AppLayout>
                         <ErrorBoundary>
                           <Routes>
-                            <Route path="/" element={<Index />} />
-                           <Route path="/pdsa-lab" element={<PDSALab />} />
-                           <Route path="/network" element={<NetworkDashboard />} />
-                            <Route path="/playbooks" element={<PlaybookLibrary />} />
-                            <Route path="/ai-assistant" element={<AIAssistant />} />
-                            <Route path="/staff-tasks" element={<StaffTasks />} />
-                            <Route path="/settings" element={<Settings />} />
+                            <Route index element={<Index />} />
+                            <Route path="pdsa-lab" element={<PDSALab />} />
+                            <Route path="network" element={<NetworkDashboard />} />
+                            <Route path="playbooks" element={<PlaybookLibrary />} />
+                            <Route path="ai-assistant" element={<AIAssistant />} />
+                            <Route path="staff-tasks" element={<StaffTasks />} />
+                            <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
                         </ErrorBoundary>
@@ -181,10 +208,10 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </ErrorBoundary>
-          </BrowserRouter>
-        </TooltipProvider>
-      </OrgProvider>
-    </AuthProvider>
+          </TooltipProvider>
+        </OrgProvider>
+      </AuthProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

@@ -168,6 +168,141 @@ export type Database = {
           },
         ]
       }
+      email_send_log: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          message_id: string | null
+          metadata: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_email: string
+          status: string
+          template_name: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_id?: string | null
+          metadata?: Json | null
+          recipient_email?: string
+          status?: string
+          template_name?: string
+        }
+        Relationships: []
+      }
+      email_send_state: {
+        Row: {
+          auth_email_ttl_minutes: number
+          batch_size: number
+          id: number
+          retry_after_until: string | null
+          send_delay_ms: number
+          transactional_email_ttl_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          auth_email_ttl_minutes?: number
+          batch_size?: number
+          id?: number
+          retry_after_until?: string | null
+          send_delay_ms?: number
+          transactional_email_ttl_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          auth_email_ttl_minutes?: number
+          batch_size?: number
+          id?: number
+          retry_after_until?: string | null
+          send_delay_ms?: number
+          transactional_email_ttl_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      email_unsubscribe_tokens: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          token: string
+          used_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          token: string
+          used_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          token?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
+      manual_downloads: {
+        Row: {
+          buyer_email: string
+          buyer_name: string
+          buyer_org: string
+          claim_ticket: string | null
+          claim_ticket_expires_at: string | null
+          created_at: string
+          download_ip: string | null
+          downloaded_at: string | null
+          expires_at: string
+          id: string
+          paid_at: string
+          stripe_session_id: string
+          token: string
+        }
+        Insert: {
+          buyer_email: string
+          buyer_name: string
+          buyer_org: string
+          claim_ticket?: string | null
+          claim_ticket_expires_at?: string | null
+          created_at?: string
+          download_ip?: string | null
+          downloaded_at?: string | null
+          expires_at: string
+          id?: string
+          paid_at?: string
+          stripe_session_id: string
+          token: string
+        }
+        Update: {
+          buyer_email?: string
+          buyer_name?: string
+          buyer_org?: string
+          claim_ticket?: string | null
+          claim_ticket_expires_at?: string | null
+          created_at?: string
+          download_ip?: string | null
+          downloaded_at?: string | null
+          expires_at?: string
+          id?: string
+          paid_at?: string
+          stripe_session_id?: string
+          token?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           email: string
@@ -201,6 +336,8 @@ export type Database = {
           id: string
           published_at: string | null
           sections: Json
+          sent_count: number
+          slug: string
           status: string
           subtitle: string | null
           title: string
@@ -214,6 +351,8 @@ export type Database = {
           id?: string
           published_at?: string | null
           sections?: Json
+          sent_count?: number
+          slug: string
           status?: string
           subtitle?: string | null
           title: string
@@ -227,6 +366,8 @@ export type Database = {
           id?: string
           published_at?: string | null
           sections?: Json
+          sent_count?: number
+          slug?: string
           status?: string
           subtitle?: string | null
           title?: string
@@ -336,38 +477,59 @@ export type Database = {
         Row: {
           archived_at: string | null
           created_at: string
+          data_mode: string
           id: string
           is_test: boolean
           name: string
+          notes: string | null
           npi: string | null
           onboarding_status: string
+          org_type: string | null
           owner_id: string | null
+          quality_lead_email: string | null
+          quality_lead_name: string | null
+          reporting_period: string | null
           source: string | null
           stage: string
+          timezone: string | null
         }
         Insert: {
           archived_at?: string | null
           created_at?: string
+          data_mode?: string
           id?: string
           is_test?: boolean
           name: string
+          notes?: string | null
           npi?: string | null
           onboarding_status?: string
+          org_type?: string | null
           owner_id?: string | null
+          quality_lead_email?: string | null
+          quality_lead_name?: string | null
+          reporting_period?: string | null
           source?: string | null
           stage?: string
+          timezone?: string | null
         }
         Update: {
           archived_at?: string | null
           created_at?: string
+          data_mode?: string
           id?: string
           is_test?: boolean
           name?: string
+          notes?: string | null
           npi?: string | null
           onboarding_status?: string
+          org_type?: string | null
           owner_id?: string | null
+          quality_lead_email?: string | null
+          quality_lead_name?: string | null
+          reporting_period?: string | null
           source?: string | null
           stage?: string
+          timezone?: string | null
         }
         Relationships: []
       }
@@ -463,6 +625,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      playbook_leads: {
+        Row: {
+          created_at: string
+          full_name: string
+          health_center_name: string
+          id: string
+          notes: string | null
+          reminder_sent_at: string | null
+          role: string
+          source: string
+          tags: string[]
+          welcome_sent_at: string | null
+          work_email: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          health_center_name: string
+          id?: string
+          notes?: string | null
+          reminder_sent_at?: string | null
+          role: string
+          source?: string
+          tags?: string[]
+          welcome_sent_at?: string | null
+          work_email: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          health_center_name?: string
+          id?: string
+          notes?: string | null
+          reminder_sent_at?: string | null
+          role?: string
+          source?: string
+          tags?: string[]
+          welcome_sent_at?: string | null
+          work_email?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -599,6 +803,7 @@ export type Database = {
           hero_emoji: string | null
           id: string
           included_file_paths: string[]
+          is_coming_soon: boolean
           long_description: string | null
           name: string
           preview_image_urls: string[]
@@ -624,6 +829,7 @@ export type Database = {
           hero_emoji?: string | null
           id?: string
           included_file_paths?: string[]
+          is_coming_soon?: boolean
           long_description?: string | null
           name: string
           preview_image_urls?: string[]
@@ -649,6 +855,7 @@ export type Database = {
           hero_emoji?: string | null
           id?: string
           included_file_paths?: string[]
+          is_coming_soon?: boolean
           long_description?: string | null
           name?: string
           preview_image_urls?: string[]
@@ -718,6 +925,30 @@ export type Database = {
           stripe_subscription_id?: string | null
           trial_end?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      suppressed_emails: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          metadata: Json | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          metadata?: Json | null
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          metadata?: Json | null
+          reason?: string
         }
         Relationships: []
       }
@@ -946,6 +1177,14 @@ export type Database = {
         Args: { _org_id: string }
         Returns: undefined
       }
+      delete_email: {
+        Args: { message_id: number; queue_name: string }
+        Returns: boolean
+      }
+      enqueue_email: {
+        Args: { payload: Json; queue_name: string }
+        Returns: number
+      }
       get_user_org_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -955,8 +1194,26 @@ export type Database = {
         Returns: boolean
       }
       is_founder_admin: { Args: { _user_id: string }; Returns: boolean }
+      move_to_dlq: {
+        Args: {
+          dlq_name: string
+          message_id: number
+          payload: Json
+          source_queue: string
+        }
+        Returns: number
+      }
       org_access_status: { Args: { _org_id: string }; Returns: string }
+      read_email_batch: {
+        Args: { batch_size: number; queue_name: string; vt: number }
+        Returns: {
+          message: Json
+          msg_id: number
+          read_ct: number
+        }[]
+      }
       seed_demo_data: { Args: { org_id: string }; Returns: undefined }
+      slugify: { Args: { input: string }; Returns: string }
     }
     Enums: {
       app_role:

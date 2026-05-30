@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -166,7 +166,15 @@ function NewsletterEditor({ newsletter, onClose }: { newsletter?: Newsletter; on
       };
       if (status) {
         payload.status = status;
-        if (status === "published") payload.published_at = new Date().toISOString();
+        if (status === "published") {
+          payload.published_at = new Date().toISOString();
+          // Snapshot subscriber count at publish time
+          const { count } = await supabase
+            .from("newsletter_subscribers")
+            .select("*", { count: "exact", head: true })
+            .is("unsubscribed_at", null);
+          payload.sent_count = count ?? 0;
+        }
       }
 
       let savedId = newsletter?.id;
@@ -327,6 +335,7 @@ export default function AdminNewsletter() {
           <DialogContent className="max-w-4xl max-h-[90vh]">
             <DialogHeader>
               <DialogTitle>{editId ? "Edit Issue" : "New Issue"}</DialogTitle>
+              <DialogDescription className="sr-only">Author or edit a newsletter issue, then save as draft or send.</DialogDescription>
             </DialogHeader>
             <NewsletterEditor key={editId ?? "new"} newsletter={editNewsletter} onClose={() => { setCreating(false); setEditId(null); }} />
           </DialogContent>
@@ -342,6 +351,7 @@ export default function AdminNewsletter() {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead title="Subscriber count snapshotted at publish time">Sent to</TableHead>
                 <TableHead>Date</TableHead>
                 <TableHead className="w-12" />
               </TableRow>
@@ -357,6 +367,11 @@ export default function AdminNewsletter() {
                   </TableCell>
                   <TableCell>
                     <Badge variant={nl.status === "published" ? "default" : "secondary"}>{nl.status}</Badge>
+                  </TableCell>
+                  <TableCell className="text-sm text-muted-foreground">
+                    {nl.status === "published"
+                      ? `${(nl as any).sent_count ?? 0} subscriber${((nl as any).sent_count ?? 0) === 1 ? "" : "s"}`
+                      : "—"}
                   </TableCell>
                   <TableCell className="text-sm text-muted-foreground">
                     <div className="flex items-center gap-1.5"><Calendar className="h-3.5 w-3.5" />{new Date(nl.published_at || nl.created_at).toLocaleDateString()}</div>

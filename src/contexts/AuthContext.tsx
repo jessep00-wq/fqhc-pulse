@@ -34,11 +34,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           identifyUser(session.user.id, {
             email: session.user.email,
           });
+          const userId = session.user.id;
           supabase
             .from("profiles")
             .update({ last_login_at: new Date().toISOString() })
-            .eq("id", session.user.id)
+            .eq("id", userId)
             .then(() => {});
+
+          // Send welcome email exactly once per user. Set the localStorage flag
+          // only after the function call resolves successfully, so a crash or
+          // network failure doesn't permanently suppress the email.
+          const welcomeKey = `mw_welcome_sent_${userId}`;
+          if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+            supabase.functions
+              .invoke("send-welcome-email", { body: { user_id: userId } })
+              .then(({ error }) => {
+                if (!error) window.localStorage.setItem(welcomeKey, "1");
+              })
+              .catch(() => {
+                // Swallow — flag not set, so a retry happens on next login.
+              });
+          }
         }
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
@@ -47,16 +63,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Note: onAuthStateChange fires an INITIAL_SESSION event on mount,
+    // so we do not call getSession() — avoids a logged-out flash race.
 
     return () => subscription.unsubscribe();
   }, []);
 
   const signOut = async () => {
+    resetPostHog();
     await supabase.auth.signOut();
   };
 

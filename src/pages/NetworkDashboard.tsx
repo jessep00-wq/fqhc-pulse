@@ -9,19 +9,14 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useNavigate } from "react-router-dom";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { UpgradeBanner } from "@/components/UpgradePrompt";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { AddSiteDialog } from "@/components/network/AddSiteDialog";
 import {
-  Building2, TrendingUp, FlaskConical, CheckSquare, ArrowRight, BarChart3,
+  Building2, TrendingUp, FlaskConical, CheckSquare, ArrowRight, BarChart3, Plus,
 } from "lucide-react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-
-const MEASURE_LABELS: Record<string, string> = {
-  CMS124: "Cervical Cancer Screening",
-  CMS125: "Breast Cancer Screening",
-  CMS165: "BP Control",
-  CMS122: "HbA1c Poor Control",
-};
 
 export default function NetworkDashboard() {
   const { organization } = useOrg();
@@ -29,6 +24,11 @@ export default function NetworkDashboard() {
   const orgId = organization.id;
   const { isFreeTier } = useTierLimits();
   const [selectedSite, setSelectedSite] = useState<string>("all");
+  const [addSiteOpen, setAddSiteOpen] = useState(false);
+
+  // Gate Supabase queries behind tier — free/locked workspaces should not
+  // fire org-scoped network requests before the upgrade banner renders.
+  const queriesEnabled = !!orgId && !isFreeTier;
 
   const { data: sites } = useQuery({
     queryKey: ["sites", orgId],
@@ -36,7 +36,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("sites").select("*").eq("organization_id", orgId).order("name");
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   const { data: cycles } = useQuery({
@@ -45,7 +45,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   const { data: tasks } = useQuery({
@@ -54,7 +54,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   const { data: trends } = useQuery({
@@ -63,7 +63,7 @@ export default function NetworkDashboard() {
       const { data } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
       return data || [];
     },
-    enabled: !!orgId,
+    enabled: queriesEnabled,
   });
 
   if (isFreeTier) {
@@ -95,7 +95,6 @@ export default function NetworkDashboard() {
     const siteTasks = (tasks || []).filter((t) => t.site_id === site.id);
     const siteTrends = (trends || []).filter((t) => t.site_id === site.id);
 
-    // Get latest UDS values
     const latestValues: Record<string, number> = {};
     for (const t of siteTrends) latestValues[t.measure_id] = Number(t.value);
     const avgMeasure = Object.values(latestValues).length > 0
@@ -110,7 +109,6 @@ export default function NetworkDashboard() {
     };
   });
 
-  // Leaderboard: rank by avg UDS measure
   const leaderboard = siteList
     .map((site) => {
       const siteTrends2 = (trends || []).filter((t) => t.site_id === site.id);
@@ -122,13 +120,20 @@ export default function NetworkDashboard() {
     })
     .sort((a, b) => b.avg - a.avg);
 
-  // Aggregate totals
   const totalActiveCycles = filteredCycles.filter((c) => c.status !== "completed").length;
   const totalCompletedTasks = filteredTasks.filter((t) => t.status === "completed").length;
   const totalPendingTasks = filteredTasks.filter((t) => t.status !== "completed").length;
 
+  const unassignedMode = !hasSites && selectedSite === "all";
+  const scopeLabel = (whenSites: string) =>
+    unassignedMode ? "Not yet assigned to a site" : selectedSite === "all" ? whenSites : "Filtered view";
+  const unassignedBadge = unassignedMode
+    ? ({ label: "Unassigned", tone: "warning" as const })
+    : undefined;
+
   return (
     <div className="p-6 space-y-6">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -139,7 +144,7 @@ export default function NetworkDashboard() {
             Aggregate and per-site performance across {organization.name}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <Select value={selectedSite} onValueChange={setSelectedSite}>
             <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="All Sites" />
@@ -152,12 +157,48 @@ export default function NetworkDashboard() {
               ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm" onClick={() => navigate("/dashboard/settings")}>
-            Manage Sites
+          <Button size="sm" onClick={() => setAddSiteOpen(true)}>
+            <Plus className="mr-1.5 h-4 w-4" /> Add Site
           </Button>
         </div>
       </div>
 
+      {/* KPI Grid — moved to top */}
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          title="Sites"
+          value={siteList.length}
+          icon={Building2}
+          description="Clinic locations"
+          tone="info"
+        />
+        <KpiCard
+          title="Active Cycles"
+          value={totalActiveCycles}
+          icon={FlaskConical}
+          description={scopeLabel("Across all sites")}
+          tone="info"
+          badge={unassignedBadge}
+        />
+        <KpiCard
+          title="Tasks Completed"
+          value={totalCompletedTasks}
+          icon={CheckSquare}
+          description={`${totalPendingTasks} pending`}
+          tone="success"
+          badge={unassignedBadge}
+        />
+        <KpiCard
+          title="UDS Data Points"
+          value={filteredTrends.length}
+          icon={BarChart3}
+          description={scopeLabel("Across all measures")}
+          tone="info"
+          badge={unassignedBadge}
+        />
+      </div>
+
+      {/* Empty state */}
       {!hasSites && (
         <Card className="border-dashed">
           <CardContent className="p-8 text-center space-y-4">
@@ -165,61 +206,21 @@ export default function NetworkDashboard() {
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">No sites configured yet</h3>
               <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                Add your clinic sites in Settings to start comparing performance across locations. PDSA cycles, tasks, and UDS data can then be assigned to specific sites.
+                The metrics above reflect cycles, tasks, and UDS rows that aren't yet assigned
+                to a specific clinic. Add your first site to start comparing performance across locations.
               </p>
             </div>
-            <Button onClick={() => navigate("/dashboard/settings")}>
-              Add Sites in Settings <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <Button onClick={() => setAddSiteOpen(true)}>
+                <Plus className="mr-1.5 h-4 w-4" /> Add Your First Site
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard/settings")}>
+                Manage in Settings <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
-
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Sites</CardTitle>
-            <Building2 className="h-5 w-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{siteList.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Clinic locations</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Cycles</CardTitle>
-            <FlaskConical className="h-5 w-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{totalActiveCycles}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {selectedSite === "all" ? "Across all sites" : "Filtered"}
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Tasks Completed</CardTitle>
-            <CheckSquare className="h-5 w-5 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{totalCompletedTasks}</div>
-            <p className="text-xs text-muted-foreground mt-1">{totalPendingTasks} pending</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">UDS Data Points</CardTitle>
-            <BarChart3 className="h-5 w-5 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{filteredTrends.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Across all measures</p>
-          </CardContent>
-        </Card>
-      </div>
 
       {/* Site Comparison Chart */}
       {hasSites && siteComparison.length > 0 && (
@@ -277,6 +278,8 @@ export default function NetworkDashboard() {
           </CardContent>
         </Card>
       )}
+
+      <AddSiteDialog open={addSiteOpen} onOpenChange={setAddSiteOpen} organizationId={orgId} />
     </div>
   );
 }

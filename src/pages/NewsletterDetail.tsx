@@ -13,24 +13,29 @@ import { toast } from "sonner";
 import type { Newsletter, NewsletterSection } from "@/types/newsletter";
 import { Logo } from "@/components/Logo";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export default function NewsletterDetail() {
-  const { id } = useParams<{ id: string }>();
+  // Route is /newsletter/:slug — `slug` param doubles as a legacy UUID fallback.
+  const { slug } = useParams<{ slug: string }>();
 
   const { data: newsletter, isLoading } = useQuery({
-    queryKey: ["newsletter-detail", id],
+    queryKey: ["newsletter-detail", slug],
     queryFn: async () => {
+      const column = slug && UUID_RE.test(slug) ? "id" : "slug";
       const { data, error } = await supabase
         .from("newsletters")
         .select("*")
-        .eq("id", id!)
-        .single();
+        .eq(column, slug!)
+        .maybeSingle();
       if (error) throw error;
+      if (!data) return null;
       return {
         ...data,
         sections: (data.sections as unknown as NewsletterSection[]) || [],
       } as Newsletter;
     },
-    enabled: !!id,
+    enabled: !!slug,
   });
 
   const copyLink = () => {
@@ -83,7 +88,7 @@ export default function NewsletterDetail() {
         {newsletter.hero_summary && (
           <div className="bg-primary px-8 sm:px-12 py-5 flex items-center gap-4">
             <ContentIcon imageUrl={newsletter.hero_image_url} emoji={newsletter.hero_emoji} size={32} className="bg-primary-foreground/10" />
-            <p className="text-[15px] font-medium text-primary-foreground leading-snug" dangerouslySetInnerHTML={{ __html: newsletter.hero_summary.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }} />
+            <p className="text-[15px] font-medium text-primary-foreground leading-snug" dangerouslySetInnerHTML={{ __html: String(newsletter.hero_summary ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>") }} />
           </div>
         )}
 

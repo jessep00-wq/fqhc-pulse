@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -19,11 +19,15 @@ import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
+import { BRAND } from "@/lib/brand";
+import { savePlanIntent } from "@/lib/planIntent";
+import { trackAnonEvent } from "@/lib/trackEvent";
+
 
 const pricingJsonLd = {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  name: "MeasureWise",
+  name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA-ready audit binders.",
@@ -136,14 +140,20 @@ export default function Pricing() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    trackAnonEvent("pricing_viewed", { source: "pricing_page" });
+  }, []);
+
   const handleSubscribe = async (lookupKey: string | null) => {
     if (!lookupKey) {
       navigate("/auth?signup=true");
       return;
     }
+    const billing: "monthly" | "annual" = annual ? "annual" : "monthly";
+    trackAnonEvent("plan_selected", { priceId: lookupKey, billing });
+    savePlanIntent(lookupKey, billing);
     if (!user) {
-      // Send to signup; after onboarding the user can come back here.
-      navigate(`/auth?signup=true&plan=${lookupKey}`);
+      navigate(`/auth?signup=true&plan=${lookupKey}&billing=${billing}`);
       return;
     }
     setLoadingKey(lookupKey);
@@ -153,6 +163,7 @@ export default function Pricing() {
       });
       if (error) throw error;
       if (data?.url) {
+        trackAnonEvent("checkout_started", { priceId: lookupKey });
         window.location.href = data.url as string;
         return;
       }
@@ -167,10 +178,11 @@ export default function Pricing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="Pricing — MeasureWise FQHC Quality Operations"
-        description="Solo $149, Multi-Site $349, Network $699 per month. 14-day free trial on every plan. No free tier, no surprises."
-        canonical="https://measurewise.org/pricing"
+        title={`${BRAND.name} pricing for FQHC quality teams`}
+        description="Flat per-site monthly pricing for FQHC quality operations: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan, no procurement runaround."
+        canonical={`${BRAND.url}/pricing`}
         jsonLd={pricingJsonLd}
+
       />
 
 
@@ -178,14 +190,14 @@ export default function Pricing() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center space-y-6">
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            Transparent pricing.
+            {BRAND.name} pricing for
             <br />
-            <span className="text-primary">No "Contact Sales" wall.</span>
+            <span className="text-primary">FQHC quality teams</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Flat per-site monthly pricing with unlimited users and unlimited PDSA cycles.
-            Priced the way FQHCs actually budget — a QI Director can buy without procurement approval.
+            Three flat per-site monthly plans built for how Federally Qualified Health Centers actually budget for quality software. Unlimited users, unlimited PDSA cycles, and no "contact sales" wall — a QI Director can sign up without procurement approval.
           </p>
+
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
             14-day free trial — no credit card required
           </div>

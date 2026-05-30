@@ -27,8 +27,8 @@ export default function FeatureSPCCharts() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
-        title="SPC Charts for Healthcare Quality Improvement"
-        description="Statistical Process Control charts built for FQHC quality teams. Auto-generated from UDS data with trend detection, control limits, and before/after comparison."
+        title="SPC charts for UDS measure tracking"
+        description="Statistical Process Control charts built for FQHC UDS measures. Automatic control limits, before/after intervention splits, and trend detection on diabetes A1c, hypertension, depression screening, and the rest of your UDS line items."
         canonical="https://measurewise.org/features/spc-charts"
         jsonLd={jsonLd}
       />
@@ -40,15 +40,16 @@ export default function FeatureSPCCharts() {
             Feature
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-foreground leading-tight">
-            Statistical Process Control Charts
+            SPC charts for
             <br />
-            <span className="text-primary">for FQHC Quality Teams</span>
+            <span className="text-primary">UDS measure tracking</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Did your PDSA cycle actually improve that measure, or was it just random variation? SPC charts answer this question with statistical rigor — and MeasureWise generates them automatically from your UDS data.
+            Did the intervention actually move the UDS measure, or was it random month-to-month noise? MeasureWise auto-generates Statistical Process Control charts on every UDS line item — diabetes A1c, hypertension, depression screening, cervical cancer screening — so your QI committee can answer that question with a chart, not a hunch.
           </p>
         </div>
       </section>
+
 
       <section className="py-16 px-6 bg-muted/30">
         <div className="max-w-5xl mx-auto">

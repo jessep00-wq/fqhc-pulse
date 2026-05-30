@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { formatPrice, type StoreProduct } from "@/types/store";
+import { mapStoreProduct } from "@/lib/storeMappers";
 
 interface Order {
   id: string;
@@ -31,10 +32,10 @@ export default function AdminStore() {
 
   async function load() {
     const [{ data: p }, { data: o }] = await Promise.all([
-      supabase.from("store_products" as never).select("*").order("sort_order"),
-      supabase.from("orders" as never).select("*").order("created_at", { ascending: false }).limit(50),
+      supabase.from("store_products").select("*").order("sort_order"),
+      supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(50),
     ]);
-    setProducts((p as unknown as StoreProduct[]) ?? []);
+    setProducts((p ?? []).map(mapStoreProduct));
     setOrders((o as unknown as Order[]) ?? []);
   }
 
@@ -50,8 +51,8 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newPaths = Array.from(new Set([...(product?.included_file_paths ?? []), path]));
     const { error: dbErr } = await supabase
-      .from("store_products" as never)
-      .update({ included_file_paths: newPaths } as never)
+      .from("store_products")
+      .update({ included_file_paths: newPaths })
       .eq("id", productId);
     if (dbErr) {
       toast.error(dbErr.message);
@@ -74,8 +75,8 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newUrls = Array.from(new Set([...(product?.preview_image_urls ?? []), pub.publicUrl]));
     const { error: dbErr } = await supabase
-      .from("store_products" as never)
-      .update({ preview_image_urls: newUrls } as never)
+      .from("store_products")
+      .update({ preview_image_urls: newUrls })
       .eq("id", productId);
     if (dbErr) {
       toast.error(dbErr.message);
@@ -89,8 +90,8 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newUrls = (product?.preview_image_urls ?? []).filter((u) => u !== url);
     await supabase
-      .from("store_products" as never)
-      .update({ preview_image_urls: newUrls } as never)
+      .from("store_products")
+      .update({ preview_image_urls: newUrls })
       .eq("id", productId);
     toast.success("Preview removed");
     void load();
@@ -101,8 +102,8 @@ export default function AdminStore() {
     const product = products.find((p) => p.id === productId);
     const newPaths = (product?.included_file_paths ?? []).filter((p) => p !== path);
     await supabase
-      .from("store_products" as never)
-      .update({ included_file_paths: newPaths } as never)
+      .from("store_products")
+      .update({ included_file_paths: newPaths })
       .eq("id", productId);
     toast.success("File removed");
     void load();
@@ -115,8 +116,8 @@ export default function AdminStore() {
       return;
     }
     const { error } = await supabase
-      .from("store_products" as never)
-      .update({ price_cents: newPrice } as never)
+      .from("store_products")
+      .update({ price_cents: newPrice })
       .eq("id", productId);
     if (error) {
       toast.error(error.message);
@@ -129,8 +130,8 @@ export default function AdminStore() {
   async function saveGuidance(productId: string) {
     const text = (guidance[productId] ?? "").trim() || null;
     const { error } = await supabase
-      .from("store_products" as never)
-      .update({ buyer_guidance: text } as never)
+      .from("store_products")
+      .update({ buyer_guidance: text })
       .eq("id", productId);
     if (error) {
       toast.error(error.message);

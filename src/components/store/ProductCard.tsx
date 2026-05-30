@@ -18,7 +18,14 @@ export function ProductCard({ product }: { product: StoreProduct }) {
         <CardContent className="p-6 flex flex-col h-full">
           <div className="flex items-start justify-between mb-3">
             <div className="text-4xl">{product.hero_emoji ?? "📋"}</div>
-            <Badge variant="secondary">{product.category}</Badge>
+            <div className="flex flex-col items-end gap-1.5">
+              {product.is_coming_soon && (
+                <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30">
+                  Coming soon
+                </Badge>
+              )}
+              <Badge variant="secondary">{product.category}</Badge>
+            </div>
           </div>
           <h3 className="text-lg font-semibold mb-1 group-hover:text-primary transition-colors">
             {product.name}

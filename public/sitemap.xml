@@ -116,22 +116,27 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/newsletter/f422de3e-6afc-4da2-bae3-b41a9189d787</loc>
+    <loc>https://measurewise.org/newsletter/why-your-fqhc-quality-measures-are-flatlining-and-how-to-fix-them-bbae4d</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/newsletter/51b6148d-971e-4c10-9d3d-31844dc622d2</loc>
+    <loc>https://measurewise.org/newsletter/measurewise-insights-the-executive-brief-on-fqhc-operational-excellence-51b614</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/newsletter/55d3620f-21aa-4e33-b5cd-d03a72bfb5fb</loc>
+    <loc>https://measurewise.org/newsletter/the-danger-of-invisible-quality-improvement-f422de</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/newsletter/9bd80537-6f2b-41e2-8f14-9579bc9fa421</loc>
+    <loc>https://measurewise.org/newsletter/beyond-the-paperwork-stigma-9bd805</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/newsletter/how-one-to-one-qi-coaching-helps-teams-build-real-improvement-skills-55d362</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
@@ -141,9 +146,19 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/auth</loc>
+    <loc>https://measurewise.org/manual</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/store/bundle/governance-bundle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/store/bundle/pdsa-improvement-bundle</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
   </url>
   <url>
     <loc>https://measurewise.org/status</loc>
@@ -170,4 +185,12 @@
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
+  <url><loc>https://measurewise.org/resources/uds-aligned-pdsa</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://measurewise.org/resources/hrsa-ready-qi-documentation</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://measurewise.org/resources/fqhc-quality-improvement-evidence</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://measurewise.org/resources/athenaone-documentation-workflows</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://measurewise.org/resources/spc-charts-for-uds-measures</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://measurewise.org/resources/audit-binder-exports</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://measurewise.org/resources/quality-committee-proof</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://measurewise.org/resources/spreadsheet-replacement-qi-tracking</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
