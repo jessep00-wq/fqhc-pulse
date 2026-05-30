@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    resetPostHog();
     await supabase.auth.signOut();
   };
 
