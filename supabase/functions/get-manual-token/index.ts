@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
 
     const { data } = await supabase
       .from("manual_downloads")
-      .select("id, expires_at, downloaded_at, buyer_name, buyer_org, claim_ticket, claim_ticket_expires_at")
+      .select("id, expires_at, downloaded_at, claim_ticket, claim_ticket_expires_at")
       .eq("stripe_session_id", sessionId)
       .maybeSingle();
 
@@ -111,8 +111,6 @@ Deno.serve(async (req) => {
         downloadUrl,
         expiresAt: data.expires_at,
         downloaded: !!data.downloaded_at,
-        buyerName: data.buyer_name,
-        buyerOrg: data.buyer_org,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

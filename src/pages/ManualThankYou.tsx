@@ -10,8 +10,6 @@ interface TokenResult {
   downloadUrl?: string;
   expiresAt?: string;
   downloaded?: boolean;
-  buyerName?: string;
-  buyerOrg?: string;
 }
 
 export default function ManualThankYou() {
@@ -131,10 +129,7 @@ export default function ManualThankYou() {
                 You're all set!
               </h1>
               <p className="text-sm text-[#94A3B8] mb-6">
-                Your personalized copy
-                {state?.buyerName ? ` for ${state.buyerName}` : ""}
-                {state?.buyerOrg ? ` at ${state.buyerOrg}` : ""}
-                {" "}is ready. This link expires after one download or 24 hours, whichever comes first.
+                Your personalized copy is ready. This link expires after one download or 24 hours, whichever comes first.
               </p>
               <a
                 href={state?.downloadUrl}
