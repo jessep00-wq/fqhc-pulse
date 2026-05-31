@@ -68,6 +68,13 @@ import AdminStore from "./pages/admin/AdminStore";
 import ManualLanding from "./pages/ManualLanding";
 import ManualThankYou from "./pages/ManualThankYou";
 
+// Waitlist
+import WaitlistLanding from "./pages/waitlist/WaitlistLanding";
+import WaitlistApply from "./pages/waitlist/WaitlistApply";
+import WaitlistThankYou from "./pages/waitlist/WaitlistThankYou";
+
+
+
 
 // Blog pages
 import BlogIndex from "./pages/blog/BlogIndex";
@@ -158,6 +165,13 @@ const App = () => (
                 {/* Standalone watermarked-manual sales flow */}
                 <Route path="/manual" element={<ManualLanding />} />
                 <Route path="/manual/thank-you" element={<ManualThankYou />} />
+
+                {/* Waitlist funnel */}
+                <Route path="/waitlist" element={<WaitlistLanding />} />
+                <Route path="/waitlist/apply" element={<WaitlistApply />} />
+                <Route path="/waitlist/thank-you" element={<WaitlistThankYou />} />
+
+
 
                 <Route
                   path="/admin/*"
