@@ -1200,6 +1200,72 @@ export type Database = {
         }
         Relationships: []
       }
+      waitlist_applications: {
+        Row: {
+          created_at: string
+          ehr: string | null
+          email: string
+          id: string
+          investment: string | null
+          last_sequence_sent_at: string | null
+          name: string
+          org_type: string
+          organization: string
+          phone: string
+          primary_concern: string | null
+          prompt_now: string
+          sequence_step: number
+          sites: number | null
+          state: string
+          status: string
+          timing: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          ehr?: string | null
+          email: string
+          id?: string
+          investment?: string | null
+          last_sequence_sent_at?: string | null
+          name: string
+          org_type: string
+          organization: string
+          phone: string
+          primary_concern?: string | null
+          prompt_now: string
+          sequence_step?: number
+          sites?: number | null
+          state: string
+          status?: string
+          timing?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          ehr?: string | null
+          email?: string
+          id?: string
+          investment?: string | null
+          last_sequence_sent_at?: string | null
+          name?: string
+          org_type?: string
+          organization?: string
+          phone?: string
+          primary_concern?: string | null
+          prompt_now?: string
+          sequence_step?: number
+          sites?: number | null
+          state?: string
+          status?: string
+          timing?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
