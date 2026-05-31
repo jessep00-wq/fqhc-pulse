@@ -38,6 +38,8 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 { to: "/store", label: "Store" },
                 { to: "/about", label: "About" },
                 { to: "/pricing", label: "Pricing" },
+                { to: "/waitlist", label: "Waitlist" },
+
               ].map((item) => (
                 <Link
                   key={item.to}
@@ -136,7 +138,9 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
                 <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
+                <li><Link to="/waitlist" className="hover:text-foreground transition-colors">Consulting Waitlist</Link></li>
                 <li><a href={`mailto:${BRAND.supportEmail}`} className="hover:text-foreground transition-colors">{BRAND.supportEmail}</a></li>
+
               </ul>
             </div>
 
