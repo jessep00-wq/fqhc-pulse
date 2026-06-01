@@ -1,87 +1,104 @@
-# Static HTML Marketing Homepage
+# MeasureWise Waitlist — Landing, Form, Confirmation, Nurture Sequence
 
-Replace `index.html` with a complete, no-framework marketing homepage. The React SPA continues to power every other route via a second HTML entry.
+Add a self-contained waitlist funnel mirroring the four uploaded designs, with persistent storage and an automated 5-email nurture drip that follows the cadence in the PDF.
 
-## What gets built
+## 1. Routes & Pages (`src/pages/waitlist/`)
 
-### 1. New static `index.html` (root, served at `/`)
-A single self-contained file:
-- Full `<head>`: charset, viewport, title, description, canonical (`https://measurewise.org/`), og:*, twitter:*, favicon, manifest, theme-color, Google site verification, Google Ads gtag (`AW-18116909916`), preload for hero image, both existing JSON-LD blocks (`SoftwareApplication` + `Organization`).
-- All styling in one `<style>` tag (semantic, mobile-first, teal `#1a7a7a` / `#0f4f4f` palette to match the current Tailwind theme).
-- No `<script src="/src/main.tsx">`. No `<div id="root">`.
-- A tiny inline `<script>` only for: (a) playbook lead-magnet email capture POSTing to the existing `capture-playbook-lead` edge function, and (b) the newsletter signup POSTing to the existing newsletter subscribe function. Both use the public Supabase URL + anon key (already public values).
+Three new React pages, each preserving the look-and-feel from the uploaded HTML files (Instrument Serif + DM Sans, warm neutral palette, teal `#01696f` accent) using a scoped CSS module so styles don't leak into the rest of the app.
 
-### 2. Page content (mirrors current `src/pages/Landing.tsx`)
-- Top nav (logo + links: How it works, Features, Pricing, Blog, Case studies, Resources, Sign in, **Start Free** CTA). Pure `<a href="/pricing">`, `/blog`, `/auth?signup=true`, etc. — these load the React app via the SPA fallback.
-- Hero (eyebrow chips, H1, sub, dual CTAs, dashboard screenshot from `/dashboard-preview.webp`).
-- "Built for FQHC Quality Directors" trust strip.
-- 6-card feature grid (PDSA, UDS, SPC, HRSA binder, PCMH evidence, Financial impact).
-- "How it works" 4-step section.
-- Founder callout (Jessica R. Smith, BSN).
-- Pricing teaser (3 tiers: Solo $149 / Multi-Site $349 / Network $699, all with "14-day free trial").
-- Lead-magnet email capture (Playbook Library PDF).
-- FAQ accordion implemented with `<details>`/`<summary>` (no JS).
-- Dark teal CTA band.
-- Footer (legal links, social, copyright).
+| Route | Page | Source HTML |
+|---|---|---|
+| `/waitlist` | `WaitlistLanding.tsx` — marketing landing with hero, problem grid, fit grid, process, CTA | `measurewise-waitlist-landing.html` |
+| `/waitlist/apply` | `WaitlistApply.tsx` — application form (contact, org profile, need/urgency, primary concern, timing, investment readiness) | `measurewise-waitlist-form (1).html` |
+| `/waitlist/thank-you` | `WaitlistThankYou.tsx` — "Application received" confirmation with next-steps list | `measurewise-confirmation (1).html` |
 
-All copy lifted verbatim from the existing `Landing.tsx` / `PublicPageLayout.tsx` so SEO content is preserved.
+All three wired into `src/App.tsx` as public routes. SEO meta via the existing `<SEO>` component. Logo links use the canonical `<Logo>` component. Theme toggle script from the originals dropped (the rest of the site doesn't support per-page dark mode toggling).
 
-### 3. SPA shell moves to `app.html`
-- Create `app.html` containing only the React mount: `<div id="root"></div>` + `<script type="module" src="/src/main.tsx">`.
-- Remove the `/` route from `src/App.tsx` so React never tries to render Landing again (or replace it with `<Navigate to="/dashboard" />` for safety if React loads at `/` somehow).
-- Optionally delete `src/pages/Landing.tsx` and its import — it's no longer reachable.
+The landing page's "Apply" button → `/waitlist/apply`. The form submits → calls `submit-waitlist-application` edge function → on success redirects to `/waitlist/thank-you`.
 
-### 4. Routing plumbing
-- Update `vite.config.ts`:
-  - Multi-page input: `build.rollupOptions.input = { index: 'index.html', app: 'app.html' }`.
-  - Dev middleware that rewrites any non-root, non-asset request to `/app.html` so React Router works during `vite dev`.
-- Add `public/_redirects` (Netlify/Lovable-hosted SPA fallback):
-  ```text
-  /            /index.html   200
-  /assets/*    /assets/:splat 200
-  /*           /app.html      200
-  ```
-- Keep `public/robots.txt` and `public/sitemap.xml` unchanged.
+## 2. Navigation entry points
 
-### 5. Forms (tiny inline script)
-One ~40-line vanilla JS block at the bottom of `index.html`:
-- Captures playbook-form submit → `fetch(SUPABASE_URL + '/functions/v1/capture-playbook-lead', { headers: { apikey, Authorization: 'Bearer ' + anon } })`.
-- Captures newsletter subscribe → existing newsletter endpoint.
-- Inline success/error message, no toast library.
-- Hardcoded `SUPABASE_URL` and anon key (public values, same as `.env`).
+- Add a "Waitlist" link in the public landing page footer and in the `PublicPageLayout` nav (alongside Pricing / Blog).
+- Add a small "Join the waitlist" CTA card to `Pricing.tsx` for visitors who aren't ready to self-serve.
 
-Everything else (login, signup, pricing checkout) is a plain `<a>` to the React app — zero JS needed.
+## 3. Database — `waitlist_applications` table
 
-## Technical details
+New migration creating:
 
-- **No Tailwind** in `index.html` — pure CSS. ~6 KB of styles.
-- **No React imports** anywhere in `index.html` or its inline script.
-- **SEO meta** moves wholesale from current `index.html` into the new static homepage. `app.html` gets a minimal head (title + viewport + Helmet hydration handles per-route SEO for everything else).
-- **Google Ads gtag** stays in `index.html`. Also add it to `app.html` so dashboard/marketing route tracking continues.
-- **No-JS support**: page is fully readable without JavaScript; only the two optional forms degrade gracefully (server-rendered fallback message via `<noscript>`).
-- **Memory updates**: revise `mem://features/public-landing-page` and `mem://features/static-fallback` to record that `/` is now genuinely static HTML, and React loads from `app.html`.
+```text
+waitlist_applications
+  id uuid pk
+  name, title, organization, state, email, phone        -- contact
+  sites int, ehr text, org_type text                    -- org profile
+  prompt_now text                                       -- urgency
+  primary_concern text, timing text, investment text    -- qualifier
+  status text default 'new'                             -- new | contacted | declined | won
+  sequence_step int default 0                           -- 0..5 nurture progress
+  last_sequence_sent_at timestamptz
+  created_at, updated_at
+```
 
-## Files touched
+GRANTs: `service_role` full access; `anon` INSERT only (form is public, no auth). RLS:
+- Public INSERT with a basic CHECK (length caps + email regex) — same pattern as `playbook_leads`.
+- SELECT/UPDATE/DELETE restricted to `is_founder_admin(auth.uid())`.
 
-| File | Change |
-|---|---|
-| `index.html` | Rewritten as full static marketing homepage |
-| `app.html` | **New** — SPA shell |
-| `vite.config.ts` | Multi-page input + dev rewrite |
-| `public/_redirects` | **New** — host routing rules |
-| `src/App.tsx` | Remove `/` route; drop Landing import |
-| `src/pages/Landing.tsx` | Delete (optional) |
-| `mem://features/public-landing-page` | Note static homepage |
-| `mem://features/static-fallback` | Note new role |
+Admin console (`/admin/pipeline`) gets a new "Waitlist" tab listing applications.
 
-## Out of scope
+## 4. Edge function — `submit-waitlist-application`
 
-- Pricing, About, Contact, Blog, Features, Personas, Waitlist, Case Studies, Store — all remain React pages.
-- Dashboard, Admin, Auth — unchanged.
-- No design changes; static HTML visually matches the current Landing page.
+- Validates the form with Zod (length caps, email format, enum checks on org_type / timing / investment).
+- Inserts the row.
+- Sends a transactional confirmation email to the applicant via Resend (the project's existing pattern) using a new template that mirrors the on-page "Application Received" copy.
+- Sends an internal notification to `jessica@measurewise.org` with the submission details.
+- Returns `{ ok: true, id }`.
 
-## Risks to flag
+CORS enabled, no JWT verification (public form), rate-limited by IP via in-memory map (acceptable for low-volume waitlist).
 
-- **Vite dev rewrite**: needs a small custom middleware in `vite.config.ts`; first load on `/dashboard` during dev must serve `app.html`, not `index.html`. This is the trickiest part.
-- **Hosting**: the `_redirects` file is the Lovable/Netlify convention. If Lovable's hosting uses something different (e.g., `vercel.json`), it'll need the equivalent. I'll verify against the published URL once built.
-- **Duplication**: nav and footer in `index.html` will drift from `PublicPageLayout.tsx` unless both are updated together. Acceptable trade for the SEO win, but worth noting.
+## 5. Nurture email sequence — `send-waitlist-nurture`
+
+New edge function modeled on `send-playbook-followups`. Cron-triggered (hourly), gated by `x-cron-secret`. Each run:
+
+1. Queries `waitlist_applications` where `status = 'new'` and `sequence_step < 5`.
+2. For each, computes whether the next email is due based on `created_at` + the cadence below.
+3. Sends via Resend, increments `sequence_step`, stamps `last_sequence_sent_at`.
+
+Cadence (matches the PDF):
+
+| Step | Subject | Send when |
+|---|---|---|
+| 1 | The PDSA problem that shows up during audits | day 4 |
+| 2 | A quick audit-readiness check for your quality team | day 18 |
+| 3 | Your PDSA tracker should make leadership calmer | day 35 |
+| 4 | What I look for before offering a sprint spot | day 56 |
+| 5 | Before your next PDSA review | day 77 |
+
+Email bodies are stored as plain-text/HTML constants in `_shared/waitlist-nurture-emails.ts` (one file, 5 exports) with the exact copy from the PDF, wrapped in the existing brand layout from `_shared/email-templates.ts` and signed "— Jessica · MeasureWise". Each email respects suppression (skips if recipient is in `suppressed_emails`).
+
+A pg_cron job `waitlist-nurture-hourly` is created in the same migration to invoke the function every hour.
+
+## Technical notes
+
+- Uses Resend (existing pattern in `send-playbook-followups`, `send-welcome-email`) rather than the Lovable Emails queue — keeps it consistent with current waitlist-style flows.
+- Reuses `CRON_SECRET` and `RESEND_API_KEY` secrets; no new secrets required.
+- Reuses `BRAND` constants from `supabase/functions/_shared/brand.ts`.
+- The uploaded HTML files' palette (`#01696f`, Instrument Serif) is preserved on these three pages only via a scoped `waitlist.css` import — it does NOT override the global teal HSL `192 70% 35%` design system used elsewhere.
+- No changes to the dashboard, auth, billing, or any existing route.
+
+## Files
+
+**Created**
+- `src/pages/waitlist/WaitlistLanding.tsx`
+- `src/pages/waitlist/WaitlistApply.tsx`
+- `src/pages/waitlist/WaitlistThankYou.tsx`
+- `src/pages/waitlist/waitlist.css`
+- `supabase/functions/submit-waitlist-application/index.ts`
+- `supabase/functions/send-waitlist-nurture/index.ts`
+- `supabase/functions/_shared/waitlist-nurture-emails.ts`
+- Migration: `waitlist_applications` table + RLS + GRANTs + cron job
+
+**Edited**
+- `src/App.tsx` — add 3 routes
+- `src/components/PublicPageLayout.tsx` — add "Waitlist" nav link
+- `src/pages/Landing.tsx` — footer link
+- `src/pages/admin/AdminPipeline.tsx` — add Waitlist tab
+- `@security-memory` — document the new public-INSERT table
