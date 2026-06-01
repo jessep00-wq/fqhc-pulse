@@ -322,6 +322,11 @@ export default function Settings() {
 
   return (
     <div className="p-6 max-w-5xl space-y-6">
+      <SEO
+        title="Settings — Account, Facility & Team"
+        description="Manage your MeasureWise account, facility profile, UDS clinical data, and team members."
+        canonical="https://measurewise.org/dashboard/settings"
+      />
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Settings</h1>
         <p className="text-muted-foreground">Manage your account, facility, clinical data, and team</p>
