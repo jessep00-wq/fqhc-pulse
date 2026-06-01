@@ -9,7 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import Landing from "./pages/Landing";
+// Landing page is served as static HTML from index.html — no React route.
 import Index from "./pages/Index";
 import PDSALab from "./pages/PDSALab";
 import PlaybookLibrary from "./pages/PlaybookLibrary";
@@ -107,7 +107,7 @@ const App = () => (
             <ScrollToTop />
             <ErrorBoundary>
               <Routes>
-                <Route path="/" element={<Landing />} />
+                {/* "/" is served as static HTML from index.html (no React). */}
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/onboarding" element={<Onboarding />} />
