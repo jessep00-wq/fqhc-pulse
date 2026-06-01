@@ -31,6 +31,7 @@ import { JargonTooltip } from "@/components/JargonTooltip";
 import { BoardReportDialog } from "@/components/BoardReportDialog";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
+import { SEO } from "@/components/SEO";
 
 const VARIANT_BORDER: Record<string, string> = {
   default: "border-l-4 border-l-primary",
@@ -361,6 +362,11 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      <SEO
+        title="Dashboard — Quality Operations"
+        description="Your MeasureWise dashboard: active PDSA cycles, at-risk UDS measures, tasks due, and financial impact for your FQHC."
+        canonical="https://measurewise.org/dashboard"
+      />
       {/* Slim sticky sample-data strip */}
       {hasTrends && hasCycles && !sampleBannerDismissed && (
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
