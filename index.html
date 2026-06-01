@@ -480,16 +480,15 @@
           <div class="container">
             <div class="lead-magnet">
               <h2>Get the FQHC PDSA Playbook Library</h2>
-              <p>Pre-built templates for the 12 most common UDS measure improvement cycles. Free PDF.</p>
-              <form class="lead-form" id="playbook-form" novalidate>
-                <label class="sr" for="playbook-email">Email</label>
-                <input type="email" name="email" id="playbook-email" placeholder="you@healthcenter.org" required autocomplete="email" />
-                <button type="submit">Send me the playbook</button>
-              </form>
-              <div class="lead-status" id="playbook-status" role="status" aria-live="polite"></div>
+              <p>Pre-built templates for the most common UDS measure improvement cycles. Free download for FQHC teams.</p>
+              <div style="display:flex;flex-wrap:wrap;gap:12px;justify-content:center">
+                <a class="btn btn-primary btn-lg" href="/resources/uds-aligned-pdsa" style="background:#fff;color:#0f4f4f">Get the playbook</a>
+                <a class="btn btn-outline btn-lg" href="/blog" style="border-color:rgba(255,255,255,.45);color:#fff">Read the blog</a>
+              </div>
             </div>
           </div>
         </section>
+
 
         <!-- FAQ -->
         <section class="section" style="background:#fafafa">
@@ -599,53 +598,15 @@
       </div>
     </noscript>
 
-    <!-- Tiny inline form handler. Only runs on "/". No framework. -->
+    <!-- Tiny inline script: copyright year only. -->
     <script>
       (function () {
-        // Update copyright year.
         var yr = document.getElementById('yr');
         if (yr) yr.textContent = new Date().getFullYear();
-
-        // Playbook lead-magnet form → calls the existing edge function.
-        var form = document.getElementById('playbook-form');
-        var status = document.getElementById('playbook-status');
-        if (!form || !status) return;
-
-        var SUPABASE_URL = 'https://eeyigxcwewdqfeidqbxk.supabase.co';
-        var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVleWlneGN3ZXdkcWZlaWRxYnhrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0NjExMDUsImV4cCI6MjA5MDAzNzEwNX0.SsUnCR-RUBVowGbzaocxCNCB_JvmXjaJdz5CWtby-0Q';
-
-        form.addEventListener('submit', function (e) {
-          e.preventDefault();
-          var email = (form.elements.email.value || '').trim();
-          if (!email || email.indexOf('@') === -1) {
-            status.textContent = 'Please enter a valid email.';
-            return;
-          }
-          var btn = form.querySelector('button');
-          btn.disabled = true;
-          status.textContent = 'Sending…';
-          fetch(SUPABASE_URL + '/functions/v1/capture-playbook-lead', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              apikey: ANON,
-              Authorization: 'Bearer ' + ANON
-            },
-            body: JSON.stringify({ email: email, source: 'static_homepage' })
-          })
-            .then(function (r) { return r.ok ? r.json().catch(function(){return{};}) : Promise.reject(r); })
-            .then(function () {
-              status.textContent = '✓ Check your inbox for the playbook link.';
-              form.reset();
-            })
-            .catch(function () {
-              status.textContent = 'Something went wrong. Email hello@measurewise.org and we\'ll send it directly.';
-            })
-            .finally(function () { btn.disabled = false; });
-        });
       })();
     </script>
 
     <script type="module" src="/src/main.tsx"></script>
+
   </body>
 </html>
