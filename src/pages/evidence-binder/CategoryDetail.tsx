@@ -170,8 +170,11 @@ export default function EvidenceBinderCategoryDetail() {
         </Button>
       </div>
 
+      <WorkstreamRibbon facts={getEvidenceCategoryWorkstream(category, documents)} />
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="p-4 lg:col-span-1">
+
           <h3 className="font-semibold text-sm mb-3">Required document types</h3>
           <ul className="space-y-2">
             {category.required_doc_types.map((t) => {
