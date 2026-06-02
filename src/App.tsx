@@ -210,6 +210,7 @@ const App = () => (
                             <Route path="playbooks" element={<PlaybookLibrary />} />
                             <Route path="ai-assistant" element={<AIAssistant />} />
                             <Route path="staff-tasks" element={<StaffTasks />} />
+                            <Route path="ai-governance" element={<AIGovernance />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
