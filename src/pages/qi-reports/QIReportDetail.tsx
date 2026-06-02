@@ -316,6 +316,11 @@ export default function QIReportDetail() {
           />
         </TabsContent>
       </Tabs>
+        </div>
+        <div>
+          <DownstreamImpactPanel facts={workstreamFacts} className="sticky top-4" />
+        </div>
+      </div>
 
       <ExportReportDialog
         open={exportOpen}
@@ -328,6 +333,7 @@ export default function QIReportDetail() {
     </div>
   );
 }
+
 
 function BoardSummaryView({ report }: { report: QIReport }) {
   const b = report.board_sections;
