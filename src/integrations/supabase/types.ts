@@ -536,19 +536,29 @@ export type Database = {
       pdsa_cycles: {
         Row: {
           act_next_steps: string | null
+          actual_outcome: string | null
           aim_statement: string | null
           analysis_summary: string | null
           assigned_staff: string[] | null
+          baseline_rate: number | null
           clinical_workflow_impact: string | null
+          completeness_score: number
           created_at: string
           decision: string | null
           id: string
           improvement_pct: number | null
+          intervention_description: string | null
           measurement_plan: string | null
+          next_cycle_decision: string | null
+          next_cycle_id: string | null
           organization_id: string
+          owner_user_id: string | null
+          predicted_outcome: string | null
           prediction: string | null
+          previous_cycle_id: string | null
           root_cause: string | null
           site_id: string | null
+          start_date: string | null
           status: string
           study_results: string | null
           target_goal: string | null
@@ -561,19 +571,29 @@ export type Database = {
         }
         Insert: {
           act_next_steps?: string | null
+          actual_outcome?: string | null
           aim_statement?: string | null
           analysis_summary?: string | null
           assigned_staff?: string[] | null
+          baseline_rate?: number | null
           clinical_workflow_impact?: string | null
+          completeness_score?: number
           created_at?: string
           decision?: string | null
           id?: string
           improvement_pct?: number | null
+          intervention_description?: string | null
           measurement_plan?: string | null
+          next_cycle_decision?: string | null
+          next_cycle_id?: string | null
           organization_id: string
+          owner_user_id?: string | null
+          predicted_outcome?: string | null
           prediction?: string | null
+          previous_cycle_id?: string | null
           root_cause?: string | null
           site_id?: string | null
+          start_date?: string | null
           status?: string
           study_results?: string | null
           target_goal?: string | null
@@ -586,19 +606,29 @@ export type Database = {
         }
         Update: {
           act_next_steps?: string | null
+          actual_outcome?: string | null
           aim_statement?: string | null
           analysis_summary?: string | null
           assigned_staff?: string[] | null
+          baseline_rate?: number | null
           clinical_workflow_impact?: string | null
+          completeness_score?: number
           created_at?: string
           decision?: string | null
           id?: string
           improvement_pct?: number | null
+          intervention_description?: string | null
           measurement_plan?: string | null
+          next_cycle_decision?: string | null
+          next_cycle_id?: string | null
           organization_id?: string
+          owner_user_id?: string | null
+          predicted_outcome?: string | null
           prediction?: string | null
+          previous_cycle_id?: string | null
           root_cause?: string | null
           site_id?: string | null
+          start_date?: string | null
           status?: string
           study_results?: string | null
           target_goal?: string | null
@@ -625,6 +655,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pdsa_evidence: {
+        Row: {
+          created_at: string
+          file_name: string
+          file_path: string
+          id: string
+          mime_type: string | null
+          note: string | null
+          organization_id: string
+          pdsa_cycle_id: string
+          size_bytes: number | null
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          file_name: string
+          file_path: string
+          id?: string
+          mime_type?: string | null
+          note?: string | null
+          organization_id: string
+          pdsa_cycle_id: string
+          size_bytes?: number | null
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          file_name?: string
+          file_path?: string
+          id?: string
+          mime_type?: string | null
+          note?: string | null
+          organization_id?: string
+          pdsa_cycle_id?: string
+          size_bytes?: number | null
+          uploaded_by?: string | null
+        }
+        Relationships: []
       }
       playbook_leads: {
         Row: {
