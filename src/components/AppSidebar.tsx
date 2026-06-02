@@ -10,6 +10,7 @@ import {
   Shield,
   ArrowUpRight,
   ShieldCheck,
+  FolderArchive,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
