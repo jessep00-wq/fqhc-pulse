@@ -26,6 +26,9 @@ import {
   type QIReportApproval,
   type QIReportBoardAction,
 } from "@/types/qiReport";
+import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
+import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
+import { getQIReportWorkstream } from "@/lib/workstream/qiReportWorkstream";
 
 export default function QIReportDetail() {
   const { id } = useParams<{ id: string }>();
