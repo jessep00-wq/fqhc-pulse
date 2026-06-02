@@ -335,19 +335,31 @@ export default function PDSADetailDialog({
                 rows={2}
               />
             </div>
-            <div className="space-y-2">
-              <Label>UDS Measure</Label>
-              <Select
-                defaultValue={cycle.uds_measure || ""}
-                onValueChange={(v) => updateCycle.mutate({ uds_measure: v })}
-              >
-                <SelectTrigger><SelectValue placeholder="Select measure" /></SelectTrigger>
-                <SelectContent>
-                  {UDS_MEASURES.map((m) => (
-                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>UDS Measure *</Label>
+                <Select
+                  defaultValue={cycle.uds_measure || ""}
+                  onValueChange={(v) => updateCycle.mutate({ uds_measure: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select measure" /></SelectTrigger>
+                  <SelectContent>
+                    {UDS_MEASURES.map((m) => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Baseline Rate *</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  defaultValue={cycle.baseline_rate ?? ""}
+                  onBlur={(e) => handleBlurUpdate("baseline_rate", e.target.value ? parseFloat(e.target.value) : null)}
+                  placeholder="e.g. 52"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Measurement Plan</Label>
