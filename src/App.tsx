@@ -218,6 +218,9 @@ const App = () => (
                             <Route path="ai-governance" element={<AIGovernance />} />
                             <Route path="evidence-binder" element={<EvidenceBinderOverview />} />
                             <Route path="evidence-binder/category/:slug" element={<EvidenceBinderCategoryDetail />} />
+                            <Route path="qi-reports" element={<QIReportsList />} />
+                            <Route path="qi-reports/new" element={<QIReportWizard />} />
+                            <Route path="qi-reports/:id" element={<QIReportDetail />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
