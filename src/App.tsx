@@ -16,6 +16,7 @@ import PlaybookLibrary from "./pages/PlaybookLibrary";
 import AIAssistant from "./pages/AIAssistant";
 import StaffTasks from "./pages/StaffTasks";
 import Settings from "./pages/Settings";
+import AIGovernance from "./pages/AIGovernance";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";

@@ -1,104 +1,143 @@
-
 ## Goal
 
-Turn every PDSA cycle into a self-contained HRSA SVP–ready QI/QA assessment record by enforcing required fields, visualizing iterative cycle chains per UDS measure, scoring completeness before export, and allowing evidence file uploads directly on the cycle.
+Add an **AI Governance** module to MeasureWise that operationalizes NIST AI RMF (valid/reliable, safe, secure, accountable/transparent, privacy-enhanced) with documented evidence FQHCs can show HRSA, OCR, or their board. Five sub-features: AI Model Inventory, Vendor Review, Risk & Incident Log, Human Review Workflow, and AI Governance Policy.
 
-## 1. Schema changes (migration)
+## 1. Navigation & routing
 
-Add new columns to `pdsa_cycles`:
-- `owner_user_id uuid` — cycle owner (FK semantics via app, references `profiles.id`)
-- `start_date date`
-- `baseline_rate numeric` — measured baseline at cycle start
-- `predicted_outcome text` — distinct from existing `prediction` (kept for back-compat; UI will alias)
-- `intervention_description text` — distinct from `test_description` (alias in UI)
-- `actual_outcome text` — measured post-cycle result
-- `next_cycle_decision text` — enum-like: `adapt | adopt | abandon`
-- `next_cycle_id uuid` — points to follow-on cycle (chain link)
-- `previous_cycle_id uuid` — back-pointer for chain rendering
-- `completeness_score integer` — 0–100, computed on save via trigger
-- `uds_measure` made `NOT NULL` going forward via app-level validation (no DB constraint to avoid breaking legacy rows)
+- New sidebar group "AI Governance" under the dashboard with 5 routes:
+  - `/dashboard/ai-governance` (overview / NIST RMF scorecard)
+  - `/dashboard/ai-governance/inventory`
+  - `/dashboard/ai-governance/vendors`
+  - `/dashboard/ai-governance/incidents`
+  - `/dashboard/ai-governance/reviews`
+  - `/dashboard/ai-governance/policy`
+- Tier-gated: available on Multi and Network plans; Solo sees an upgrade card.
 
-New table `pdsa_evidence`:
-- `id, pdsa_cycle_id, organization_id, file_path, file_name, mime_type, size_bytes, uploaded_by, created_at, note`
-- RLS: org members CRUD within their `organization_id`; founder_admin full access
-- GRANTs: `authenticated` SELECT/INSERT/UPDATE/DELETE; `service_role` ALL
+## 2. Schema (one migration)
 
-New storage bucket `pdsa-evidence` (private). RLS on `storage.objects` scoped by `{organization_id}/{cycle_id}/...` path prefix.
-
-Trigger `pdsa_completeness_trg` (BEFORE INSERT/UPDATE) computes `completeness_score` from required field presence.
-
-## 2. Required-field enforcement in `CreatePDSAWizard`
-
-Extend `WizardData` and add wizard steps:
-- Owner step (Select from org profiles)
-- Start date (shadcn datepicker)
-- Baseline rate (numeric input, unit hint based on UDS measure)
-- Predicted outcome (rename label of existing prediction)
-- Intervention description (rename test step)
-- UDS measure becomes required (block Next if empty)
-
-Add a new "Close-out" wizard step shown when moving a cycle to `completed`:
-- Actual outcome
-- Next cycle decision: Adapt / Adopt / Abandon (radio cards)
-- Optional "Start next cycle" — creates a new cycle pre-linked via `previous_cycle_id`
-
-Update `canProceed()` to require new fields on relevant steps.
-
-## 3. Cycle Chain view
-
-New `src/components/pdsa/CycleChain.tsx`:
-- Horizontal timeline of cycles sharing a `uds_measure` within the org, ordered by `start_date`
-- Each node: cycle title, dates, baseline → actual, decision badge (Adapt/Adopt/Abandon), completeness ring
-- Connecting arrows show iteration; current cycle highlighted
-
-Surface in:
-- `PDSADetailDialog` (new "Chain" tab)
-- `PDSALab` page header: a "View by Measure" toggle that groups cycles into per-measure chains instead of the Kanban
-
-## 4. Completeness score
-
-New `src/lib/pdsaCompleteness.ts`:
-- `computeCompleteness(cycle, evidenceCount): { score, missing[] }`
-- Weighted required fields: owner, start_date, uds_measure, baseline_rate, predicted_outcome, intervention_description, aim_statement, measurement_plan; close-out fields (actual_outcome, next_cycle_decision) required only for `completed`; at least one evidence file = +10
-
-UI:
-- `CompletenessRing` component on each PDSA card and detail dialog
-- Export buttons (Audit Binder, Evidence Packet, single-cycle PDF) call a `guardCompleteness()` that opens a dialog listing missing fields and the cycles affected, with a "Continue anyway" override for founder_admin only
-
-## 5. Linked Evidence
-
-New `src/components/pdsa/EvidencePanel.tsx` inside `PDSADetailDialog`:
-- Drag-and-drop / file picker (PDF, PNG, JPG, DOCX, XLSX up to 20MB)
-- Uploads to `pdsa-evidence/{org_id}/{cycle_id}/{uuid}-{filename}`
-- Inserts row in `pdsa_evidence`
-- List with thumbnail/icon, filename, uploader, date, signed-URL download, delete (owner or founder_admin)
-
-Evidence count feeds completeness score and is included in `EvidencePacketDialog` PDF export (appended pages or appendix list with signed URLs that expire in 7 days).
-
-## 6. UDS measure linkage hardening
-
-- Wizard: UDS measure required at "measurement" step (already a field; flip to required)
-- DB query: backfill cycles with NULL `uds_measure` are surfaced in an "Orphan cycles" banner on PDSA Lab with a one-click "Link measure" inline editor
-- Hide "Start cycle" on Playbook templates that lack a `udsMeasure` mapping (already mapped; add guard)
-
-## 7. Files to change
+All tables RLS-scoped to `organization_id` with `founder_admin` bypass, mirroring `pdsa_cycles`. GRANTs to `authenticated` + `service_role`.
 
 ```text
-supabase/migrations/<new>.sql                    -- columns, table, bucket policies, trigger
-src/types/pdsa.ts                                 -- extend DBCycle, add Evidence type
-src/components/CreatePDSAWizard.tsx               -- new fields/steps, validation
-src/components/PDSADetailDialog.tsx               -- Chain tab, Evidence panel, completeness ring, close-out form
-src/components/pdsa/CycleChain.tsx                -- new
-src/components/pdsa/CompletenessRing.tsx          -- new
-src/components/pdsa/EvidencePanel.tsx             -- new
-src/lib/pdsaCompleteness.ts                       -- new
-src/pages/PDSALab.tsx                             -- view toggle, orphan banner, export guard
-src/components/EvidencePacketDialog.tsx           -- include linked evidence + completeness gate
-src/components/AuditBinderDialog.tsx              -- completeness gate
+ai_tools                       -- model inventory
+  organization_id, name, vendor, purpose, ai_category (clinical|operational|administrative),
+  user_role, workflow_location, patient_impact (none|low|moderate|high),
+  data_accessed text[], handles_phi bool, risk_tier (1|2|3),
+  date_adopted date, vendor_agreement_status (none|requested|signed|expired),
+  is_shadow_ai bool, reported_by, internal_owner_user_id,
+  status (active|paused|retired), notes
+
+ai_vendor_reviews              -- one per tool per review cycle
+  ai_tool_id, organization_id, review_date, next_review_date,
+  baa_signed bool, baa_file_path, data_retention_terms,
+  model_update_notification text, audit_rights text,
+  indemnification text, known_limitations text,
+  signed_agreement_path, reviewer_user_id, status (draft|approved)
+
+ai_incidents
+  organization_id, ai_tool_id, occurred_at, reported_by,
+  incident_type (unexpected_output|near_miss|patient_safety|bias|privacy|other),
+  description, patient_impact bool, patient_impact_detail,
+  corrective_action, resolution_status (open|investigating|resolved|escalated),
+  resolved_at, qi_committee_reviewed bool, qi_review_date
+
+ai_review_events               -- per-output human-in-the-loop audit trail
+  organization_id, ai_tool_id, reviewer_user_id, reviewed_at,
+  output_category (clinical_recommendation|documentation|billing_code|other),
+  output_summary, action_taken (accepted|modified|rejected|escalated),
+  patient_reference text, notes
+
+ai_policies                    -- one active per org, with version history
+  organization_id, version int, title, body_md,
+  status (draft|in_review|approved|active|retired),
+  cmo_approved_by, cmo_approved_at,
+  ceo_approved_by, ceo_approved_at,
+  board_chair_approved_by, board_chair_approved_at,
+  activated_at, next_review_date
 ```
 
-## 8. Out of scope (will not change in this pass)
+Triggers:
+- `ai_policy_next_review` — sets `next_review_date = activated_at + 12 months`.
+- `ai_vendor_review_alert` — when `next_review_date < now()` flips a derived `is_overdue` flag (computed in queries).
+- Activity-log inserts on tool create, incident open, policy approval.
 
-- Reworking the Kanban drag-and-drop semantics
-- Renaming existing DB columns (`prediction`, `test_description`) — kept as back-compat aliases
-- AI auto-suggestion of missing fields
+Storage bucket `ai-governance-evidence` (private) for BAAs, signed agreements, vendor docs. Path: `{org_id}/{tool_id}/{uuid}-{filename}`. RLS on `storage.objects` scoped by org.
+
+## 3. AI Model Inventory UI
+
+- `src/pages/ai-governance/Inventory.tsx`: table view with filters (category, risk tier, PHI, owner, status, shadow AI).
+- `AddAIToolDialog` wizard: Basics → Purpose & workflow → Data & PHI → Risk tier (auto-suggested by PHI + patient impact + category) → Owner & vendor agreement.
+- "Report Shadow AI" quick form on the overview page (any authenticated user) — creates a tool row with `is_shadow_ai=true`, `status=paused`, notifies founder_admin and internal_owner.
+- Visual chip palette: Clinical (teal), Operational (slate), Administrative (amber); risk tier badges (1 = green, 2 = amber, 3 = red).
+
+## 4. Vendor Review
+
+- `Vendors.tsx`: list of tools with their latest review, days-until-next-review, BAA badge.
+- `VendorReviewDialog`: checklist form covering BAA, data retention, model-update notification, audit rights, indemnification, known limitations; file uploads to `ai-governance-evidence`.
+- Cadence alerts: overdue reviews shown on overview + dashboard `AttentionStrip`; weekly digest email includes a reminder list.
+
+## 5. Risk & Incident Log
+
+- `Incidents.tsx`: Kanban-lite by `resolution_status`, list view, and filter by tool/type/patient impact.
+- `IncidentDialog`: capture full incident record, attach evidence files, mark `qi_committee_reviewed`.
+- "Generate QI committee report" button: produces a PDF (reuse `EvidencePacketDialog` patterns) summarizing incidents in a date range, grouped by tool and severity, mirroring existing QI report structure.
+
+## 6. Human Review Workflow
+
+- `Reviews.tsx`: per-tool log of human review events with reviewer, timestamp, action, output category. Filters by tool, action, date range.
+- `LogReviewDialog`: simple capture form usable from inside any AI tool record. Optional: a `<AIReviewBadge tool_id />` component callers can drop into other surfaces (e.g., PDSA Lab if an AI suggestion is accepted) to record an event.
+- CSV + PDF export of review events (audit trail).
+
+## 7. AI Governance Policy
+
+- `Policy.tsx`: shows active policy with version, approval signatures, next review date, and history.
+- `PolicyEditor`: starts from a pre-loaded NIST AI RMF–aligned template (stored in `src/data/aiGovernancePolicyTemplate.ts`) with sections for each NIST characteristic. Markdown editor + preview.
+- Approval workflow: Draft → In Review → CMO sign → CEO sign → Board Chair sign → Active. Each sign step records a row in `ai_review_events` (output_category=`policy_approval`) for a unified audit trail. Activating creates a new version and supersedes the prior one.
+- 12-month review reminder shown on overview + emailed via existing weekly-digest function.
+
+## 8. Overview / NIST RMF scorecard
+
+`AIGovernanceOverview.tsx` shows five tiles (Valid & Reliable, Safe, Secure & Resilient, Accountable & Transparent, Privacy-Enhanced). Each tile derives a 0–100 score from the relevant data (e.g., Privacy-Enhanced ← % PHI-handling tools with signed BAA; Accountable ← % tools with owner + recent human-review activity). Same `CompletenessRing` pattern used by PDSA.
+
+Also surfaces: overdue vendor reviews, open incidents, shadow-AI reports awaiting triage, policy review status.
+
+## 9. Audit Binder integration
+
+Extend `AuditBinderDialog` to add an "AI Governance" section: active policy (with signatures), full model inventory snapshot, vendor review attestations, incident summary, and review-event count for the period. Gated by an AI-governance completeness check (active policy + every active tool has an owner, risk tier, and current vendor review).
+
+## 10. Email & cron
+
+- New edge function `check-ai-governance-alerts` (daily cron) — flags overdue vendor reviews and policies past `next_review_date`, queues digest email entries.
+- Hook into existing `weekly-digest` function output.
+
+## 11. Files to change/create
+
+```text
+supabase/migrations/<new>.sql                       -- 5 tables, bucket policies, triggers
+supabase/functions/check-ai-governance-alerts/...   -- new daily cron
+src/pages/ai-governance/Overview.tsx                -- NIST scorecard
+src/pages/ai-governance/Inventory.tsx
+src/pages/ai-governance/Vendors.tsx
+src/pages/ai-governance/Incidents.tsx
+src/pages/ai-governance/Reviews.tsx
+src/pages/ai-governance/Policy.tsx
+src/components/ai-governance/AddAIToolDialog.tsx
+src/components/ai-governance/ShadowAIDialog.tsx
+src/components/ai-governance/VendorReviewDialog.tsx
+src/components/ai-governance/IncidentDialog.tsx
+src/components/ai-governance/LogReviewDialog.tsx
+src/components/ai-governance/PolicyEditor.tsx
+src/components/ai-governance/NISTScorecard.tsx
+src/components/ai-governance/AIEvidencePanel.tsx
+src/data/aiGovernancePolicyTemplate.ts
+src/lib/aiGovernanceScoring.ts
+src/components/AppSidebar.tsx                       -- nav group
+src/components/AuditBinderDialog.tsx                -- AI Governance section
+src/App.tsx                                         -- 6 new routes
+```
+
+## 12. Out of scope (this pass)
+
+- Auto-discovering AI usage from browser/network telemetry
+- Real-time vendor API monitoring
+- Per-output capture via integrations (PDSA AI Assistant calls remain unchanged; review logging is manual)
+- E-signature integration for board approvals (we capture user + timestamp, not cryptographic signatures)
