@@ -258,6 +258,10 @@ export default function EvidenceBinderCategoryDetail() {
         </Card>
       </div>
 
+      <DownstreamImpactPanel facts={getEvidenceCategoryWorkstream(category, documents)} />
+
+
+
       <UploadDocumentDialog
         open={uploadOpen}
         onOpenChange={setUploadOpen}
