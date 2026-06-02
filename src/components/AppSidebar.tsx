@@ -11,6 +11,7 @@ import {
   ArrowUpRight,
   ShieldCheck,
   FolderArchive,
+  ClipboardCheck,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
