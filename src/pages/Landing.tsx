@@ -280,7 +280,7 @@ const softwareJsonLd = {
 
 function ComparisonCell({ value }: { value: boolean | string }) {
   if (value === true) return <CheckCircle className="h-5 w-5 text-primary mx-auto" />;
-  if (value === false) return <X className="h-5 w-5 text-muted-foreground/40 mx-auto" />;
+  if (value === false) return <X className="h-5 w-5 text-muted-foreground mx-auto" aria-label="Not included" />;
   return <span className="text-sm text-muted-foreground">{value}</span>;
 }
 
