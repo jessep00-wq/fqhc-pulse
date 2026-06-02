@@ -123,12 +123,22 @@ export default function EvidenceBinderOverview() {
         </div>
       </div>
 
-      <CompletenessHero
-        overall={overall}
-        totalDocs={documents.length}
-        expiringSoon={expiringSoon.filter((e) => e.daysUntil >= 0).length}
-        expired={expiredCount}
-      />
+      <WorkstreamRibbon facts={workstreamFacts} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+        <div className="space-y-6 min-w-0">
+          <CompletenessHero
+            overall={overall}
+            totalDocs={documents.length}
+            expiringSoon={expiringSoonCount}
+            expired={expiredCount}
+          />
+        </div>
+        <div>
+          <DownstreamImpactPanel facts={workstreamFacts} className="sticky top-4" />
+        </div>
+      </div>
+
 
       {expiringSoon.length > 0 && (
         <Card className="p-4 border-warning/30 bg-warning/5">
