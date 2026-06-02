@@ -1268,6 +1268,154 @@ export type Database = {
           },
         ]
       }
+      qi_report_approvals: {
+        Row: {
+          approver_name_snapshot: string | null
+          approver_title_snapshot: string | null
+          approver_user_id: string | null
+          created_at: string
+          decided_at: string
+          decision: string
+          decision_note: string | null
+          id: string
+          organization_id: string
+          report_id: string
+          role: string
+        }
+        Insert: {
+          approver_name_snapshot?: string | null
+          approver_title_snapshot?: string | null
+          approver_user_id?: string | null
+          created_at?: string
+          decided_at?: string
+          decision: string
+          decision_note?: string | null
+          id?: string
+          organization_id: string
+          report_id: string
+          role: string
+        }
+        Update: {
+          approver_name_snapshot?: string | null
+          approver_title_snapshot?: string | null
+          approver_user_id?: string | null
+          created_at?: string
+          decided_at?: string
+          decision?: string
+          decision_note?: string | null
+          id?: string
+          organization_id?: string
+          report_id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qi_report_approvals_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "qi_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qi_report_board_actions: {
+        Row: {
+          created_at: string
+          detail: string | null
+          due_date: string | null
+          id: string
+          kind: string
+          organization_id: string
+          owner_user_id: string | null
+          report_id: string
+          resolved_at: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          detail?: string | null
+          due_date?: string | null
+          id?: string
+          kind?: string
+          organization_id: string
+          owner_user_id?: string | null
+          report_id: string
+          resolved_at?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          detail?: string | null
+          due_date?: string | null
+          id?: string
+          kind?: string
+          organization_id?: string
+          owner_user_id?: string | null
+          report_id?: string
+          resolved_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qi_report_board_actions_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "qi_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qi_reports: {
+        Row: {
+          ai_draft_meta: Json
+          board_sections: Json
+          committee_sections: Json
+          created_at: string
+          evidence_document_id: string | null
+          generated_by: string | null
+          id: string
+          organization_id: string
+          period_end: string | null
+          period_label: string
+          period_start: string | null
+          report_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_draft_meta?: Json
+          board_sections?: Json
+          committee_sections?: Json
+          created_at?: string
+          evidence_document_id?: string | null
+          generated_by?: string | null
+          id?: string
+          organization_id: string
+          period_end?: string | null
+          period_label: string
+          period_start?: string | null
+          report_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_draft_meta?: Json
+          board_sections?: Json
+          committee_sections?: Json
+          created_at?: string
+          evidence_document_id?: string | null
+          generated_by?: string | null
+          id?: string
+          organization_id?: string
+          period_end?: string | null
+          period_label?: string
+          period_start?: string | null
+          report_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           address: string | null
