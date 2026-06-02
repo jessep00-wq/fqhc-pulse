@@ -11,6 +11,9 @@ import { CompletenessHero } from "@/components/evidence-binder/CompletenessHero"
 import { CategoryTile } from "@/components/evidence-binder/CategoryTile";
 import { UploadDocumentDialog } from "@/components/evidence-binder/UploadDocumentDialog";
 import { ExportBinderDialog } from "@/components/evidence-binder/ExportBinderDialog";
+import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
+import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
+import { getEvidenceOverviewWorkstream } from "@/lib/workstream/evidenceWorkstream";
 import {
   computeCategoryStatus,
   computeOverallScore,
@@ -84,6 +87,20 @@ export default function EvidenceBinderOverview() {
   const overall = computeOverallScore(statuses);
   const expiringSoon = useMemo(() => listExpiringSoon(documents, 30), [documents]);
   const expiredCount = documents.filter((d) => d.status === "expired").length;
+  const expiringSoonCount = expiringSoon.filter((e) => e.daysUntil >= 0).length;
+  const workstreamFacts = useMemo(
+    () =>
+      getEvidenceOverviewWorkstream(
+        statuses,
+        documents.length,
+        expiredCount,
+        expiringSoonCount,
+        overall,
+      ),
+    [statuses, documents.length, expiredCount, expiringSoonCount, overall],
+  );
+
+
 
   return (
     <div className="space-y-6 p-6 max-w-7xl mx-auto">
@@ -106,12 +123,22 @@ export default function EvidenceBinderOverview() {
         </div>
       </div>
 
-      <CompletenessHero
-        overall={overall}
-        totalDocs={documents.length}
-        expiringSoon={expiringSoon.filter((e) => e.daysUntil >= 0).length}
-        expired={expiredCount}
-      />
+      <WorkstreamRibbon facts={workstreamFacts} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+        <div className="space-y-6 min-w-0">
+          <CompletenessHero
+            overall={overall}
+            totalDocs={documents.length}
+            expiringSoon={expiringSoonCount}
+            expired={expiredCount}
+          />
+        </div>
+        <div>
+          <DownstreamImpactPanel facts={workstreamFacts} className="sticky top-4" />
+        </div>
+      </div>
+
 
       {expiringSoon.length > 0 && (
         <Card className="p-4 border-warning/30 bg-warning/5">

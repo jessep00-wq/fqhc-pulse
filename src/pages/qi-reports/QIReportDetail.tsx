@@ -26,6 +26,9 @@ import {
   type QIReportApproval,
   type QIReportBoardAction,
 } from "@/types/qiReport";
+import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
+import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
+import { getQIReportWorkstream } from "@/lib/workstream/qiReportWorkstream";
 
 export default function QIReportDetail() {
   const { id } = useParams<{ id: string }>();
@@ -199,6 +202,12 @@ export default function QIReportDetail() {
 
   const isApproved = report.status === "approved" || report.status === "board_presented";
 
+  const workstreamFacts = getQIReportWorkstream(
+    report,
+    approvalsQuery.data ?? [],
+    actionsQuery.data ?? [],
+  );
+
   return (
     <div className="space-y-6 p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -230,6 +239,12 @@ export default function QIReportDetail() {
           </Button>
         </div>
       </div>
+
+      <WorkstreamRibbon facts={workstreamFacts} />
+
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
+        <div className="min-w-0">
+
 
       <Tabs defaultValue="committee">
         <TabsList>
@@ -301,6 +316,11 @@ export default function QIReportDetail() {
           />
         </TabsContent>
       </Tabs>
+        </div>
+        <div>
+          <DownstreamImpactPanel facts={workstreamFacts} className="sticky top-4" />
+        </div>
+      </div>
 
       <ExportReportDialog
         open={exportOpen}
@@ -313,6 +333,7 @@ export default function QIReportDetail() {
     </div>
   );
 }
+
 
 function BoardSummaryView({ report }: { report: QIReport }) {
   const b = report.board_sections;
