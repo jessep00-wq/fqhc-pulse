@@ -263,15 +263,12 @@ function renderBoard(
 // Tiny jsPDF y-cursor helpers (jsPDF doesn't expose one)
 const Y_KEY = Symbol.for("qi-pdf-y");
 function getY(doc: jsPDF): number {
-  // @ts-expect-error stash on doc
-  return doc[Y_KEY] ?? 54;
+  return (doc as unknown as Record<symbol, number>)[Y_KEY] ?? 54;
 }
 function setY(doc: jsPDF, v: number) {
-  // @ts-expect-error stash on doc
-  doc[Y_KEY] = v;
+  (doc as unknown as Record<symbol, number>)[Y_KEY] = v;
   if (v > doc.internal.pageSize.getHeight() - 54) {
     doc.addPage();
-    // @ts-expect-error stash on doc
-    doc[Y_KEY] = 54;
+    (doc as unknown as Record<symbol, number>)[Y_KEY] = 54;
   }
 }
