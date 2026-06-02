@@ -11,6 +11,9 @@ import { CompletenessHero } from "@/components/evidence-binder/CompletenessHero"
 import { CategoryTile } from "@/components/evidence-binder/CategoryTile";
 import { UploadDocumentDialog } from "@/components/evidence-binder/UploadDocumentDialog";
 import { ExportBinderDialog } from "@/components/evidence-binder/ExportBinderDialog";
+import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
+import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
+import { getEvidenceOverviewWorkstream } from "@/lib/workstream/evidenceWorkstream";
 import {
   computeCategoryStatus,
   computeOverallScore,
