@@ -280,7 +280,7 @@ const softwareJsonLd = {
 
 function ComparisonCell({ value }: { value: boolean | string }) {
   if (value === true) return <CheckCircle className="h-5 w-5 text-primary mx-auto" />;
-  if (value === false) return <X className="h-5 w-5 text-muted-foreground/40 mx-auto" />;
+  if (value === false) return <X className="h-5 w-5 text-muted-foreground mx-auto" aria-label="Not included" />;
   return <span className="text-sm text-muted-foreground">{value}</span>;
 }
 
@@ -755,7 +755,7 @@ export default function Landing() {
             in front of a site-visit reviewer. This is the tool I wish I had — designed to close
             the gap between what happens in clinics and what shows up in your UDS tables.
           </p>
-          <p className="text-sm text-muted-foreground/70 italic">
+          <p className="text-sm text-muted-foreground italic">
             — {BRAND.founder.formalName} · {BRAND.founder.title}
           </p>
         </div>
