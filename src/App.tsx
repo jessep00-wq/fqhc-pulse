@@ -213,6 +213,8 @@ const App = () => (
                             <Route path="ai-assistant" element={<AIAssistant />} />
                             <Route path="staff-tasks" element={<StaffTasks />} />
                             <Route path="ai-governance" element={<AIGovernance />} />
+                            <Route path="evidence-binder" element={<EvidenceBinderOverview />} />
+                            <Route path="evidence-binder/category/:slug" element={<EvidenceBinderCategoryDetail />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
