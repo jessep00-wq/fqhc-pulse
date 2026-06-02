@@ -19,6 +19,10 @@ import { UDS_MEASURES } from "@/data/mockData";
 import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
+import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
+import { CycleChain } from "@/components/pdsa/CycleChain";
+import { computeCompleteness } from "@/lib/pdsaCompleteness";
 
 interface DBCycle {
   id: string;
@@ -43,6 +47,16 @@ interface DBCycle {
   analysis_summary?: string | null;
   decision?: string | null;
   template_id?: string | null;
+  owner_user_id?: string | null;
+  start_date?: string | null;
+  baseline_rate?: number | null;
+  predicted_outcome?: string | null;
+  intervention_description?: string | null;
+  actual_outcome?: string | null;
+  next_cycle_decision?: string | null;
+  previous_cycle_id?: string | null;
+  next_cycle_id?: string | null;
+  completeness_score?: number | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
@@ -56,8 +70,8 @@ interface DialogTask {
   acknowledged: boolean;
 }
 
-type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision";
-type CycleNumberField = "improvement_pct";
+type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
+type CycleNumberField = "improvement_pct" | "baseline_rate";
 
 const STAFF_ROLES = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
 const TASK_STATUSES = ["pending", "in_progress", "completed"] as const;
@@ -227,23 +241,44 @@ export default function PDSADetailDialog({
     onClose();
   };
 
+  const { data: orgProfiles = [] } = useQuery({
+    queryKey: ["org_profiles", organization.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id,full_name,staff_role")
+        .eq("organization_id", organization.id);
+      return data || [];
+    },
+    enabled: !!organization.id,
+  });
+
+  const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg">{cycle.title}</DialogTitle>
-          <DialogDescription>
-            <Badge variant="outline" className="mr-2">{cycle.status.toUpperCase()}</Badge>
-            {cycle.uds_measure && <Badge variant="secondary">{cycle.uds_measure.split(":")[0]}</Badge>}
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <DialogTitle className="text-lg">{cycle.title}</DialogTitle>
+              <DialogDescription>
+                <Badge variant="outline" className="mr-2">{cycle.status.toUpperCase()}</Badge>
+                {cycle.uds_measure && <Badge variant="secondary">{cycle.uds_measure.split(":")[0]}</Badge>}
+              </DialogDescription>
+            </div>
+            <CompletenessRing score={score} />
+          </div>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="aim">Aim & Plan</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="aim">Aim</TabsTrigger>
             <TabsTrigger value="test">Test</TabsTrigger>
             <TabsTrigger value="analyze">Analyze</TabsTrigger>
             <TabsTrigger value="decide">Decide</TabsTrigger>
+            <TabsTrigger value="evidence">Evidence</TabsTrigger>
+            <TabsTrigger value="chain">Chain</TabsTrigger>
           </TabsList>
 
           {/* AIM & PLAN TAB */}
@@ -254,6 +289,32 @@ export default function PDSADetailDialog({
                 defaultValue={cycle.title}
                 onBlur={(e) => handleBlurUpdate("title", e.target.value)}
               />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Cycle Owner *</Label>
+                <Select
+                  defaultValue={cycle.owner_user_id || ""}
+                  onValueChange={(v) => updateCycle.mutate({ owner_user_id: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Assign owner" /></SelectTrigger>
+                  <SelectContent>
+                    {orgProfiles.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.full_name || "Unnamed"}{p.staff_role ? ` · ${p.staff_role}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Start Date *</Label>
+                <Input
+                  type="date"
+                  defaultValue={cycle.start_date || ""}
+                  onBlur={(e) => handleBlurUpdate("start_date", e.target.value || null)}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Aim Statement</Label>
@@ -266,27 +327,39 @@ export default function PDSADetailDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Prediction</Label>
+              <Label>Predicted Outcome *</Label>
               <Textarea
-                defaultValue={cycle.prediction || ""}
-                onBlur={(e) => handleBlurUpdate("prediction", e.target.value)}
-                placeholder="What do you think will happen?"
+                defaultValue={cycle.predicted_outcome || cycle.prediction || ""}
+                onBlur={(e) => handleBlurUpdate("predicted_outcome", e.target.value)}
+                placeholder="What measurable result do you expect, and by when?"
                 rows={2}
               />
             </div>
-            <div className="space-y-2">
-              <Label>UDS Measure</Label>
-              <Select
-                defaultValue={cycle.uds_measure || ""}
-                onValueChange={(v) => updateCycle.mutate({ uds_measure: v })}
-              >
-                <SelectTrigger><SelectValue placeholder="Select measure" /></SelectTrigger>
-                <SelectContent>
-                  {UDS_MEASURES.map((m) => (
-                    <SelectItem key={m} value={m}>{m}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>UDS Measure *</Label>
+                <Select
+                  defaultValue={cycle.uds_measure || ""}
+                  onValueChange={(v) => updateCycle.mutate({ uds_measure: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Select measure" /></SelectTrigger>
+                  <SelectContent>
+                    {UDS_MEASURES.map((m) => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Baseline Rate *</Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  defaultValue={cycle.baseline_rate ?? ""}
+                  onBlur={(e) => handleBlurUpdate("baseline_rate", e.target.value ? parseFloat(e.target.value) : null)}
+                  placeholder="e.g. 52"
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Measurement Plan</Label>
@@ -343,10 +416,10 @@ export default function PDSADetailDialog({
           <TabsContent value="test" className="space-y-4 mt-4">
             <CoachingTip>Start small — test with one provider, one clinic day, or a handful of patients. You can always scale what works.</CoachingTip>
             <div className="space-y-2">
-              <Label>Test Description</Label>
+              <Label>Intervention Description *</Label>
               <Textarea
-                defaultValue={cycle.test_description || ""}
-                onBlur={(e) => handleBlurUpdate("test_description", e.target.value)}
+                defaultValue={cycle.intervention_description || cycle.test_description || ""}
+                onBlur={(e) => handleBlurUpdate("intervention_description", e.target.value)}
                 placeholder="Who is involved? What will they do differently? For how long?"
                 rows={3}
               />
@@ -452,6 +525,15 @@ export default function PDSADetailDialog({
           <TabsContent value="analyze" className="space-y-4 mt-4">
             <CoachingTip>Did the results match your prediction? What surprised you? Even "failed" tests generate valuable learning.</CoachingTip>
             <div className="space-y-2">
+              <Label>Actual Outcome *</Label>
+              <Textarea
+                defaultValue={cycle.actual_outcome || ""}
+                onBlur={(e) => handleBlurUpdate("actual_outcome", e.target.value)}
+                placeholder="What measurable result did you see? Required to mark the cycle completed."
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
               <Label>Analysis Summary</Label>
               <Textarea
                 defaultValue={cycle.analysis_summary || ""}
@@ -469,23 +551,23 @@ export default function PDSADetailDialog({
                 rows={3}
               />
             </div>
-            <div className="space-y-2">
-              <Label>What Worked</Label>
-              <Textarea
-                defaultValue={cycle.what_worked || ""}
-                onBlur={(e) => handleBlurUpdate("what_worked", e.target.value)}
-                placeholder="Describe what went well..."
-                rows={2}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>What Didn't Work</Label>
-              <Textarea
-                defaultValue={cycle.what_didnt_work || ""}
-                onBlur={(e) => handleBlurUpdate("what_didnt_work", e.target.value)}
-                placeholder="Describe barriers or issues..."
-                rows={2}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>What Worked</Label>
+                <Textarea
+                  defaultValue={cycle.what_worked || ""}
+                  onBlur={(e) => handleBlurUpdate("what_worked", e.target.value)}
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>What Didn't Work</Label>
+                <Textarea
+                  defaultValue={cycle.what_didnt_work || ""}
+                  onBlur={(e) => handleBlurUpdate("what_didnt_work", e.target.value)}
+                  rows={2}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Improvement %</Label>
@@ -493,10 +575,7 @@ export default function PDSADetailDialog({
                 type="number"
                 defaultValue={cycle.improvement_pct ?? ""}
                 onBlur={(e) =>
-                  handleBlurUpdate(
-                    "improvement_pct",
-                    e.target.value ? parseInt(e.target.value) : null
-                  )
+                  handleBlurUpdate("improvement_pct", e.target.value ? parseInt(e.target.value) : null)
                 }
                 placeholder="e.g. 15"
               />
@@ -507,19 +586,22 @@ export default function PDSADetailDialog({
           <TabsContent value="decide" className="space-y-4 mt-4">
             <CoachingTip>Based on your analysis, choose one: Adopt the change, Adapt it for another cycle, or Abandon and try something different.</CoachingTip>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">Decision</Label>
+              <Label className="text-sm font-semibold">Next-Cycle Decision *</Label>
               <div className="grid grid-cols-3 gap-3">
                 {DECISION_OPTIONS.map((opt) => {
-                  const selected = cycle.decision === opt.value;
+                  const value = opt.value.toLowerCase();
+                  const selected = (cycle.next_cycle_decision || cycle.decision?.toLowerCase()) === value;
                   return (
                     <button
                       key={opt.value}
                       className={cn(
                         "rounded-lg border-2 p-3 text-left transition-colors space-y-1.5",
                         opt.color,
-                        selected && "ring-2 ring-primary"
+                        selected && "ring-2 ring-primary",
                       )}
-                      onClick={() => updateCycle.mutate({ decision: opt.value })}
+                      onClick={() =>
+                        updateCycle.mutate({ next_cycle_decision: value, decision: opt.value })
+                      }
                     >
                       <div className="flex items-center gap-2">
                         <opt.icon className="h-4 w-4" />
@@ -547,12 +629,27 @@ export default function PDSADetailDialog({
               </Button>
               <Button variant="outline" onClick={() => cloneCycle.mutate()} disabled={cloneCycle.isPending}>
                 {cloneCycle.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Copy className="h-4 w-4 mr-1" />}
-                Start New Cycle
+                Start Next Cycle
               </Button>
             </div>
+          </TabsContent>
+
+          {/* EVIDENCE TAB */}
+          <TabsContent value="evidence" className="mt-4">
+            <EvidencePanel cycleId={cycle.id} organizationId={cycle.organization_id} />
+          </TabsContent>
+
+          {/* CHAIN TAB */}
+          <TabsContent value="chain" className="mt-4">
+            <CycleChain
+              organizationId={cycle.organization_id}
+              udsMeasure={cycle.uds_measure}
+              highlightCycleId={cycle.id}
+            />
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
   );
 }
+
