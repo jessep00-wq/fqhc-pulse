@@ -525,6 +525,15 @@ export default function PDSADetailDialog({
           <TabsContent value="analyze" className="space-y-4 mt-4">
             <CoachingTip>Did the results match your prediction? What surprised you? Even "failed" tests generate valuable learning.</CoachingTip>
             <div className="space-y-2">
+              <Label>Actual Outcome *</Label>
+              <Textarea
+                defaultValue={cycle.actual_outcome || ""}
+                onBlur={(e) => handleBlurUpdate("actual_outcome", e.target.value)}
+                placeholder="What measurable result did you see? Required to mark the cycle completed."
+                rows={2}
+              />
+            </div>
+            <div className="space-y-2">
               <Label>Analysis Summary</Label>
               <Textarea
                 defaultValue={cycle.analysis_summary || ""}
@@ -542,23 +551,23 @@ export default function PDSADetailDialog({
                 rows={3}
               />
             </div>
-            <div className="space-y-2">
-              <Label>What Worked</Label>
-              <Textarea
-                defaultValue={cycle.what_worked || ""}
-                onBlur={(e) => handleBlurUpdate("what_worked", e.target.value)}
-                placeholder="Describe what went well..."
-                rows={2}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>What Didn't Work</Label>
-              <Textarea
-                defaultValue={cycle.what_didnt_work || ""}
-                onBlur={(e) => handleBlurUpdate("what_didnt_work", e.target.value)}
-                placeholder="Describe barriers or issues..."
-                rows={2}
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>What Worked</Label>
+                <Textarea
+                  defaultValue={cycle.what_worked || ""}
+                  onBlur={(e) => handleBlurUpdate("what_worked", e.target.value)}
+                  rows={2}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label>What Didn't Work</Label>
+                <Textarea
+                  defaultValue={cycle.what_didnt_work || ""}
+                  onBlur={(e) => handleBlurUpdate("what_didnt_work", e.target.value)}
+                  rows={2}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Improvement %</Label>
@@ -566,10 +575,7 @@ export default function PDSADetailDialog({
                 type="number"
                 defaultValue={cycle.improvement_pct ?? ""}
                 onBlur={(e) =>
-                  handleBlurUpdate(
-                    "improvement_pct",
-                    e.target.value ? parseInt(e.target.value) : null
-                  )
+                  handleBlurUpdate("improvement_pct", e.target.value ? parseInt(e.target.value) : null)
                 }
                 placeholder="e.g. 15"
               />
@@ -580,19 +586,22 @@ export default function PDSADetailDialog({
           <TabsContent value="decide" className="space-y-4 mt-4">
             <CoachingTip>Based on your analysis, choose one: Adopt the change, Adapt it for another cycle, or Abandon and try something different.</CoachingTip>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold">Decision</Label>
+              <Label className="text-sm font-semibold">Next-Cycle Decision *</Label>
               <div className="grid grid-cols-3 gap-3">
                 {DECISION_OPTIONS.map((opt) => {
-                  const selected = cycle.decision === opt.value;
+                  const value = opt.value.toLowerCase();
+                  const selected = (cycle.next_cycle_decision || cycle.decision?.toLowerCase()) === value;
                   return (
                     <button
                       key={opt.value}
                       className={cn(
                         "rounded-lg border-2 p-3 text-left transition-colors space-y-1.5",
                         opt.color,
-                        selected && "ring-2 ring-primary"
+                        selected && "ring-2 ring-primary",
                       )}
-                      onClick={() => updateCycle.mutate({ decision: opt.value })}
+                      onClick={() =>
+                        updateCycle.mutate({ next_cycle_decision: value, decision: opt.value })
+                      }
                     >
                       <div className="flex items-center gap-2">
                         <opt.icon className="h-4 w-4" />
@@ -620,12 +629,27 @@ export default function PDSADetailDialog({
               </Button>
               <Button variant="outline" onClick={() => cloneCycle.mutate()} disabled={cloneCycle.isPending}>
                 {cloneCycle.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Copy className="h-4 w-4 mr-1" />}
-                Start New Cycle
+                Start Next Cycle
               </Button>
             </div>
+          </TabsContent>
+
+          {/* EVIDENCE TAB */}
+          <TabsContent value="evidence" className="mt-4">
+            <EvidencePanel cycleId={cycle.id} organizationId={cycle.organization_id} />
+          </TabsContent>
+
+          {/* CHAIN TAB */}
+          <TabsContent value="chain" className="mt-4">
+            <CycleChain
+              organizationId={cycle.organization_id}
+              udsMeasure={cycle.uds_measure}
+              highlightCycleId={cycle.id}
+            />
           </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
   );
 }
+
