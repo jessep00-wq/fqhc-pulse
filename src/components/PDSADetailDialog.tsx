@@ -416,10 +416,10 @@ export default function PDSADetailDialog({
           <TabsContent value="test" className="space-y-4 mt-4">
             <CoachingTip>Start small — test with one provider, one clinic day, or a handful of patients. You can always scale what works.</CoachingTip>
             <div className="space-y-2">
-              <Label>Test Description</Label>
+              <Label>Intervention Description *</Label>
               <Textarea
-                defaultValue={cycle.test_description || ""}
-                onBlur={(e) => handleBlurUpdate("test_description", e.target.value)}
+                defaultValue={cycle.intervention_description || cycle.test_description || ""}
+                onBlur={(e) => handleBlurUpdate("intervention_description", e.target.value)}
                 placeholder="Who is involved? What will they do differently? For how long?"
                 rows={3}
               />
