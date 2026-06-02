@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Download, Upload, AlertTriangle } from "lucide-react";
-import { PageHeader } from "@/components/dashboard/PageHeader";
+
 import { CompletenessHero } from "@/components/evidence-binder/CompletenessHero";
 import { CategoryTile } from "@/components/evidence-binder/CategoryTile";
 import { UploadDocumentDialog } from "@/components/evidence-binder/UploadDocumentDialog";
