@@ -71,7 +71,12 @@ export function EvidencePanel({
         upsert: false,
       });
       if (upErr) throw upErr;
-      const { error: insErr } = await supabase.from("pdsa_evidence" as never).insert({
+      const client = supabase as unknown as {
+        from: (t: string) => {
+          insert: (row: Record<string, unknown>) => Promise<{ error: Error | null }>;
+        };
+      };
+      const { error: insErr } = await client.from("pdsa_evidence").insert({
         pdsa_cycle_id: cycleId,
         organization_id: organizationId,
         file_path: path,
