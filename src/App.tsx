@@ -19,6 +19,9 @@ import Settings from "./pages/Settings";
 import AIGovernance from "./pages/AIGovernance";
 import EvidenceBinderOverview from "./pages/evidence-binder/Overview";
 import EvidenceBinderCategoryDetail from "./pages/evidence-binder/CategoryDetail";
+import QIReportsList from "./pages/qi-reports/QIReportsList";
+import QIReportWizard from "./pages/qi-reports/QIReportWizard";
+import QIReportDetail from "./pages/qi-reports/QIReportDetail";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
@@ -215,6 +218,9 @@ const App = () => (
                             <Route path="ai-governance" element={<AIGovernance />} />
                             <Route path="evidence-binder" element={<EvidenceBinderOverview />} />
                             <Route path="evidence-binder/category/:slug" element={<EvidenceBinderCategoryDetail />} />
+                            <Route path="qi-reports" element={<QIReportsList />} />
+                            <Route path="qi-reports/new" element={<QIReportWizard />} />
+                            <Route path="qi-reports/:id" element={<QIReportDetail />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
