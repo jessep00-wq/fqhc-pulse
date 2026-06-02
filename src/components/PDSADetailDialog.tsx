@@ -290,6 +290,32 @@ export default function PDSADetailDialog({
                 onBlur={(e) => handleBlurUpdate("title", e.target.value)}
               />
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Cycle Owner *</Label>
+                <Select
+                  defaultValue={cycle.owner_user_id || ""}
+                  onValueChange={(v) => updateCycle.mutate({ owner_user_id: v })}
+                >
+                  <SelectTrigger><SelectValue placeholder="Assign owner" /></SelectTrigger>
+                  <SelectContent>
+                    {orgProfiles.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.full_name || "Unnamed"}{p.staff_role ? ` · ${p.staff_role}` : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Start Date *</Label>
+                <Input
+                  type="date"
+                  defaultValue={cycle.start_date || ""}
+                  onBlur={(e) => handleBlurUpdate("start_date", e.target.value || null)}
+                />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Aim Statement</Label>
               <CoachingTip>What are you trying to accomplish? Be specific about the population, measure, and timeframe.</CoachingTip>
@@ -301,11 +327,11 @@ export default function PDSADetailDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Prediction</Label>
+              <Label>Predicted Outcome *</Label>
               <Textarea
-                defaultValue={cycle.prediction || ""}
-                onBlur={(e) => handleBlurUpdate("prediction", e.target.value)}
-                placeholder="What do you think will happen?"
+                defaultValue={cycle.predicted_outcome || cycle.prediction || ""}
+                onBlur={(e) => handleBlurUpdate("predicted_outcome", e.target.value)}
+                placeholder="What measurable result do you expect, and by when?"
                 rows={2}
               />
             </div>
