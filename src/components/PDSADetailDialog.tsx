@@ -43,6 +43,16 @@ interface DBCycle {
   analysis_summary?: string | null;
   decision?: string | null;
   template_id?: string | null;
+  owner_user_id?: string | null;
+  start_date?: string | null;
+  baseline_rate?: number | null;
+  predicted_outcome?: string | null;
+  intervention_description?: string | null;
+  actual_outcome?: string | null;
+  next_cycle_decision?: string | null;
+  previous_cycle_id?: string | null;
+  next_cycle_id?: string | null;
+  completeness_score?: number | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
