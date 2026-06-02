@@ -23,6 +23,9 @@ import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
 import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
 import { CycleChain } from "@/components/pdsa/CycleChain";
 import { computeCompleteness } from "@/lib/pdsaCompleteness";
+import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
+import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
+import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
 
 interface DBCycle {
   id: string;
