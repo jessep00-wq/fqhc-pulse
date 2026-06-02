@@ -17,6 +17,8 @@ import AIAssistant from "./pages/AIAssistant";
 import StaffTasks from "./pages/StaffTasks";
 import Settings from "./pages/Settings";
 import AIGovernance from "./pages/AIGovernance";
+import EvidenceBinderOverview from "./pages/evidence-binder/Overview";
+import EvidenceBinderCategoryDetail from "./pages/evidence-binder/CategoryDetail";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
