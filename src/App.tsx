@@ -17,6 +17,8 @@ import AIAssistant from "./pages/AIAssistant";
 import StaffTasks from "./pages/StaffTasks";
 import Settings from "./pages/Settings";
 import AIGovernance from "./pages/AIGovernance";
+import EvidenceBinderOverview from "./pages/evidence-binder/Overview";
+import EvidenceBinderCategoryDetail from "./pages/evidence-binder/CategoryDetail";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import TermsOfService from "./pages/TermsOfService";
@@ -211,6 +213,8 @@ const App = () => (
                             <Route path="ai-assistant" element={<AIAssistant />} />
                             <Route path="staff-tasks" element={<StaffTasks />} />
                             <Route path="ai-governance" element={<AIGovernance />} />
+                            <Route path="evidence-binder" element={<EvidenceBinderOverview />} />
+                            <Route path="evidence-binder/category/:slug" element={<EvidenceBinderCategoryDetail />} />
                             <Route path="settings" element={<Settings />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>

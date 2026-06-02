@@ -1,143 +1,144 @@
+
 ## Goal
 
-Add an **AI Governance** module to MeasureWise that operationalizes NIST AI RMF (valid/reliable, safe, secure, accountable/transparent, privacy-enhanced) with documented evidence FQHCs can show HRSA, OCR, or their board. Five sub-features: AI Model Inventory, Vendor Review, Risk & Incident Log, Human Review Workflow, and AI Governance Policy.
+Add an **Evidence Binder** module to MeasureWise — a living, year-round repository of HRSA SVP Chapter 8 QI/QA documents (not just an export-time bundler). Documents are uploaded, tagged, and tracked against the official Chapter 8 checklist with a completeness dashboard. Exports become a structured PDF with auto-generated table of contents.
 
 ## 1. Navigation & routing
 
-- New sidebar group "AI Governance" under the dashboard with 5 routes:
-  - `/dashboard/ai-governance` (overview / NIST RMF scorecard)
-  - `/dashboard/ai-governance/inventory`
-  - `/dashboard/ai-governance/vendors`
-  - `/dashboard/ai-governance/incidents`
-  - `/dashboard/ai-governance/reviews`
-  - `/dashboard/ai-governance/policy`
-- Tier-gated: available on Multi and Network plans; Solo sees an upgrade card.
+- New sidebar item **Evidence Binder** (badge: "HRSA") under the dashboard group, above "AI Governance".
+- Routes:
+  - `/dashboard/evidence-binder` (overview + completeness dashboard)
+  - `/dashboard/evidence-binder/category/:slug` (category detail with documents)
+  - `/dashboard/evidence-binder/document/:id` (document detail/version history — optional drill-in)
+- Tier-gated like AI Governance: full access on Multi/Network; Solo gets read-only + upgrade card.
 
 ## 2. Schema (one migration)
 
-All tables RLS-scoped to `organization_id` with `founder_admin` bypass, mirroring `pdsa_cycles`. GRANTs to `authenticated` + `service_role`.
+All tables RLS-scoped to `organization_id` with `founder_admin` bypass + GRANTs to `authenticated` + `service_role`.
 
 ```text
-ai_tools                       -- model inventory
-  organization_id, name, vendor, purpose, ai_category (clinical|operational|administrative),
-  user_role, workflow_location, patient_impact (none|low|moderate|high),
-  data_accessed text[], handles_phi bool, risk_tier (1|2|3),
-  date_adopted date, vendor_agreement_status (none|requested|signed|expired),
-  is_shadow_ai bool, reported_by, internal_owner_user_id,
-  status (active|paused|retired), notes
+evidence_categories            -- seeded global rows (no org_id), 8 Chapter 8 categories
+  id, slug, name, description, sort_order, chapter8_reference,
+  required_doc_types text[], default_review_cadence_months
 
-ai_vendor_reviews              -- one per tool per review cycle
-  ai_tool_id, organization_id, review_date, next_review_date,
-  baa_signed bool, baa_file_path, data_retention_terms,
-  model_update_notification text, audit_rights text,
-  indemnification text, known_limitations text,
-  signed_agreement_path, reviewer_user_id, status (draft|approved)
+evidence_documents
+  organization_id, category_id, title,
+  document_type (policy|procedure|job_description|schedule|minutes|survey_report|
+                 dashboard_report|pdsa_packet|other),
+  doc_date date, author_user_id, author_name_override,
+  associated_measure text, associated_requirement text,
+  review_date date, expires_at date,
+  current_version_id uuid, status (active|archived|expired),
+  source (uploaded|auto_pdsa|auto_minutes), source_ref_id uuid,
+  notes, tags text[]
 
-ai_incidents
-  organization_id, ai_tool_id, occurred_at, reported_by,
-  incident_type (unexpected_output|near_miss|patient_safety|bias|privacy|other),
-  description, patient_impact bool, patient_impact_detail,
-  corrective_action, resolution_status (open|investigating|resolved|escalated),
-  resolved_at, qi_committee_reviewed bool, qi_review_date
+evidence_document_versions     -- file blob pointer + version history
+  document_id, version int, file_path, file_name, mime_type, size_bytes,
+  uploaded_by, uploaded_at, change_note
 
-ai_review_events               -- per-output human-in-the-loop audit trail
-  organization_id, ai_tool_id, reviewer_user_id, reviewed_at,
-  output_category (clinical_recommendation|documentation|billing_code|other),
-  output_summary, action_taken (accepted|modified|rejected|escalated),
-  patient_reference text, notes
-
-ai_policies                    -- one active per org, with version history
-  organization_id, version int, title, body_md,
-  status (draft|in_review|approved|active|retired),
-  cmo_approved_by, cmo_approved_at,
-  ceo_approved_by, ceo_approved_at,
-  board_chair_approved_by, board_chair_approved_at,
-  activated_at, next_review_date
+evidence_binder_exports        -- audit trail of generated exports
+  organization_id, export_type (full_osv|quarterly_qi|board_packet),
+  period_start, period_end, file_path, generated_by, generated_at,
+  toc jsonb, included_document_ids uuid[]
 ```
 
 Triggers:
-- `ai_policy_next_review` — sets `next_review_date = activated_at + 12 months`.
-- `ai_vendor_review_alert` — when `next_review_date < now()` flips a derived `is_overdue` flag (computed in queries).
-- Activity-log inserts on tool create, incident open, policy approval.
+- `evidence_document_status_refresh` — flips `status` to `expired` when `expires_at < now()`.
+- Activity-log inserts on upload, version, export.
+- PDSA-cycle completion auto-creates an `evidence_documents` row (`source=auto_pdsa`, `document_type=pdsa_packet`, category = "PDSA Cycle Packets") pointing back to the cycle.
 
-Storage bucket `ai-governance-evidence` (private) for BAAs, signed agreements, vendor docs. Path: `{org_id}/{tool_id}/{uuid}-{filename}`. RLS on `storage.objects` scoped by org.
+Storage bucket **`evidence-binder`** (private). Path: `{org_id}/{category_slug}/{document_id}/{version}-{filename}`. RLS on `storage.objects` scoped by org folder.
 
-## 3. AI Model Inventory UI
+## 3. Seeded categories (Chapter 8 checklist)
 
-- `src/pages/ai-governance/Inventory.tsx`: table view with filters (category, risk tier, PHI, owner, status, shadow AI).
-- `AddAIToolDialog` wizard: Basics → Purpose & workflow → Data & PHI → Risk tier (auto-suggested by PHI + patient impact + category) → Owner & vendor agreement.
-- "Report Shadow AI" quick form on the overview page (any authenticated user) — creates a tool row with `is_shadow_ai=true`, `status=paused`, notifies founder_admin and internal_owner.
-- Visual chip palette: Clinical (teal), Operational (slate), Administrative (amber); risk tier badges (1 = green, 2 = amber, 3 = red).
+Inserted by migration as global rows:
 
-## 4. Vendor Review
+1. QI/QA Plan & Policy
+2. Operating Procedures (clinical guidelines, patient safety, satisfaction, grievances, periodic assessments, report generation)
+3. Job Descriptions with QI Responsibilities
+4. QI/QA Assessment Schedule / Calendar
+5. Meeting Minutes (QI committee & board)
+6. Patient Satisfaction Survey Results
+7. Dashboards & Supporting Data Reports
+8. PDSA Cycle Packets (auto-populated from Module 1)
 
-- `Vendors.tsx`: list of tools with their latest review, days-until-next-review, BAA badge.
-- `VendorReviewDialog`: checklist form covering BAA, data retention, model-update notification, audit rights, indemnification, known limitations; file uploads to `ai-governance-evidence`.
-- Cadence alerts: overdue reviews shown on overview + dashboard `AttentionStrip`; weekly digest email includes a reminder list.
+Each carries `required_doc_types`, default review cadence, and HRSA SVP reference text used by the completeness scorer.
 
-## 5. Risk & Incident Log
+## 4. Completeness scoring
 
-- `Incidents.tsx`: Kanban-lite by `resolution_status`, list view, and filter by tool/type/patient impact.
-- `IncidentDialog`: capture full incident record, attach evidence files, mark `qi_committee_reviewed`.
-- "Generate QI committee report" button: produces a PDF (reuse `EvidencePacketDialog` patterns) summarizing incidents in a date range, grouped by tool and severity, mirroring existing QI report structure.
+`src/lib/evidenceCompleteness.ts` computes per-category and overall scores:
+- Each required doc type present and not expired = full credit.
+- Expired/expiring within 30 days = partial credit + warning chip.
+- Missing required type = 0 + "Missing" badge.
+- Overall = weighted average (PDSA auto-credits when ≥1 completed cycle in last 12 months).
 
-## 6. Human Review Workflow
+Returned to overview tiles and to the export gate.
 
-- `Reviews.tsx`: per-tool log of human review events with reviewer, timestamp, action, output category. Filters by tool, action, date range.
-- `LogReviewDialog`: simple capture form usable from inside any AI tool record. Optional: a `<AIReviewBadge tool_id />` component callers can drop into other surfaces (e.g., PDSA Lab if an AI suggestion is accepted) to record an event.
-- CSV + PDF export of review events (audit trail).
+## 5. UI
 
-## 7. AI Governance Policy
+- **`Overview.tsx`** — Hero with overall % ring, 8 category tiles (status: Complete / Pending / Missing), expirations-next-30-days strip, "Generate export" CTA, recent uploads feed. Mirrors the visual language of attached `evidence-binder.html` (clinical teal, status pill palette) translated to existing MeasureWise design tokens — no custom colors, semantic tokens only.
+- **`CategoryDetail.tsx`** — Documents table with filters (doc type, date, owner, measure, status), upload button, required-doc-type checklist on the side.
+- **`UploadDocumentDialog.tsx`** — File picker + tag form (type, date, author, associated measure/requirement, review date, expiration). Drag-and-drop, 20MB cap, accepts PDF/DOCX/XLSX/PNG/JPG/CSV.
+- **`DocumentDetailDrawer.tsx`** — Metadata, version history (`evidence_document_versions`), download signed URL, replace-version, archive.
+- **`ExportBinderDialog.tsx`** — Pick format (Full OSV Binder / Quarterly QI Packet / Board Meeting Packet), period, optional category filter, preview TOC, generate. Gates on completeness ≥ threshold for Full OSV (warn-only, not block).
+- **`CompletenessRing` + `CategoryTile`** components reused/adapted from existing PDSA components.
 
-- `Policy.tsx`: shows active policy with version, approval signatures, next review date, and history.
-- `PolicyEditor`: starts from a pre-loaded NIST AI RMF–aligned template (stored in `src/data/aiGovernancePolicyTemplate.ts`) with sections for each NIST characteristic. Markdown editor + preview.
-- Approval workflow: Draft → In Review → CMO sign → CEO sign → Board Chair sign → Active. Each sign step records a row in `ai_review_events` (output_category=`policy_approval`) for a unified audit trail. Activating creates a new version and supersedes the prior one.
-- 12-month review reminder shown on overview + emailed via existing weekly-digest function.
+## 6. PDF export
 
-## 8. Overview / NIST RMF scorecard
+Client-side PDF assembly using `jspdf` + `pdf-lib` (already patterns in `AuditBinderDialog`/`EvidencePacketDialog`):
+1. Cover page (org name, period, export type, generated date, signature line).
+2. Auto-generated **Table of Contents** from `included_document_ids` grouped by category, with page numbers computed after layout pass.
+3. Per category: section divider + each document either inlined (PDFs concatenated via `pdf-lib`) or summarized (non-PDF) with a metadata card and download reference.
+4. Appendix: completeness snapshot, expiration calendar, audit trail.
 
-`AIGovernanceOverview.tsx` shows five tiles (Valid & Reliable, Safe, Secure & Resilient, Accountable & Transparent, Privacy-Enhanced). Each tile derives a 0–100 score from the relevant data (e.g., Privacy-Enhanced ← % PHI-handling tools with signed BAA; Accountable ← % tools with owner + recent human-review activity). Same `CompletenessRing` pattern used by PDSA.
+Three preset filters:
+- **Full OSV Binder** — every active document across all 8 categories.
+- **Quarterly QI Packet** — categories 1, 5, 7, 8 within selected quarter.
+- **Board Meeting Packet** — meeting minutes + dashboards + PDSA highlights for a date range.
 
-Also surfaces: overdue vendor reviews, open incidents, shadow-AI reports awaiting triage, policy review status.
+Output saved to `evidence-binder` bucket under `{org_id}/exports/`, logged in `evidence_binder_exports`, returned via signed URL.
 
-## 9. Audit Binder integration
+## 7. Auto-population hooks
 
-Extend `AuditBinderDialog` to add an "AI Governance" section: active policy (with signatures), full model inventory snapshot, vendor review attestations, incident summary, and review-event count for the period. Gated by an AI-governance completeness check (active policy + every active tool has an owner, risk tier, and current vendor review).
+- On `pdsa_cycles.status` → `completed`: insert/update an `evidence_documents` row in category 8, source=`auto_pdsa`, with link to cycle. Existing PDSA evidence files (`pdsa_evidence`) appear as child references in the document detail.
+- Optional Phase 2 (out of scope): pull QI committee minutes from a future `meetings` table.
 
-## 10. Email & cron
+## 8. Audit Binder integration
 
-- New edge function `check-ai-governance-alerts` (daily cron) — flags overdue vendor reviews and policies past `next_review_date`, queues digest email entries.
-- Hook into existing `weekly-digest` function output.
+Extend existing `AuditBinderDialog.tsx` to add an "Evidence Binder" section that pulls the same completeness snapshot, so the HRSA OSV Audit Binder export becomes a strict superset.
 
-## 11. Files to change/create
+## 9. Files to create/edit
 
 ```text
-supabase/migrations/<new>.sql                       -- 5 tables, bucket policies, triggers
-supabase/functions/check-ai-governance-alerts/...   -- new daily cron
-src/pages/ai-governance/Overview.tsx                -- NIST scorecard
-src/pages/ai-governance/Inventory.tsx
-src/pages/ai-governance/Vendors.tsx
-src/pages/ai-governance/Incidents.tsx
-src/pages/ai-governance/Reviews.tsx
-src/pages/ai-governance/Policy.tsx
-src/components/ai-governance/AddAIToolDialog.tsx
-src/components/ai-governance/ShadowAIDialog.tsx
-src/components/ai-governance/VendorReviewDialog.tsx
-src/components/ai-governance/IncidentDialog.tsx
-src/components/ai-governance/LogReviewDialog.tsx
-src/components/ai-governance/PolicyEditor.tsx
-src/components/ai-governance/NISTScorecard.tsx
-src/components/ai-governance/AIEvidencePanel.tsx
-src/data/aiGovernancePolicyTemplate.ts
-src/lib/aiGovernanceScoring.ts
-src/components/AppSidebar.tsx                       -- nav group
-src/components/AuditBinderDialog.tsx                -- AI Governance section
-src/App.tsx                                         -- 6 new routes
+supabase/migrations/<new>.sql                        -- 4 tables, seed categories, bucket policies, triggers
+src/pages/evidence-binder/Overview.tsx
+src/pages/evidence-binder/CategoryDetail.tsx
+src/components/evidence-binder/UploadDocumentDialog.tsx
+src/components/evidence-binder/DocumentDetailDrawer.tsx
+src/components/evidence-binder/ExportBinderDialog.tsx
+src/components/evidence-binder/CategoryTile.tsx
+src/components/evidence-binder/CompletenessHero.tsx
+src/lib/evidenceCompleteness.ts
+src/lib/evidenceBinderPdf.ts                         -- jsPDF + pdf-lib assembly
+src/data/evidenceChapter8Categories.ts               -- mirror of seeded rows for client lookup
+src/types/evidenceBinder.ts
+src/components/AppSidebar.tsx                        -- new nav item w/ "HRSA" badge
+src/components/AuditBinderDialog.tsx                 -- include Evidence Binder section
+src/App.tsx                                          -- 2 new routes
 ```
 
-## 12. Out of scope (this pass)
+## 10. Out of scope (this pass)
 
-- Auto-discovering AI usage from browser/network telemetry
-- Real-time vendor API monitoring
-- Per-output capture via integrations (PDSA AI Assistant calls remain unchanged; review logging is manual)
-- E-signature integration for board approvals (we capture user + timestamp, not cryptographic signatures)
+- OCR/text extraction from uploaded PDFs
+- E-signature on policies (we capture user + timestamp only)
+- Automatic pull of minutes from external doc systems (Google Drive, SharePoint)
+- Versioning diff viewer (we store versions; UI shows list + download only)
+- Per-document RLS sharing outside the org
+
+## Technical details
+
+- Tables use `service_role` + `authenticated` GRANTs; `anon` excluded.
+- Storage RLS uses `(storage.foldername(name))[1] = (auth.uid()::text from profiles join)` pattern → simpler: scope by `org_id` prefix matched via `get_user_org_id(auth.uid())::text`.
+- `evidence_documents.current_version_id` keeps a fast pointer; insert trigger sets it on first version row.
+- All UI uses existing semantic tokens (`primary`, `success`, `warning`, `destructive`, `muted`); the attached HTML is reference for layout/density only.
+- PDF size guard: warn if estimated export > 100MB; offer "metadata-only" mode that links instead of inlining files.
