@@ -91,6 +91,294 @@ export type Database = {
           },
         ]
       }
+      ai_incidents: {
+        Row: {
+          ai_tool_id: string | null
+          corrective_action: string | null
+          created_at: string
+          description: string
+          id: string
+          incident_type: string
+          occurred_at: string
+          organization_id: string
+          patient_impact: boolean
+          patient_impact_detail: string | null
+          qi_committee_reviewed: boolean
+          qi_review_date: string | null
+          reported_by: string | null
+          resolution_status: string
+          resolved_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_tool_id?: string | null
+          corrective_action?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          incident_type?: string
+          occurred_at?: string
+          organization_id: string
+          patient_impact?: boolean
+          patient_impact_detail?: string | null
+          qi_committee_reviewed?: boolean
+          qi_review_date?: string | null
+          reported_by?: string | null
+          resolution_status?: string
+          resolved_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_tool_id?: string | null
+          corrective_action?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          incident_type?: string
+          occurred_at?: string
+          organization_id?: string
+          patient_impact?: boolean
+          patient_impact_detail?: string | null
+          qi_committee_reviewed?: boolean
+          qi_review_date?: string | null
+          reported_by?: string | null
+          resolution_status?: string
+          resolved_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ai_policies: {
+        Row: {
+          activated_at: string | null
+          board_chair_approved_at: string | null
+          board_chair_approved_by: string | null
+          body_md: string
+          ceo_approved_at: string | null
+          ceo_approved_by: string | null
+          cmo_approved_at: string | null
+          cmo_approved_by: string | null
+          created_at: string
+          id: string
+          next_review_date: string | null
+          organization_id: string
+          status: string
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          activated_at?: string | null
+          board_chair_approved_at?: string | null
+          board_chair_approved_by?: string | null
+          body_md?: string
+          ceo_approved_at?: string | null
+          ceo_approved_by?: string | null
+          cmo_approved_at?: string | null
+          cmo_approved_by?: string | null
+          created_at?: string
+          id?: string
+          next_review_date?: string | null
+          organization_id: string
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          activated_at?: string | null
+          board_chair_approved_at?: string | null
+          board_chair_approved_by?: string | null
+          body_md?: string
+          ceo_approved_at?: string | null
+          ceo_approved_by?: string | null
+          cmo_approved_at?: string | null
+          cmo_approved_by?: string | null
+          created_at?: string
+          id?: string
+          next_review_date?: string | null
+          organization_id?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ai_review_events: {
+        Row: {
+          action_taken: string
+          ai_tool_id: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          organization_id: string
+          output_category: string
+          output_summary: string | null
+          patient_reference: string | null
+          reviewed_at: string
+          reviewer_user_id: string | null
+        }
+        Insert: {
+          action_taken?: string
+          ai_tool_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id: string
+          output_category?: string
+          output_summary?: string | null
+          patient_reference?: string | null
+          reviewed_at?: string
+          reviewer_user_id?: string | null
+        }
+        Update: {
+          action_taken?: string
+          ai_tool_id?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          output_category?: string
+          output_summary?: string | null
+          patient_reference?: string | null
+          reviewed_at?: string
+          reviewer_user_id?: string | null
+        }
+        Relationships: []
+      }
+      ai_tools: {
+        Row: {
+          ai_category: string
+          created_at: string
+          data_accessed: string[]
+          date_adopted: string | null
+          handles_phi: boolean
+          id: string
+          internal_owner_user_id: string | null
+          is_shadow_ai: boolean
+          name: string
+          notes: string | null
+          organization_id: string
+          patient_impact: string
+          purpose: string | null
+          reported_by: string | null
+          risk_tier: number
+          status: string
+          updated_at: string
+          user_role: string | null
+          vendor: string | null
+          vendor_agreement_status: string
+          workflow_location: string | null
+        }
+        Insert: {
+          ai_category?: string
+          created_at?: string
+          data_accessed?: string[]
+          date_adopted?: string | null
+          handles_phi?: boolean
+          id?: string
+          internal_owner_user_id?: string | null
+          is_shadow_ai?: boolean
+          name: string
+          notes?: string | null
+          organization_id: string
+          patient_impact?: string
+          purpose?: string | null
+          reported_by?: string | null
+          risk_tier?: number
+          status?: string
+          updated_at?: string
+          user_role?: string | null
+          vendor?: string | null
+          vendor_agreement_status?: string
+          workflow_location?: string | null
+        }
+        Update: {
+          ai_category?: string
+          created_at?: string
+          data_accessed?: string[]
+          date_adopted?: string | null
+          handles_phi?: boolean
+          id?: string
+          internal_owner_user_id?: string | null
+          is_shadow_ai?: boolean
+          name?: string
+          notes?: string | null
+          organization_id?: string
+          patient_impact?: string
+          purpose?: string | null
+          reported_by?: string | null
+          risk_tier?: number
+          status?: string
+          updated_at?: string
+          user_role?: string | null
+          vendor?: string | null
+          vendor_agreement_status?: string
+          workflow_location?: string | null
+        }
+        Relationships: []
+      }
+      ai_vendor_reviews: {
+        Row: {
+          ai_tool_id: string
+          audit_rights: string | null
+          baa_file_path: string | null
+          baa_signed: boolean
+          created_at: string
+          data_retention_terms: string | null
+          id: string
+          indemnification: string | null
+          known_limitations: string | null
+          model_update_notification: string | null
+          next_review_date: string | null
+          organization_id: string
+          review_date: string
+          reviewer_user_id: string | null
+          signed_agreement_path: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          ai_tool_id: string
+          audit_rights?: string | null
+          baa_file_path?: string | null
+          baa_signed?: boolean
+          created_at?: string
+          data_retention_terms?: string | null
+          id?: string
+          indemnification?: string | null
+          known_limitations?: string | null
+          model_update_notification?: string | null
+          next_review_date?: string | null
+          organization_id: string
+          review_date?: string
+          reviewer_user_id?: string | null
+          signed_agreement_path?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_tool_id?: string
+          audit_rights?: string | null
+          baa_file_path?: string | null
+          baa_signed?: boolean
+          created_at?: string
+          data_retention_terms?: string | null
+          id?: string
+          indemnification?: string | null
+          known_limitations?: string | null
+          model_update_notification?: string | null
+          next_review_date?: string | null
+          organization_id?: string
+          review_date?: string
+          reviewer_user_id?: string | null
+          signed_agreement_path?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_name: string
