@@ -241,23 +241,44 @@ export default function PDSADetailDialog({
     onClose();
   };
 
+  const { data: orgProfiles = [] } = useQuery({
+    queryKey: ["org_profiles", organization.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id,full_name,staff_role")
+        .eq("organization_id", organization.id);
+      return data || [];
+    },
+    enabled: !!organization.id,
+  });
+
+  const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-lg">{cycle.title}</DialogTitle>
-          <DialogDescription>
-            <Badge variant="outline" className="mr-2">{cycle.status.toUpperCase()}</Badge>
-            {cycle.uds_measure && <Badge variant="secondary">{cycle.uds_measure.split(":")[0]}</Badge>}
-          </DialogDescription>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <DialogTitle className="text-lg">{cycle.title}</DialogTitle>
+              <DialogDescription>
+                <Badge variant="outline" className="mr-2">{cycle.status.toUpperCase()}</Badge>
+                {cycle.uds_measure && <Badge variant="secondary">{cycle.uds_measure.split(":")[0]}</Badge>}
+              </DialogDescription>
+            </div>
+            <CompletenessRing score={score} />
+          </div>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="aim">Aim & Plan</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="aim">Aim</TabsTrigger>
             <TabsTrigger value="test">Test</TabsTrigger>
             <TabsTrigger value="analyze">Analyze</TabsTrigger>
             <TabsTrigger value="decide">Decide</TabsTrigger>
+            <TabsTrigger value="evidence">Evidence</TabsTrigger>
+            <TabsTrigger value="chain">Chain</TabsTrigger>
           </TabsList>
 
           {/* AIM & PLAN TAB */}
