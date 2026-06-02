@@ -50,13 +50,22 @@ export function EvidencePanel({
   const { data: evidence = [], isLoading } = useQuery({
     queryKey: ["pdsa_evidence", cycleId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("pdsa_evidence" as never)
+      const client = supabase as unknown as {
+        from: (t: string) => {
+          select: (cols: string) => {
+            eq: (col: string, val: string) => {
+              order: (col: string, opts: { ascending: boolean }) => Promise<{ data: EvidenceRow[] | null; error: Error | null }>;
+            };
+          };
+        };
+      };
+      const { data, error } = await client
+        .from("pdsa_evidence")
         .select("*")
         .eq("pdsa_cycle_id", cycleId)
         .order("created_at", { ascending: false });
       if (error) throw error;
-      return (data || []) as unknown as EvidenceRow[];
+      return data || [];
     },
   });
 
