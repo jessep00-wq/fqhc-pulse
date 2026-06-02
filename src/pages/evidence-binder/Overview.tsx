@@ -87,22 +87,24 @@ export default function EvidenceBinderOverview() {
 
   return (
     <div className="space-y-6 p-6 max-w-7xl mx-auto">
-      <PageHeader
-        title="Evidence Binder"
-        description="HRSA Chapter 8 QI/QA documentation — a living repository, not a pre-visit scramble."
-        actions={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setUploadOpen(true)}>
-              <Upload className="h-4 w-4 mr-2" />
-              Upload
-            </Button>
-            <Button onClick={() => setExportOpen(true)}>
-              <Download className="h-4 w-4 mr-2" />
-              Generate binder
-            </Button>
-          </div>
-        }
-      />
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Evidence Binder</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            HRSA Chapter 8 QI/QA documentation — a living repository, not a pre-visit scramble.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setUploadOpen(true)}>
+            <Upload className="h-4 w-4 mr-2" />
+            Upload
+          </Button>
+          <Button onClick={() => setExportOpen(true)}>
+            <Download className="h-4 w-4 mr-2" />
+            Generate binder
+          </Button>
+        </div>
+      </div>
 
       <CompletenessHero
         overall={overall}
