@@ -17,6 +17,9 @@ import {
 import { Upload, ArrowLeft, Download, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { UploadDocumentDialog } from "@/components/evidence-binder/UploadDocumentDialog";
+import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
+import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
+import { getEvidenceCategoryWorkstream } from "@/lib/workstream/evidenceWorkstream";
 import {
   DOCUMENT_TYPE_LABELS,
   type EvidenceCategory,
