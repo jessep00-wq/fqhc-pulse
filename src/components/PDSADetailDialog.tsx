@@ -258,9 +258,27 @@ export default function PDSADetailDialog({
 
   const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
 
+  const { data: cycleEvidence = [] } = useQuery({
+    queryKey: ["pdsa_evidence_for_cycle", cycle?.id],
+    enabled: !!cycle?.id && !!organization?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("pdsa_evidence")
+        .select("pdsa_cycle_id")
+        .eq("pdsa_cycle_id", cycle!.id);
+      return (data ?? []) as { pdsa_cycle_id: string }[];
+    },
+  });
+
+  const workstreamFacts = getPdsaWorkstream(
+    cycle,
+    cycleTasks as { pdsa_cycle_id: string | null; status: string; due_date?: string | null }[],
+    cycleEvidence,
+  );
+
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -273,6 +291,10 @@ export default function PDSADetailDialog({
             <CompletenessRing score={score} />
           </div>
         </DialogHeader>
+
+        <WorkstreamRibbon facts={workstreamFacts} className="mb-2" />
+        <DownstreamImpactPanel facts={workstreamFacts} />
+
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-6">
