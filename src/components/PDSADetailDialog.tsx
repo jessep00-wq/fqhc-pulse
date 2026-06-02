@@ -19,6 +19,10 @@ import { UDS_MEASURES } from "@/data/mockData";
 import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
+import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
+import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
+import { CycleChain } from "@/components/pdsa/CycleChain";
+import { computeCompleteness } from "@/lib/pdsaCompleteness";
 
 interface DBCycle {
   id: string;
