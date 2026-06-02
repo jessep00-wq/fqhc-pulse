@@ -87,6 +87,20 @@ export default function EvidenceBinderOverview() {
   const overall = computeOverallScore(statuses);
   const expiringSoon = useMemo(() => listExpiringSoon(documents, 30), [documents]);
   const expiredCount = documents.filter((d) => d.status === "expired").length;
+  const expiringSoonCount = expiringSoon.filter((e) => e.daysUntil >= 0).length;
+  const workstreamFacts = useMemo(
+    () =>
+      getEvidenceOverviewWorkstream(
+        statuses,
+        documents.length,
+        expiredCount,
+        expiringSoonCount,
+        overall,
+      ),
+    [statuses, documents.length, expiredCount, expiringSoonCount, overall],
+  );
+
+
 
   return (
     <div className="space-y-6 p-6 max-w-7xl mx-auto">
