@@ -1,144 +1,167 @@
+# Quarterly QI/QA Reports Module
 
 ## Goal
 
-Add an **Evidence Binder** module to MeasureWise — a living, year-round repository of HRSA SVP Chapter 8 QI/QA documents (not just an export-time bundler). Documents are uploaded, tagged, and tracked against the official Chapter 8 checklist with a completeness dashboard. Exports become a structured PDF with auto-generated table of contents.
+Add a structured quarterly reporting engine that produces HRSA-aligned QI/QA reports in two flavors — **Committee** (clinical detail) and **Board** (governance summary) — with auto-populated sections, an AI-drafted narrative, a tracked approval chain, and automatic deposit into the Evidence Binder.
 
 ## 1. Navigation & routing
 
-- New sidebar item **Evidence Binder** (badge: "HRSA") under the dashboard group, above "AI Governance".
+- New sidebar item **QI/QA Reports** under the dashboard group, between "Evidence Binder" and "AI Governance". Badge: `HRSA`.
 - Routes:
-  - `/dashboard/evidence-binder` (overview + completeness dashboard)
-  - `/dashboard/evidence-binder/category/:slug` (category detail with documents)
-  - `/dashboard/evidence-binder/document/:id` (document detail/version history — optional drill-in)
-- Tier-gated like AI Governance: full access on Multi/Network; Solo gets read-only + upgrade card.
+  - `/dashboard/qi-reports` — list of reports (quarter cards + status chips)
+  - `/dashboard/qi-reports/new` — generator wizard
+  - `/dashboard/qi-reports/:id` — report detail (editor + approval chain + export)
+- Tier-gated: Solo = read-only of past reports + upgrade card; Multi/Network = full access.
 
 ## 2. Schema (one migration)
 
-All tables RLS-scoped to `organization_id` with `founder_admin` bypass + GRANTs to `authenticated` + `service_role`.
+All tables RLS-scoped to `organization_id` with `founder_admin` bypass; GRANTs to `authenticated` + `service_role` (no `anon`).
 
 ```text
-evidence_categories            -- seeded global rows (no org_id), 8 Chapter 8 categories
-  id, slug, name, description, sort_order, chapter8_reference,
-  required_doc_types text[], default_review_cadence_months
+qi_reports
+  id, organization_id, period_label (e.g. "Q2 2026"),
+  period_start date, period_end date,
+  report_type (quarterly | annual),
+  status (draft | in_review | approved | board_presented | archived),
+  committee_sections jsonb,   -- editable structured content (see §4)
+  board_sections jsonb,       -- stripped governance summary
+  ai_draft_meta jsonb,        -- model, prompt version, token use, generated_at
+  evidence_document_id uuid,  -- link to evidence_documents row after approval
+  generated_by, created_at, updated_at,
+  unique (organization_id, period_label)
 
-evidence_documents
-  organization_id, category_id, title,
-  document_type (policy|procedure|job_description|schedule|minutes|survey_report|
-                 dashboard_report|pdsa_packet|other),
-  doc_date date, author_user_id, author_name_override,
-  associated_measure text, associated_requirement text,
-  review_date date, expires_at date,
-  current_version_id uuid, status (active|archived|expired),
-  source (uploaded|auto_pdsa|auto_minutes), source_ref_id uuid,
-  notes, tags text[]
+qi_report_approvals
+  id, report_id, organization_id,
+  role (qi_director | cmo | ceo | board_chair),
+  approver_user_id, approver_name_snapshot, approver_title_snapshot,
+  decision (approved | changes_requested),
+  decision_note, decided_at,
+  unique (report_id, role)
 
-evidence_document_versions     -- file blob pointer + version history
-  document_id, version int, file_path, file_name, mime_type, size_bytes,
-  uploaded_by, uploaded_at, change_note
-
-evidence_binder_exports        -- audit trail of generated exports
-  organization_id, export_type (full_osv|quarterly_qi|board_packet),
-  period_start, period_end, file_path, generated_by, generated_at,
-  toc jsonb, included_document_ids uuid[]
+qi_report_board_actions          -- items flagged for board action/awareness
+  id, report_id, organization_id,
+  kind (action_required | awareness | risk | escalation),
+  title, detail, owner_user_id, due_date, resolved_at,
+  created_at
 ```
 
-Triggers:
-- `evidence_document_status_refresh` — flips `status` to `expired` when `expires_at < now()`.
-- Activity-log inserts on upload, version, export.
-- PDSA-cycle completion auto-creates an `evidence_documents` row (`source=auto_pdsa`, `document_type=pdsa_packet`, category = "PDSA Cycle Packets") pointing back to the cycle.
+Trigger: on `status` → `approved`, insert an `evidence_documents` row in the **"Meeting Minutes"** category (source=`auto_qi_report`, document_type=`minutes` for board version, plus a second row in **"Dashboards & Supporting Data Reports"** for the committee version) and back-fill `evidence_document_id`.
 
-Storage bucket **`evidence-binder`** (private). Path: `{org_id}/{category_slug}/{document_id}/{version}-{filename}`. RLS on `storage.objects` scoped by org folder.
+Activity-log inserts on: report created, AI draft generated, approval decision, status change, exported.
 
-## 3. Seeded categories (Chapter 8 checklist)
+## 3. Auto-population pipeline
 
-Inserted by migration as global rows:
+`src/lib/qiReportBuilder.ts` runs at generate-time and pulls a snapshot for the selected period:
 
-1. QI/QA Plan & Policy
-2. Operating Procedures (clinical guidelines, patient safety, satisfaction, grievances, periodic assessments, report generation)
-3. Job Descriptions with QI Responsibilities
-4. QI/QA Assessment Schedule / Calendar
-5. Meeting Minutes (QI committee & board)
-6. Patient Satisfaction Survey Results
-7. Dashboards & Supporting Data Reports
-8. PDSA Cycle Packets (auto-populated from Module 1)
+| Section | Source |
+|---|---|
+| Active PDSA cycles + status | `pdsa_cycles` filtered by period, joined with `tasks` count |
+| Measure performance vs. baseline/goal | `uds_trends` + `uds_targets`, with SPC delta from `src/components/SPCChart.tsx` math |
+| Gaps + planned interventions | Open `pdsa_cycles` in `plan`/`do` + free-text gap list |
+| Previous-quarter outcomes (adopted/adapted/abandoned) | `pdsa_cycles.next_cycle_decision` from prior quarter |
+| Patient safety events | `ai_incidents` with `patient_impact = true` for the period (reused incident table) |
+| Patient satisfaction | New optional input field (manual entry now; future integration scope) |
+| Board-action items | `qi_report_board_actions` rows |
 
-Each carries `required_doc_types`, default review cadence, and HRSA SVP reference text used by the completeness scorer.
+Snapshot is stored verbatim in `committee_sections` jsonb so the report stays stable even if underlying data changes later.
 
-## 4. Completeness scoring
+## 4. AI narrative drafting
 
-`src/lib/evidenceCompleteness.ts` computes per-category and overall scores:
-- Each required doc type present and not expired = full credit.
-- Expired/expiring within 30 days = partial credit + warning chip.
-- Missing required type = 0 + "Missing" badge.
-- Overall = weighted average (PDSA auto-credits when ≥1 completed cycle in last 12 months).
+- Edge function **`draft-qi-report`** (Lovable AI Gateway, `google/gemini-2.5-pro`).
+- Input: structured snapshot from §3 + org name + period.
+- Output: per-section narrative strings (`exec_summary`, `performance_narrative`, `pdsa_narrative`, `safety_narrative`, `board_recommendations`).
+- Each narrative is editable in the UI; AI badge + "Regenerate" button per block.
+- Stored in `committee_sections.narratives`; board version is auto-derived (see §5).
 
-Returned to overview tiles and to the export gate.
+## 5. Board-ready transformation
 
-## 5. UI
+`src/lib/qiReportBoardView.ts` deterministically strips committee → board:
+- Removes PHI-adjacent specifics, individual measure deep-dives, staff names.
+- Surfaces: overall performance trend (▲/▼/▬), # PDSA cycles active/completed, top 3 wins, top 3 risks, items requiring board action, approval signatures block.
+- Generated on save; user can edit before approval.
 
-- **`Overview.tsx`** — Hero with overall % ring, 8 category tiles (status: Complete / Pending / Missing), expirations-next-30-days strip, "Generate export" CTA, recent uploads feed. Mirrors the visual language of attached `evidence-binder.html` (clinical teal, status pill palette) translated to existing MeasureWise design tokens — no custom colors, semantic tokens only.
-- **`CategoryDetail.tsx`** — Documents table with filters (doc type, date, owner, measure, status), upload button, required-doc-type checklist on the side.
-- **`UploadDocumentDialog.tsx`** — File picker + tag form (type, date, author, associated measure/requirement, review date, expiration). Drag-and-drop, 20MB cap, accepts PDF/DOCX/XLSX/PNG/JPG/CSV.
-- **`DocumentDetailDrawer.tsx`** — Metadata, version history (`evidence_document_versions`), download signed URL, replace-version, archive.
-- **`ExportBinderDialog.tsx`** — Pick format (Full OSV Binder / Quarterly QI Packet / Board Meeting Packet), period, optional category filter, preview TOC, generate. Gates on completeness ≥ threshold for Full OSV (warn-only, not block).
-- **`CompletenessRing` + `CategoryTile`** components reused/adapted from existing PDSA components.
+## 6. Approval chain UI
 
-## 6. PDF export
+- Four required signatories: **QI Director → CMO → CEO → Board Chair**, in sequence.
+- Each role gets a card showing: name, title, status pill (pending / approved / changes requested), timestamp, optional note.
+- "Approve" / "Request changes" buttons gated by:
+  - User must hold the matching `staff_role` OR be `founder_admin`.
+  - Previous role must be `approved`.
+- Approval flips report `status`; full chain complete → `status = approved` → triggers Evidence Binder deposit (§2).
+- Approval history is immutable (no updates after `decided_at`; new round = new row after a "Request changes" reset).
 
-Client-side PDF assembly using `jspdf` + `pdf-lib` (already patterns in `AuditBinderDialog`/`EvidencePacketDialog`):
-1. Cover page (org name, period, export type, generated date, signature line).
-2. Auto-generated **Table of Contents** from `included_document_ids` grouped by category, with page numbers computed after layout pass.
-3. Per category: section divider + each document either inlined (PDFs concatenated via `pdf-lib`) or summarized (non-PDF) with a metadata card and download reference.
-4. Appendix: completeness snapshot, expiration calendar, audit trail.
+## 7. UI components
 
-Three preset filters:
-- **Full OSV Binder** — every active document across all 8 categories.
-- **Quarterly QI Packet** — categories 1, 5, 7, 8 within selected quarter.
-- **Board Meeting Packet** — meeting minutes + dashboards + PDSA highlights for a date range.
-
-Output saved to `evidence-binder` bucket under `{org_id}/exports/`, logged in `evidence_binder_exports`, returned via signed URL.
-
-## 7. Auto-population hooks
-
-- On `pdsa_cycles.status` → `completed`: insert/update an `evidence_documents` row in category 8, source=`auto_pdsa`, with link to cycle. Existing PDSA evidence files (`pdsa_evidence`) appear as child references in the document detail.
-- Optional Phase 2 (out of scope): pull QI committee minutes from a future `meetings` table.
-
-## 8. Audit Binder integration
-
-Extend existing `AuditBinderDialog.tsx` to add an "Evidence Binder" section that pulls the same completeness snapshot, so the HRSA OSV Audit Binder export becomes a strict superset.
-
-## 9. Files to create/edit
-
-```text
-supabase/migrations/<new>.sql                        -- 4 tables, seed categories, bucket policies, triggers
-src/pages/evidence-binder/Overview.tsx
-src/pages/evidence-binder/CategoryDetail.tsx
-src/components/evidence-binder/UploadDocumentDialog.tsx
-src/components/evidence-binder/DocumentDetailDrawer.tsx
-src/components/evidence-binder/ExportBinderDialog.tsx
-src/components/evidence-binder/CategoryTile.tsx
-src/components/evidence-binder/CompletenessHero.tsx
-src/lib/evidenceCompleteness.ts
-src/lib/evidenceBinderPdf.ts                         -- jsPDF + pdf-lib assembly
-src/data/evidenceChapter8Categories.ts               -- mirror of seeded rows for client lookup
-src/types/evidenceBinder.ts
-src/components/AppSidebar.tsx                        -- new nav item w/ "HRSA" badge
-src/components/AuditBinderDialog.tsx                 -- include Evidence Binder section
-src/App.tsx                                          -- 2 new routes
+```
+src/pages/qi-reports/QIReportsList.tsx        -- quarter cards, status, "Generate Q3 2026"
+src/pages/qi-reports/QIReportDetail.tsx       -- two-pane: Committee / Board tabs
+src/pages/qi-reports/QIReportWizard.tsx       -- period picker → snapshot preview → AI draft → save
+src/components/qi-reports/SectionCard.tsx     -- editable section w/ AI regen
+src/components/qi-reports/ApprovalChain.tsx
+src/components/qi-reports/BoardActionsTable.tsx
+src/components/qi-reports/MeasureSnapshotTable.tsx
+src/components/qi-reports/ExportReportDialog.tsx  -- choose Committee / Board / Both PDFs
+src/lib/qiReportBuilder.ts
+src/lib/qiReportBoardView.ts
+src/lib/qiReportPdf.ts                        -- jsPDF, follows evidenceBinderPdf.ts patterns
+src/types/qiReport.ts
+src/data/qiReportTemplate.ts                  -- canonical section list + HRSA SVP reference text
 ```
 
-## 10. Out of scope (this pass)
+## 8. PDF export
 
-- OCR/text extraction from uploaded PDFs
-- E-signature on policies (we capture user + timestamp only)
-- Automatic pull of minutes from external doc systems (Google Drive, SharePoint)
-- Versioning diff viewer (we store versions; UI shows list + download only)
-- Per-document RLS sharing outside the org
+`qiReportPdf.ts` produces:
+- Cover (org, period, type=Committee/Board, signatures block with names + timestamps from approval chain).
+- TOC.
+- Section pages (auto-pagination, semantic tokens).
+- Appendix: SPC chart snapshots (rendered to canvas → PNG), board-action register, approval log.
+Both PDFs are saved to `evidence-binder` storage bucket at `{org_id}/qi-reports/{period}-{type}.pdf` and referenced in the linked `evidence_documents` rows.
+
+## 9. Evidence Binder integration
+
+- New seeded category (or reuse existing): on approval, deposit into **Meeting Minutes** (board PDF) + **Dashboards & Supporting Data Reports** (committee PDF) with `source=auto_qi_report`, `associated_requirement="HRSA SVP Ch.8 QI/QA report"`.
+- `evidence-binder` Overview's expirations strip surfaces "Q? QI/QA report due in N days" when no approved report exists for the current quarter (computed client-side).
+
+## 10. Sidebar & cross-links
+
+- Dashboard `AttentionStrip` gains a "Quarterly QI report due" pill when current quarter has no `approved` report past day 30 of the quarter close.
+- `AuditBinderDialog` adds a "Quarterly Reports" section listing the last 4 approved reports.
+
+## 11. Out of scope
+
+- Auto-pull of patient satisfaction survey results from external tools.
+- E-signature (we capture name + timestamp + auth user only).
+- Mid-cycle amendments (a new report supersedes; we don't diff).
+- Scheduled email of board packet (manual download for now).
 
 ## Technical details
 
-- Tables use `service_role` + `authenticated` GRANTs; `anon` excluded.
-- Storage RLS uses `(storage.foldername(name))[1] = (auth.uid()::text from profiles join)` pattern → simpler: scope by `org_id` prefix matched via `get_user_org_id(auth.uid())::text`.
-- `evidence_documents.current_version_id` keeps a fast pointer; insert trigger sets it on first version row.
-- All UI uses existing semantic tokens (`primary`, `success`, `warning`, `destructive`, `muted`); the attached HTML is reference for layout/density only.
-- PDF size guard: warn if estimated export > 100MB; offer "metadata-only" mode that links instead of inlining files.
+- All new tables: GRANTs to `authenticated` + `service_role`, RLS scoped to `organization_id` with `is_founder_admin` bypass.
+- Approval role check uses `profiles.staff_role` string match against `qi_report_approvals.role`; founder_admin can stand in for any role (audit-logged).
+- AI draft uses existing `LOVABLE_API_KEY` secret — no new secrets.
+- Storage uses existing `evidence-binder` bucket and policies; new `{org_id}/qi-reports/` prefix.
+- Edge function `draft-qi-report` registered with `verify_jwt = true` (default); deployed automatically.
+- All UI uses existing semantic tokens (`primary`, `success`, `warning`, `destructive`, `muted`); no custom colors.
+
+## Files to create/edit
+
+```
+supabase/migrations/<new>.sql                 -- 3 tables + trigger + grants + policies
+supabase/functions/draft-qi-report/index.ts   -- Lovable AI Gateway narrative drafter
+src/pages/qi-reports/QIReportsList.tsx
+src/pages/qi-reports/QIReportDetail.tsx
+src/pages/qi-reports/QIReportWizard.tsx
+src/components/qi-reports/SectionCard.tsx
+src/components/qi-reports/ApprovalChain.tsx
+src/components/qi-reports/BoardActionsTable.tsx
+src/components/qi-reports/MeasureSnapshotTable.tsx
+src/components/qi-reports/ExportReportDialog.tsx
+src/lib/qiReportBuilder.ts
+src/lib/qiReportBoardView.ts
+src/lib/qiReportPdf.ts
+src/types/qiReport.ts
+src/data/qiReportTemplate.ts
+src/components/AppSidebar.tsx                 -- new nav item w/ HRSA badge
+src/components/AuditBinderDialog.tsx          -- include Quarterly Reports section
+src/App.tsx                                   -- 3 new routes
+```

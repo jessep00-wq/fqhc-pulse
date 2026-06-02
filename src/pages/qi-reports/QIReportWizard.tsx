@@ -1,0 +1,187 @@
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useOrg } from "@/contexts/OrgContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+import {
+  buildReportSnapshot,
+  currentQuarter,
+  quarterRange,
+} from "@/lib/qiReportBuilder";
+import { deriveBoardSections } from "@/lib/qiReportBoardView";
+import { MeasureSnapshotTable } from "@/components/qi-reports/MeasureSnapshotTable";
+import type { CommitteeSections, QIReport } from "@/types/qiReport";
+
+export default function QIReportWizard() {
+  const { organization } = useOrg();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const cq = useMemo(() => currentQuarter(), []);
+  const now = new Date();
+  const [year, setYear] = useState(cq.label.split(" ")[1]);
+  const [quarter, setQuarter] = useState(cq.label.charAt(1));
+  const [loading, setLoading] = useState(false);
+  const [snapshot, setSnapshot] = useState<Pick<CommitteeSections, "active_pdsa" | "prior_quarter_outcomes" | "measures" | "safety_events"> | null>(null);
+
+  const selected = useMemo(
+    () => quarterRange(parseInt(year), parseInt(quarter) as 1 | 2 | 3 | 4),
+    [year, quarter],
+  );
+
+  const handlePreview = async () => {
+    if (!organization?.id) return;
+    setLoading(true);
+    try {
+      const snap = await buildReportSnapshot({ organizationId: organization.id, period: selected });
+      setSnapshot(snap);
+    } catch (e) {
+      toast({ title: "Could not build snapshot", description: e instanceof Error ? e.message : "Unknown", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGenerate = async () => {
+    if (!organization?.id || !snapshot) return;
+    setLoading(true);
+    try {
+      // Call AI draft edge function
+      const { data: aiData, error: aiErr } = await supabase.functions.invoke("draft-qi-report", {
+        body: {
+          orgName: organization.name,
+          periodLabel: selected.label,
+          snapshot,
+        },
+      });
+      if (aiErr) throw aiErr;
+      const narratives = (aiData?.narratives ?? {}) as Record<string, string>;
+
+      const committee: CommitteeSections = {
+        ...snapshot,
+        exec_summary: narratives.exec_summary,
+        performance_narrative: narratives.performance_narrative,
+        pdsa_narrative: narratives.pdsa_narrative,
+        gaps_narrative: narratives.gaps_narrative,
+        prior_quarter_narrative: narratives.prior_quarter_narrative,
+        safety_narrative: narratives.safety_narrative,
+        satisfaction_narrative: narratives.satisfaction_narrative,
+        board_recommendations: narratives.board_recommendations,
+      };
+      const board = deriveBoardSections(committee);
+
+      const client = supabase as unknown as { from: (t: string) => any };
+      const { data: inserted, error: insErr } = await client
+        .from("qi_reports")
+        .insert({
+          organization_id: organization.id,
+          period_label: selected.label,
+          period_start: selected.start,
+          period_end: selected.end,
+          report_type: "quarterly",
+          status: "draft",
+          committee_sections: committee,
+          board_sections: board,
+          ai_draft_meta: aiData?.meta ?? {},
+          generated_by: user?.id ?? null,
+        })
+        .select("*")
+        .single();
+      if (insErr) throw insErr;
+      const row = inserted as QIReport;
+      toast({ title: "Report drafted", description: "AI narrative ready for your review." });
+      navigate(`/dashboard/qi-reports/${row.id}`);
+    } catch (e) {
+      toast({
+        title: "Generation failed",
+        description: e instanceof Error ? e.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const years = [now.getUTCFullYear() - 1, now.getUTCFullYear(), now.getUTCFullYear() + 1];
+
+  return (
+    <div className="space-y-6 p-6 max-w-4xl mx-auto">
+      <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard/qi-reports")}>
+        <ArrowLeft className="h-4 w-4 mr-1" />
+        Back to reports
+      </Button>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Generate quarterly report</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Pick a reporting quarter, preview the auto-pulled snapshot, then let the AI draft the narrative.
+        </p>
+      </div>
+
+      <Card className="p-5">
+        <h3 className="font-semibold mb-3">1. Choose period</h3>
+        <div className="flex gap-3">
+          <Select value={quarter} onValueChange={setQuarter}>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {["1", "2", "3", "4"].map((q) => (
+                <SelectItem key={q} value={q}>Q{q}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={year} onValueChange={setYear}>
+            <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {years.map((y) => (
+                <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button variant="outline" onClick={handlePreview} disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : null}
+            Preview snapshot
+          </Button>
+        </div>
+      </Card>
+
+      {snapshot && (
+        <>
+          <Card className="p-5">
+            <h3 className="font-semibold mb-3">2. Snapshot preview</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+              <Stat label="Active PDSA" value={snapshot.active_pdsa.length} />
+              <Stat label="Prior quarter cycles" value={snapshot.prior_quarter_outcomes.length} />
+              <Stat label="Measures tracked" value={snapshot.measures.length} />
+              <Stat label="Safety events" value={snapshot.safety_events.length} />
+            </div>
+            <MeasureSnapshotTable measures={snapshot.measures} />
+          </Card>
+
+          <Card className="p-5">
+            <h3 className="font-semibold mb-2">3. Draft with AI</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              The AI quality assistant will draft narrative for every section using the snapshot above.
+              You'll review and edit before sending the report for approval.
+            </p>
+            <Button onClick={handleGenerate} disabled={loading}>
+              {loading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
+              Generate AI draft
+            </Button>
+          </Card>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="rounded-lg border p-3">
+      <div className="text-2xl font-bold">{value}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
+    </div>
+  );
+}
