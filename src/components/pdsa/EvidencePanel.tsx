@@ -99,7 +99,12 @@ export function EvidencePanel({
     mutationFn: async (row: EvidenceRow) => {
       const { error: delErr } = await supabase.storage.from(BUCKET).remove([row.file_path]);
       if (delErr) throw delErr;
-      const { error: rowErr } = await supabase.from("pdsa_evidence" as never).delete().eq("id", row.id);
+      const client = supabase as unknown as {
+        from: (t: string) => {
+          delete: () => { eq: (col: string, val: string) => Promise<{ error: Error | null }> };
+        };
+      };
+      const { error: rowErr } = await client.from("pdsa_evidence").delete().eq("id", row.id);
       if (rowErr) throw rowErr;
     },
     onSuccess: () => {
