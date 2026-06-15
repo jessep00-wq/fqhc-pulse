@@ -75,7 +75,7 @@ export default function ReadinessScore() {
         first_name: form.firstName.trim(),
         ...(form.healthCenter.trim() ? { health_center: form.healthCenter.trim() } : {}),
         ...(form.state.trim() ? { state: form.state.trim() } : {}),
-        answers: { ...answers, __gaps: computed.gaps, __breakdown: computed.breakdown } as unknown as Record<string, unknown>,
+        answers: JSON.parse(JSON.stringify({ ...answers, __gaps: computed.gaps, __breakdown: computed.breakdown })),
         score: computed.total,
         tier: computed.tier,
         source: "readiness_landing",
