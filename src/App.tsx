@@ -59,6 +59,7 @@ import AdminAdoption from "./pages/admin/AdminAdoption";
 import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
 import AdminBlog from "./pages/admin/AdminBlog";
+import AdminReadinessLeads from "./pages/admin/AdminReadinessLeads";
 
 // Newsletter pages
 import NewsletterIndex from "./pages/NewsletterIndex";
@@ -78,6 +79,9 @@ import ManualThankYou from "./pages/ManualThankYou";
 import WaitlistLanding from "./pages/waitlist/WaitlistLanding";
 import WaitlistApply from "./pages/waitlist/WaitlistApply";
 import WaitlistThankYou from "./pages/waitlist/WaitlistThankYou";
+
+// Lead magnets
+import ReadinessScore from "./pages/ReadinessScore";
 
 
 
