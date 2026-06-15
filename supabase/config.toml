@@ -43,3 +43,5 @@ project_id = "eeyigxcwewdqfeidqbxk"
     verify_jwt = false
   [functions.send-email]
     verify_jwt = false
+  [functions.send-waitlist-nurture]
+    verify_jwt = false
