@@ -84,7 +84,7 @@ export default function ReadinessScore() {
 
       const { data, error } = await supabase
         .from("readiness_submissions")
-        .insert(payload)
+        .insert([payload])
         .select("id")
         .single();
 
