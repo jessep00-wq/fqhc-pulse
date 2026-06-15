@@ -181,6 +181,11 @@ const App = () => (
                 <Route path="/waitlist/apply" element={<WaitlistApply />} />
                 <Route path="/waitlist/thank-you" element={<WaitlistThankYou />} />
 
+                {/* Lead magnets */}
+                <Route path="/readiness" element={<ReadinessScore />} />
+
+
+
 
 
                 <Route
@@ -197,6 +202,7 @@ const App = () => (
                             <Route path="newsletter" element={<AdminNewsletter />} />
                             <Route path="store" element={<AdminStore />} />
                             <Route path="blog" element={<AdminBlog />} />
+                            <Route path="readiness" element={<AdminReadinessLeads />} />
                             <Route path="account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
