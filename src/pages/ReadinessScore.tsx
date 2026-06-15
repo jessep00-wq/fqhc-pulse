@@ -73,9 +73,9 @@ export default function ReadinessScore() {
       const payload = {
         email: form.email.trim().toLowerCase(),
         first_name: form.firstName.trim(),
-        health_center: form.healthCenter.trim() || null,
-        state: form.state.trim() || null,
-        answers: { ...answers, __gaps: computed.gaps, __breakdown: computed.breakdown },
+        ...(form.healthCenter.trim() ? { health_center: form.healthCenter.trim() } : {}),
+        ...(form.state.trim() ? { state: form.state.trim() } : {}),
+        answers: { ...answers, __gaps: computed.gaps, __breakdown: computed.breakdown } as unknown as Record<string, unknown>,
         score: computed.total,
         tier: computed.tier,
         source: "readiness_landing",
