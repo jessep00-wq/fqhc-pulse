@@ -1416,6 +1416,51 @@ export type Database = {
         }
         Relationships: []
       }
+      readiness_submissions: {
+        Row: {
+          answers: Json
+          created_at: string
+          email: string
+          email_sent_at: string | null
+          first_name: string
+          health_center: string | null
+          id: string
+          score: number
+          source: string | null
+          state: string | null
+          tier: string
+          user_agent: string | null
+        }
+        Insert: {
+          answers?: Json
+          created_at?: string
+          email: string
+          email_sent_at?: string | null
+          first_name: string
+          health_center?: string | null
+          id?: string
+          score: number
+          source?: string | null
+          state?: string | null
+          tier: string
+          user_agent?: string | null
+        }
+        Update: {
+          answers?: Json
+          created_at?: string
+          email?: string
+          email_sent_at?: string | null
+          first_name?: string
+          health_center?: string | null
+          id?: string
+          score?: number
+          source?: string | null
+          state?: string | null
+          tier?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       sites: {
         Row: {
           address: string | null
