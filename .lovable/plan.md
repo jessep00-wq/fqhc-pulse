@@ -1,67 +1,41 @@
-## Goal
-Give you a per-applicant view of every waitlist email attempt — template, status, timestamp, and the raw Resend response — so you can confirm (or diagnose) delivery without digging through edge function logs.
+## Root cause
 
-## Important context from logs
-The most recent `submit-waitlist-application` invocation shows Resend rejecting BOTH the confirmation and internal notification with:
-```
-401 {"statusCode":401,"name":"validation_error","message":"API key is invalid"}
-```
-That means no waitlist email is reaching anyone right now. The status page will surface this clearly, but the underlying cause is the `RESEND_API_KEY` connector secret — fixing that is out of scope for this plan unless you want it bundled in.
+Three edge functions call Resend directly at `https://api.resend.com/emails` with `Authorization: Bearer ${RESEND_API_KEY}`. But `RESEND_API_KEY` in this project is a **connector** key, not a real Resend secret key — so Resend returns `401 "API key is invalid"`. Every send from these functions fails, which is what the 0% success rate on `submit-waitlist-application` reflects (visible in edge logs: `waitlist confirmation rejected 401`, `waitlist internal notification rejected 401`).
 
-## What gets built
+All other email-sending functions in the project already use the correct connector gateway pattern (`https://connector-gateway.lovable.dev/resend/emails` with both `Authorization: Bearer ${LOVABLE_API_KEY}` and `X-Connection-Api-Key: ${RESEND_API_KEY}`). The three broken ones were never migrated.
 
-### 1. Log every waitlist send to `email_send_log`
-`email_send_log` already exists and is the project's standard email audit table. Update the three functions that send waitlist email so each `fetch` to Resend writes one row:
+## Files to fix
 
-- `submit-waitlist-application` — confirmation + internal notification
-- `send-waitlist-nurture` — each nurture step (1–5)
-- `admin-waitlist-test` — when it triggers cron, the same logging flows through
+1. `supabase/functions/submit-waitlist-application/index.ts` — applicant confirmation + internal notification fetches.
+2. `supabase/functions/send-waitlist-nurture/index.ts` — nurture step fetch in the loop.
+3. `supabase/functions/capture-playbook-lead/index.ts` — playbook delivery email fetch.
 
-Each row captures:
-- `template_name`: e.g. `waitlist-confirmation`, `waitlist-internal-notification`, `waitlist-nurture-step-3`
-- `recipient_email`
-- `status`: `sent` (Resend 200) or `failed` (anything else)
-- `error_message`: Resend status + response body when not OK
-- `metadata`: `{ waitlist_application_id, sequence_step?, resend_id?, from, subject }`
-- `message_id`: stable idempotency key like `waitlist-<applicationId>-confirmation` or `waitlist-<applicationId>-nurture-<step>`
+## Change in each file
 
-### 2. New admin page: `/admin/waitlist-status`
-A read-only console showing one row per applicant with an expandable detail panel.
+- Add `const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";` and read `LOVABLE_API_KEY` alongside `RESEND_API_KEY`. Skip sending (with a logged reason) if either is missing.
+- Replace `fetch("https://api.resend.com/emails", { headers: { Authorization: 'Bearer ${RESEND_API_KEY}', ... } })` with:
+  ```ts
+  fetch(`${GATEWAY_URL}/emails`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": RESEND_API_KEY,
+    },
+    body: /* unchanged */,
+  })
+  ```
+- Keep the existing `logEmailAttempt` / `logEmailException` calls, response-text capture, and error logging exactly as-is so the Waitlist Status page keeps showing per-attempt detail.
+- No changes to validation, schemas, DB inserts, sequence logic, rate limits, or CORS.
 
-Top-level table (most-recent applications first):
-- Name / email / organization
-- Current sequence step (0–5)
-- Last attempt status badge (✅ sent / ❌ failed / ⏳ pending / —)
-- Last attempt timestamp
-- Count of successful sends / total attempts
+## Out of scope
 
-Expand a row to reveal a timeline of every `email_send_log` entry for that applicant (matched via `metadata->>waitlist_application_id`), each showing:
-- Template name + sequence step
-- Timestamp, status badge
-- `from` / subject
-- For failures: the raw Resend status + body (e.g. the current `401 API key is invalid`)
-- For successes: the Resend `id`
+- No changes to other email functions (already correct).
+- No template, copy, or `from`/`reply_to` changes.
+- No new secrets — `LOVABLE_API_KEY` and `RESEND_API_KEY` are already configured.
 
-Filters at the top: status (all / failed only / sent only), template, free-text search on email.
+## Verification after deploy
 
-### 3. New edge function: `admin-waitlist-status`
-Service-role function (founder-admin only) that returns the joined data:
-- `waitlist_applications` rows (newest 200)
-- For each, the matching `email_send_log` rows pulled by `metadata->>waitlist_application_id`
-- Aggregated counts so the table doesn't need a second round trip
-
-Auth check: verify caller is `founder_admin` via `is_founder_admin(auth.uid())` before returning anything.
-
-### 4. Sidebar entry
-Add "Waitlist Status" under the existing admin sidebar, next to "Waitlist Tester".
-
-## Out of scope (call out separately if you want it included)
-- Fixing the `RESEND_API_KEY` itself — the page will *show* the 401, but rotating/reconnecting the Resend connector is a separate action.
-- Retry-from-UI button (could be a follow-up once you've confirmed the key is good).
-- Backfilling historical waitlist sends that never wrote to `email_send_log`.
-
-## Technical notes
-- `email_send_log` columns already match what we need (`message_id`, `template_name`, `recipient_email`, `status`, `error_message`, `metadata`, `created_at`); no migration needed.
-- Dedup by `message_id` per the project's email-dashboard convention — `DISTINCT ON (message_id) ORDER BY message_id, created_at DESC`.
-- All three edge functions already have the Resend `fetch` wrapped in try/catch; we add a small `logEmailAttempt()` helper in `supabase/functions/_shared/` and call it after each `fetch`.
-- New page lives at `src/pages/admin/WaitlistStatus.tsx` and is wired into the existing `/admin/*` routes in `src/App.tsx`.
+1. Submit a test waitlist application; expect 200 and a new `email_send_log` row with `status: sent` for both `waitlist-confirmation` and `waitlist-internal-notification`.
+2. Check `/admin/waitlist-status` — the latest applicant should show two green "sent" rows instead of two red 401 rows.
+3. Trigger `send-waitlist-nurture` (or wait for cron) and confirm a nurture step row logs `sent`.
+4. Submit a playbook lead and confirm `capture-playbook-lead` logs a successful Resend send.
