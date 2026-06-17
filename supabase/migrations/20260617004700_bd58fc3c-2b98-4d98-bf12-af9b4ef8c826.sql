@@ -1,0 +1,1 @@
+SELECT vault.create_secret('36488a755d9cc210cb01e55db5dcfea3dd181a304f9628eb3076c7730aa572e9', 'CRON_SECRET', 'Shared secret for pg_cron -> edge function authorization');
