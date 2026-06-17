@@ -1,40 +1,36 @@
-## Goal
-Give you (founder admin) a one-screen way to verify the waitlist nurture pipeline end-to-end: create a test applicant → force the next email to be "due" → invoke the cron → see Resend deliver it and `sequence_step` advance.
+## Problem
 
-## Why a UI tool (not just SQL)
-The cron only sends step N when `created_at + daysAfterSignup[N] <= now()`. With a fresh applicant, step 1's delay (hours/days) blocks immediate testing. We need a controlled way to backdate `created_at` so each step becomes due on demand.
+The waitlist application row saved successfully (`jessicawithintention@gmail.com` at 02:17 UTC), but no confirmation email arrived.
 
-## What gets built
+`submit-waitlist-application/index.ts` calls Resend directly with:
 
-### 1. Admin page: `/admin/waitlist-test`
-Founder-admin only (gated by `is_founder_admin`). Shown as a card in the existing `/admin` console.
+- Applicant confirmation: `from: "Jessica at MeasureWise <jessica@measurewise.org>"`
+- Internal notification: `from: "MeasureWise Waitlist <hello@measurewise.org>"`
 
-Controls:
-- **Create test applicant** form — prefilled with safe defaults; you only choose `name` + `email` (defaults to your founder email). Inserts a row with `status='new'`, `sequence_step=0`.
-- **Test applicants table** — lists rows where `email` matches a `*+wltest*@` pattern OR `organization = 'MeasureWise Test'`, with: name, email, created_at, sequence_step, last_sequence_sent_at, status.
-- Per-row actions:
-  - **Advance clock** — backdates `created_at` so the next step is due now (uses `NURTURE_SEQUENCE[sequence_step].daysAfterSignup`).
-  - **Run cron now** — calls the existing `send-waitlist-nurture` edge function with the `CRON_SECRET`. Shows the JSON response (considered/sent/failed/skipped).
-  - **Reset** — sets `sequence_step=0`, clears `last_sequence_sent_at`.
-  - **Delete** — removes the test row.
+Both Resend calls are wrapped in `try/catch` with only `console.warn`, so a rejected send fails silently and the user still gets routed to the thank-you page.
 
-### 2. New edge function: `admin-waitlist-test`
-Verifies the caller is `founder_admin` via their JWT, then performs whichever sub-action the UI requested (`create`, `backdate`, `reset`, `delete`, `trigger_cron`). Uses service-role to bypass the waitlist RLS that blocks founder UPDATE/DELETE only if needed; founder already has UPDATE/DELETE policies so service-role is mainly needed for `trigger_cron` (it reads `CRON_SECRET` via `get_cron_secret()` and calls `send-waitlist-nurture` server-side, so the secret never reaches the browser).
+The only Resend-verified sender used elsewhere in the project (`send-email/index.ts`) is `hello@measurewise.org`. `jessica@measurewise.org` is almost certainly not a verified sender on the Resend account — Resend rejects the send with 403 and we swallow it.
 
-### 3. No schema changes
-We reuse `waitlist_applications` as-is. Test rows are just normal rows with a recognizable email pattern.
+(Separately, `notify.measurewise.org` is delegated to Lovable Emails via NS records, so that subdomain cannot be used through the Resend connector — only the root-domain addresses already verified in Resend can.)
 
-## Technical notes
-- The cron's auth path already supports header `x-cron-secret`; the new function will fetch the secret via `get_cron_secret()` RPC (already exists) and forward it.
-- `Advance clock` updates `created_at` to `now() - (daysAfterSignup * '1 day'::interval) - '1 minute'::interval` for the next step, ensuring the cron picks it up immediately.
-- All test actions write to `activity_log` so there's an audit trail.
+## Fix
 
-## Files
-- New: `supabase/functions/admin-waitlist-test/index.ts`
-- New: `src/pages/admin/WaitlistTest.tsx`
-- Edit: `src/pages/admin/AdminConsole.tsx` (or equivalent) — add link/card
-- Edit: `src/App.tsx` routes — add `/admin/waitlist-test`
+Edit `supabase/functions/submit-waitlist-application/index.ts`:
+
+1. Change the applicant confirmation `from` to the known-verified sender:
+   - `from: "Jessica at MeasureWise <hello@measurewise.org>"`
+   - add `reply_to: BRAND.founder.email` so replies still go to Jessica.
+2. Leave the internal notification as-is (already uses `hello@`), but make its `reply_to` the applicant (already correct).
+3. Upgrade the silent `console.warn` to also capture and log the Resend response body + status, so future failures are visible in edge logs instead of vanishing.
+4. Redeploy the edge function.
+
+## Verification
+
+- Re-submit a test waitlist entry via `/admin/waitlist-test` (or the public form).
+- Confirm the new edge-function logs show a 200 from Resend.
+- Confirm the confirmation email arrives in the test inbox.
 
 ## Out of scope
-- No changes to the production cron schedule or `send-waitlist-nurture` itself.
-- No changes to nurture email content.
+
+- Migrating waitlist emails onto the queued `send-transactional-email` infrastructure (would also work and add retries/logging, but is a larger change — happy to do it as a follow-up if you'd like).
+- Verifying `jessica@measurewise.org` as a Resend sender (would require DNS work on the root domain and is unnecessary if we send from `hello@` with a reply-to).

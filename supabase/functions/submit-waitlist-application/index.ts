@@ -184,27 +184,32 @@ Deno.serve(async (req) => {
 
       // Applicant confirmation
       try {
-        await fetch("https://api.resend.com/emails", {
+        const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${RESEND_API_KEY}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            from: `Jessica at ${BRAND.name} <${BRAND.founder.email}>`,
+            from: `Jessica at ${BRAND.name} <${BRAND.helloEmail}>`,
             to: [data.email],
+            reply_to: BRAND.founder.email,
             subject: `Application received — ${BRAND.name} HRSA Audit-Ready PDSA Sprint`,
             tags: [{ name: "category", value: "waitlist_confirmation" }],
             html: confirmationHtml(firstName),
           }),
         });
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          console.error("waitlist confirmation email rejected", res.status, body);
+        }
       } catch (err) {
-        console.warn("waitlist confirmation email failed (non-blocking)", err);
+        console.error("waitlist confirmation email failed (non-blocking)", err);
       }
 
       // Internal notification
       try {
-        await fetch("https://api.resend.com/emails", {
+        const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${RESEND_API_KEY}`,
@@ -219,9 +224,14 @@ Deno.serve(async (req) => {
             html: internalNotificationHtml(data),
           }),
         });
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          console.error("waitlist internal notification rejected", res.status, body);
+        }
       } catch (err) {
-        console.warn("waitlist internal notification failed (non-blocking)", err);
+        console.error("waitlist internal notification failed (non-blocking)", err);
       }
+
     }
 
     return new Response(JSON.stringify({ ok: true, id: inserted?.id }), {
