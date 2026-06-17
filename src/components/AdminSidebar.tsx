@@ -9,6 +9,7 @@ import {
   Shield,
   Sparkles,
   FlaskConical,
+  Mail,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
@@ -36,6 +37,7 @@ const growth = [
   { title: "Billing", url: "/admin/billing", icon: CreditCard },
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
   { title: "Waitlist Tester", url: "/admin/waitlist-test", icon: FlaskConical },
+  { title: "Waitlist Status", url: "/admin/waitlist-status", icon: Mail },
 ];
 
 const content = [

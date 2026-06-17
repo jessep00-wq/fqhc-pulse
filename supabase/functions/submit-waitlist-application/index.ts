@@ -5,6 +5,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { z } from "https://esm.sh/zod@3.23.8";
 import { BRAND } from "../_shared/brand.ts";
+import { logEmailAttempt, logEmailException } from "../_shared/log-email-attempt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -181,57 +182,85 @@ Deno.serve(async (req) => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (RESEND_API_KEY) {
       const firstName = data.name.split(/\s+/)[0] || "";
+      const applicationId = inserted?.id as string;
 
       // Applicant confirmation
+      const confFrom = `Jessica at ${BRAND.name} <${BRAND.helloEmail}>`;
+      const confSubject = `Application received — ${BRAND.name} HRSA Audit-Ready PDSA Sprint`;
       try {
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            from: `Jessica at ${BRAND.name} <${BRAND.helloEmail}>`,
+            from: confFrom,
             to: [data.email],
             reply_to: BRAND.founder.email,
-            subject: `Application received — ${BRAND.name} HRSA Audit-Ready PDSA Sprint`,
+            subject: confSubject,
             tags: [{ name: "category", value: "waitlist_confirmation" }],
             html: confirmationHtml(firstName),
           }),
         });
-        if (!res.ok) {
-          const body = await res.text().catch(() => "");
-          console.error("waitlist confirmation email rejected", res.status, body);
-        }
+        const body = await res.text().catch(() => "");
+        if (!res.ok) console.error("waitlist confirmation rejected", res.status, body);
+        await logEmailAttempt({
+          supabase,
+          messageId: `waitlist-${applicationId}-confirmation`,
+          templateName: "waitlist-confirmation",
+          recipient: data.email,
+          resendResponse: res,
+          resendBody: body,
+          metadata: { waitlist_application_id: applicationId, from: confFrom, subject: confSubject },
+        });
       } catch (err) {
-        console.error("waitlist confirmation email failed (non-blocking)", err);
+        console.error("waitlist confirmation threw", err);
+        await logEmailException({
+          supabase,
+          messageId: `waitlist-${applicationId}-confirmation`,
+          templateName: "waitlist-confirmation",
+          recipient: data.email,
+          error: err,
+          metadata: { waitlist_application_id: applicationId, from: confFrom, subject: confSubject },
+        });
       }
 
       // Internal notification
+      const notifFrom = `${BRAND.name} Waitlist <${BRAND.helloEmail}>`;
+      const notifSubject = `New waitlist application: ${data.organization} (${data.state})`;
       try {
         const res = await fetch("https://api.resend.com/emails", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
+          headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            from: `${BRAND.name} Waitlist <${BRAND.helloEmail}>`,
+            from: notifFrom,
             to: [BRAND.founder.email],
             reply_to: data.email,
-            subject: `New waitlist application: ${data.organization} (${data.state})`,
+            subject: notifSubject,
             tags: [{ name: "category", value: "waitlist_internal" }],
             html: internalNotificationHtml(data),
           }),
         });
-        if (!res.ok) {
-          const body = await res.text().catch(() => "");
-          console.error("waitlist internal notification rejected", res.status, body);
-        }
+        const body = await res.text().catch(() => "");
+        if (!res.ok) console.error("waitlist internal notification rejected", res.status, body);
+        await logEmailAttempt({
+          supabase,
+          messageId: `waitlist-${applicationId}-internal`,
+          templateName: "waitlist-internal-notification",
+          recipient: BRAND.founder.email,
+          resendResponse: res,
+          resendBody: body,
+          metadata: { waitlist_application_id: applicationId, from: notifFrom, subject: notifSubject },
+        });
       } catch (err) {
-        console.error("waitlist internal notification failed (non-blocking)", err);
+        console.error("waitlist internal notification threw", err);
+        await logEmailException({
+          supabase,
+          messageId: `waitlist-${applicationId}-internal`,
+          templateName: "waitlist-internal-notification",
+          recipient: BRAND.founder.email,
+          error: err,
+          metadata: { waitlist_application_id: applicationId, from: notifFrom, subject: notifSubject },
+        });
       }
-
     }
 
     return new Response(JSON.stringify({ ok: true, id: inserted?.id }), {

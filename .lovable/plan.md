@@ -1,36 +1,67 @@
-## Problem
+## Goal
+Give you a per-applicant view of every waitlist email attempt — template, status, timestamp, and the raw Resend response — so you can confirm (or diagnose) delivery without digging through edge function logs.
 
-The waitlist application row saved successfully (`jessicawithintention@gmail.com` at 02:17 UTC), but no confirmation email arrived.
+## Important context from logs
+The most recent `submit-waitlist-application` invocation shows Resend rejecting BOTH the confirmation and internal notification with:
+```
+401 {"statusCode":401,"name":"validation_error","message":"API key is invalid"}
+```
+That means no waitlist email is reaching anyone right now. The status page will surface this clearly, but the underlying cause is the `RESEND_API_KEY` connector secret — fixing that is out of scope for this plan unless you want it bundled in.
 
-`submit-waitlist-application/index.ts` calls Resend directly with:
+## What gets built
 
-- Applicant confirmation: `from: "Jessica at MeasureWise <jessica@measurewise.org>"`
-- Internal notification: `from: "MeasureWise Waitlist <hello@measurewise.org>"`
+### 1. Log every waitlist send to `email_send_log`
+`email_send_log` already exists and is the project's standard email audit table. Update the three functions that send waitlist email so each `fetch` to Resend writes one row:
 
-Both Resend calls are wrapped in `try/catch` with only `console.warn`, so a rejected send fails silently and the user still gets routed to the thank-you page.
+- `submit-waitlist-application` — confirmation + internal notification
+- `send-waitlist-nurture` — each nurture step (1–5)
+- `admin-waitlist-test` — when it triggers cron, the same logging flows through
 
-The only Resend-verified sender used elsewhere in the project (`send-email/index.ts`) is `hello@measurewise.org`. `jessica@measurewise.org` is almost certainly not a verified sender on the Resend account — Resend rejects the send with 403 and we swallow it.
+Each row captures:
+- `template_name`: e.g. `waitlist-confirmation`, `waitlist-internal-notification`, `waitlist-nurture-step-3`
+- `recipient_email`
+- `status`: `sent` (Resend 200) or `failed` (anything else)
+- `error_message`: Resend status + response body when not OK
+- `metadata`: `{ waitlist_application_id, sequence_step?, resend_id?, from, subject }`
+- `message_id`: stable idempotency key like `waitlist-<applicationId>-confirmation` or `waitlist-<applicationId>-nurture-<step>`
 
-(Separately, `notify.measurewise.org` is delegated to Lovable Emails via NS records, so that subdomain cannot be used through the Resend connector — only the root-domain addresses already verified in Resend can.)
+### 2. New admin page: `/admin/waitlist-status`
+A read-only console showing one row per applicant with an expandable detail panel.
 
-## Fix
+Top-level table (most-recent applications first):
+- Name / email / organization
+- Current sequence step (0–5)
+- Last attempt status badge (✅ sent / ❌ failed / ⏳ pending / —)
+- Last attempt timestamp
+- Count of successful sends / total attempts
 
-Edit `supabase/functions/submit-waitlist-application/index.ts`:
+Expand a row to reveal a timeline of every `email_send_log` entry for that applicant (matched via `metadata->>waitlist_application_id`), each showing:
+- Template name + sequence step
+- Timestamp, status badge
+- `from` / subject
+- For failures: the raw Resend status + body (e.g. the current `401 API key is invalid`)
+- For successes: the Resend `id`
 
-1. Change the applicant confirmation `from` to the known-verified sender:
-   - `from: "Jessica at MeasureWise <hello@measurewise.org>"`
-   - add `reply_to: BRAND.founder.email` so replies still go to Jessica.
-2. Leave the internal notification as-is (already uses `hello@`), but make its `reply_to` the applicant (already correct).
-3. Upgrade the silent `console.warn` to also capture and log the Resend response body + status, so future failures are visible in edge logs instead of vanishing.
-4. Redeploy the edge function.
+Filters at the top: status (all / failed only / sent only), template, free-text search on email.
 
-## Verification
+### 3. New edge function: `admin-waitlist-status`
+Service-role function (founder-admin only) that returns the joined data:
+- `waitlist_applications` rows (newest 200)
+- For each, the matching `email_send_log` rows pulled by `metadata->>waitlist_application_id`
+- Aggregated counts so the table doesn't need a second round trip
 
-- Re-submit a test waitlist entry via `/admin/waitlist-test` (or the public form).
-- Confirm the new edge-function logs show a 200 from Resend.
-- Confirm the confirmation email arrives in the test inbox.
+Auth check: verify caller is `founder_admin` via `is_founder_admin(auth.uid())` before returning anything.
 
-## Out of scope
+### 4. Sidebar entry
+Add "Waitlist Status" under the existing admin sidebar, next to "Waitlist Tester".
 
-- Migrating waitlist emails onto the queued `send-transactional-email` infrastructure (would also work and add retries/logging, but is a larger change — happy to do it as a follow-up if you'd like).
-- Verifying `jessica@measurewise.org` as a Resend sender (would require DNS work on the root domain and is unnecessary if we send from `hello@` with a reply-to).
+## Out of scope (call out separately if you want it included)
+- Fixing the `RESEND_API_KEY` itself — the page will *show* the 401, but rotating/reconnecting the Resend connector is a separate action.
+- Retry-from-UI button (could be a follow-up once you've confirmed the key is good).
+- Backfilling historical waitlist sends that never wrote to `email_send_log`.
+
+## Technical notes
+- `email_send_log` columns already match what we need (`message_id`, `template_name`, `recipient_email`, `status`, `error_message`, `metadata`, `created_at`); no migration needed.
+- Dedup by `message_id` per the project's email-dashboard convention — `DISTINCT ON (message_id) ORDER BY message_id, created_at DESC`.
+- All three edge functions already have the Resend `fetch` wrapped in try/catch; we add a small `logEmailAttempt()` helper in `supabase/functions/_shared/` and call it after each `fetch`.
+- New page lives at `src/pages/admin/WaitlistStatus.tsx` and is wired into the existing `/admin/*` routes in `src/App.tsx`.
