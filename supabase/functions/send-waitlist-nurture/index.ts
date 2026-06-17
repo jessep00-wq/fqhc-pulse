@@ -14,19 +14,24 @@ const corsHeaders = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Require shared secret header so only cron can trigger this.
-  const cronSecret = Deno.env.get("CRON_SECRET");
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Single source of truth: read CRON_SECRET from the same vault row that
+  // pg_cron reads from. Avoids drift between env var and vault.
+  const { data: secretData } = await supabase.rpc("get_cron_secret");
+  const cronSecret = (typeof secretData === "string" ? secretData : null)
+    ?? Deno.env.get("CRON_SECRET")
+    ?? null;
+
   if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
 
   const maxStep = NURTURE_SEQUENCE.length;
 
