@@ -5,6 +5,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { BRAND } from "../_shared/brand.ts";
 import { NURTURE_SEQUENCE } from "../_shared/waitlist-nurture-emails.ts";
+import { logEmailAttempt, logEmailException } from "../_shared/log-email-attempt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -80,18 +81,24 @@ Deno.serve(async (req) => {
 
     const firstName = String(row.name ?? "").split(/\s+/)[0] || "";
 
+    const fromAddr = `Jessica at ${BRAND.name} <${BRAND.founder.email}>`;
+    const messageId = `waitlist-${row.id}-nurture-${email.step}`;
+    const templateName = `waitlist-nurture-step-${email.step}`;
+    const meta = {
+      waitlist_application_id: row.id as string,
+      sequence_step: email.step,
+      from: fromAddr,
+      subject: email.subject,
+    };
     try {
       const res = await fetch("https://api.resend.com/emails", {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${RESEND_API_KEY}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${RESEND_API_KEY}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          from: `Jessica at ${BRAND.name} <${BRAND.founder.email}>`,
+          from: fromAddr,
           to: [row.email],
           subject: email.subject,
-          headers: { "X-Entity-Ref-ID": `waitlist-${row.id}-step-${email.step}` },
+          headers: { "X-Entity-Ref-ID": messageId },
           tags: [
             { name: "category", value: "waitlist_nurture" },
             { name: "step", value: String(email.step) },
@@ -99,14 +106,23 @@ Deno.serve(async (req) => {
           html: email.html(firstName),
         }),
       });
+      const txt = await res.text().catch(() => "");
+      await logEmailAttempt({
+        supabase, messageId, templateName,
+        recipient: row.email as string,
+        resendResponse: res, resendBody: txt, metadata: meta,
+      });
       if (!res.ok) {
-        const txt = await res.text().catch(() => "");
         console.error(`resend send failed for ${row.email} step ${email.step}`, res.status, txt);
         failed++;
         continue;
       }
     } catch (err) {
       console.error("resend send threw", err);
+      await logEmailException({
+        supabase, messageId, templateName,
+        recipient: row.email as string, error: err, metadata: meta,
+      });
       failed++;
       continue;
     }

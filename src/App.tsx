@@ -73,6 +73,7 @@ import StoreBundleDetail from "./pages/store/StoreBundleDetail";
 import StoreSuccess from "./pages/store/StoreSuccess";
 import AdminStore from "./pages/admin/AdminStore";
 import WaitlistTest from "./pages/admin/WaitlistTest";
+import WaitlistStatus from "./pages/admin/WaitlistStatus";
 import ManualLanding from "./pages/ManualLanding";
 import ManualThankYou from "./pages/ManualThankYou";
 
@@ -205,6 +206,7 @@ const App = () => (
                             <Route path="blog" element={<AdminBlog />} />
                             <Route path="readiness" element={<AdminReadinessLeads />} />
                             <Route path="waitlist-test" element={<WaitlistTest />} />
+                            <Route path="waitlist-status" element={<WaitlistStatus />} />
                             <Route path="account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
