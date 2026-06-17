@@ -120,15 +120,15 @@ export default function WaitlistApply() {
                   </div>
                   <div className="mw-field">
                     <label htmlFor="title">Title</label>
-                    <input id="title" name="title" type="text" autoComplete="organization-title" required placeholder="Quality Director" maxLength={160} />
+                    <input id="title" name="title" type="text" autoComplete="organization-title" required minLength={2} placeholder="Quality Director" maxLength={160} />
                   </div>
                   <div className="mw-field">
                     <label htmlFor="organization">Organization</label>
-                    <input id="organization" name="organization" type="text" autoComplete="organization" required placeholder="Organization name" maxLength={200} />
+                    <input id="organization" name="organization" type="text" autoComplete="organization" required minLength={2} placeholder="Organization name" maxLength={200} />
                   </div>
                   <div className="mw-field">
                     <label htmlFor="state">State</label>
-                    <input id="state" name="state" type="text" autoComplete="address-level1" required placeholder="Mississippi" maxLength={80} />
+                    <input id="state" name="state" type="text" autoComplete="address-level1" required minLength={2} placeholder="Mississippi" maxLength={80} />
                   </div>
                   <div className="mw-field">
                     <label htmlFor="email">Email</label>
@@ -136,7 +136,7 @@ export default function WaitlistApply() {
                   </div>
                   <div className="mw-field">
                     <label htmlFor="phone">Phone</label>
-                    <input id="phone" name="phone" type="tel" autoComplete="tel" required placeholder="(555) 555-5555" maxLength={40} />
+                    <input id="phone" name="phone" type="tel" autoComplete="tel" required minLength={7} placeholder="(555) 555-5555" maxLength={40} />
                   </div>
                 </div>
               </fieldset>
