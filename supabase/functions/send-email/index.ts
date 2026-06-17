@@ -13,8 +13,9 @@ interface EmailPayload {
   to: string;
   subject: string;
   html: string;
-  from?: string;
 }
+
+const FROM_ADDRESS = "MeasureWise <hello@measurewise.org>";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -52,7 +53,7 @@ serve(async (req) => {
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY is not configured");
 
-    const { to, subject, html, from } = (await req.json()) as EmailPayload;
+    const { to, subject, html } = (await req.json()) as EmailPayload;
 
     if (!to || !subject || !html) {
       return new Response(
@@ -85,7 +86,7 @@ serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: from || "MeasureWise <hello@measurewise.org>",
+        from: FROM_ADDRESS,
         to: [to],
         subject,
         html,
