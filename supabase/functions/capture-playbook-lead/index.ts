@@ -107,25 +107,28 @@ Deno.serve(async (req) => {
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     // Tag contact in Resend default audience (best-effort)
-    if (RESEND_API_KEY) {
+    if (RESEND_API_KEY && LOVABLE_API_KEY) {
+      const gatewayHeaders = {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": RESEND_API_KEY,
+        "Content-Type": "application/json",
+      };
       const [firstName, ...rest] = full_name.split(/\s+/);
       const lastName = rest.join(" ");
       try {
-        await fetch("https://api.resend.com/audiences", {
-          headers: { Authorization: `Bearer ${RESEND_API_KEY}` },
+        await fetch("https://connector-gateway.lovable.dev/resend/audiences", {
+          headers: gatewayHeaders,
         })
           .then((r) => r.json())
           .then(async (data) => {
             const audienceId = data?.data?.[0]?.id;
             if (!audienceId) return;
-            await fetch(`https://api.resend.com/audiences/${audienceId}/contacts`, {
+            await fetch(`https://connector-gateway.lovable.dev/resend/audiences/${audienceId}/contacts`, {
               method: "POST",
-              headers: {
-                Authorization: `Bearer ${RESEND_API_KEY}`,
-                "Content-Type": "application/json",
-              },
+              headers: gatewayHeaders,
               body: JSON.stringify({
                 email: work_email,
                 first_name: firstName,
@@ -140,12 +143,9 @@ Deno.serve(async (req) => {
 
       // Send delivery email
       try {
-        await fetch("https://api.resend.com/emails", {
+        await fetch("https://connector-gateway.lovable.dev/resend/emails", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${RESEND_API_KEY}`,
-            "Content-Type": "application/json",
-          },
+          headers: gatewayHeaders,
           body: JSON.stringify({
             from: "MeasureWise <jessica@measurewise.org>",
             to: [work_email],
