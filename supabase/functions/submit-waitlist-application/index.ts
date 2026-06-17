@@ -180,7 +180,8 @@ Deno.serve(async (req) => {
     }
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (RESEND_API_KEY) {
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (RESEND_API_KEY && LOVABLE_API_KEY) {
       const firstName = data.name.split(/\s+/)[0] || "";
       const applicationId = inserted?.id as string;
 
