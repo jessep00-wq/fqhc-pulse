@@ -14,23 +14,24 @@ const corsHeaders = {
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Require the Supabase service role key in the apikey header so only the
-  // pg_cron job (which has access to it via vault) can trigger this. Using
-  // the auto-managed service role key avoids a separate CRON_SECRET that
-  // can drift between vault and the function env.
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const provided = req.headers.get("apikey") ?? req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  if (provided !== serviceRoleKey) {
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Single source of truth: read CRON_SECRET from the same vault row that
+  // pg_cron reads from. Avoids drift between env var and vault.
+  const { data: secretData } = await supabase.rpc("get_cron_secret");
+  const cronSecret = (typeof secretData === "string" ? secretData : null)
+    ?? Deno.env.get("CRON_SECRET")
+    ?? null;
+
+  if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    serviceRoleKey,
-  );
 
   const maxStep = NURTURE_SEQUENCE.length;
 
