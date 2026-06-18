@@ -126,6 +126,23 @@ serve(async (req) => {
       }
     `;
 
+    const confirmationHtml = `<!DOCTYPE html>
+<html><body style="margin:0;padding:0;background:#f8fafb;font-family:Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafb;padding:40px 20px;"><tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
+<tr><td style="background:#01696f;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
+<tr><td style="padding:32px;">
+<h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${esc(name)}` : ""}!</h2>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">We've received your message and will reply within 1 business day.</p>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">If you'd like to put time on the calendar in the meantime, you can book a 15-minute call here:</p>
+<p style="margin:8px 0 18px;"><a href="https://measurewise.org/contact" style="display:inline-block;background:#01696f;color:#fff;padding:12px 22px;border-radius:6px;text-decoration:none;font-weight:600;">Schedule a call</a></p>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">Or explore MeasureWise on a free 14-day trial — no credit card required.</p>
+<p style="margin:0;"><a href="https://measurewise.org/auth?signup=true" style="display:inline-block;background:#ffffff;color:#01696f;border:1px solid #01696f;padding:12px 22px;border-radius:6px;text-decoration:none;font-weight:600;">Try MeasureWise Free</a></p>
+</td></tr>
+<tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;"><p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p></td></tr>
+</table></td></tr></table></body></html>`;
+
+
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
