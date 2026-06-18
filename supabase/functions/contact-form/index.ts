@@ -1,4 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { logEmailAttempt, logEmailException } from "../_shared/log-email-attempt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -124,54 +126,97 @@ serve(async (req) => {
       }
     `;
 
-    await fetch(`${GATEWAY_URL}/emails`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": RESEND_API_KEY,
-      },
-      body: JSON.stringify({
-        from: "MeasureWise <hello@measurewise.org>",
-        to: [COMPANY_INBOX],
-        subject: `Contact: ${esc(name)}${organizationName ? ` (${esc(organizationName)})` : ""}`,
-        html: notificationHtml,
-        reply_to: email,
-      }),
-    });
-
-    // 2) Send confirmation to the user (fixed template, no user-controlled HTML)
     const confirmationHtml = `<!DOCTYPE html>
 <html><body style="margin:0;padding:0;background:#f8fafb;font-family:Arial,sans-serif;">
 <table width="100%" cellpadding="0" cellspacing="0" style="background:#f8fafb;padding:40px 20px;"><tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.08);">
-<tr><td style="background:#1a8a8a;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
+<tr><td style="background:#01696f;padding:24px 32px;"><h1 style="margin:0;color:#fff;font-size:22px;">MeasureWise™</h1></td></tr>
 <tr><td style="padding:32px;">
 <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">Thanks for reaching out${name ? `, ${esc(name)}` : ""}!</h2>
-<p style="color:#374151;line-height:1.6;margin:0 0 16px;">We've received your message and our team will get back to you within 1 business day.</p>
-<p style="color:#374151;line-height:1.6;margin:0 0 16px;">In the meantime, feel free to explore MeasureWise with a free account — no credit card required.</p>
-<a href="https://measurewise.org/auth?signup=true" style="display:inline-block;background:#1a8a8a;color:#fff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Try MeasureWise Free</a>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">We've received your message and will reply within 1 business day.</p>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">If you'd like to put time on the calendar in the meantime, you can book a 15-minute call here:</p>
+<p style="margin:8px 0 18px;"><a href="https://measurewise.org/contact" style="display:inline-block;background:#01696f;color:#fff;padding:12px 22px;border-radius:6px;text-decoration:none;font-weight:600;">Schedule a call</a></p>
+<p style="color:#374151;line-height:1.6;margin:0 0 16px;">Or explore MeasureWise on a free 14-day trial — no credit card required.</p>
+<p style="margin:0;"><a href="https://measurewise.org/auth?signup=true" style="display:inline-block;background:#ffffff;color:#01696f;border:1px solid #01696f;padding:12px 22px;border-radius:6px;text-decoration:none;font-weight:600;">Try MeasureWise Free</a></p>
 </td></tr>
 <tr><td style="padding:20px 32px;border-top:1px solid #e5e7eb;text-align:center;"><p style="margin:0;color:#9ca3af;font-size:12px;">© ${new Date().getFullYear()} MeasureWise. All rights reserved.</p></td></tr>
 </table></td></tr></table></body></html>`;
 
-    const confirmResponse = await fetch(`${GATEWAY_URL}/emails`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "X-Connection-Api-Key": RESEND_API_KEY,
-      },
-      body: JSON.stringify({
-        from: "MeasureWise <hello@measurewise.org>",
-        to: [email],
-        subject: "We received your message — MeasureWise",
-        html: confirmationHtml,
-      }),
-    });
 
-    if (!confirmResponse.ok) {
-      console.error("Failed to send confirmation:", await confirmResponse.text());
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const submissionId = crypto.randomUUID();
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${LOVABLE_API_KEY}`,
+      "X-Connection-Api-Key": RESEND_API_KEY,
+    };
+
+    // 1) Admin notification
+    const notifSubject = `New Contact Form: ${name}${organizationName ? ` from ${organizationName}` : ""}`;
+    const notifFrom = "MeasureWise Contact <hello@measurewise.org>";
+    try {
+      const res = await fetch(`${GATEWAY_URL}/emails`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          from: notifFrom,
+          to: [COMPANY_INBOX],
+          subject: notifSubject,
+          html: notificationHtml,
+          reply_to: email,
+          tags: [{ name: "category", value: "contact_admin" }],
+        }),
+      });
+      const txt = await res.text().catch(() => "");
+      if (!res.ok) console.error("contact admin notif rejected", res.status, txt);
+      await logEmailAttempt({
+        supabase, messageId: `contact-${submissionId}-admin`,
+        templateName: "contact-admin-notification", recipient: COMPANY_INBOX,
+        resendResponse: res, resendBody: txt,
+        metadata: { from: notifFrom, subject: notifSubject, submitter: email },
+      });
+    } catch (err) {
+      console.error("contact admin notif threw", err);
+      await logEmailException({
+        supabase, messageId: `contact-${submissionId}-admin`,
+        templateName: "contact-admin-notification", recipient: COMPANY_INBOX,
+        error: err, metadata: { submitter: email },
+      });
+    }
+
+    // 2) Confirmation to the submitter
+    const confirmFrom = "MeasureWise <hello@measurewise.org>";
+    const confirmSubject = "We received your message — MeasureWise";
+    try {
+      const res = await fetch(`${GATEWAY_URL}/emails`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          from: confirmFrom,
+          to: [email],
+          reply_to: COMPANY_INBOX,
+          subject: confirmSubject,
+          html: confirmationHtml,
+          tags: [{ name: "category", value: "contact_confirmation" }],
+        }),
+      });
+      const txt = await res.text().catch(() => "");
+      if (!res.ok) console.error("contact confirmation rejected", res.status, txt);
+      await logEmailAttempt({
+        supabase, messageId: `contact-${submissionId}-confirmation`,
+        templateName: "contact-confirmation", recipient: email,
+        resendResponse: res, resendBody: txt,
+        metadata: { from: confirmFrom, subject: confirmSubject },
+      });
+    } catch (err) {
+      console.error("contact confirmation threw", err);
+      await logEmailException({
+        supabase, messageId: `contact-${submissionId}-confirmation`,
+        templateName: "contact-confirmation", recipient: email, error: err,
+      });
     }
 
     return new Response(JSON.stringify({ success: true }), {

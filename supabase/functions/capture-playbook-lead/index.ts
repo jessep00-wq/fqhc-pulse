@@ -1,5 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { z } from "https://esm.sh/zod@3.23.8";
+import { logEmailAttempt, logEmailException } from "../_shared/log-email-attempt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -91,13 +92,17 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    const { error: insertError } = await supabase.from("playbook_leads").insert({
-      full_name,
-      work_email,
-      health_center_name,
-      role,
-      source: SOURCE,
-    });
+    const { data: inserted, error: insertError } = await supabase
+      .from("playbook_leads")
+      .insert({
+        full_name,
+        work_email,
+        health_center_name,
+        role,
+        source: SOURCE,
+      })
+      .select("id")
+      .single();
     if (insertError) {
       console.error("playbook_leads insert failed", insertError);
       return new Response(JSON.stringify({ error: "Failed to save lead" }), {
@@ -105,11 +110,11 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    const leadId = inserted?.id as string;
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    // Tag contact in Resend default audience (best-effort)
     if (RESEND_API_KEY && LOVABLE_API_KEY) {
       const gatewayHeaders = {
         Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -118,10 +123,10 @@ Deno.serve(async (req) => {
       };
       const [firstName, ...rest] = full_name.split(/\s+/);
       const lastName = rest.join(" ");
+
+      // Tag contact in Resend default audience (best-effort, not logged)
       try {
-        await fetch("https://connector-gateway.lovable.dev/resend/audiences", {
-          headers: gatewayHeaders,
-        })
+        await fetch("https://connector-gateway.lovable.dev/resend/audiences", { headers: gatewayHeaders })
           .then((r) => r.json())
           .then(async (data) => {
             const audienceId = data?.data?.[0]?.id;
@@ -129,27 +134,26 @@ Deno.serve(async (req) => {
             await fetch(`https://connector-gateway.lovable.dev/resend/audiences/${audienceId}/contacts`, {
               method: "POST",
               headers: gatewayHeaders,
-              body: JSON.stringify({
-                email: work_email,
-                first_name: firstName,
-                last_name: lastName,
-                unsubscribed: false,
-              }),
+              body: JSON.stringify({ email: work_email, first_name: firstName, last_name: lastName, unsubscribed: false }),
             });
           });
       } catch (err) {
-        console.warn("Resend tag failed (non-blocking)", err);
+        console.warn("Resend audience tag failed (non-blocking)", err);
       }
 
-      // Send delivery email
+      // 1) Delivery email to the lead
+      const deliverySubject = "Your AthenaOne Optimization Playbook";
+      const deliveryFrom = "Jessica at MeasureWise <hello@measurewise.org>";
+      const deliveryMsgId = `playbook-${leadId}-delivery`;
       try {
-        await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+        const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
           method: "POST",
           headers: gatewayHeaders,
           body: JSON.stringify({
-            from: "MeasureWise <jessica@measurewise.org>",
+            from: deliveryFrom,
             to: [work_email],
-            subject: "Your AthenaOne Optimization Playbook",
+            reply_to: "hello@measurewise.org",
+            subject: deliverySubject,
             tags: [{ name: "category", value: "playbook_lead" }],
             html: `
               <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111">
@@ -159,7 +163,7 @@ Deno.serve(async (req) => {
                   This is the technical guide I wish I had when prepping our health center for UDS season.
                 </p>
                 <p style="margin:24px 0">
-                  <a href="${ABSOLUTE_DOWNLOAD_URL}" style="display:inline-block;background:#1f8a9a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;font-weight:600">
+                  <a href="${ABSOLUTE_DOWNLOAD_URL}" style="display:inline-block;background:#01696f;color:#fff;text-decoration:none;padding:12px 22px;border-radius:6px;font-weight:600">
                     Download the playbook
                   </a>
                 </p>
@@ -169,12 +173,68 @@ Deno.serve(async (req) => {
                 <p style="font-size:13px;color:#666;margin-top:24px">
                   — Jessica R. Smith, BSN<br/>Founder, MeasureWise
                 </p>
-              </div>
-            `,
+              </div>`,
           }),
         });
+        const txt = await res.text().catch(() => "");
+        if (!res.ok) console.error("playbook delivery rejected", res.status, txt);
+        await logEmailAttempt({
+          supabase, messageId: deliveryMsgId,
+          templateName: "playbook-delivery", recipient: work_email,
+          resendResponse: res, resendBody: txt,
+          metadata: { playbook_lead_id: leadId, from: deliveryFrom, subject: deliverySubject },
+        });
       } catch (err) {
-        console.warn("Resend delivery email failed (non-blocking)", err);
+        console.error("playbook delivery threw", err);
+        await logEmailException({
+          supabase, messageId: deliveryMsgId,
+          templateName: "playbook-delivery", recipient: work_email, error: err,
+          metadata: { playbook_lead_id: leadId },
+        });
+      }
+
+      // 2) Admin notification
+      const adminSubject = `New playbook lead: ${full_name} from ${health_center_name}`;
+      const adminFrom = "MeasureWise Leads <hello@measurewise.org>";
+      const adminMsgId = `playbook-${leadId}-admin`;
+      try {
+        const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+          method: "POST",
+          headers: gatewayHeaders,
+          body: JSON.stringify({
+            from: adminFrom,
+            to: ["hello@measurewise.org"],
+            reply_to: work_email,
+            subject: adminSubject,
+            tags: [{ name: "category", value: "playbook_admin" }],
+            html: `
+              <div style="font-family:Helvetica,Arial,sans-serif;max-width:560px;margin:0 auto;padding:20px;">
+                <h2 style="margin:0 0 12px;font-size:18px;color:#01696f;">New AthenaOne playbook download</h2>
+                <table cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:14px;color:#111;">
+                  <tr><td style="padding:6px 12px 6px 0;color:#6b7280;">Name</td><td>${escapeHtml(full_name)}</td></tr>
+                  <tr><td style="padding:6px 12px 6px 0;color:#6b7280;">Email</td><td>${escapeHtml(work_email)}</td></tr>
+                  <tr><td style="padding:6px 12px 6px 0;color:#6b7280;">Health center</td><td>${escapeHtml(health_center_name)}</td></tr>
+                  <tr><td style="padding:6px 12px 6px 0;color:#6b7280;">Role</td><td>${escapeHtml(role)}</td></tr>
+                  <tr><td style="padding:6px 12px 6px 0;color:#6b7280;">Source</td><td>${escapeHtml(SOURCE)}</td></tr>
+                </table>
+              </div>`,
+          }),
+        });
+        const txt = await res.text().catch(() => "");
+        if (!res.ok) console.error("playbook admin notif rejected", res.status, txt);
+        await logEmailAttempt({
+          supabase, messageId: adminMsgId,
+          templateName: "playbook-admin-notification", recipient: "hello@measurewise.org",
+          resendResponse: res, resendBody: txt,
+          metadata: { playbook_lead_id: leadId, from: adminFrom, subject: adminSubject },
+        });
+      } catch (err) {
+        console.error("playbook admin notif threw", err);
+        await logEmailException({
+          supabase, messageId: adminMsgId,
+          templateName: "playbook-admin-notification", recipient: "hello@measurewise.org",
+          error: err, metadata: { playbook_lead_id: leadId },
+        });
       }
     }
 
