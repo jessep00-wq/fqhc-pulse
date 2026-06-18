@@ -1191,7 +1191,9 @@ export type Database = {
           full_name: string
           health_center_name: string
           id: string
+          last_nurture_sent_at: string | null
           notes: string | null
+          nurture_step: number
           reminder_sent_at: string | null
           role: string
           source: string
@@ -1204,7 +1206,9 @@ export type Database = {
           full_name: string
           health_center_name: string
           id?: string
+          last_nurture_sent_at?: string | null
           notes?: string | null
+          nurture_step?: number
           reminder_sent_at?: string | null
           role: string
           source?: string
@@ -1217,7 +1221,9 @@ export type Database = {
           full_name?: string
           health_center_name?: string
           id?: string
+          last_nurture_sent_at?: string | null
           notes?: string | null
+          nurture_step?: number
           reminder_sent_at?: string | null
           role?: string
           source?: string
