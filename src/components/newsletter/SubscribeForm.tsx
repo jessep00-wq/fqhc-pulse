@@ -28,7 +28,11 @@ export function SubscribeForm({ className }: { className?: string }) {
           throw error;
         }
       } else {
-        toast.success("Subscribed! You'll receive our next issue.");
+        // Fire-and-forget welcome + admin notification. Don't block UI on email.
+        supabase.functions
+          .invoke("newsletter-welcome", { body: { email: trimmed } })
+          .catch((err) => console.warn("newsletter-welcome invoke failed", err));
+        toast.success("Subscribed! Check your inbox for a welcome email.");
       }
       setEmail("");
     } catch {
