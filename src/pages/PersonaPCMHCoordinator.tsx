@@ -49,7 +49,7 @@ export default function PersonaPCMHCoordinator() {
   return (
     <PublicPageLayout>
       <SEO
-        title="MeasureWise for PCMH Coordinators — Q-PASS evidence, ready"
+        title="MeasureWise for PCMH Coordinators: Q-PASS Ready"
         description="Build NCQA PCMH evidence as you work. Map PDSA cycles to standards and export Q-PASS-ready packets in minutes."
         canonical="https://measurewise.org/for/pcmh-coordinators"
       />

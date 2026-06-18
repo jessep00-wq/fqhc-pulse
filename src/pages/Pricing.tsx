@@ -179,7 +179,7 @@ export default function Pricing() {
     <PublicPageLayout>
       <SEO
         title={`${BRAND.name} pricing for FQHC quality teams`}
-        description="Flat per-site monthly pricing for FQHC quality operations: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan, no procurement runaround."
+        description="Flat per-site pricing for FQHC quality ops: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan."
         canonical={`${BRAND.url}/pricing`}
         jsonLd={pricingJsonLd}
 

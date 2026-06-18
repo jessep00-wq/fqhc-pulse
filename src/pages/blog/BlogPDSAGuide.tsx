@@ -16,7 +16,7 @@ export default function BlogPDSAGuide() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Blog", href: "/blog" }}>
       <SEO
-        title="How to Run PDSA Cycles at Your FQHC — Step-by-Step Guide"
+        title="PDSA Cycles at Your FQHC: Step-by-Step Guide"
         description="A practical guide to Plan-Do-Study-Act cycles for FQHC quality teams. Learn aim statements, small tests of change, data collection, and scaling interventions."
         canonical="https://measurewise.org/blog/pdsa-cycle-fqhc-guide"
         type="article"
