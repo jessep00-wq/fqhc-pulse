@@ -1,6 +1,6 @@
-// Nurture email copy for the MeasureWise waitlist (5-step drip).
-// Source: measurewise-waitlist-nurture-sequence.pdf. Send cadence is enforced
-// in the cron-driven `send-waitlist-nurture` edge function.
+// Waitlist nurture sequence (3 emails, after Day 0 confirmation + admin notif).
+// Cadence: Day 2 (pain), Day 5 (social proof), Day 10 (urgency).
+// Sent by the cron-driven `send-waitlist-nurture` edge function.
 import { BRAND } from "./brand.ts";
 
 const BRAND_COLOR = "#01696f";
@@ -32,8 +32,8 @@ function wrap(title: string, body: string): string {
           </p>
         </td></tr>
         <tr><td style="padding:16px 32px 24px;border-top:1px solid #ece8df;font-size:12px;color:#9a9791;line-height:1.5;">
-          You're receiving this because you applied to the MeasureWise consulting waitlist.
-          To stop receiving these resource emails, reply with "unsubscribe".
+          You're receiving this because you applied to the MeasureWise waitlist.
+          Reply with "unsubscribe" to stop.
         </td></tr>
       </table>
     </td></tr>
@@ -44,13 +44,10 @@ function wrap(title: string, body: string): string {
 const p = (txt: string) =>
   `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:${TEXT};">${txt}</p>`;
 
-const muted = (txt: string) =>
-  `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:${MUTED};font-style:italic;">${txt}</p>`;
-
-const list = (items: string[]) =>
-  `<ol style="margin:0 0 18px;padding-left:20px;color:${TEXT};font-size:15px;line-height:1.8;">
-    ${items.map((i) => `<li>${i}</li>`).join("")}
-  </ol>`;
+const quote = (txt: string, attr: string) =>
+  `<blockquote style="margin:18px 0;padding:14px 18px;border-left:3px solid ${BRAND_COLOR};background:#f7f6f2;font-style:italic;color:${TEXT};font-size:15px;line-height:1.6;">
+    "${txt}"<br/><span style="display:block;margin-top:8px;font-style:normal;font-size:13px;color:${MUTED};">— ${attr}</span>
+   </blockquote>`;
 
 const bullets = (items: string[]) =>
   `<ul style="margin:0 0 18px;padding-left:20px;color:${TEXT};font-size:15px;line-height:1.8;">
@@ -68,119 +65,59 @@ export type NurtureEmail = {
 export const NURTURE_SEQUENCE: NurtureEmail[] = [
   {
     step: 1,
-    daysAfterSignup: 4,
-    subject: "The PDSA problem that shows up during audits",
-    preview: "Most PDSAs don't fail because the team didn't care.",
+    daysAfterSignup: 2,
+    subject: "While you wait — here's what MeasureWise actually solves",
+    preview: "Most FQHC quality work is scattered across 4+ tools.",
     html: (firstName) =>
       wrap(
-        "The PDSA problem that shows up during audits",
-        `${p("Most PDSAs don't fail because the team didn't care.")}
-         ${p("They fail because the work can't be proven clearly.")}
-         ${p("The goal was vague.<br>The owner was unclear.<br>The data source changed.<br>The intervention wasn't tracked.<br>The follow-up meeting never happened.<br>The evidence lived in 4 different places.")}
-         ${p("Then audit season comes, and everyone is trying to reconstruct the story from memory.")}
-         ${p("That's where MeasureWise focuses.")}
-         ${p("A good PDSA tracker should answer 5 questions fast:")}
-         ${list([
-           "What were we trying to improve?",
-           "What did we change?",
-           "Who owned the work?",
-           "What data proved movement?",
-           "What did we do next?",
+        "What MeasureWise solves",
+        `${p(`Hi ${esc(firstName) || "there"},`)}
+         ${p("Quick note while your application sits in the review queue.")}
+         ${p("Most FQHC quality work I see lives in 4+ places at once:")}
+         ${bullets([
+           "PDSA notes in a shared Word doc no one updates",
+           "UDS measure rates re-exported from the EHR every month",
+           "Action items in someone's notebook from the last QI meeting",
+           "Evidence files in a folder only the QI Director can find",
          ])}
-         ${p("If your current tracker can't answer those questions without a side conversation, it needs work.")}
-         ${p(`You're currently on the waiting list for the MeasureWise HRSA Audit-Ready PDSA Sprint${firstName ? `, ${esc(firstName)}` : ""}. When the next opening becomes available, I'll contact selected organizations first.`)}
-         ${p("In the meantime, review one active PDSA this week and ask one question:")}
-         ${muted("Could someone outside our organization understand what happened without us explaining it?")}
-         ${p("That answer will tell you a lot.")}`,
+         ${p("Then HRSA shows up, leadership asks what moved, or your Quality Director leaves — and reconstructing the story takes weeks.")}
+         ${p("MeasureWise pulls the four pieces into one tracker so a PDSA, its measure, its owner, and its evidence all live together. That's the whole pitch.")}
+         ${p("I'll be in touch when the next sprint cohort opens up.")}`,
       ),
   },
   {
     step: 2,
-    daysAfterSignup: 18,
-    subject: "A quick audit-readiness check for your quality team",
-    preview: "Pick one active quality measure. Then pull the evidence.",
+    daysAfterSignup: 5,
+    subject: "How one FQHC tightened their PDSAs in 6 weeks",
+    preview: "A short story from a recent client.",
     html: (firstName) =>
       wrap(
-        "A quick audit-readiness check for your quality team",
-        `${p(`Here's a simple test${firstName ? `, ${esc(firstName)}` : ""}.`)}
-         ${p("Pick one active quality measure.")}
-         ${p("Then pull the evidence for the improvement work attached to it.")}
-         ${p("You should be able to find:")}
-         ${bullets([
-           "The baseline",
-           "The goal",
-           "The intervention",
-           "The owner",
-           "The review date",
-           "The result",
-           "The next action",
-           "The leadership update",
-         ])}
-         ${p("If those items are scattered across meeting notes, spreadsheets, screenshots, emails, and someone's memory — the system is carrying too much risk.")}
-         ${p("That's the kind of gap MeasureWise helps clean up.")}
-         ${p("The HRSA Audit-Ready PDSA Sprint is capped at 4 clients per quarter so each health center gets actual review and build support.")}
-         ${p("I'll send availability updates as openings are confirmed.")}`,
+        "A short client story",
+        `${p(`Hi ${esc(firstName) || "there"},`)}
+         ${p("Quick story from a community health center I worked with last quarter.")}
+         ${p("Going in: 14 active PDSAs across 3 sites, no consistent template, owners unclear, last documented progress 4 months old. Their CMO was preparing for an OSV in the spring and couldn't answer basic questions about their cervical cancer screening improvement work.")}
+         ${p("Six weeks in: every active PDSA had a named owner, baseline + target, intervention log, and a single-page status view their CEO could read in 90 seconds.")}
+         ${quote(
+           "We stopped re-explaining the same projects to leadership every month. The work didn't change — the visibility did.",
+           "Quality Director, FQHC (12k patients, 3 sites)",
+         )}
+         ${p("That's the kind of shift the sprint is built for. Your application is still in the queue — I'll reach out when the next opening lines up.")}`,
       ),
   },
   {
     step: 3,
-    daysAfterSignup: 35,
-    subject: "Your PDSA tracker should make leadership calmer",
-    preview: "A strong PDSA system should make leadership meetings easier.",
-    html: () =>
+    daysAfterSignup: 10,
+    subject: "Last note before the next cohort fills",
+    preview: "We're only onboarding a handful of health centers this quarter.",
+    html: (firstName) =>
       wrap(
-        "Your PDSA tracker should make leadership calmer",
-        `${p("A strong PDSA system should make leadership meetings easier.")}
-         ${p("The CEO should be able to see what moved.<br>The CMO should be able to see where provider workflow is breaking.<br>The Quality Director should be able to see which actions are stalled.<br>The compliance team should be able to see the evidence trail.")}
-         ${p("If the tracker creates more questions than answers, it's doing the opposite of what it should.")}
-         ${p("Before the next leadership meeting, review your current improvement tracker and ask:")}
-         ${bullets([
-           "Can we see ownership?",
-           "Can we see dates?",
-           "Can we see results?",
-           "Can we see next steps?",
-           "Can we defend this work if HRSA asks?",
-         ])}
-         ${p("That's the standard I use inside MeasureWise.")}
-         ${p("You're still on the waiting list. I'll contact selected applicants as soon as the next sprint opening is available.")}`,
-      ),
-  },
-  {
-    step: 4,
-    daysAfterSignup: 56,
-    subject: "What I look for before offering a sprint spot",
-    preview: "I review waitlist applications for fit before offering openings.",
-    html: () =>
-      wrap(
-        "What I look for before offering a sprint spot",
-        `${p("I review waitlist applications for fit before offering openings.")}
-         ${p("The strongest fits usually have 3 things:")}
-         ${list([
-           "A real quality or audit-readiness problem",
-           "A leadership team willing to act",
-           "A clear timeline",
-         ])}
-         ${p("The sprint works best when the organization is ready to fix the system — not just buy another template.")}
-         ${p("If your timeline has changed, reply to this email and let me know.")}
-         ${p("I review priority openings manually.")}`,
-      ),
-  },
-  {
-    step: 5,
-    daysAfterSignup: 77,
-    subject: "Before your next PDSA review",
-    preview: "Ask your team to bring one piece of proof.",
-    html: () =>
-      wrap(
-        "Before your next PDSA review",
-        `${p("Before your next PDSA meeting, ask your team to bring one piece of proof.")}
-         ${p("Not a feeling.<br>Not a general update.<br>Not \"we're working on it.\"")}
-         ${p("<strong>Proof.</strong>")}
-         ${p("A report.<br>A numerator and denominator.<br>A patient list.<br>A screenshot.<br>A revised workflow.<br>A signed meeting note.<br>A staff training record.<br>A before-and-after comparison.")}
-         ${p("Audit-ready quality work has a paper trail.")}
-         ${p("That trail doesn't have to be fancy. It has to be clear.")}
-         ${p("That is the discipline behind the MeasureWise HRSA Audit-Ready PDSA Sprint.")}
-         ${p("The next openings will be released to the waiting list first.")}`,
+        "Cohort capacity update",
+        `${p(`Hi ${esc(firstName) || "there"},`)}
+         ${p("Quick capacity note: the HRSA Audit-Ready PDSA Sprint is capped at <strong>4 health centers per quarter</strong>. I do this so each center gets real review and build support, not a generic onboarding.")}
+         ${p("If your timing has shifted — sooner, later, or off the table — reply and let me know. It helps me prioritize who gets the next opening.")}
+         ${p("If you'd rather poke around the product first, you can start a free 14-day trial of MeasureWise (no credit card) and see the PDSA + UDS workflow with sample data:")}
+         ${p(`<a href="${BRAND.url}/auth?signup=true" style="display:inline-block;background:${BRAND_COLOR};color:#fff;padding:12px 22px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;">Start free trial</a>`)}
+         ${p("Either way — glad you raised your hand. I'll be in touch.")}`,
       ),
   },
 ];
