@@ -72,7 +72,7 @@ export default function NewsletterDetail() {
       <SEO
         title={`${newsletter.title} — MeasureWise Newsletter`}
         description={newsletter.hero_summary || newsletter.subtitle || "FQHC Quality Newsletter"}
-        canonical={`https://measurewise.org/newsletter/${newsletter.slug}`}
+        canonical={`https://measurewise.org/newsletter/${slug}`}
         type="article"
       />
 
