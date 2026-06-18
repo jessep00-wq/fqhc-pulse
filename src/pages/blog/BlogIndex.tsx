@@ -199,8 +199,12 @@ export default function BlogIndex() {
                       </h2>
                     </Link>
                     <p className="text-muted-foreground leading-relaxed mb-4">{post.excerpt}</p>
-                    <Link to={`/blog/${post.slug}`} className="inline-flex items-center text-primary font-medium hover:underline">
-                      Read more <ArrowRight className="ml-1 h-4 w-4" />
+                    <Link
+                      to={`/blog/${post.slug}`}
+                      aria-label={`Read full article: ${post.title}`}
+                      className="inline-flex items-center text-primary font-medium hover:underline"
+                    >
+                      Read: {post.title} <ArrowRight className="ml-1 h-4 w-4" />
                     </Link>
                   </CardContent>
                 </Card>

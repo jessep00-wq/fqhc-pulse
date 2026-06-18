@@ -38,7 +38,7 @@ export default function About() {
     <PublicPageLayout>
       <SEO
         title="About MeasureWise and founder Jessica Smith, BSN"
-        description="MeasureWise is the FQHC quality operations platform built by Jessica R. Smith, BSN — a working FQHC Quality Director — to link UDS-aligned PDSA cycles, HRSA documentation, and SPC analysis in one place."
+        description="MeasureWise is the FQHC quality operations platform from Jessica R. Smith, BSN, linking UDS-aligned PDSA cycles, HRSA docs, and SPC analysis."
         canonical="https://measurewise.org/about"
         jsonLd={personJsonLd}
       />

@@ -69,7 +69,13 @@ export default function NewsletterDetail() {
 
   return (
     <PublicPageLayout>
-      <SEO title={`${newsletter.title} — MeasureWise Newsletter`} description={newsletter.hero_summary || newsletter.subtitle || "FQHC Quality Newsletter"} />
+      <SEO
+        title={`${newsletter.title} — MeasureWise Newsletter`}
+        description={newsletter.hero_summary || newsletter.subtitle || "FQHC Quality Newsletter"}
+        canonical={`https://measurewise.org/newsletter/${newsletter.slug}`}
+        type="article"
+      />
+
       <article className="max-w-[680px] mx-auto my-8 bg-card shadow-lg rounded-lg overflow-hidden border">
         {/* Header */}
         <div className="relative bg-sidebar px-8 sm:px-12 pt-9 pb-7 overflow-hidden">
