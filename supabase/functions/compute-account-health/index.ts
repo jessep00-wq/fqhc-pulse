@@ -1,4 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { verifyCronSecret } from "../_shared/verify-cron.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,16 +13,22 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // --- Cron secret or JWT auth check (fail closed) ---
-    const cronSecret = Deno.env.get("CRON_SECRET");
-    const authHeader = req.headers.get("Authorization");
-    const cronHeader = req.headers.get("x-cron-secret");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    if (cronSecret && cronHeader === cronSecret) {
-      // Valid cron invocation — proceed
+    // --- Cron secret OR founder_admin JWT auth (fail closed) ---
+    const authHeader = req.headers.get("Authorization");
+    const hasCronSecret = req.headers.get("x-cron-secret") !== null;
+
+    if (hasCronSecret) {
+      if (!(await verifyCronSecret(req, serviceClient))) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     } else if (authHeader?.startsWith("Bearer ")) {
-      // Check if caller is founder_admin using getUser() (server-side validation)
-      const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
       const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
       const authClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         global: { headers: { Authorization: authHeader } },
@@ -33,11 +40,6 @@ Deno.serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      // Verify founder_admin role
-      const serviceClient = createClient(
-        Deno.env.get("SUPABASE_URL")!,
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-      );
       const { data: roleData } = await serviceClient
         .from("user_roles")
         .select("role")
@@ -58,9 +60,7 @@ Deno.serve(async (req) => {
     }
     // --- End auth check ---
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const supabase = serviceClient;
 
     const { data: orgs, error: orgsError } = await supabase
       .from("organizations")
