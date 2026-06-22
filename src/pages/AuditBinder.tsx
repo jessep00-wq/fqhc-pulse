@@ -55,12 +55,6 @@ function arrFromText(text: string): string[] {
     .filter(Boolean);
 }
 
-function arrFromText(text: string): string[] {
-  return text
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-}
 
 // ── Section 1: Oversight Roles ─────────────────────────────
 function OversightDialog({
