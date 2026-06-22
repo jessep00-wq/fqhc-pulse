@@ -31,7 +31,7 @@ import type {
 import { generateBinderPdf } from "@/lib/evidenceBinderPdf";
 
 const EXPORT_OPTIONS: { value: EvidenceExportType; label: string; description: string }[] = [
-  { value: "full_osv", label: "Full OSV Binder", description: "Every active document across all 8 Chapter 8 categories." },
+  { value: "full_osv", label: "Full OSV Binder", description: "Every active document across all 8 Chapter 10 categories." },
   { value: "quarterly_qi", label: "Quarterly QI Packet", description: "Plan, minutes, dashboards, and PDSA cycles for the quarter." },
   { value: "board_packet", label: "Board Meeting Packet", description: "Meeting minutes, dashboards, and PDSA highlights." },
 ];
