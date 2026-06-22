@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import AIGovernance from "./pages/AIGovernance";
 import EvidenceBinderOverview from "./pages/evidence-binder/Overview";
 import EvidenceBinderCategoryDetail from "./pages/evidence-binder/CategoryDetail";
+import AuditBinder from "./pages/AuditBinder";
 import QIReportsList from "./pages/qi-reports/QIReportsList";
 import QIReportWizard from "./pages/qi-reports/QIReportWizard";
 import QIReportDetail from "./pages/qi-reports/QIReportDetail";
