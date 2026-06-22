@@ -740,8 +740,6 @@ export default function AuditBinder() {
       />
 
       <GenerateDialog open={generateOpen} onOpenChange={setGenerateOpen} />
-      {/* silence unused */}
-      <span className="hidden">{textFromArr([])}</span>
     </div>
   );
 }
