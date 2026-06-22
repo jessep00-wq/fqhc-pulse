@@ -382,7 +382,7 @@ export default function ManualLanding() {
       </section>
 
       <footer className="bg-[#080F1A] px-6 md:px-12 py-8 border-t border-white/5">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs text-white/30 leading-relaxed">
+        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs text-white/80 leading-relaxed">
           <p>
             MeasureWise™ · <a href="https://measurewise.org" className="text-[#9DD4D4]">measurewise.org</a> ·
             Licensed for internal use by the purchasing organization only. Not for redistribution or resale.

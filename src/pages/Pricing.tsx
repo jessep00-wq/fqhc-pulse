@@ -269,10 +269,10 @@ export default function Pricing() {
                       ) : (
                         <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       )}
-                      <span className={f.locked ? "text-muted-foreground/50" : "text-muted-foreground"}>
+                      <span className={f.locked ? "text-muted-foreground" : "text-foreground"}>
                         {f.text}
                         {f.lockedLabel && (
-                          <span className="block text-xs text-muted-foreground/40 mt-0.5">{f.lockedLabel}</span>
+                          <span className="block text-xs text-muted-foreground mt-0.5">{f.lockedLabel}</span>
                         )}
                       </span>
                     </li>
