@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import AIGovernance from "./pages/AIGovernance";
 import EvidenceBinderOverview from "./pages/evidence-binder/Overview";
 import EvidenceBinderCategoryDetail from "./pages/evidence-binder/CategoryDetail";
+import AuditBinder from "./pages/AuditBinder";
 import QIReportsList from "./pages/qi-reports/QIReportsList";
 import QIReportWizard from "./pages/qi-reports/QIReportWizard";
 import QIReportDetail from "./pages/qi-reports/QIReportDetail";
@@ -232,6 +233,7 @@ const App = () => (
                             <Route path="ai-governance" element={<AIGovernance />} />
                             <Route path="evidence-binder" element={<EvidenceBinderOverview />} />
                             <Route path="evidence-binder/category/:slug" element={<EvidenceBinderCategoryDetail />} />
+                            <Route path="audit-binder" element={<AuditBinder />} />
                             <Route path="qi-reports" element={<QIReportsList />} />
                             <Route path="qi-reports/new" element={<QIReportWizard />} />
                             <Route path="qi-reports/:id" element={<QIReportDetail />} />

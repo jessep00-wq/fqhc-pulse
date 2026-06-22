@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   FolderArchive,
   ClipboardCheck,
+  BookCheck,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
@@ -42,6 +43,7 @@ const navItems = [
   { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
   { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
   { title: "Evidence Binder", url: "/dashboard/evidence-binder", icon: FolderArchive, badge: "HRSA" },
+  { title: "Audit Binder", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
   { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
   { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
   { title: "Settings", url: "/dashboard/settings", icon: Settings },
