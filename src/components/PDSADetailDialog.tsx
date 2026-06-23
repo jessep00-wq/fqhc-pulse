@@ -155,6 +155,17 @@ export default function PDSADetailDialog({
 
   type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at">>;
 
+  const formatSupabaseError = (err: unknown, fallback: string) => {
+    const e = err as { message?: string | null; details?: string | null; hint?: string | null; code?: string | null };
+    return (
+      (e?.message && e.message.trim()) ||
+      (e?.details && e.details.trim()) ||
+      (e?.hint && e.hint.trim()) ||
+      (e?.code && `Error code: ${e.code}`) ||
+      fallback
+    );
+  };
+
   const updateCycle = useMutation({
     mutationFn: async (updates: CycleUpdate) => {
       const { error } = await supabase
@@ -164,7 +175,7 @@ export default function PDSADetailDialog({
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] }),
-    onError: (err: Error) => toast.error(err.message || "Failed to update"),
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to update")),
   });
 
   const createTask = useMutation({
@@ -183,7 +194,7 @@ export default function PDSADetailDialog({
       setNewTaskDate(undefined);
       toast.success("Task added");
     },
-    onError: (err: Error) => toast.error(err.message || "Failed to add task"),
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to add task")),
   });
 
   type TaskUpdate = Partial<Omit<DialogTask, "id">>;
