@@ -284,18 +284,24 @@ export default function PDSADetailDialog({
   };
 
   const handleComplete = async () => {
-    const actual = (cycle.actual_outcome || "").trim();
+    const actual = actualOutcomeDraft.trim();
     if (!actual) {
       toast.error("Add an Actual Outcome on the Analyze tab before marking the cycle completed.");
       return;
     }
-    const decision = (cycle.next_cycle_decision || "").toLowerCase();
+    const decision = decisionDraft.toLowerCase();
     if (!["adopt", "adapt", "abandon"].includes(decision)) {
       toast.error("Pick a Next-Cycle Decision (Adopt, Adapt, or Abandon) before marking the cycle completed.");
       return;
     }
+    const decisionLabel = decision.charAt(0).toUpperCase() + decision.slice(1);
     try {
-      await updateCycle.mutateAsync({ status: "completed" });
+      await updateCycle.mutateAsync({
+        status: "completed",
+        actual_outcome: actual,
+        next_cycle_decision: decision,
+        decision: decisionLabel,
+      });
       toast.success("Cycle marked as completed");
       onClose();
     } catch {
