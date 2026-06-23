@@ -1,7 +1,11 @@
 import posthog from "posthog-js";
 
-const POSTHOG_KEY = "phc_yykGVwtQWE69AH6RCGH34Se9UFPR4PK9SkdBA9efP2c6";
-const POSTHOG_HOST = "https://us.i.posthog.com";
+const POSTHOG_KEY =
+  (import.meta.env.VITE_POSTHOG_KEY as string | undefined) ??
+  "phc_yykGVwtQWE69AH6RCGH34Se9UFPR4PK9SkdBA9efP2c6";
+const POSTHOG_HOST =
+  (import.meta.env.VITE_POSTHOG_HOST as string | undefined) ??
+  "https://us.i.posthog.com";
 
 let initialized = false;
 
