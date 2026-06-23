@@ -348,6 +348,9 @@ export default function AdminStore() {
           </CardContent>
         </Card>
       </section>
+        </>
+      )}
     </div>
   );
 }
+
