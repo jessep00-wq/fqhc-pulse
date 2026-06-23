@@ -30,41 +30,49 @@ export default function NetworkDashboard() {
   // fire org-scoped network requests before the upgrade banner renders.
   const queriesEnabled = !!orgId && !isFreeTier;
 
-  const { data: sites } = useQuery({
+  const sitesQuery = useQuery({
     queryKey: ["sites", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("sites").select("*").eq("organization_id", orgId).order("name");
+      const { data, error } = await supabase.from("sites").select("*").eq("organization_id", orgId).order("name");
+      if (error) throw error;
       return data || [];
     },
     enabled: queriesEnabled,
   });
+  const sites = sitesQuery.data;
 
-  const { data: cycles } = useQuery({
+  const cyclesQuery = useQuery({
     queryKey: ["pdsa_cycles", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
+      const { data, error } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
+      if (error) throw error;
       return data || [];
     },
     enabled: queriesEnabled,
   });
+  const cycles = cyclesQuery.data;
 
-  const { data: tasks } = useQuery({
+  const tasksQuery = useQuery({
     queryKey: ["tasks", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
+      const { data, error } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
+      if (error) throw error;
       return data || [];
     },
     enabled: queriesEnabled,
   });
+  const tasks = tasksQuery.data;
 
-  const { data: trends } = useQuery({
+  const trendsQuery = useQuery({
     queryKey: ["uds_trends", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
+      const { data, error } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
+      if (error) throw error;
       return data || [];
     },
     enabled: queriesEnabled,
   });
+  const trends = trendsQuery.data;
 
   if (isFreeTier) {
     return (
@@ -74,6 +82,42 @@ export default function NetworkDashboard() {
       </div>
     );
   }
+
+  const isInitialLoading =
+    sitesQuery.isLoading || cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading;
+  const hasFetchError =
+    sitesQuery.isError || cyclesQuery.isError || tasksQuery.isError || trendsQuery.isError;
+
+  if (isInitialLoading) {
+    return (
+      <div className="p-6 flex items-center justify-center h-64">
+        <div className="h-6 w-6 rounded-full border-2 border-primary border-t-transparent animate-spin" aria-label="Loading" />
+      </div>
+    );
+  }
+
+  if (hasFetchError) {
+    return (
+      <div className="p-6 flex flex-col items-center justify-center h-64 gap-3 text-center">
+        <p className="text-sm text-muted-foreground">
+          We couldn't load network data. Please refresh and try again.
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            sitesQuery.refetch();
+            cyclesQuery.refetch();
+            tasksQuery.refetch();
+            trendsQuery.refetch();
+          }}
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
 
   const siteList = sites || [];
   const hasSites = siteList.length > 0;
