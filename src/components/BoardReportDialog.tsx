@@ -116,8 +116,9 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends, financ
       pdf.save(`${organization.name}_Board_Report_${period.replace(" ", "_")}.pdf`);
       toast.success("Board report downloaded!");
     } catch (err) {
-      toast.error("Failed to generate PDF");
-      console.error(err);
+      // Audit fix 35/36: user-facing toast on failure path; dev-only console.
+      toast.error("Couldn't generate the board report PDF. Please try again.");
+      if (import.meta.env.DEV) console.error("Board report PDF export failed:", err);
     } finally {
       setExporting(false);
     }

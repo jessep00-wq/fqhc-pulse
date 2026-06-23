@@ -190,7 +190,8 @@ export default function NetworkDashboard() {
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <Select value={selectedSite} onValueChange={setSelectedSite}>
-            <SelectTrigger className="w-[200px]">
+            {/* Audit fix 32: full-width on mobile so the trigger never overflows. */}
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="All Sites" />
             </SelectTrigger>
             <SelectContent>

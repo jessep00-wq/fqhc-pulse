@@ -14,8 +14,11 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // Audit fix 37: bounce unauthenticated visitors to the sign-in page,
+  // matching ProtectedRoute. Sending them to "/" drops them on the
+  // marketing landing with no signal to log in.
   if (!session) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   if (!isAdmin) {

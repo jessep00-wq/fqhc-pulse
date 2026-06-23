@@ -8,6 +8,16 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
+// SECURITY TRADE-OFF (audit fix 38):
+// Auth tokens are persisted in browser `localStorage`, which means any XSS
+// vulnerability could exfiltrate the session. This is the default Supabase
+// auth-js storage and is acceptable for this app's current threat model
+// because MeasureWise does NOT store PHI — only aggregated UDS metrics,
+// PDSA narratives, and FQHC operational metadata. If PHI is ever introduced,
+// this MUST be revisited (HIPAA technical safeguards favor httpOnly cookies
+// behind a server proxy, or short-lived access tokens with refresh in a
+// service-worker-isolated store). Hardening checklist: strict CSP, sanitize
+// any HTML rendered from user input, keep deps patched.
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: localStorage,
