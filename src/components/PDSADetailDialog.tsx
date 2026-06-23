@@ -593,7 +593,8 @@ export default function PDSADetailDialog({
             <div className="space-y-2">
               <Label>Actual Outcome *</Label>
               <Textarea
-                defaultValue={cycle.actual_outcome || ""}
+                value={actualOutcomeDraft}
+                onChange={(e) => setActualOutcomeDraft(e.target.value)}
                 onBlur={(e) => handleBlurUpdate("actual_outcome", e.target.value)}
                 placeholder="What measurable result did you see? Required to mark the cycle completed."
                 rows={2}
