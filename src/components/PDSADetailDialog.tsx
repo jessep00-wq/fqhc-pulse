@@ -221,6 +221,30 @@ export default function PDSADetailDialog({
     },
   });
 
+  const { data: orgProfiles = [] } = useQuery({
+    queryKey: ["org_profiles", organization?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id,full_name,staff_role")
+        .eq("organization_id", organization!.id);
+      return data || [];
+    },
+    enabled: !!organization?.id,
+  });
+
+  const { data: cycleEvidence = [] } = useQuery({
+    queryKey: ["pdsa_evidence_for_cycle", cycle?.id],
+    enabled: !!cycle?.id && !!organization?.id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("pdsa_evidence")
+        .select("pdsa_cycle_id")
+        .eq("pdsa_cycle_id", cycle!.id);
+      return (data ?? []) as { pdsa_cycle_id: string }[];
+    },
+  });
+
   if (!cycle) return null;
 
   const handleBlurUpdate = (field: CycleStringField | CycleNumberField, value: string | number | null) => {
@@ -244,31 +268,7 @@ export default function PDSADetailDialog({
     onClose();
   };
 
-  const { data: orgProfiles = [] } = useQuery({
-    queryKey: ["org_profiles", organization.id],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("id,full_name,staff_role")
-        .eq("organization_id", organization.id);
-      return data || [];
-    },
-    enabled: !!organization.id,
-  });
-
   const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
-
-  const { data: cycleEvidence = [] } = useQuery({
-    queryKey: ["pdsa_evidence_for_cycle", cycle?.id],
-    enabled: !!cycle?.id && !!organization?.id,
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("pdsa_evidence")
-        .select("pdsa_cycle_id")
-        .eq("pdsa_cycle_id", cycle!.id);
-      return (data ?? []) as { pdsa_cycle_id: string }[];
-    },
-  });
 
   const workstreamFacts = getPdsaWorkstream(
     cycle,

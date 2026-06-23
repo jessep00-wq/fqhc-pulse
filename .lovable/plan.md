@@ -1,22 +1,36 @@
-## Diagnosis
+## Bug
 
-Reaching `/onboarding` means the user is already authenticated but has no `organization_id`. The "Already have an account? Sign in" link points to `/auth`, but for a signed-in user `/auth` immediately redirects to `/dashboard`, which `ProtectedRoute` then redirects to `/onboarding` because `hasOrg` is false. Net result: the URL flickers and the user lands back on the same Onboarding screen — "nothing happens".
+Clicking a PDSA card opens `PDSADetailDialog`, which immediately crashes with:
 
-The link is only useful for a user who wants to sign in as a different account. It needs to sign the current user out first.
+> Rendered more hooks than during the previous render.
+
+The ErrorBoundary then shows "Something went wrong".
+
+## Root cause
+
+In `src/components/PDSADetailDialog.tsx`, there is an early return:
+
+```ts
+if (!cycle) return null;   // line 224
+```
+
+This sits **between** the first batch of hooks (`useQuery` for tasks, `useMutation` x4) and a second batch of hooks declared further down (`useQuery` for `orgProfiles` on line 247, `useQuery` for `cycleEvidence` on line 261).
+
+On the first render, `cycle` is `null`, so React only sees the hooks above line 224. On the next render `cycle` is truthy and React sees additional hooks below — violating the Rules of Hooks. React throws, the ErrorBoundary swallows it, and the user gets the generic error screen.
 
 ## Fix
 
-In `src/pages/Onboarding.tsx`, replace the `<Link to="/auth">Sign in</Link>` with a button that:
+Move every hook to the top of the component (above any conditional return) so the hook count is stable across renders.
 
-1. Calls `supabase.auth.signOut()`.
-2. Navigates to `/auth` via `useNavigate()` (`replace: true`).
-3. Shows an error toast on failure.
+In `src/components/PDSADetailDialog.tsx`:
 
-Keep the surrounding copy and styling. The button uses the same teal-underline treatment so it visually matches the current link. Label stays "Sign in" (full sentence: "Already have an account? Sign in"), since that matches what the user expects to click.
+1. Move the `useQuery` for `orgProfiles` (currently lines 247-257) and `useQuery` for `cycleEvidence` (currently lines 261-271) up so they sit alongside the other `useQuery` / `useMutation` calls, before the `if (!cycle) return null;` guard on line 224.
+2. Keep their existing `enabled: !!cycle?.id && !!organization?.id` guards so they don't fire when there's no cycle.
+3. Leave the `if (!cycle) return null;` guard in place — just ensure it comes **after** all hook declarations.
+4. The `score` calculation and `workstreamFacts` derivation (currently lines 259, 273-277) stay where they are (they're plain expressions, not hooks), but move below the null-guard so they can safely dereference `cycle`.
 
-No other files change. No routing or context changes — the existing `Auth.tsx` / `ProtectedRoute.tsx` redirect behavior is correct; the bug is purely that the link didn't account for the user already having a session.
+No other files need changes. The fix is purely a reordering inside `PDSADetailDialog.tsx`.
 
-## Notes
+## Verification
 
-- `supabase` is already imported in `Onboarding.tsx` (used elsewhere on the page) — verify during implementation and add the import if missing.
-- `useNavigate` and `toast` are likewise expected to already be in scope.
+Re-run the Playwright repro: open `/dashboard/pdsa-lab`, click the "Improve Cervical Cancer" card, and confirm the dialog renders with no `pageerror` and no ErrorBoundary fallback.
