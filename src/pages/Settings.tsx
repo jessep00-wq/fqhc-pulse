@@ -127,11 +127,13 @@ export default function Settings() {
   const [orgNpi, setOrgNpi] = useState(organization.npi);
   const [orgLoaded, setOrgLoaded] = useState(false);
 
-  if (organization.id && !orgLoaded && organization.name !== "Loading...") {
-    setOrgName(organization.name);
-    setOrgNpi(organization.npi);
-    setOrgLoaded(true);
-  }
+  useEffect(() => {
+    if (organization.id && !orgLoaded && organization.name !== "Loading...") {
+      setOrgName(organization.name);
+      setOrgNpi(organization.npi);
+      setOrgLoaded(true);
+    }
+  }, [organization.id, organization.name, organization.npi, orgLoaded]);
 
   const npiTrimmed = orgNpi.trim();
   const isValidNpi = /^\d{10}$/.test(npiTrimmed);
