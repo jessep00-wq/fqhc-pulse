@@ -16,6 +16,7 @@ import { trackAnonEvent } from "@/lib/trackEvent";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOrg } from "@/contexts/OrgContext";
 import { Navigate, Link } from "react-router-dom";
 
 type StaffRole = "Front Desk" | "MA/RN" | "Provider" | "Care Coordinator" | "QI Manager";
@@ -29,7 +30,8 @@ const passwordRules = [
 ];
 
 export default function Auth() {
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
+  const { hasOrg, loading: orgLoading } = useOrg();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [isLogin, setIsLogin] = useState(!searchParams.get("signup"));
@@ -53,7 +55,16 @@ export default function Auth() {
     captureFromUrl(searchParams);
   }, [searchParams]);
 
-  if (session) return <Navigate to="/dashboard" replace />;
+  if (session && !authLoading && !orgLoading) {
+    return <Navigate to={hasOrg ? "/dashboard" : "/onboarding"} replace />;
+  }
+  if (session && (authLoading || orgLoading)) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleLogin = async () => {
     setLoading(true);
