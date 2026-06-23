@@ -73,11 +73,8 @@ export default function AIAssistant() {
       } else {
         toast.error("Failed to get AI response. Please try again.");
       }
-      // Add error message inline
-      setMessages((prev) => [
-        ...prev,
-        { id: `e-${Date.now()}`, role: "assistant", content: "Sorry, I couldn't generate an analysis right now. Please try again." },
-      ]);
+      // Single failure signal: toast above. Avoid duplicating it as an inline
+      // assistant message (audit item 28).
     } finally {
       setLoading(false);
     }
