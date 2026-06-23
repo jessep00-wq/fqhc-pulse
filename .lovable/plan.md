@@ -1,35 +1,22 @@
-## Goal
+## Diagnosis
 
-Add a `src/pages/Auth.test.tsx` unit-test suite that locks in the post-fix behavior: an authenticated visitor to `/auth` always ends up at `/dashboard` and never transiently at `/onboarding`, regardless of how `hasOrg` / `orgLoading` evolve.
+Reaching `/onboarding` means the user is already authenticated but has no `organization_id`. The "Already have an account? Sign in" link points to `/auth`, but for a signed-in user `/auth` immediately redirects to `/dashboard`, which `ProtectedRoute` then redirects to `/onboarding` because `hasOrg` is false. Net result: the URL flickers and the user lands back on the same Onboarding screen — "nothing happens".
 
-## Approach
+The link is only useful for a user who wants to sign in as a different account. It needs to sign the current user out first.
 
-Mirror the existing `src/components/ProtectedRoute.test.tsx` pattern: mock `@/contexts/AuthContext` and `@/contexts/OrgContext` with mutable module-level objects, render `<Auth />` inside a `MemoryRouter` with `/auth`, `/dashboard`, and `/onboarding` routes, and assert on which route is rendered.
+## Fix
 
-To make sure no transient `/onboarding` render is possible, one test will start with `session=present`, `authLoading=false`, `orgLoading=false`, `hasOrg=false` (the race-condition shape) and assert the page renders `/dashboard` — never `/onboarding`. A second test will start mid-load (`orgLoading=true`) and then re-render after `orgLoading` flips to `false` with `hasOrg=false`, asserting `/onboarding` is never seen at any render and `/dashboard` is the final destination.
+In `src/pages/Onboarding.tsx`, replace the `<Link to="/auth">Sign in</Link>` with a button that:
 
-## Test cases in `src/pages/Auth.test.tsx`
+1. Calls `supabase.auth.signOut()`.
+2. Navigates to `/auth` via `useNavigate()` (`replace: true`).
+3. Shows an error toast on failure.
 
-1. Unauthenticated → renders the auth form (no redirect).
-2. Authenticated + org loaded (`hasOrg=true`) → redirects to `/dashboard`.
-3. Authenticated + `hasOrg=false`, both loadings false (the race-condition snapshot) → redirects to `/dashboard`, asserts `/onboarding` route content is NOT rendered.
-4. Authenticated + `orgLoading=true` → renders spinner; then re-render with `orgLoading=false, hasOrg=false` → final route is `/dashboard`; `screen.queryByText("ONBOARDING")` is null across both renders.
-5. Authenticated + `authLoading=true` → renders spinner (no redirect, no auth form flash).
+Keep the surrounding copy and styling. The button uses the same teal-underline treatment so it visually matches the current link. Label stays "Sign in" (full sentence: "Already have an account? Sign in"), since that matches what the user expects to click.
 
-## Mocking notes
+No other files change. No routing or context changes — the existing `Auth.tsx` / `ProtectedRoute.tsx` redirect behavior is correct; the bug is purely that the link didn't account for the user already having a session.
 
-- Mock `@/integrations/supabase/client`, `@/integrations/lovable/index`, `@/lib/planIntent`, `@/lib/trackEvent`, and `sonner` with minimal stubs so `Auth.tsx` imports cleanly without touching network or analytics.
-- Mock `@/components/Logo` and `@/lib/brand` only if their imports break in jsdom; otherwise leave alone.
-- Render harness:
+## Notes
 
-```text
-<MemoryRouter initialEntries={["/auth"]}>
-  <Routes>
-    <Route path="/auth" element={<Auth />} />
-    <Route path="/dashboard" element={<div>DASH</div>} />
-    <Route path="/onboarding" element={<div>ONBOARDING</div>} />
-  </Routes>
-</MemoryRouter>
-```
-
-No production code changes. Run via existing `vitest` config.
+- `supabase` is already imported in `Onboarding.tsx` (used elsewhere on the page) — verify during implementation and add the import if missing.
+- `useNavigate` and `toast` are likewise expected to already be in scope.
