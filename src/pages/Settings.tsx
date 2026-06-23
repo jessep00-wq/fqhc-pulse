@@ -82,11 +82,15 @@ export default function Settings() {
   const [staffRole, setStaffRole] = useState("");
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  if (profile && !profileLoaded) {
-    setFullName(profile.full_name || "");
-    setStaffRole(profile.staff_role || "");
-    setProfileLoaded(true);
-  }
+  // Audit fix 29: hydrate from profile inside an effect rather than mutating
+  // state during the render body (Strict-Mode double-render bug).
+  useEffect(() => {
+    if (profile && !profileLoaded) {
+      setFullName(profile.full_name || "");
+      setStaffRole(profile.staff_role || "");
+      setProfileLoaded(true);
+    }
+  }, [profile, profileLoaded]);
 
   const profileMutation = useMutation({
     mutationFn: async () => {
