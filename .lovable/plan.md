@@ -1,36 +1,33 @@
-## Bug
+## Problem
 
-Clicking a PDSA card opens `PDSADetailDialog`, which immediately crashes with:
-
-> Rendered more hooks than during the previous render.
-
-The ErrorBoundary then shows "Something went wrong".
-
-## Root cause
-
-In `src/components/PDSADetailDialog.tsx`, there is an early return:
+In `src/components/PDSADetailDialog.tsx`, `handleComplete` fires three things synchronously:
 
 ```ts
-if (!cycle) return null;   // line 224
+updateCycle.mutate({ status: "completed" });
+toast.success("Cycle marked as completed");
+onClose();
 ```
 
-This sits **between** the first batch of hooks (`useQuery` for tasks, `useMutation` x4) and a second batch of hooks declared further down (`useQuery` for `orgProfiles` on line 247, `useQuery` for `cycleEvidence` on line 261).
+Because `mutate` is fire-and-forget, the success toast and dialog close run even when the database update fails. When it does fail, the mutation's `onError` then shows a second toast. The user sees two conflicting messages (one success, one cryptic error like "Other: null") and the dialog disappears before they can correct anything.
 
-On the first render, `cycle` is `null`, so React only sees the hooks above line 224. On the next render `cycle` is truthy and React sees additional hooks below — violating the Rules of Hooks. React throws, the ErrorBoundary swallows it, and the user gets the generic error screen.
+The error itself is unhelpful because `toast.error(err.message || "Failed to update")` falls back to whatever Supabase put in `.message` — for a check-constraint or RLS rejection that string can be empty or just a code, producing the "Other: null" text the user is seeing.
 
 ## Fix
 
-Move every hook to the top of the component (above any conditional return) so the hook count is stable across renders.
+Edit only `src/components/PDSADetailDialog.tsx`:
 
-In `src/components/PDSADetailDialog.tsx`:
+1. **Pre-validate before mutating.** Mark Completed requires `actual_outcome` (non-empty) and `next_cycle_decision` (one of `adopt`/`adapt`/`abandon`, matching the DB check constraint `pdsa_cycles_next_decision_chk`). If either is missing, show a single clear toast naming the missing field and return — don't call the mutation.
 
-1. Move the `useQuery` for `orgProfiles` (currently lines 247-257) and `useQuery` for `cycleEvidence` (currently lines 261-271) up so they sit alongside the other `useQuery` / `useMutation` calls, before the `if (!cycle) return null;` guard on line 224.
-2. Keep their existing `enabled: !!cycle?.id && !!organization?.id` guards so they don't fire when there's no cycle.
-3. Leave the `if (!cycle) return null;` guard in place — just ensure it comes **after** all hook declarations.
-4. The `score` calculation and `workstreamFacts` derivation (currently lines 259, 273-277) stay where they are (they're plain expressions, not hooks), but move below the null-guard so they can safely dereference `cycle`.
+2. **Await the mutation.** Change `handleComplete` to `async`, call `await updateCycle.mutateAsync({ status: "completed" })` inside a `try/catch`. Only on success show the success toast and call `onClose()`. On failure, do nothing here — let the mutation's `onError` handler show the error toast.
 
-No other files need changes. The fix is purely a reordering inside `PDSADetailDialog.tsx`.
+3. **Render a useful error message.** Update `updateCycle`'s `onError` (and the matching one on `createTask`) to surface Supabase's richer fields: prefer `err.message`, then fall back to `(err as any).details`, `(err as any).hint`, or `(err as any).code` before the generic "Failed to update" string. This eliminates the "Other: null" output when `message` is empty.
+
+4. **Disable the Mark Completed button while the mutation is in flight** (`disabled={updateCycle.isPending}`) so users can't double-submit.
+
+No schema or backend changes. No other files touched.
 
 ## Verification
 
-Re-run the Playwright repro: open `/dashboard/pdsa-lab`, click the "Improve Cervical Cancer" card, and confirm the dialog renders with no `pageerror` and no ErrorBoundary fallback.
+- Run the existing Playwright repro: open `/dashboard/pdsa-lab`, open the "Improve Cervical Cancer" card, go to the Decide tab, click **Mark Completed** without filling Actual Outcome → expect exactly one toast naming the missing field, dialog stays open.
+- Fill Actual Outcome + pick a decision → click **Mark Completed** → expect one success toast, dialog closes, card moves to Completed.
+- Confirm no duplicate toasts and no "Other: null" string in either flow.
