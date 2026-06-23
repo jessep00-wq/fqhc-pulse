@@ -657,7 +657,7 @@ export default function PDSADetailDialog({
               <div className="grid grid-cols-3 gap-3">
                 {DECISION_OPTIONS.map((opt) => {
                   const value = opt.value.toLowerCase();
-                  const selected = (cycle.next_cycle_decision || cycle.decision?.toLowerCase()) === value;
+                  const selected = decisionDraft === value;
                   return (
                     <button
                       key={opt.value}
@@ -666,9 +666,10 @@ export default function PDSADetailDialog({
                         opt.color,
                         selected && "ring-2 ring-primary",
                       )}
-                      onClick={() =>
-                        updateCycle.mutate({ next_cycle_decision: value, decision: opt.value })
-                      }
+                      onClick={() => {
+                        setDecisionDraft(value);
+                        updateCycle.mutate({ next_cycle_decision: value, decision: opt.value });
+                      }}
                     >
                       <div className="flex items-center gap-2">
                         <opt.icon className="h-4 w-4" />
