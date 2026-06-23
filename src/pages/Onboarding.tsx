@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -166,9 +166,20 @@ export default function Onboarding() {
           <Logo size="md" className="justify-center" />
           <p className="text-xs text-muted-foreground">
             Already have an account?{" "}
-            <Link to="/auth" className="text-primary hover:text-primary/80 underline font-medium">
+            <button
+              type="button"
+              onClick={async () => {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                  toast.error(error.message);
+                  return;
+                }
+                navigate("/auth", { replace: true });
+              }}
+              className="text-primary hover:text-primary/80 underline font-medium"
+            >
               Sign in
-            </Link>
+            </button>
           </p>
           <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
             <span className={step === 1 ? "font-semibold text-primary" : ""}>1 · Organization Profile</span>
