@@ -273,10 +273,24 @@ export default function PDSADetailDialog({
     });
   };
 
-  const handleComplete = () => {
-    updateCycle.mutate({ status: "completed" });
-    toast.success("Cycle marked as completed");
-    onClose();
+  const handleComplete = async () => {
+    const actual = (cycle.actual_outcome || "").trim();
+    if (!actual) {
+      toast.error("Add an Actual Outcome on the Analyze tab before marking the cycle completed.");
+      return;
+    }
+    const decision = (cycle.next_cycle_decision || "").toLowerCase();
+    if (!["adopt", "adapt", "abandon"].includes(decision)) {
+      toast.error("Pick a Next-Cycle Decision (Adopt, Adapt, or Abandon) before marking the cycle completed.");
+      return;
+    }
+    try {
+      await updateCycle.mutateAsync({ status: "completed" });
+      toast.success("Cycle marked as completed");
+      onClose();
+    } catch {
+      // updateCycle.onError already surfaces the error toast
+    }
   };
 
   const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
