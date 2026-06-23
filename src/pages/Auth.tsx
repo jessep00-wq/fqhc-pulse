@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Check, Circle } from "lucide-react";
 import { Logo } from "@/components/Logo";
-import { BRAND, copyright } from "@/lib/brand";
+import { BRAND } from "@/lib/brand";
 import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
 import { trackAnonEvent } from "@/lib/trackEvent";
 
