@@ -38,7 +38,7 @@ const fallbackOrg: Organization = {
 };
 
 export function OrgProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [organization, setOrganization] = useState<Organization>(fallbackOrg);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +52,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const refetchOrg = () => setRefreshKey((k) => k + 1);
 
   useEffect(() => {
+    if (authLoading) {
+      setLoading(true);
+      return;
+    }
+
     if (!user) {
       setOrganization(fallbackOrg);
       setHasOrgState(false);
@@ -128,7 +133,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     };
 
     fetchOrg();
-  }, [user, refreshKey]);
+  }, [user, refreshKey, authLoading]);
 
   const hasOrg = hasOrgState || confirmedOrgRef.current;
   const isDemo = hasOrg && organization.dataMode === "demo";
