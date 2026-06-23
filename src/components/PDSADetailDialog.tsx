@@ -151,17 +151,19 @@ export default function PDSADetailDialog({
   }, [cycle?.id, cycle?.actual_outcome, cycle?.next_cycle_decision, cycle?.decision]);
 
   const { data: cycleTasks = [] } = useQuery({
-    queryKey: ["tasks", organization.id, cycle?.id],
+    queryKey: ["tasks", organization?.id, cycle?.id],
     queryFn: async () => {
       const { data } = await supabase
         .from("tasks")
         .select("*")
+        .eq("organization_id", organization!.id)
         .eq("pdsa_cycle_id", cycle!.id)
         .order("created_at");
       return data || [];
     },
-    enabled: !!cycle?.id && !!organization.id,
+    enabled: !!cycle?.id && !!organization?.id,
   });
+
 
   type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at">>;
 
@@ -215,7 +217,9 @@ export default function PDSADetailDialog({
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to update task")),
   });
+
 
   const cloneCycle = useMutation({
     mutationFn: async () => {
@@ -255,16 +259,18 @@ export default function PDSADetailDialog({
   });
 
   const { data: cycleEvidence = [] } = useQuery({
-    queryKey: ["pdsa_evidence_for_cycle", cycle?.id],
+    queryKey: ["pdsa_evidence_for_cycle", organization?.id, cycle?.id],
     enabled: !!cycle?.id && !!organization?.id,
     queryFn: async () => {
       const { data } = await supabase
         .from("pdsa_evidence")
         .select("pdsa_cycle_id")
+        .eq("organization_id", organization!.id)
         .eq("pdsa_cycle_id", cycle!.id);
       return (data ?? []) as { pdsa_cycle_id: string }[];
     },
   });
+
 
   if (!cycle) return null;
 

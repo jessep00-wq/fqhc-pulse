@@ -8,10 +8,21 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-);
+// Service-role client lives behind a lazy getter so it's never instantiated
+// until a request has been validated. Prevents module-load-time secret access
+// and makes it impossible to accidentally use the privileged client in an
+// unauthenticated code path.
+let _supabase: ReturnType<typeof createClient> | null = null;
+function getSupabase() {
+  if (!_supabase) {
+    _supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+  }
+  return _supabase;
+}
+
 
 // Server-side allowlist so the client can never request an arbitrary price.
 const PRICE_LOOKUP_KEYS: Record<string, { kind: "product" | "bundle"; slug: string }> = {
@@ -33,7 +44,7 @@ async function resolveItem(lookupKey: string) {
   let fileCount = 0;
   let comingSoon = false;
   if (item.kind === "product") {
-    const { data: prod } = await supabase
+    const { data: prod } = await getSupabase()
       .from("store_products")
       .select("id, file_count, is_coming_soon")
       .eq("slug", item.slug)
@@ -42,7 +53,7 @@ async function resolveItem(lookupKey: string) {
     fileCount = (prod?.file_count as number | null) ?? 0;
     comingSoon = !!prod?.is_coming_soon;
   } else {
-    const { data: bundle } = await supabase
+    const { data: bundle } = await getSupabase()
       .from("store_bundles")
       .select("id, included_product_ids")
       .eq("slug", item.slug)
@@ -50,7 +61,7 @@ async function resolveItem(lookupKey: string) {
     catalogId = bundle?.id ?? null;
     const ids = (bundle?.included_product_ids as string[] | null) ?? [];
     if (ids.length) {
-      const { data: prods } = await supabase
+      const { data: prods } = await getSupabase()
         .from("store_products")
         .select("file_count")
         .in("id", ids);

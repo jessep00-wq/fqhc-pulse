@@ -23,8 +23,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
+        // Optimistic: surface the JWT user immediately to avoid logged-out flash.
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Server-verify identity. session.user is decoded from the local JWT and
+        // must not be trusted for authorization decisions. getUser() round-trips
+        // to the Auth server and returns the canonical user record.
+        if (session) {
+          supabase.auth.getUser().then(({ data, error }) => {
+            if (error || !data?.user) {
+              // Token rejected by server — drop the unverified user.
+              setUser(null);
+              return;
+            }
+            setUser(data.user);
+          });
+        }
 
         // Track login event and update last_login_at
         if (event === "SIGNED_IN" && session?.user && !loginTracked.current) {
@@ -68,6 +83,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const signOut = async () => {
     resetPostHog();

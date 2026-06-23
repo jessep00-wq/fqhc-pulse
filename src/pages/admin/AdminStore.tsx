@@ -26,27 +26,43 @@ export default function AdminStore() {
   const [productFiles, setProductFiles] = useState<Record<string, string[]>>({});
   const [editing, setEditing] = useState<Record<string, string>>({});
   const [guidance, setGuidance] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     void load();
   }, []);
 
   async function load() {
-    const [{ data: p }, { data: o }, { data: f }] = await Promise.all([
-      supabase.from("store_products").select("*").order("sort_order"),
-      supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(50),
-      supabase
-        .from("store_product_files")
-        .select("product_id, file_path")
-        .order("sort_order"),
-    ]);
-    setProducts((p ?? []).map(mapStoreProduct));
-    setOrders((o as unknown as Order[]) ?? []);
-    const grouped: Record<string, string[]> = {};
-    for (const row of (f ?? []) as Array<{ product_id: string; file_path: string }>) {
-      (grouped[row.product_id] ||= []).push(row.file_path);
+    setLoading(true);
+    setLoadError(null);
+    try {
+      const [productsRes, ordersRes, filesRes] = await Promise.all([
+        supabase.from("store_products").select("*").order("sort_order"),
+        supabase.from("orders").select("*").order("created_at", { ascending: false }).limit(50),
+        supabase
+          .from("store_product_files")
+          .select("product_id, file_path")
+          .order("sort_order"),
+      ]);
+      const firstError = productsRes.error || ordersRes.error || filesRes.error;
+      if (firstError) {
+        throw firstError;
+      }
+      setProducts((productsRes.data ?? []).map(mapStoreProduct));
+      setOrders((ordersRes.data as unknown as Order[]) ?? []);
+      const grouped: Record<string, string[]> = {};
+      for (const row of (filesRes.data ?? []) as Array<{ product_id: string; file_path: string }>) {
+        (grouped[row.product_id] ||= []).push(row.file_path);
+      }
+      setProductFiles(grouped);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to load store data";
+      setLoadError(message);
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
-    setProductFiles(grouped);
   }
 
   async function handleUpload(productId: string, file: File) {
@@ -99,24 +115,37 @@ export default function AdminStore() {
   async function removePreview(productId: string, url: string) {
     const product = products.find((p) => p.id === productId);
     const newUrls = (product?.preview_image_urls ?? []).filter((u) => u !== url);
-    await supabase
+    const { error } = await supabase
       .from("store_products")
       .update({ preview_image_urls: newUrls })
       .eq("id", productId);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Preview removed");
     void load();
   }
 
   async function removeFile(productId: string, path: string) {
-    await supabase.storage.from("product-files").remove([path]);
-    await supabase
+    const { error: storageErr } = await supabase.storage.from("product-files").remove([path]);
+    if (storageErr) {
+      toast.error(storageErr.message);
+      return;
+    }
+    const { error: dbErr } = await supabase
       .from("store_product_files")
       .delete()
       .eq("product_id", productId)
       .eq("file_path", path);
+    if (dbErr) {
+      toast.error(dbErr.message);
+      return;
+    }
     toast.success("File removed");
     void load();
   }
+
 
   async function savePrice(productId: string) {
     const newPrice = parseInt(editing[productId] ?? "", 10);
@@ -159,6 +188,25 @@ export default function AdminStore() {
           Payments tab; this view manages the public catalog and downloadable file delivery.
         </p>
       </div>
+
+      {loading && (
+        <div className="flex items-center justify-center h-32">
+          <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin" aria-label="Loading" />
+        </div>
+      )}
+
+      {!loading && loadError && (
+        <Card className="border-destructive/40 bg-destructive/5">
+          <CardContent className="py-4 flex items-center justify-between gap-3">
+            <p className="text-sm">{loadError}</p>
+            <Button size="sm" variant="outline" onClick={() => void load()}>Retry</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {!loading && !loadError && (
+        <>
+
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Products</h2>
@@ -300,6 +348,9 @@ export default function AdminStore() {
           </CardContent>
         </Card>
       </section>
+        </>
+      )}
     </div>
   );
 }
+

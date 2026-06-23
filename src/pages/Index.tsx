@@ -231,41 +231,49 @@ export default function Dashboard() {
   );
   const { isFreeTier } = useTierLimits();
 
-  const { data: cycles } = useQuery({
+  const cyclesQuery = useQuery({
     queryKey: ["pdsa_cycles", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
+      const { data, error } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
+      if (error) throw error;
       return data || [];
     },
     enabled: !!orgId,
   });
+  const cycles = cyclesQuery.data;
 
-  const { data: tasks } = useQuery({
+  const tasksQuery = useQuery({
     queryKey: ["tasks", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
+      const { data, error } = await supabase.from("tasks").select("*").eq("organization_id", orgId);
+      if (error) throw error;
       return data || [];
     },
     enabled: !!orgId,
   });
+  const tasks = tasksQuery.data;
 
-  const { data: trends } = useQuery({
+  const trendsQuery = useQuery({
     queryKey: ["uds_trends", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
+      const { data, error } = await supabase.from("uds_trends").select("*").eq("organization_id", orgId).order("month");
+      if (error) throw error;
       return data || [];
     },
     enabled: !!orgId,
   });
+  const trends = trendsQuery.data;
 
-  const { data: activity } = useQuery({
+  const activityQuery = useQuery({
     queryKey: ["activity_log", orgId],
     queryFn: async () => {
-      const { data } = await supabase.from("activity_log").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(6);
+      const { data, error } = await supabase.from("activity_log").select("*").eq("organization_id", orgId).order("created_at", { ascending: false }).limit(6);
+      if (error) throw error;
       return data || [];
     },
     enabled: !!orgId,
   });
+  const activity = activityQuery.data;
 
   const { data: financials } = useQuery({
     queryKey: ["org_financials", orgId],
@@ -280,6 +288,12 @@ export default function Dashboard() {
     },
     enabled: !!orgId,
   });
+
+  const isInitialLoading =
+    cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading;
+  const hasFetchError =
+    cyclesQuery.isError || tasksQuery.isError || trendsQuery.isError || activityQuery.isError;
+
 
   const activePDSA = cycles?.filter((c) => c.status !== "completed").length ?? 0;
   const stalledPDSA = cycles?.filter((c) => {
@@ -305,12 +319,10 @@ export default function Dashboard() {
   }).length ?? 0;
   const overdueTasks = tasks?.filter((t) => t.status === "overdue").length ?? 0;
 
-  const MONTH_ORDER = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+  // DB month strings are ISO "YYYY-MM"; sort lexicographically (chronological).
   const trendChart = (() => {
     if (!trends?.length) return [];
-    const months = [...new Set(trends.map((t) => t.month))].sort(
-      (a, b) => MONTH_ORDER.indexOf(a) - MONTH_ORDER.indexOf(b)
-    );
+    const months = [...new Set(trends.map((t) => t.month))].sort();
     return months.map((m) => {
       const row: Record<string, string | number> = { month: m };
       for (const t of trends.filter((tt) => tt.month === m)) row[t.measure_id] = Number(t.value);
@@ -318,13 +330,45 @@ export default function Dashboard() {
     });
   })();
 
-  if (!orgId) {
+  // Render a human label "Jan '25" from "2025-01"
+  const formatMonthTick = (m: string) => {
+    const match = /^(\d{4})-(\d{2})$/.exec(m);
+    if (!match) return m;
+    const [, year, mm] = match;
+    const date = new Date(Number(year), Number(mm) - 1, 1);
+    return date.toLocaleString(undefined, { month: "short", year: "2-digit" });
+  };
+
+  if (!orgId || isInitialLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
+
+  if (hasFetchError) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-3 text-center px-4">
+        <p className="text-sm text-muted-foreground">
+          We couldn't load your dashboard data. Check your connection and try again.
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            cyclesQuery.refetch();
+            tasksQuery.refetch();
+            trendsQuery.refetch();
+            activityQuery.refetch();
+          }}
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
+
 
   const fin = financials;
   const hasCycles = (cycles?.length ?? 0) > 0;
@@ -513,7 +557,7 @@ export default function Dashboard() {
               <ResponsiveContainer width="100%" height={340}>
                 <LineChart data={trendChart} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="month" className="text-xs" />
+                  <XAxis dataKey="month" className="text-xs" tickFormatter={formatMonthTick} />
                   <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
                   <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
                   <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
