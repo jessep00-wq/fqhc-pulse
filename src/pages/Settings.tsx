@@ -594,9 +594,17 @@ export default function Settings() {
                                 size="icon"
                                 className="h-7 w-7 text-destructive hover:text-destructive"
                                 onClick={() => deleteTrendMutation.mutate(t.id)}
-                                disabled={deleteTrendMutation.isPending}
+                                disabled={
+                                  deleteTrendMutation.isPending &&
+                                  deleteTrendMutation.variables === t.id
+                                }
                               >
-                                <Trash2 className="h-3.5 w-3.5" />
+                                {deleteTrendMutation.isPending &&
+                                deleteTrendMutation.variables === t.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
                               </Button>
                             </TableCell>
                           </TableRow>
