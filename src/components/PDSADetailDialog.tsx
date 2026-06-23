@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -139,6 +139,16 @@ export default function PDSADetailDialog({
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskRole, setNewTaskRole] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date>();
+  const [actualOutcomeDraft, setActualOutcomeDraft] = useState<string>(cycle?.actual_outcome || "");
+  const [decisionDraft, setDecisionDraft] = useState<string>(
+    (cycle?.next_cycle_decision || cycle?.decision || "").toLowerCase(),
+  );
+
+  // Reset drafts whenever a different cycle is opened
+  useEffect(() => {
+    setActualOutcomeDraft(cycle?.actual_outcome || "");
+    setDecisionDraft((cycle?.next_cycle_decision || cycle?.decision || "").toLowerCase());
+  }, [cycle?.id, cycle?.actual_outcome, cycle?.next_cycle_decision, cycle?.decision]);
 
   const { data: cycleTasks = [] } = useQuery({
     queryKey: ["tasks", organization.id, cycle?.id],
@@ -274,18 +284,24 @@ export default function PDSADetailDialog({
   };
 
   const handleComplete = async () => {
-    const actual = (cycle.actual_outcome || "").trim();
+    const actual = actualOutcomeDraft.trim();
     if (!actual) {
       toast.error("Add an Actual Outcome on the Analyze tab before marking the cycle completed.");
       return;
     }
-    const decision = (cycle.next_cycle_decision || "").toLowerCase();
+    const decision = decisionDraft.toLowerCase();
     if (!["adopt", "adapt", "abandon"].includes(decision)) {
       toast.error("Pick a Next-Cycle Decision (Adopt, Adapt, or Abandon) before marking the cycle completed.");
       return;
     }
+    const decisionLabel = decision.charAt(0).toUpperCase() + decision.slice(1);
     try {
-      await updateCycle.mutateAsync({ status: "completed" });
+      await updateCycle.mutateAsync({
+        status: "completed",
+        actual_outcome: actual,
+        next_cycle_decision: decision,
+        decision: decisionLabel,
+      });
       toast.success("Cycle marked as completed");
       onClose();
     } catch {
@@ -577,7 +593,8 @@ export default function PDSADetailDialog({
             <div className="space-y-2">
               <Label>Actual Outcome *</Label>
               <Textarea
-                defaultValue={cycle.actual_outcome || ""}
+                value={actualOutcomeDraft}
+                onChange={(e) => setActualOutcomeDraft(e.target.value)}
                 onBlur={(e) => handleBlurUpdate("actual_outcome", e.target.value)}
                 placeholder="What measurable result did you see? Required to mark the cycle completed."
                 rows={2}
@@ -640,7 +657,7 @@ export default function PDSADetailDialog({
               <div className="grid grid-cols-3 gap-3">
                 {DECISION_OPTIONS.map((opt) => {
                   const value = opt.value.toLowerCase();
-                  const selected = (cycle.next_cycle_decision || cycle.decision?.toLowerCase()) === value;
+                  const selected = decisionDraft === value;
                   return (
                     <button
                       key={opt.value}
@@ -649,9 +666,10 @@ export default function PDSADetailDialog({
                         opt.color,
                         selected && "ring-2 ring-primary",
                       )}
-                      onClick={() =>
-                        updateCycle.mutate({ next_cycle_decision: value, decision: opt.value })
-                      }
+                      onClick={() => {
+                        setDecisionDraft(value);
+                        updateCycle.mutate({ next_cycle_decision: value, decision: opt.value });
+                      }}
                     >
                       <div className="flex items-center gap-2">
                         <opt.icon className="h-4 w-4" />
