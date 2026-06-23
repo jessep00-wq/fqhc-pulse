@@ -1,33 +1,36 @@
-## Problem
+## Plan
 
-In `src/components/PDSADetailDialog.tsx`, `handleComplete` fires three things synchronously:
+I’ll fix the remaining PDSA completion errors in `src/components/PDSADetailDialog.tsx` only.
 
-```ts
-updateCycle.mutate({ status: "completed" });
-toast.success("Cycle marked as completed");
-onClose();
-```
+### What’s going wrong
 
-Because `mutate` is fire-and-forget, the success toast and dialog close run even when the database update fails. When it does fail, the mutation's `onError` then shows a second toast. The user sees two conflicting messages (one success, one cryptic error like "Other: null") and the dialog disappears before they can correct anything.
+The dialog saves fields like **Actual Outcome** on blur and the **Next-Cycle Decision** with an async mutation. When the user immediately clicks **Mark Completed**, the local `cycle` prop can still contain the old values while those auto-save requests are still in flight. That means the completion handler may think required fields are missing, or may submit `status: completed` before the required fields have actually reached the database.
 
-The error itself is unhelpful because `toast.error(err.message || "Failed to update")` falls back to whatever Supabase put in `.message` — for a check-constraint or RLS rejection that string can be empty or just a code, producing the "Other: null" text the user is seeing.
+### Fix
 
-## Fix
+1. **Track draft form values locally**
+   - Add local state for `actual_outcome` and `next_cycle_decision` so validation uses what the user just entered/clicked, not stale server props.
+   - Reset those draft values whenever a different PDSA cycle opens.
 
-Edit only `src/components/PDSADetailDialog.tsx`:
+2. **Submit all completion fields in one update**
+   - When **Mark Completed** is clicked, send one atomic update containing:
+     - `status: "completed"`
+     - `actual_outcome`
+     - `next_cycle_decision`
+     - `decision`
+   - This avoids the race where separate auto-save mutations haven’t finished yet.
 
-1. **Pre-validate before mutating.** Mark Completed requires `actual_outcome` (non-empty) and `next_cycle_decision` (one of `adopt`/`adapt`/`abandon`, matching the DB check constraint `pdsa_cycles_next_decision_chk`). If either is missing, show a single clear toast naming the missing field and return — don't call the mutation.
+3. **Prevent duplicate/conflicting error toasts**
+   - Keep pre-validation for missing Actual Outcome / Decision.
+   - Ensure the completion handler shows either one validation message, one backend error, or one success message — never two conflicting messages.
 
-2. **Await the mutation.** Change `handleComplete` to `async`, call `await updateCycle.mutateAsync({ status: "completed" })` inside a `try/catch`. Only on success show the success toast and call `onClose()`. On failure, do nothing here — let the mutation's `onError` handler show the error toast.
+4. **Disable completion while saving**
+   - Disable **Mark Completed** while the completion mutation is running to prevent double submits.
 
-3. **Render a useful error message.** Update `updateCycle`'s `onError` (and the matching one on `createTask`) to surface Supabase's richer fields: prefer `err.message`, then fall back to `(err as any).details`, `(err as any).hint`, or `(err as any).code` before the generic "Failed to update" string. This eliminates the "Other: null" output when `message` is empty.
+### Verification
 
-4. **Disable the Mark Completed button while the mutation is in flight** (`disabled={updateCycle.isPending}`) so users can't double-submit.
-
-No schema or backend changes. No other files touched.
-
-## Verification
-
-- Run the existing Playwright repro: open `/dashboard/pdsa-lab`, open the "Improve Cervical Cancer" card, go to the Decide tab, click **Mark Completed** without filling Actual Outcome → expect exactly one toast naming the missing field, dialog stays open.
-- Fill Actual Outcome + pick a decision → click **Mark Completed** → expect one success toast, dialog closes, card moves to Completed.
-- Confirm no duplicate toasts and no "Other: null" string in either flow.
+- Open `/dashboard/pdsa-lab`.
+- Open “Improve Cervical Cancer”.
+- Enter Actual Outcome, choose Adopt/Adapt/Abandon, immediately click **Mark Completed**.
+- Confirm the dialog closes with one success toast and the card moves to Completed.
+- Confirm no remaining duplicate errors appear.
