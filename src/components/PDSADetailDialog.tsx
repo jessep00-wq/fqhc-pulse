@@ -139,6 +139,16 @@ export default function PDSADetailDialog({
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskRole, setNewTaskRole] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date>();
+  const [actualOutcomeDraft, setActualOutcomeDraft] = useState<string>(cycle?.actual_outcome || "");
+  const [decisionDraft, setDecisionDraft] = useState<string>(
+    (cycle?.next_cycle_decision || cycle?.decision || "").toLowerCase(),
+  );
+
+  // Reset drafts whenever a different cycle is opened
+  useEffect(() => {
+    setActualOutcomeDraft(cycle?.actual_outcome || "");
+    setDecisionDraft((cycle?.next_cycle_decision || cycle?.decision || "").toLowerCase());
+  }, [cycle?.id, cycle?.actual_outcome, cycle?.next_cycle_decision, cycle?.decision]);
 
   const { data: cycleTasks = [] } = useQuery({
     queryKey: ["tasks", organization.id, cycle?.id],
