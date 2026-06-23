@@ -171,6 +171,10 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Helmet>
+        <title>Set up your organization — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <Card className="w-full max-w-2xl">
         <CardHeader className="text-center space-y-3">
           <Logo size="md" className="justify-center" />

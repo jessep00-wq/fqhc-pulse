@@ -613,6 +613,10 @@ export default function AuditBinder() {
 
   return (
     <div className="space-y-6 p-6">
+      <Helmet>
+        <title>Audit Binder — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Audit Binder</h1>

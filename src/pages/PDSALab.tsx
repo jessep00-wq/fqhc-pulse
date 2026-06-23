@@ -983,6 +983,10 @@ export default function PDSALab() {
 
   return (
     <TooltipProvider delayDuration={200}>
+      <Helmet>
+        <title>PDSA Lab — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>

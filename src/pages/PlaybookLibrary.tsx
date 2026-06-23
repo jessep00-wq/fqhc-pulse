@@ -120,6 +120,10 @@ export default function PlaybookLibrary() {
 
   return (
     <div className="p-6 space-y-6">
+      <Helmet>
+        <title>Playbook Library — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <div>
         <h1 className="text-2xl font-bold tracking-tight">UDS & ACO Playbook Library</h1>
         <p className="text-muted-foreground">Pre-mapped workflow templates for common FQHC challenges</p>

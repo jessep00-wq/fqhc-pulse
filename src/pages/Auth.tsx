@@ -152,6 +152,13 @@ export default function Auth() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Helmet>
+        <title>
+          {showForgot ? "Reset password — MeasureWise" : isLogin ? "Sign in — MeasureWise" : "Create your MeasureWise account"}
+        </title>
+        <meta name="description" content="Sign in to MeasureWise — quality improvement and HRSA audit readiness for FQHCs." />
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <h1 className="sr-only">
         {showForgot ? "Reset your MeasureWise password" : isLogin ? "Sign in to MeasureWise" : "Create your MeasureWise account"}
       </h1>
