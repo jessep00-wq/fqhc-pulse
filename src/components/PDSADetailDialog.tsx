@@ -673,8 +673,8 @@ export default function PDSADetailDialog({
               />
             </div>
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleComplete} className="bg-success hover:bg-success/90 text-success-foreground">
-                <CheckCircle2 className="h-4 w-4 mr-1" />
+              <Button onClick={handleComplete} disabled={updateCycle.isPending} className="bg-success hover:bg-success/90 text-success-foreground">
+                {updateCycle.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-1" />}
                 Mark Completed
               </Button>
               <Button variant="outline" onClick={() => cloneCycle.mutate()} disabled={cloneCycle.isPending}>
