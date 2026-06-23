@@ -58,7 +58,9 @@ export default function ManualLanding() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0F172A] text-[#F8FAFC] font-sans antialiased">
+    // Audit fix 33: clip oversized decorative blobs (w-[800px]/w-[600px])
+    // so they don't bloat mobile paint area or trigger horizontal scroll.
+    <div className="min-h-screen overflow-x-hidden bg-[#0F172A] text-[#F8FAFC] font-sans antialiased">
       <link
         href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap"
         rel="stylesheet"

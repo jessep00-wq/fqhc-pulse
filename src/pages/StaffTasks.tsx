@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -359,6 +360,10 @@ export default function StaffTasks() {
 
   return (
     <div className="p-6 space-y-6">
+      <Helmet>
+        <title>Staff Tasks — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Staff Accountability & Task Routing</h1>

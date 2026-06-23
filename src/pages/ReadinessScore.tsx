@@ -94,12 +94,14 @@ export default function ReadinessScore() {
       trackEvent("readiness_email_captured", { tier: computed.tier, score: computed.total });
       setStep("result");
 
-      // Fire-and-forget email send.
+      // Fire-and-forget email send. Audit fix 35: dev-only logging.
       supabase.functions
         .invoke("send-readiness-report", { body: { submissionId: data.id } })
-        .catch((err) => console.warn("readiness report email failed", err));
+        .catch((err) => {
+          if (import.meta.env.DEV) console.warn("readiness report email failed", err);
+        });
     } catch (err) {
-      console.error(err);
+      if (import.meta.env.DEV) console.error(err);
       toast({
         title: "Something went wrong",
         description: "We couldn't save your score. Please try again.",

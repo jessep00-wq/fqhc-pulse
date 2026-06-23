@@ -31,10 +31,13 @@ export function PDSAFilters({ measures, roles, value, onChange, onClear }: Props
     value.stalledOnly ||
     value.sort !== "newest";
 
+  // Audit fix 34: fixed widths overflow narrow viewports — make each
+  // control full-width on mobile and capped at the previous fixed width
+  // on sm+.
   return (
     <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-card px-3 py-2">
       <Select value={value.measure} onValueChange={(v) => onChange({ measure: v })}>
-        <SelectTrigger className="h-8 w-[180px] text-xs">
+        <SelectTrigger className="h-8 w-full sm:w-[180px] text-xs">
           <SelectValue placeholder="CMS measure" />
         </SelectTrigger>
         <SelectContent>
@@ -48,7 +51,7 @@ export function PDSAFilters({ measures, roles, value, onChange, onClear }: Props
       </Select>
 
       <Select value={value.role} onValueChange={(v) => onChange({ role: v })}>
-        <SelectTrigger className="h-8 w-[160px] text-xs">
+        <SelectTrigger className="h-8 w-full sm:w-[160px] text-xs">
           <SelectValue placeholder="Assigned role" />
         </SelectTrigger>
         <SelectContent>
@@ -75,7 +78,7 @@ export function PDSAFilters({ measures, roles, value, onChange, onClear }: Props
         value={value.sort}
         onValueChange={(v) => onChange({ sort: v as PdsaFilterState["sort"] })}
       >
-        <SelectTrigger className="h-8 w-[150px] text-xs ml-auto">
+        <SelectTrigger className="h-8 w-full sm:w-[150px] text-xs sm:ml-auto">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

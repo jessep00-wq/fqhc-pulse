@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Helmet } from "react-helmet-async";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
@@ -103,6 +104,10 @@ export default function AIGovernance() {
 
   return (
     <div className="space-y-6">
+      <Helmet>
+        <title>AI Governance — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <PageHeader
         title={<span className="flex items-center gap-2"><ShieldCheck className="h-6 w-6 text-primary" /> AI Governance</span>}
         description="Operationalize the NIST AI Risk Management Framework: trustworthy AI with documented evidence."

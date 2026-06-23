@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,6 +83,10 @@ export default function AIAssistant() {
 
   return (
     <div className="p-6 h-[calc(100vh-3.5rem)] flex flex-col">
+      <Helmet>
+        <title>AI Quality Assistant — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       <div className="mb-4">
         <h1 className="text-2xl font-bold tracking-tight flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-primary" />

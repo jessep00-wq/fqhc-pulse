@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -177,6 +178,10 @@ export default function NetworkDashboard() {
 
   return (
     <div className="p-6 space-y-6">
+      <Helmet>
+        <title>Network Dashboard — MeasureWise</title>
+        <meta name="robots" content="noindex,nofollow" />
+      </Helmet>
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
@@ -190,7 +195,8 @@ export default function NetworkDashboard() {
         </div>
         <div className="flex items-center gap-3 flex-wrap">
           <Select value={selectedSite} onValueChange={setSelectedSite}>
-            <SelectTrigger className="w-[200px]">
+            {/* Audit fix 32: full-width on mobile so the trigger never overflows. */}
+            <SelectTrigger className="w-full sm:w-[200px]">
               <SelectValue placeholder="All Sites" />
             </SelectTrigger>
             <SelectContent>

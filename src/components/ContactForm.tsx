@@ -137,7 +137,9 @@ export default function ContactForm() {
       setSent(true);
       toast.success("Message sent! Check your inbox for a confirmation.");
     } catch (err) {
-      console.error("Contact form error:", err);
+      // Audit fix 35: dev-only logging — production should fail silently
+      // to the user-facing toast below.
+      if (import.meta.env.DEV) console.error("Contact form error:", err);
       toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);

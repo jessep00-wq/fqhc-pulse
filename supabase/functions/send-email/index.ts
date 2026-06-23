@@ -9,6 +9,29 @@ const corsHeaders = {
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
 
+// Audit fix 42: per-user rate limit (in-memory, per edge-function instance).
+// Defends against runaway client loops and credential abuse beyond Resend's
+// own defaults. Limit: 20 sends per rolling 60 minutes per authenticated
+// user id. State is best-effort — instance recycling resets counters, which
+// is acceptable for this defensive layer.
+const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
+const sendHistory = new Map<string, number[]>();
+
+function checkRateLimit(userId: string): { ok: boolean; retryAfterSec: number } {
+  const now = Date.now();
+  const cutoff = now - RATE_LIMIT_WINDOW_MS;
+  const history = (sendHistory.get(userId) ?? []).filter((t) => t > cutoff);
+  if (history.length >= RATE_LIMIT_MAX) {
+    const retryAfterSec = Math.max(1, Math.ceil((history[0] + RATE_LIMIT_WINDOW_MS - now) / 1000));
+    sendHistory.set(userId, history);
+    return { ok: false, retryAfterSec };
+  }
+  history.push(now);
+  sendHistory.set(userId, history);
+  return { ok: true, retryAfterSec: 0 };
+}
+
 interface EmailPayload {
   to: string;
   subject: string;
@@ -46,6 +69,23 @@ serve(async (req) => {
       });
     }
     // --- End auth check ---
+
+    // Audit fix 42: per-user rate limit before any provider call.
+    const rl = checkRateLimit(user.id);
+    if (!rl.ok) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please slow down and try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(rl.retryAfterSec),
+          },
+        }
+      );
+    }
+
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
