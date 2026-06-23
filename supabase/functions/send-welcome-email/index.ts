@@ -155,6 +155,12 @@ Deno.serve(async (req) => {
       recipient_email: email,
       status: "sent",
     });
+    // Mark the profile so the client can skip re-invoking on every login
+    // (cross-device dedup; localStorage was per-browser).
+    await supabase
+      .from("profiles")
+      .update({ welcome_email_sent_at: new Date().toISOString() })
+      .eq("id", parsed.data.user_id);
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,

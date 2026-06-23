@@ -1250,6 +1250,7 @@ export type Database = {
           last_login_at: string | null
           organization_id: string | null
           staff_role: string | null
+          welcome_email_sent_at: string | null
         }
         Insert: {
           created_at?: string
@@ -1260,6 +1261,7 @@ export type Database = {
           last_login_at?: string | null
           organization_id?: string | null
           staff_role?: string | null
+          welcome_email_sent_at?: string | null
         }
         Update: {
           created_at?: string
@@ -1270,6 +1272,7 @@ export type Database = {
           last_login_at?: string | null
           organization_id?: string | null
           staff_role?: string | null
+          welcome_email_sent_at?: string | null
         }
         Relationships: [
           {

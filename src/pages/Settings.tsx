@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, useCallback } from "react";
+import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -82,11 +82,15 @@ export default function Settings() {
   const [staffRole, setStaffRole] = useState("");
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  if (profile && !profileLoaded) {
-    setFullName(profile.full_name || "");
-    setStaffRole(profile.staff_role || "");
-    setProfileLoaded(true);
-  }
+  // Audit fix 29: hydrate from profile inside an effect rather than mutating
+  // state during the render body (Strict-Mode double-render bug).
+  useEffect(() => {
+    if (profile && !profileLoaded) {
+      setFullName(profile.full_name || "");
+      setStaffRole(profile.staff_role || "");
+      setProfileLoaded(true);
+    }
+  }, [profile, profileLoaded]);
 
   const profileMutation = useMutation({
     mutationFn: async () => {
@@ -123,11 +127,13 @@ export default function Settings() {
   const [orgNpi, setOrgNpi] = useState(organization.npi);
   const [orgLoaded, setOrgLoaded] = useState(false);
 
-  if (organization.id && !orgLoaded && organization.name !== "Loading...") {
-    setOrgName(organization.name);
-    setOrgNpi(organization.npi);
-    setOrgLoaded(true);
-  }
+  useEffect(() => {
+    if (organization.id && !orgLoaded && organization.name !== "Loading...") {
+      setOrgName(organization.name);
+      setOrgNpi(organization.npi);
+      setOrgLoaded(true);
+    }
+  }, [organization.id, organization.name, organization.npi, orgLoaded]);
 
   const npiTrimmed = orgNpi.trim();
   const isValidNpi = /^\d{10}$/.test(npiTrimmed);
@@ -588,9 +594,17 @@ export default function Settings() {
                                 size="icon"
                                 className="h-7 w-7 text-destructive hover:text-destructive"
                                 onClick={() => deleteTrendMutation.mutate(t.id)}
-                                disabled={deleteTrendMutation.isPending}
+                                disabled={
+                                  deleteTrendMutation.isPending &&
+                                  deleteTrendMutation.variables === t.id
+                                }
                               >
-                                <Trash2 className="h-3.5 w-3.5" />
+                                {deleteTrendMutation.isPending &&
+                                deleteTrendMutation.variables === t.id ? (
+                                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                )}
                               </Button>
                             </TableCell>
                           </TableRow>

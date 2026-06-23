@@ -40,7 +40,7 @@ const TIMEZONES = [
 type DataMode = "demo" | "live";
 
 export default function Onboarding() {
-  const { user } = useAuth();
+  const { user, session, loading: authLoading } = useAuth();
   const { hasOrg, loading: orgLoading } = useOrg();
   const navigate = useNavigate();
 
@@ -65,13 +65,16 @@ export default function Onboarding() {
   const [dataMode, setDataMode] = useState<DataMode>("demo");
   const [acknowledged, setAcknowledged] = useState(false);
 
-  if (orgLoading) {
+  if (authLoading || orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
+  // Audit fix 21: onboarding lives at a public route — explicitly bounce
+  // unauthenticated visitors to /auth instead of silently no-op'ing on submit.
+  if (!session) return <Navigate to="/auth" replace />;
   if (hasOrg) return <Navigate to="/dashboard" replace />;
 
   const step1Valid =
@@ -108,7 +111,12 @@ export default function Onboarding() {
         .from("profiles")
         .update({ organization_id: orgId })
         .eq("id", user.id);
-      if (profileError) throw profileError;
+      if (profileError) {
+        // Audit fix 26: roll back the orphan org row so the user can retry
+        // without colliding with their own per-owner cap (item 14).
+        await supabase.from("organizations").delete().eq("id", orgId);
+        throw profileError;
+      }
 
       if (dataMode === "demo") {
         await supabase.rpc("seed_demo_data", { org_id: orgId });

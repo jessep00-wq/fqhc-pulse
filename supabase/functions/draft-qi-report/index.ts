@@ -32,6 +32,23 @@ serve(async (req) => {
       });
     }
 
+    // Audit item 16: block AI generation for locked/expired-trial orgs.
+    const { data: profileRow } = await supabase
+      .from("profiles")
+      .select("organization_id")
+      .eq("id", user.id)
+      .maybeSingle();
+    const orgId = profileRow?.organization_id as string | null | undefined;
+    if (orgId) {
+      const { data: status } = await supabase.rpc("org_access_status", { _org_id: orgId });
+      if (status === "locked") {
+        return new Response(
+          JSON.stringify({ error: "Subscription required to draft QI reports with AI." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+
     const body = await req.json();
     const orgName = String(body.orgName ?? "Health Center").slice(0, 200);
     const periodLabel = String(body.periodLabel ?? "Quarter").slice(0, 50);

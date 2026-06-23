@@ -35,6 +35,24 @@ serve(async (req) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+
+    // Gate AI on subscription status — locked/expired-trial orgs should not
+    // be able to consume AI quota (audit item 16).
+    const { data: profileRow } = await supabase
+      .from("profiles")
+      .select("organization_id")
+      .eq("id", user.id)
+      .maybeSingle();
+    const orgId = profileRow?.organization_id as string | null | undefined;
+    if (orgId) {
+      const { data: status } = await supabase.rpc("org_access_status", { _org_id: orgId });
+      if (status === "locked") {
+        return new Response(
+          JSON.stringify({ error: "Subscription required to use the AI assistant." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
     // --- End auth check ---
 
     const body = await req.json();
