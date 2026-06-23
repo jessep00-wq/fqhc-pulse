@@ -244,6 +244,7 @@ export default function PDSADetailDialog({
       toast.success("New cycle created from current");
       onClose();
     },
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to clone cycle")),
   });
 
   const { data: orgProfiles = [] } = useQuery({
