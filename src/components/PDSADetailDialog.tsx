@@ -155,6 +155,17 @@ export default function PDSADetailDialog({
 
   type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at">>;
 
+  const formatSupabaseError = (err: unknown, fallback: string) => {
+    const e = err as { message?: string | null; details?: string | null; hint?: string | null; code?: string | null };
+    return (
+      (e?.message && e.message.trim()) ||
+      (e?.details && e.details.trim()) ||
+      (e?.hint && e.hint.trim()) ||
+      (e?.code && `Error code: ${e.code}`) ||
+      fallback
+    );
+  };
+
   const updateCycle = useMutation({
     mutationFn: async (updates: CycleUpdate) => {
       const { error } = await supabase
@@ -164,7 +175,7 @@ export default function PDSADetailDialog({
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] }),
-    onError: (err: Error) => toast.error(err.message || "Failed to update"),
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to update")),
   });
 
   const createTask = useMutation({
@@ -183,7 +194,7 @@ export default function PDSADetailDialog({
       setNewTaskDate(undefined);
       toast.success("Task added");
     },
-    onError: (err: Error) => toast.error(err.message || "Failed to add task"),
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to add task")),
   });
 
   type TaskUpdate = Partial<Omit<DialogTask, "id">>;
@@ -262,10 +273,24 @@ export default function PDSADetailDialog({
     });
   };
 
-  const handleComplete = () => {
-    updateCycle.mutate({ status: "completed" });
-    toast.success("Cycle marked as completed");
-    onClose();
+  const handleComplete = async () => {
+    const actual = (cycle.actual_outcome || "").trim();
+    if (!actual) {
+      toast.error("Add an Actual Outcome on the Analyze tab before marking the cycle completed.");
+      return;
+    }
+    const decision = (cycle.next_cycle_decision || "").toLowerCase();
+    if (!["adopt", "adapt", "abandon"].includes(decision)) {
+      toast.error("Pick a Next-Cycle Decision (Adopt, Adapt, or Abandon) before marking the cycle completed.");
+      return;
+    }
+    try {
+      await updateCycle.mutateAsync({ status: "completed" });
+      toast.success("Cycle marked as completed");
+      onClose();
+    } catch {
+      // updateCycle.onError already surfaces the error toast
+    }
   };
 
   const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
@@ -648,8 +673,8 @@ export default function PDSADetailDialog({
               />
             </div>
             <div className="flex gap-2 pt-2">
-              <Button onClick={handleComplete} className="bg-success hover:bg-success/90 text-success-foreground">
-                <CheckCircle2 className="h-4 w-4 mr-1" />
+              <Button onClick={handleComplete} disabled={updateCycle.isPending} className="bg-success hover:bg-success/90 text-success-foreground">
+                {updateCycle.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <CheckCircle2 className="h-4 w-4 mr-1" />}
                 Mark Completed
               </Button>
               <Button variant="outline" onClick={() => cloneCycle.mutate()} disabled={cloneCycle.isPending}>
