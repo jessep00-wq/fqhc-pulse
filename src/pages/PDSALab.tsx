@@ -855,6 +855,11 @@ export default function PDSALab() {
         logActivity(organization.id, `PDSA cycle "${result.title}" moved to ${phase}`, result.status === "completed" ? "success" : "info");
       }
     },
+    onError: (err: Error) => {
+      toast.error(err?.message || "Couldn't move cycle. Reverting…");
+      // Refetch so the Kanban snaps back to the server's truth.
+      queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+    },
   });
 
   const createCycle = useMutation({
