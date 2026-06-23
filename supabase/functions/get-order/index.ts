@@ -48,6 +48,28 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Audit fix 39: if the caller is authenticated, ensure their verified
+    // email matches the order's customer_email. Anonymous callers (the
+    // typical Stripe-redirect case) still get the masked-email response,
+    // but a signed-in user with a different email is blocked from
+    // confirming whether an arbitrary sessionId exists.
+    const authHeader = req.headers.get("Authorization");
+    if (authHeader?.startsWith("Bearer ")) {
+      const userClient = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_ANON_KEY")!,
+        { global: { headers: { Authorization: authHeader } } },
+      );
+      const { data: { user } } = await userClient.auth.getUser();
+      if (user?.email && order.customer_email &&
+          user.email.toLowerCase() !== order.customer_email.toLowerCase()) {
+        return new Response(JSON.stringify({ error: "Forbidden" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+
     // Look up names of purchased items (display only, no file paths).
     const names: string[] = [];
     if (order.product_ids?.length) {
