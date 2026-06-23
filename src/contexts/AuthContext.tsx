@@ -27,18 +27,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Server-verify identity. session.user is decoded from the local JWT and
-        // must not be trusted for authorization decisions. getUser() round-trips
-        // to the Auth server and returns the canonical user record.
+        // IMPORTANT: never await or call other supabase.auth.* methods synchronously
+        // inside this callback — gotrue-js holds the auth lock for the duration of
+        // the callback, and a nested getUser()/getSession() will deadlock until the
+        // lock is force-stolen, producing an unhandled AbortError. Defer all
+        // supabase work to a microtask via setTimeout(..., 0).
+
         if (session) {
-          supabase.auth.getUser().then(({ data, error }) => {
-            if (error || !data?.user) {
-              // Token rejected by server — drop the unverified user.
-              setUser(null);
-              return;
-            }
-            setUser(data.user);
-          });
+          setTimeout(() => {
+            // Server-verify identity. session.user is decoded from the local JWT
+            // and must not be trusted for authorization decisions.
+            supabase.auth
+              .getUser()
+              .then(({ data, error }) => {
+                if (error || !data?.user) {
+                  setUser(null);
+                  return;
+                }
+                setUser(data.user);
+              })
+              .catch(() => {
+                // Swallow lock-steal aborts and transient network errors —
+                // the next auth event will re-verify.
+              });
+          }, 0);
         }
 
         // Track login event and update last_login_at
@@ -50,26 +62,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: session.user.email,
           });
           const userId = session.user.id;
-          supabase
-            .from("profiles")
-            .update({ last_login_at: new Date().toISOString() })
-            .eq("id", userId)
-            .then(() => {});
+          setTimeout(() => {
+            supabase
+              .from("profiles")
+              .update({ last_login_at: new Date().toISOString() })
+              .eq("id", userId)
+              .then(
+                () => {},
+                () => {},
+              );
 
-          // Send welcome email exactly once per user. Set the localStorage flag
-          // only after the function call resolves successfully, so a crash or
-          // network failure doesn't permanently suppress the email.
-          const welcomeKey = `mw_welcome_sent_${userId}`;
-          if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
-            supabase.functions
-              .invoke("send-welcome-email", { body: { user_id: userId } })
-              .then(({ error }) => {
-                if (!error) window.localStorage.setItem(welcomeKey, "1");
-              })
-              .catch(() => {
-                // Swallow — flag not set, so a retry happens on next login.
-              });
-          }
+            // Send welcome email exactly once per user. Set the localStorage flag
+            // only after the function call resolves successfully, so a crash or
+            // network failure doesn't permanently suppress the email.
+            const welcomeKey = `mw_welcome_sent_${userId}`;
+            if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+              supabase.functions
+                .invoke("send-welcome-email", { body: { user_id: userId } })
+                .then(({ error }) => {
+                  if (!error) window.localStorage.setItem(welcomeKey, "1");
+                })
+                .catch(() => {
+                  // Swallow — flag not set, so a retry happens on next login.
+                });
+            }
+          }, 0);
         }
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
