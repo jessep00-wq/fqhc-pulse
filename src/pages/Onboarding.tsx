@@ -42,6 +42,7 @@ type DataMode = "demo" | "live";
 export default function Onboarding() {
   const { user } = useAuth();
   const { hasOrg, loading: orgLoading } = useOrg();
+  const navigate = useNavigate();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [loading, setLoading] = useState(false);
