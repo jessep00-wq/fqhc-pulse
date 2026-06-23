@@ -70,6 +70,23 @@ serve(async (req) => {
     }
     // --- End auth check ---
 
+    // Audit fix 42: per-user rate limit before any provider call.
+    const rl = checkRateLimit(user.id);
+    if (!rl.ok) {
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. Please slow down and try again later." }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            "Content-Type": "application/json",
+            "Retry-After": String(rl.retryAfterSec),
+          },
+        }
+      );
+    }
+
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
