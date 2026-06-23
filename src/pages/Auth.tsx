@@ -55,15 +55,21 @@ export default function Auth() {
     captureFromUrl(searchParams);
   }, [searchParams]);
 
-  if (session && !authLoading && !orgLoading) {
-    return <Navigate to={hasOrg ? "/dashboard" : "/onboarding"} replace />;
-  }
+  // While auth or org state is still resolving for a signed-in visitor,
+  // show a spinner instead of rendering the auth form (avoids flash).
   if (session && (authLoading || orgLoading)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+  // Always hand authenticated users off to /dashboard. ProtectedRoute owns
+  // the /onboarding decision — it has a sticky confirmed-org flag and waits
+  // for both auth + org contexts to settle, so we avoid the race where
+  // hasOrg is transiently false right after authLoading flips.
+  if (session && !authLoading && !orgLoading) {
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleLogin = async () => {
