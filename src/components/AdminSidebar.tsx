@@ -41,6 +41,7 @@ const growth = [
 ];
 
 const content = [
+  { title: "Content Ops", url: "/admin/content", icon: Sparkles },
   { title: "Blog", url: "/admin/blog", icon: FileText },
   { title: "Newsletter", url: "/admin/newsletter", icon: Newspaper },
   { title: "Store", url: "/admin/store", icon: ShoppingBag },

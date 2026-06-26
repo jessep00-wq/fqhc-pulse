@@ -61,6 +61,7 @@ import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminReadinessLeads from "./pages/admin/AdminReadinessLeads";
+import AdminContent from "./pages/admin/AdminContent";
 
 // Newsletter pages
 import NewsletterIndex from "./pages/NewsletterIndex";
@@ -206,6 +207,7 @@ const App = () => (
                             <Route path="store" element={<AdminStore />} />
                             <Route path="blog" element={<AdminBlog />} />
                             <Route path="readiness" element={<AdminReadinessLeads />} />
+                            <Route path="content" element={<AdminContent />} />
                             <Route path="waitlist-test" element={<WaitlistTest />} />
                             <Route path="waitlist-status" element={<WaitlistStatus />} />
                             <Route path="account/:orgId" element={<AdminAccountDetail />} />
