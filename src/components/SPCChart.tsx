@@ -85,7 +85,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
                   Math.ceil(ucl + 5),
                 ]),
               ).sort((a, b) => a - b)}
-              tick={(props: { x: number; y: number; payload: { value: number } }) => {
+              tick={((props: any) => {
                 const { x, y, payload } = props;
                 const v = payload.value;
                 const isUcl = Math.abs(v - Number(ucl.toFixed(1))) < 0.05;
@@ -117,7 +117,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
                     {label}
                   </text>
                 );
-              }}
+              }) as any}
             />
             <Tooltip
               contentStyle={{
@@ -146,7 +146,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
               dataKey="value"
               stroke="hsl(var(--primary))"
               strokeWidth={2}
-              dot={(props: { cx: number; cy: number; payload: { month: string; value: number; outOfControl: boolean } }) => {
+              dot={((props: any) => {
                 const { cx, cy, payload } = props;
                 return (
                   <circle
@@ -159,7 +159,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
                     strokeWidth={payload.outOfControl ? 2 : 1}
                   />
                 );
-              }}
+              }) as any}
             />
           </LineChart>
         </ResponsiveContainer>

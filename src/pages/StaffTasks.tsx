@@ -179,7 +179,7 @@ function TaskDetailSheet({ task, open, onClose, cycles }: { task: DBTask; open: 
   const [dueDate, setDueDate] = useState<Date | undefined>(task?.due_date ? new Date(task.due_date) : undefined);
 
   const updateTask = useMutation({
-    mutationFn: async (updates: Partial<DBTask>) => {
+    mutationFn: async (updates: Partial<Omit<DBTask, "pdsa_cycles">>) => {
       const { error } = await supabase.from("tasks").update(updates).eq("id", task.id);
       if (error) throw error;
       return updates;
