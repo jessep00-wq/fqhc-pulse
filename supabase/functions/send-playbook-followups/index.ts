@@ -2,10 +2,11 @@
 // hasn't been reminded yet, sends a soft "did you read it?" nurture email
 // and stamps `reminder_sent_at` to prevent duplicates.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { verifyCronSecret } from "../_shared/verify-cron.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-cron-secret",
 };
 
 const CALENDLY_URL = "https://measurewise.org/contact"; // Replace with real Calendly when ready.
@@ -13,19 +14,20 @@ const CALENDLY_URL = "https://measurewise.org/contact"; // Replace with real Cal
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  // Require shared secret header so only cron can trigger this. Fail closed if unset.
-  const cronSecret = Deno.env.get("CRON_SECRET");
-  if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Require shared secret header so only cron can trigger this. Accept either
+  // the CRON_SECRET env value or the vault-stored copy (via get_cron_secret RPC).
+  const authorized = await verifyCronSecret(req, supabase);
+  if (!authorized) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
-
-  const supabase = createClient(
-    Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
-  );
 
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
 
