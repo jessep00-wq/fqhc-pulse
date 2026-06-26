@@ -427,6 +427,246 @@ export type Database = {
         }
         Relationships: []
       }
+      content_activity_log: {
+        Row: {
+          action: string
+          actor_label: string | null
+          actor_user_id: string | null
+          created_at: string
+          draft_id: string | null
+          id: string
+          payload: Json
+        }
+        Insert: {
+          action: string
+          actor_label?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          draft_id?: string | null
+          id?: string
+          payload?: Json
+        }
+        Update: {
+          action?: string
+          actor_label?: string | null
+          actor_user_id?: string | null
+          created_at?: string
+          draft_id?: string | null
+          id?: string
+          payload?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_activity_log_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "content_drafts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_drafts: {
+        Row: {
+          blog_body_md: string | null
+          blog_cta: string | null
+          blog_excerpt: string | null
+          blog_meta_description: string | null
+          blog_slug: string | null
+          blog_title: string | null
+          created_at: string
+          generated_at: string
+          generation_error: string | null
+          id: string
+          linkedin_post: string | null
+          model: string | null
+          newsletter_body_md: string | null
+          newsletter_subject: string | null
+          published_at: string | null
+          published_blog_id: string | null
+          published_newsletter_id: string | null
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          source_topic_id: string | null
+          status: string
+          topic: string
+          triggered_by: string
+          updated_at: string
+        }
+        Insert: {
+          blog_body_md?: string | null
+          blog_cta?: string | null
+          blog_excerpt?: string | null
+          blog_meta_description?: string | null
+          blog_slug?: string | null
+          blog_title?: string | null
+          created_at?: string
+          generated_at?: string
+          generation_error?: string | null
+          id?: string
+          linkedin_post?: string | null
+          model?: string | null
+          newsletter_body_md?: string | null
+          newsletter_subject?: string | null
+          published_at?: string | null
+          published_blog_id?: string | null
+          published_newsletter_id?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_topic_id?: string | null
+          status?: string
+          topic: string
+          triggered_by?: string
+          updated_at?: string
+        }
+        Update: {
+          blog_body_md?: string | null
+          blog_cta?: string | null
+          blog_excerpt?: string | null
+          blog_meta_description?: string | null
+          blog_slug?: string | null
+          blog_title?: string | null
+          created_at?: string
+          generated_at?: string
+          generation_error?: string | null
+          id?: string
+          linkedin_post?: string | null
+          model?: string | null
+          newsletter_body_md?: string | null
+          newsletter_subject?: string | null
+          published_at?: string | null
+          published_blog_id?: string | null
+          published_newsletter_id?: string | null
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          source_topic_id?: string | null
+          status?: string
+          topic?: string
+          triggered_by?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_drafts_published_blog_id_fkey"
+            columns: ["published_blog_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_drafts_published_newsletter_id_fkey"
+            columns: ["published_newsletter_id"]
+            isOneToOne: false
+            referencedRelation: "newsletters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_drafts_source_topic_id_fkey"
+            columns: ["source_topic_id"]
+            isOneToOne: false
+            referencedRelation: "content_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_settings: {
+        Row: {
+          audience: string
+          banned_phrases: string[]
+          brand_voice_prompt: string
+          created_at: string
+          id: string
+          last_run_at: string | null
+          last_run_error: string | null
+          last_run_status: string | null
+          model: string
+          recipient_email: string
+          reference_urls: Json
+          schedule_cron: string
+          schedule_enabled: boolean
+          schedule_label: string
+          singleton: boolean
+          tone_keywords: string[]
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          banned_phrases?: string[]
+          brand_voice_prompt?: string
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          last_run_error?: string | null
+          last_run_status?: string | null
+          model?: string
+          recipient_email?: string
+          reference_urls?: Json
+          schedule_cron?: string
+          schedule_enabled?: boolean
+          schedule_label?: string
+          singleton?: boolean
+          tone_keywords?: string[]
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          banned_phrases?: string[]
+          brand_voice_prompt?: string
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          last_run_error?: string | null
+          last_run_status?: string | null
+          model?: string
+          recipient_email?: string
+          reference_urls?: Json
+          schedule_cron?: string
+          schedule_enabled?: boolean
+          schedule_label?: string
+          singleton?: boolean
+          tone_keywords?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      content_topics: {
+        Row: {
+          angle: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          priority: number
+          status: string
+          title: string
+          updated_at: string
+          used_at: string | null
+        }
+        Insert: {
+          angle?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          priority?: number
+          status?: string
+          title: string
+          updated_at?: string
+          used_at?: string | null
+        }
+        Update: {
+          angle?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          priority?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          used_at?: string | null
+        }
+        Relationships: []
+      }
       download_log: {
         Row: {
           downloaded_at: string
@@ -741,6 +981,44 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "evidence_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      linkedin_shares: {
+        Row: {
+          created_at: string
+          draft_id: string
+          external_url: string | null
+          id: string
+          notes: string | null
+          shared_at: string
+          shared_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          draft_id: string
+          external_url?: string | null
+          id?: string
+          notes?: string | null
+          shared_at?: string
+          shared_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          draft_id?: string
+          external_url?: string | null
+          id?: string
+          notes?: string | null
+          shared_at?: string
+          shared_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "linkedin_shares_draft_id_fkey"
+            columns: ["draft_id"]
+            isOneToOne: false
+            referencedRelation: "content_drafts"
             referencedColumns: ["id"]
           },
         ]
