@@ -1562,6 +1562,104 @@ export type Database = {
           },
         ]
       }
+      qi_meetings: {
+        Row: {
+          agenda_summary: string[]
+          attendees: string[]
+          chair_name: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          key_decisions: string[]
+          meeting_date: string
+          organization_id: string
+          site_id: string | null
+        }
+        Insert: {
+          agenda_summary?: string[]
+          attendees?: string[]
+          chair_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_decisions?: string[]
+          meeting_date: string
+          organization_id: string
+          site_id?: string | null
+        }
+        Update: {
+          agenda_summary?: string[]
+          attendees?: string[]
+          chair_name?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          key_decisions?: string[]
+          meeting_date?: string
+          organization_id?: string
+          site_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qi_meetings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "qi_meetings_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qi_oversight_roles: {
+        Row: {
+          area: string
+          created_at: string
+          documentation_location: string | null
+          id: string
+          organization_id: string
+          owner_name_override: string | null
+          owner_role: string | null
+          review_frequency: string | null
+          sort_order: number
+        }
+        Insert: {
+          area: string
+          created_at?: string
+          documentation_location?: string | null
+          id?: string
+          organization_id: string
+          owner_name_override?: string | null
+          owner_role?: string | null
+          review_frequency?: string | null
+          sort_order?: number
+        }
+        Update: {
+          area?: string
+          created_at?: string
+          documentation_location?: string | null
+          id?: string
+          organization_id?: string
+          owner_name_override?: string | null
+          owner_role?: string | null
+          review_frequency?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qi_oversight_roles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       qi_report_approvals: {
         Row: {
           approver_name_snapshot: string | null
