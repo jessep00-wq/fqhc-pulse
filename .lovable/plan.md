@@ -1,88 +1,87 @@
-# MeasureWise End-to-End Audit — Findings Only
 
-Four parallel auditors covered: (1) frontend routes/forms/UX, (2) frontend↔backend wiring, (3) Supabase backend (RLS, functions, edge functions, FKs), (4) auth and integrations. No code was changed.
+## Goal
 
----
+Add an AI Content Operations module inside the existing `/admin` console that drafts a blog post + newsletter + LinkedIn snippet every month, routes it through a review/approval queue, then publishes to the existing `blog_posts` and `newsletters` tables. LinkedIn stays manual.
 
-## 🔴 CRITICAL — fix first
+## What gets added
 
-1. **Password reset is broken on PKCE flow** — `src/pages/ResetPassword.tsx:19` only checks `window.location.hash` for `type=recovery`. Supabase v2 default delivers the recovery token via `?code=` query param. The `PASSWORD_RECOVERY` event is never handled in `AuthContext`. Result: legitimate reset links land on "Invalid or expired link."
-2. **`send-email` edge function may be an open relay** — `src/pages/Auth.tsx:120` invokes `send-email` with client-supplied `to`/`subject`/`html`. The backend audit found `send-email` does restrict `to === user.email` ✅, but the frontend pattern lets any authenticated user trigger arbitrary `subject`/`html` payloads to themselves. Plus a **duplicate welcome email** is sent: one from `Auth.tsx:120` and one from `AuthContext.tsx:49` (localStorage-guarded only).
-3. **Cross-org data leak risk in PDSA detail dialog** — `src/components/PDSADetailDialog.tsx:153` (tasks) and `:257` (pdsa_evidence) filter only by `pdsa_cycle_id`, with **no `.eq("organization_id", ...)`** — violates the project's explicit-org-filter rule. Sole guard is RLS.
-4. **Trend chart sort is dead code** — `src/pages/Index.tsx:308` uses `MONTH_ORDER = ["Jan","Feb",…]` but DB months are `"2025-01"` strings. `indexOf` returns `-1` for every row, so months render in insertion order. XAxis also shows raw `YYYY-MM` (no `tickFormatter`).
+### 1. New admin route: `/admin/content`
+Native to the current admin layout (`AdminLayout` + `AdminSidebar`). Reuses founder_admin role guard via `AdminRoute`. New sidebar entry: "Content Ops".
 
----
+Sub-views (single page with tabs to keep IA shallow):
 
-## 🟠 HIGH — security / data / silent failures
+1. **Dashboard** — KPI tiles (Awaiting Review, Drafts This Month, Published YTD, Last Run Status) + "Awaiting Review" list pinned at top.
+2. **Calendar** — month grid showing scheduled run dates, generated drafts, publish dates.
+3. **Review Queue** — list of `pending_review` drafts.
+4. **Review Editor** (drill-in) — 3-column layout: Blog | Newsletter | LinkedIn, each independently editable, with Approve / Reject / Regenerate / Save Draft actions. Meta description + CTA + excerpt edited in the Blog column header.
+5. **Brand Voice / AI Settings** — system prompt, tone descriptors, target audience, banned phrases, reference URLs of prior approved posts (auto-fed into context).
+6. **Topic Library** — CRUD list of upcoming topics/themes; next run pulls the highest-priority unused topic.
+7. **Publishing Log** — read-only feed from `content_activity_log`.
+8. **LinkedIn Share Queue** — approved LinkedIn posts with Copy / Open LinkedIn / Mark Shared buttons. Never auto-posts.
+9. **Automation Settings** — schedule toggle, "1st Monday 09:00 ET" default (editable cron), recipient email (defaults to `jessep_00@hotmail.com`), model (default `openai/gpt-5`), Run Now button.
 
-### Auth / identity
-5. `AuthContext.tsx:26` uses `session.user` (decoded JWT, **unverified**) as trusted identity — never calls `supabase.auth.getUser()`. Same value feeds `useUserRole.ts:16` cache key.
-6. `src/pages/ResetPassword.tsx:25` enforces 6-char min password; signup enforces 8-char + complexity. Users can reset to weaker passwords than signup allows.
+### 2. Database (new tables, minimum set)
 
-### Backend
-7. **`create-checkout` edge function** initializes a service-role Supabase client at module scope before any auth check — risk if auth fence isn't first statement.
-8. **`org_financials` missing FK** to `organizations(id)` — every other org-scoped table has it. Orphan financial rows possible.
+- `content_drafts` — id, organization_id (nullable, MeasureWise-global), topic, status (`generating|pending_review|approved|rejected|published|failed`), blog_title, blog_excerpt, blog_body_md, blog_meta_description, blog_cta, newsletter_subject, newsletter_body_md, linkedin_post, model, source_topic_id, generated_at, reviewed_at, reviewed_by, published_blog_id, published_newsletter_id, rejection_reason.
+- `content_topics` — id, title, angle, priority, status (`queued|used|archived`), notes.
+- `content_settings` — singleton row: schedule_cron, schedule_enabled, recipient_email, model, brand_voice_prompt, audience, tone_keywords, banned_phrases, reference_urls (jsonb).
+- `content_activity_log` — id, draft_id, actor_user_id, action (`generated|edited|approved|rejected|regenerated|published_blog|published_newsletter|linkedin_marked_shared|run_failed`), payload, created_at.
+- `linkedin_shares` — id, draft_id, shared_at, shared_by, external_url (optional manual entry).
 
-### Frontend wiring
-9. **Mutations with no `onError`/toast** (silent failures):
-   - `PDSADetailDialog.tsx:212` `updateTask` (only one on the dialog without an error toast)
-   - `AdminStore.tsx:99` `removePreview` and `:110` `removeFile` — ignore both storage and DB errors, always shows success toast
-10. **Dashboards render `0` during load with no loading/error UI**:
-    - `Index.tsx:234-282` four queries, no `isLoading`/`isError` in JSX
-    - `NetworkDashboard.tsx:33-67` same
-    - `AdminStore.tsx:30-50` raw `useEffect`+`Promise.all` with no error handling at all
-11. **20+ files cast `supabase as unknown as { from: (t: string) => any }`** — entirely bypasses generated types. Top offenders: `QIReportsList`, `QIReportDetail`, `QIReportWizard`, `AuditBinder`, evidence-binder pages, `AIGovernance.tsx`. Schema renames will fail at runtime, not compile.
+All tables RLS-locked to `founder_admin` only via `is_founder_admin(auth.uid())`. Standard GRANTs.
 
----
+### 3. Edge functions
 
-## 🟡 MEDIUM — UX, hardening, hygiene
+- `generate-content-draft` — Lovable AI Gateway call using `openai/gpt-5` with `Output.object` schema (blog_title, excerpt, body_md, meta_description, cta, newsletter_subject, newsletter_body_md, linkedin_post). Inputs: topic from `content_topics` (or override), brand voice + audience from `content_settings`, last 3 approved drafts as reference. Inserts `content_drafts` row, triggers `send-transactional-email` ("draft ready"). Accepts `{ triggered_by: 'cron'|'manual', topic_id? }`. Guarded by `x-cron-secret` header for cron, founder_admin JWT for manual.
+- `publish-content-draft` — on approve: inserts into existing `blog_posts` (status `published`) AND `newsletters` (status `draft` so you send manually from AdminNewsletter). Updates draft status, logs activity.
+- Reuse existing `send-transactional-email` for the "draft ready" notification (new template `content-draft-ready` scaffolded under `_shared/transactional-email-templates/`).
 
-### Backend / RLS
-12. `seed_demo_data()` SECURITY DEFINER has no `is_founder_admin` guard inside (only revoked from anon/public) — `admin_delete_organization` has one; should match.
-13. `get_user_org_id()` not explicitly REVOKEd from `anon`.
-14. `organizations` INSERT policy `WITH CHECK (true)` for any authenticated user — no cap on org creation.
-15. `newsletter_subscribers` and `playbook_leads` open INSERT to `anon` with no email/length CHECK constraints (waitlist_applications has these ✅).
-16. AI edge functions (`ai-root-cause`, `draft-qi-report`) call Lovable AI gateway with no `org_access_status` check — locked/expired-trial orgs can consume AI quota.
-17. CORS `Access-Control-Allow-Origin: "*"` on all browser-facing edge functions.
-18. `profiles.organization_id` FK has no `ON DELETE SET NULL`.
+### 4. Scheduling
 
-### Frontend / wiring
-19. `as any` casts hiding type drift on admin mutations (`ExtendTrialDialog`, `ConvertToPaidDialog`, `EditOrgDialog`, `AdminAccountDetail`).
-20. Cycle clone (`PDSADetailDialog.tsx:220`) and Kanban drag status update (`PDSALab.tsx:844`) — no `onError`. Drag failure leaves UI/DB out of sync silently.
-21. `Onboarding.tsx` is mounted at a public route (`App.tsx:126`) with no `ProtectedRoute`; unauthenticated visitors see the form, submit silently no-ops.
-22. `Auth.tsx:105` `emailRedirectTo` lands on `/` (public landing) instead of `/auth` or `/dashboard` — user must re-login after email confirmation.
-23. Google OAuth `redirect_uri` → `/dashboard` causes onboarding-redirect flash race.
-24. Welcome-email dedup keyed on `localStorage` (`AuthContext.tsx:47`) — fires again on new device / cleared storage. Should be a `profiles.welcome_email_sent` column.
-25. `PostHog` key hardcoded in `src/lib/posthog.ts:3` instead of `VITE_POSTHOG_KEY` — can't rotate without deploy.
-26. `Onboarding.tsx:107` orphans organization row if profile update fails (no rollback).
-27. Missing loading/error states on `AdminAccountDetail` (4 of 5 queries), `TeamInviteSection`, `PDSADetailDialog` tasks query, `StoreIndex`.
-28. `AIAssistant.tsx:67` shows both toast.error AND inline "Sorry…" assistant message on failure — duplicate signal.
-29. `Settings.tsx:85,126` mutates state during render body instead of `useEffect` — Strict-Mode double-render bug.
-30. `Settings.tsx:587` per-row delete buttons not individually disabled while one delete is pending.
+pg_cron job `generate-content-draft-monthly`: cron expression `0 13 1-7 * 1` (1st Monday of month, 13:00 UTC ≈ 09:00 ET; edge function rejects if not the 1st Monday — matches the "1st Monday" rule across DST). Calls edge function with `x-cron-secret` header.
 
----
+Manual "Run now" button calls the same edge function via `supabase.functions.invoke` (JWT-authed) so testing doesn't wait for cron.
 
-## 🔵 LOW — cosmetic / informational
+### 5. Email notification
 
-31. No `<SEO>`/`<title>` on `PDSALab`, `AIAssistant`, `AuditBinder`, `AIGovernance`, `NetworkDashboard`, `PlaybookLibrary`, `StaffTasks`, `Auth`, `Onboarding`, `ResetPassword` (latter should also be `noindex`).
-32. `PDSALab.tsx` Kanban (5 × 220px) and `NetworkDashboard.tsx:149` 200px select — no horizontal scroll wrapper on phones.
-33. `ManualLanding.tsx:124,129` decorative blobs (`w-[800px]`, `w-[600px]`) bloat mobile paint area.
-34. `PDSAFilters.tsx` 150/160/180px selects can overflow narrow viewports.
-35. `NotFound.tsx:8` logs to `console.error` on every 404; `ContactForm.tsx:140`, `BoardReportDialog.tsx:120`, `ReadinessScore.tsx:102` `console.error` raw errors in prod.
-36. `BoardReportDialog.tsx:120` failure path has no user toast.
-37. `AdminRoute.tsx:18` redirects unauthenticated visitors to `/` instead of `/auth` (inconsistent with `ProtectedRoute`).
-38. Auth tokens in `localStorage` (XSS-accessible) — `client.ts:13`. Acceptable but noted for HIPAA-adjacent product.
-39. `StoreSuccess.tsx:34` calls `get-order` with URL-supplied `sessionId` — verify the edge function checks ownership.
-40. `team_invitations` missing UPDATE policy; `activity_log` no UPDATE/DELETE (likely intentional, undocumented).
-41. `CaseStudyRedirect` hardcoded `VALID_SLUGS` set — new case studies require code deploy.
-42. `send-email` has no per-user rate limit beyond Resend defaults.
+New React Email template `content-draft-ready.tsx`. Subject: "MeasureWise draft ready for review — {{title}}". CTA links to `/admin/content/review/{draftId}`. Sent to `jessep_00@hotmail.com` (configurable in Automation Settings).
 
----
+### 6. Reuse / no duplication
 
-## Suggested fix order
+- Same auth, same `AdminRoute`, same `AdminLayout`/`AdminSidebar`, same shadcn primitives.
+- Publishes into existing `blog_posts` (already drives `/blog` + `BlogPostDynamic`) and `newsletters` (drives `/newsletter` + `AdminNewsletter`).
+- No new CMS, no new public surface, no new auth.
 
-1. **Today**: items 1, 2, 3, 4 (auth + cross-org leak + broken chart).
-2. **This week**: 5–11 (identity trust, edge function fence, FK, silent mutations, dashboard loading states).
-3. **Backlog**: medium UX/hardening (12–30) and low-severity polish (31–42).
+### 7. Guardrails (enforced in code)
 
-If you want, in build mode I can take any single section (e.g. "everything CRITICAL" or "all silent-mutation fixes") and implement it as a focused patch.
+- Never auto-publishes — `publish-content-draft` requires `status='approved'` set by an authenticated founder_admin.
+- Never auto-posts to LinkedIn — `linkedin_shares` row only created when user clicks "Mark Shared".
+- All state changes log to `content_activity_log` and surface in Publishing Log + Dashboard.
+- `Run Now` is the only synchronous trigger; cron is the only schedule.
+
+## Out of scope (explicitly)
+
+- No LinkedIn API integration (manual only, per request).
+- No multi-tenant content (MeasureWise-global module; org_id stays null).
+- No image generation for posts in v1 (can add later via Lovable AI image tier).
+
+## Files touched (high-level)
+
+**New**
+- `supabase/migrations/<ts>_content_ops.sql`
+- `supabase/migrations/<ts>_content_ops_cron.sql`
+- `supabase/functions/generate-content-draft/index.ts`
+- `supabase/functions/publish-content-draft/index.ts`
+- `supabase/functions/_shared/transactional-email-templates/content-draft-ready.tsx`
+- `src/pages/admin/AdminContent.tsx` (tabs shell)
+- `src/pages/admin/content/{Dashboard,Calendar,ReviewQueue,ReviewEditor,BrandVoice,TopicLibrary,PublishingLog,LinkedInQueue,AutomationSettings}.tsx`
+- `src/hooks/useContentDrafts.ts`, `useContentSettings.ts`
+
+**Edited**
+- `src/App.tsx` — add `/admin/content` and `/admin/content/review/:id` routes.
+- `src/components/AdminSidebar.tsx` — add "Content Ops" nav item.
+- `supabase/functions/_shared/transactional-email-templates/registry.ts` — register new template.
+
+## Open question deferred
+
+Brand voice prompt and initial topic list are seeded empty; you'll fill them in Brand Voice / Topic Library before the first run. Run Now will still work with placeholder defaults for early testing.
