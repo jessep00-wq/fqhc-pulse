@@ -107,7 +107,7 @@ export default function WaitlistApply() {
               <p>Complete this short application to be considered for a current or upcoming opening. Required fields help qualify fit, timeline, and implementation readiness.</p>
             </div>
 
-            <form className="mw-form" onSubmit={onSubmit}>
+            <form className="mw-form" method="post" onSubmit={onSubmit}>
               {error && <div className="mw-error" role="alert">{error}</div>}
 
               <fieldset>
