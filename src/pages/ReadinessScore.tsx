@@ -192,20 +192,20 @@ export default function ReadinessScore() {
               <form onSubmit={onSubmit} className="mt-6 grid gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="firstName">First name *</Label>
-                  <Input id="firstName" required maxLength={80} value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
+                  <Input id="firstName" name="firstName" required maxLength={80} value={form.firstName} onChange={(e) => setForm((f) => ({ ...f, firstName: e.target.value }))} />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Work email *</Label>
-                  <Input id="email" type="email" required maxLength={254} value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="you@yourhealthcenter.org" />
+                  <Input id="email" name="email" type="email" required maxLength={254} value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="you@yourhealthcenter.org" />
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
                     <Label htmlFor="healthCenter">Health center</Label>
-                    <Input id="healthCenter" maxLength={120} value={form.healthCenter} onChange={(e) => setForm((f) => ({ ...f, healthCenter: e.target.value }))} />
+                    <Input id="healthCenter" name="healthCenter" maxLength={120} value={form.healthCenter} onChange={(e) => setForm((f) => ({ ...f, healthCenter: e.target.value }))} />
                   </div>
                   <div className="grid gap-2">
                     <Label htmlFor="state">State</Label>
-                    <Input id="state" maxLength={4} value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value.toUpperCase() }))} placeholder="MS" />
+                    <Input id="state" name="state" maxLength={4} value={form.state} onChange={(e) => setForm((f) => ({ ...f, state: e.target.value.toUpperCase() }))} placeholder="MS" />
                   </div>
                 </div>
 
