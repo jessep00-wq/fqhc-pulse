@@ -1,36 +1,37 @@
-# Verify Content Ops with Playwright
+## Verify stale-generating fix
 
-Drive the live preview at `localhost:8080` with Playwright (headless Chromium, 1280×1800) using the injected Supabase session, and capture screenshots at each step under `/tmp/browser/content-ops/screenshots/`.
+Read-only verification that the three changes (edge-function `finally` hardening, `reset_stale_generating_drafts()` + pg_cron schedule, one-time cleanup migration) are live and working.
 
-## Steps
+### 1. Confirm the one-time cleanup ran
+- `supabase--read_query`: `SELECT id, status, generation_error, updated_at FROM content_drafts WHERE status = 'generating' OR generation_error ILIKE 'Stale%' OR generation_error ILIKE 'Generation interrupted%' ORDER BY updated_at DESC LIMIT 20;`
+- Expect: the two previously-stuck rows now show `status = 'failed'` with `generation_error = 'Stale: cleaned up on deploy'`, and zero rows still in `generating` older than 5 min.
 
-1. **Auth + load admin**
-   - Restore `LOVABLE_BROWSER_SUPABASE_*` into localStorage, navigate to `/admin/content`, screenshot the landing dashboard.
-   - Confirm header renders ("Content Ops", "AI-assisted" badge, "Run now" button, Last-run badge).
+### 2. Confirm the reaper function + pg_cron schedule exist
+- `supabase--read_query` against `pg_proc` for `reset_stale_generating_drafts` (exists, SECURITY DEFINER, owner ok).
+- `supabase--read_query`: `SELECT jobname, schedule, command, active FROM cron.job WHERE command ILIKE '%reset_stale_generating_drafts%';`
+- Expect: one active job on `*/5 * * * *`.
 
-2. **Tab walkthrough** — click and screenshot each tab, asserting no console errors:
-   - Dashboard, Calendar, Review Queue, Brand Voice, Topic Library, Publishing Log, LinkedIn Share, Automation.
+### 3. Manually invoke the reaper to prove it works
+- `supabase--read_query`: `SELECT public.reset_stale_generating_drafts();` — expect `0` (nothing stale right now).
 
-3. **Automation settings**
-   - Verify the form is pre-populated from `content_ops_settings` (schedule label, cron `0 13 * * 1`, recipient `jessep_00@hotmail.com`, model `openai/gpt-5`).
-   - Toggle and revert the schedule switch to confirm `useUpsertSettings` succeeds (watch network for 2xx on the settings upsert).
+### 4. Simulate a stale row end-to-end
+- `supabase--insert`:
+  1. Insert a synthetic draft: `INSERT INTO content_drafts (status, topic, model, triggered_by, updated_at) VALUES ('generating','__reaper_test__','openai/gpt-5','manual', now() - interval '10 minutes') RETURNING id;`
+  2. Run `SELECT public.reset_stale_generating_drafts();` — expect `1`.
+  3. `SELECT status, generation_error FROM content_drafts WHERE topic = '__reaper_test__';` — expect `failed` / `Stale: generation did not complete in time`.
+  4. Clean up: `DELETE FROM content_drafts WHERE topic = '__reaper_test__';`
 
-4. **Run now → generate-content-draft**
-   - Click "Run now", capture the toast/status, then poll `/admin/content?tab=queue` for a new `pending_review` draft (up to ~60 s).
-   - Open the draft → Review Editor renders title, body, newsletter, LinkedIn copy.
-   - Screenshot the editor.
+### 5. Confirm the edge-function `finally` block is deployed
+- `supabase--curl_edge_functions` `POST /generate-content-draft` with the founder session and `{ "topic": "__finally_test__" }`, but cancel after ~3 s (or let the tool's short timeout kill it) to simulate an interrupted run.
+- Wait 10 s, then `SELECT status, generation_error FROM content_drafts WHERE topic = '__finally_test__' ORDER BY created_at DESC LIMIT 1;`
+- Expect: `failed` with either `Generation interrupted or timed out` (finally branch) or the real AI error — never stuck in `generating`.
+- Delete the test row at the end.
 
-5. **Publishing log + LinkedIn queue**
-   - Confirm activity rows show the run, and LinkedIn queue lists approved/published drafts (likely empty — that's OK, just no crash).
+### 6. Sanity: admin UI still healthy
+- Quick Playwright pass on `/admin/content?tab=queue` to confirm no `generating` badges remain and the LastRunBadge still renders.
 
-6. **Edge-function sanity** (via `supabase--curl_edge_functions` parallel to UI):
-   - `POST /generate-content-draft` and `/publish-content-draft` with the preview session — record status + body.
-   - Pull recent logs for both functions plus `send-playbook-followups` to confirm the cron-secret hardening still returns 401 without the header and 200 with it.
+### Report back
+Pass/fail per step with the exact row counts, cron job row, and edge-function status codes. No code changes, no migrations — purely verification. Any failure stops the run and surfaces evidence before proposing a follow-up fix.
 
-## Report back
-
-Final URL, screenshots saved, console errors (if any), edge-function response codes, and pass/fail per step. If any step fails, stop and surface the exact selector / network / log evidence before proposing a fix.
-
-## Out of scope
-
-No code changes, no DB migrations, no cron edits. Read-only verification only.
+### Out of scope
+Schema changes, new migrations, cron edits, or UI changes.
