@@ -284,5 +284,28 @@ serve(async (req) => {
       last_run_error: msg,
     }).eq("singleton", true);
     return new Response(JSON.stringify({ error: msg }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  } finally {
+    // Safety net: if the row is somehow still 'generating' (e.g. AI call was
+    // cancelled mid-flight before catch could run), mark it failed so it never
+    // gets stuck in the queue forever.
+    try {
+      const { data: current } = await admin
+        .from("content_drafts").select("status").eq("id", draftRow.id).maybeSingle();
+      if (current?.status === "generating") {
+        await admin.from("content_drafts").update({
+          status: "failed",
+          generation_error: "Generation interrupted or timed out",
+        }).eq("id", draftRow.id);
+        await admin.from("content_activity_log").insert({
+          draft_id: draftRow.id,
+          actor_user_id: actorUserId,
+          actor_label: triggeredBy,
+          action: "run_failed",
+          payload: { error: "Generation interrupted or timed out" },
+        });
+      }
+    } catch (finalErr) {
+      console.error("finally cleanup failed", finalErr);
+    }
   }
 });
