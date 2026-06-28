@@ -1,28 +1,36 @@
-# Fix: send-playbook-followups 0% success rate
+# Verify Content Ops with Playwright
 
-## Root cause
+Drive the live preview at `localhost:8080` with Playwright (headless Chromium, 1280×1800) using the injected Supabase session, and capture screenshots at each step under `/tmp/browser/content-ops/screenshots/`.
 
-There are **two** pg_cron jobs hitting `send-playbook-followups`, and one of them is broken:
+## Steps
 
-| jobid | name | headers sent | result |
-|---|---|---|---|
-| 5 | `playbook-followups-daily` (old) | `apikey` only — **no `x-cron-secret`** | function returns 401 Unauthorized → counts as a failed invocation |
-| 15 | `send-playbook-followups-daily` (current) | `apikey` + `x-cron-secret: public.get_cron_secret()` | succeeds |
+1. **Auth + load admin**
+   - Restore `LOVABLE_BROWSER_SUPABASE_*` into localStorage, navigate to `/admin/content`, screenshot the landing dashboard.
+   - Confirm header renders ("Content Ops", "AI-assisted" badge, "Run now" button, Last-run badge).
 
-Both fire on the same `0 14 * * *` schedule, so every day the old job logs a failure next to the new job's success. That's the source of the "0% success" badge — Supabase's metrics view groups by function and the failing invocation dominates.
+2. **Tab walkthrough** — click and screenshot each tab, asserting no console errors:
+   - Dashboard, Calendar, Review Queue, Brand Voice, Topic Library, Publishing Log, LinkedIn Share, Automation.
 
-There's also a latent fragility: the function compares the incoming `x-cron-secret` directly against `Deno.env.get("CRON_SECRET")`. If that env var ever drifts from the vault value returned by `get_cron_secret()` (which job 15 uses), job 15 starts failing too. The other nurture functions already use a shared helper that checks both env and vault.
+3. **Automation settings**
+   - Verify the form is pre-populated from `content_ops_settings` (schedule label, cron `0 13 * * 1`, recipient `jessep_00@hotmail.com`, model `openai/gpt-5`).
+   - Toggle and revert the schedule switch to confirm `useUpsertSettings` succeeds (watch network for 2xx on the settings upsert).
 
-## Changes
+4. **Run now → generate-content-draft**
+   - Click "Run now", capture the toast/status, then poll `/admin/content?tab=queue` for a new `pending_review` draft (up to ~60 s).
+   - Open the draft → Review Editor renders title, body, newsletter, LinkedIn copy.
+   - Screenshot the editor.
 
-1. **Unschedule the stale duplicate cron job** (`jobid = 5`, `playbook-followups-daily`). Keep `jobid = 15` (`send-playbook-followups-daily`) as the single source of truth. Run via `supabase--insert` (cron schema requires elevated privileges and contains the anon key, so it can't go through a public migration).
+5. **Publishing log + LinkedIn queue**
+   - Confirm activity rows show the run, and LinkedIn queue lists approved/published drafts (likely empty — that's OK, just no crash).
 
-2. **Harden `supabase/functions/send-playbook-followups/index.ts`** to use the existing `verifyCronSecret` helper from `supabase/functions/_shared/verify-cron.ts` instead of the inline env-only check. This matches the pattern used by `send-playbook-nurture` and tolerates env↔vault drift.
+6. **Edge-function sanity** (via `supabase--curl_edge_functions` parallel to UI):
+   - `POST /generate-content-draft` and `/publish-content-draft` with the preview session — record status + body.
+   - Pull recent logs for both functions plus `send-playbook-followups` to confirm the cron-secret hardening still returns 401 without the header and 200 with it.
 
-No DB schema changes, no UI changes, no behavior change to the email send itself.
+## Report back
 
-## Verification
+Final URL, screenshots saved, console errors (if any), edge-function response codes, and pass/fail per step. If any step fails, stop and surface the exact selector / network / log evidence before proposing a fix.
 
-- Re-query `cron.job` to confirm only `jobid = 15` remains for this function.
-- Manually invoke the function with the correct `x-cron-secret` header via `supabase--curl_edge_functions` and confirm a 200 response.
-- Tomorrow's run will show one invocation, not two — and it should be green.
+## Out of scope
+
+No code changes, no DB migrations, no cron edits. Read-only verification only.
