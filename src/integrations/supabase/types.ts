@@ -2455,6 +2455,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      reset_stale_generating_drafts: { Args: never; Returns: number }
       seed_demo_data: { Args: { org_id: string }; Returns: undefined }
       slugify: { Args: { input: string }; Returns: string }
     }
