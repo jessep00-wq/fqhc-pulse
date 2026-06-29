@@ -645,8 +645,8 @@ export async function printBinder(input: BinderRenderInput): Promise<void> {
 
   // Wait for fonts and layout
   try {
-    // @ts-expect-error - document.fonts is widely supported
-    if (win.document.fonts?.ready) await win.document.fonts.ready;
+    const fonts = (win.document as Document & { fonts?: { ready?: Promise<unknown> } }).fonts;
+    if (fonts?.ready) await fonts.ready;
   } catch {
     /* ignore */
   }
