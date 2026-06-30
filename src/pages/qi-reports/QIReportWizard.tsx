@@ -257,6 +257,8 @@ export default function QIReportWizard() {
           </Card>
         </>
       )}
+      </>
+      )}
     </div>
   );
 }
