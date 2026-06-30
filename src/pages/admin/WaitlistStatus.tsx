@@ -4,12 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import {
-  Loader2, Mail, ChevronDown, ChevronRight, CheckCircle2, XCircle, Clock,
+  Loader2, Mail, ChevronDown, ChevronRight, CheckCircle2, XCircle, Clock, Trash2,
 } from "lucide-react";
 
 type Attempt = {
@@ -70,9 +75,13 @@ export default function WaitlistStatus() {
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [templateFilter, setTemplateFilter] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Applicant | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -83,6 +92,42 @@ export default function WaitlistStatus() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function deleteOne(id: string) {
+    const { error } = await supabase.rpc("admin_delete_waitlist_application" as any, { _id: id } as any);
+    if (error) throw error;
+  }
+
+  async function handleDeleteSingle() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteOne(deleteTarget.id);
+      toast.success(`Deleted ${deleteTarget.email}`);
+      setApplicants((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+      setSelected((s) => { const n = { ...s }; delete n[deleteTarget.id]; return n; });
+      setDeleteTarget(null);
+    } catch (e) {
+      toast.error(`Delete failed: ${(e as Error).message}`);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleBulkDelete() {
+    const ids = Object.keys(selected).filter((id) => selected[id]);
+    if (!ids.length) return;
+    setDeleting(true);
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      try { await deleteOne(id); ok++; } catch { fail++; }
+    }
+    setApplicants((prev) => prev.filter((a) => !ids.includes(a.id)));
+    setSelected({});
+    setBulkDeleteOpen(false);
+    setDeleting(false);
+    toast[fail ? "warning" : "success"](`Deleted ${ok}${fail ? `, ${fail} failed` : ""}`);
+  }
 
   const templates = useMemo(() => {
     const set = new Set<string>();
@@ -170,6 +215,12 @@ export default function WaitlistStatus() {
             <Button variant="outline" onClick={load} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
             </Button>
+            {Object.values(selected).some(Boolean) && (
+              <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)} disabled={deleting}>
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete {Object.values(selected).filter(Boolean).length}
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
@@ -182,12 +233,23 @@ export default function WaitlistStatus() {
               <table className="w-full text-sm">
                 <thead className="text-left text-muted-foreground border-b">
                   <tr>
+                    <th className="py-2 pr-2 w-6">
+                      <Checkbox
+                        checked={filtered.length > 0 && filtered.every((a) => selected[a.id])}
+                        onCheckedChange={(v) => {
+                          const next = { ...selected };
+                          for (const a of filtered) next[a.id] = !!v;
+                          setSelected(next);
+                        }}
+                      />
+                    </th>
                     <th className="py-2 pr-2 w-6"></th>
                     <th className="py-2 pr-2">Applicant</th>
                     <th className="py-2 pr-2">Step</th>
                     <th className="py-2 pr-2">Attempts</th>
                     <th className="py-2 pr-2">Last attempt</th>
                     <th className="py-2 pr-2">Applied</th>
+                    <th className="py-2 pr-2 w-10"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -200,6 +262,12 @@ export default function WaitlistStatus() {
                           className="border-b last:border-0 cursor-pointer hover:bg-muted/40"
                           onClick={() => setExpanded((s) => ({ ...s, [a.id]: !s[a.id] }))}
                         >
+                          <td className="py-2 pr-2" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              checked={!!selected[a.id]}
+                              onCheckedChange={(v) => setSelected((s) => ({ ...s, [a.id]: !!v }))}
+                            />
+                          </td>
                           <td className="py-2 pr-2">
                             {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           </td>
@@ -221,11 +289,23 @@ export default function WaitlistStatus() {
                           </td>
                           <td className="py-2 pr-2 text-xs">{fmt(a.last_attempt?.created_at)}</td>
                           <td className="py-2 pr-2 text-xs">{fmt(a.created_at)}</td>
+                          <td className="py-2 pr-2" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => setDeleteTarget(a)}
+                              title="Delete applicant"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
                         </tr>
                         {open && (
                           <tr key={a.id + "-detail"} className="bg-muted/20">
                             <td></td>
-                            <td colSpan={5} className="py-3 pr-3">
+                            <td></td>
+                            <td colSpan={6} className="py-3 pr-3">
                               {a.attempts.length === 0 ? (
                                 <p className="text-sm text-muted-foreground italic">No send attempts recorded for this applicant.</p>
                               ) : (
@@ -281,6 +361,50 @@ export default function WaitlistStatus() {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(o) => !o && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete applicant?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes <span className="font-mono">{deleteTarget?.email}</span> and their email send history. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(e) => { e.preventDefault(); handleDeleteSingle(); }}
+              disabled={deleting}
+            >
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {Object.values(selected).filter(Boolean).length} applicants?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This permanently removes the selected applicants and their email send history. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={(e) => { e.preventDefault(); handleBulkDelete(); }}
+              disabled={deleting}
+            >
+              {deleting ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null}
+              Delete all
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

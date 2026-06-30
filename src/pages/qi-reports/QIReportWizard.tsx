@@ -49,9 +49,11 @@ export default function QIReportWizard() {
   const handleGenerate = async () => {
     if (!organization?.id || !snapshot) return;
     setLoading(true);
+
+    // Step 1: AI draft
+    let aiData: { narratives?: Record<string, string>; meta?: unknown } | null = null;
     try {
-      // Call AI draft edge function
-      const { data: aiData, error: aiErr } = await supabase.functions.invoke("draft-qi-report", {
+      const { data, error: aiErr } = await supabase.functions.invoke("draft-qi-report", {
         body: {
           orgName: organization.name,
           periodLabel: selected.label,
@@ -59,8 +61,35 @@ export default function QIReportWizard() {
         },
       });
       if (aiErr) throw aiErr;
-      const narratives = (aiData?.narratives ?? {}) as Record<string, string>;
+      if (data?.error) throw new Error(data.error);
+      aiData = data as typeof aiData;
+    } catch (e) {
+      console.error("draft-qi-report failed:", e);
+      const msg = e instanceof Error ? e.message : "Unknown error";
+      toast({
+        title: "AI draft failed",
+        description: msg.includes("Subscription required")
+          ? "Your trial has ended. Please subscribe to use AI drafting."
+          : msg,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
 
+    const narratives = (aiData?.narratives ?? {}) as Record<string, string>;
+    if (!narratives.exec_summary && !narratives.performance_narrative) {
+      toast({
+        title: "AI draft empty",
+        description: "The model didn't return a draft. Please try again in a moment.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Step 2: persist report
+    try {
       const committee: CommitteeSections = {
         ...snapshot,
         exec_summary: narratives.exec_summary,
@@ -73,6 +102,9 @@ export default function QIReportWizard() {
         board_recommendations: narratives.board_recommendations,
       };
       const board = deriveBoardSections(committee);
+      const safeCommittee = JSON.parse(JSON.stringify(committee));
+      const safeBoard = JSON.parse(JSON.stringify(board));
+      const safeMeta = aiData?.meta ? JSON.parse(JSON.stringify(aiData.meta)) : {};
 
       const client = supabase as unknown as { from: (t: string) => any };
       const { data: inserted, error: insErr } = await client
@@ -84,9 +116,9 @@ export default function QIReportWizard() {
           period_end: selected.end,
           report_type: "quarterly",
           status: "draft",
-          committee_sections: committee,
-          board_sections: board,
-          ai_draft_meta: aiData?.meta ?? {},
+          committee_sections: safeCommittee,
+          board_sections: safeBoard,
+          ai_draft_meta: safeMeta,
           generated_by: user?.id ?? null,
         })
         .select("*")
@@ -96,8 +128,9 @@ export default function QIReportWizard() {
       toast({ title: "Report drafted", description: "AI narrative ready for your review." });
       navigate(`/dashboard/qi-reports/${row.id}`);
     } catch (e) {
+      console.error("qi_reports insert failed:", e);
       toast({
-        title: "Generation failed",
+        title: "Could not save report",
         description: e instanceof Error ? e.message : "Unknown error",
         variant: "destructive",
       });

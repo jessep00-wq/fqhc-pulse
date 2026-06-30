@@ -151,6 +151,14 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
       narratives = {};
     }
 
+    if (!narratives.exec_summary && !narratives.performance_narrative) {
+      console.error("draft-qi-report: empty narrative from AI", JSON.stringify(data).slice(0, 500));
+      return new Response(
+        JSON.stringify({ error: "AI did not return a draft. Please try again." }),
+        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     return new Response(
       JSON.stringify({
         narratives,
