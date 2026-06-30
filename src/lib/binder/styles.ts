@@ -154,49 +154,353 @@ h1,h2,h3,h4,h5,h6 { line-height: 1.2; }
 
 @page { size: Letter; margin: 0.5in; }
 @media print {
-  *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  html, body { width: 7.5in; background: white !important; }
-  body { font-size: 10pt; }
+  :root {
+    --text-xs: 7.5pt;
+    --text-sm: 8.5pt;
+    --text-base: 9.5pt;
+    --text-lg: 12pt;
+    --text-xl: 14pt;
+    --text-2xl: 18pt;
+    --text-3xl: 24pt;
+    --space-1: 0.04in;
+    --space-2: 0.07in;
+    --space-3: 0.1in;
+    --space-4: 0.13in;
+    --space-5: 0.16in;
+    --space-6: 0.2in;
+    --space-8: 0.26in;
+    --space-10: 0.32in;
+    --space-12: 0.38in;
+    --space-16: 0.5in;
+  }
 
-  /* Cover — one page, completeness stacked under meta */
-  .cover { padding: 0.4in 0.35in 0.5in; min-height: 9.4in; break-after: page; page-break-after: always; overflow: hidden; }
-  .cover-grid { grid-template-columns: 1fr !important; gap: 0.3in; max-width: 100%; align-items: stretch; }
-  .cover-title { font-size: 26pt !important; line-height: 1.1; }
-  .cover-subtitle { font-size: 10.5pt !important; max-width: 100%; margin-bottom: 0.25in; }
-  .cover-meta-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 100%; gap: 0.12in; }
-  .cover-meta-item { padding: 0.12in; }
-  .cover-completeness { min-width: 0; max-width: 100%; padding: 0.2in; }
-  .completeness-ring { width: 64px; height: 64px; margin-bottom: 0.15in; }
-  .completeness-items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.06in 0.2in; }
+  *, *::before, *::after {
+    box-sizing: border-box !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html,
+  body {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    background: white !important;
+    overflow-x: hidden !important;
+    overflow-y: visible !important;
+  }
+
+  body {
+    font-size: 9.5pt;
+    line-height: 1.42;
+  }
+
+  img,
+  svg,
+  table,
+  thead,
+  tbody,
+  tr,
+  th,
+  td,
+  .cover,
+  .cover-grid,
+  .cover-left,
+  .cover-meta-grid,
+  .cover-completeness,
+  .toc-section,
+  .toc-inner,
+  .toc-grid,
+  .main-content,
+  .section-card,
+  .section-header,
+  .section-body,
+  .table-wrap,
+  .alert,
+  .pending-callout,
+  .prep-grid,
+  .signoff-grid,
+  .site-footer,
+  .footer-inner {
+    max-width: 100% !important;
+  }
+
+  /* Cover — exact one-page print canvas with compact completeness panel */
+  .cover {
+    width: 100% !important;
+    height: 10in !important;
+    min-height: 0 !important;
+    max-height: 10in !important;
+    padding: 0.36in 0.38in !important;
+    break-after: page;
+    page-break-after: always;
+    overflow: hidden !important;
+  }
+
+  .cover::before { opacity: 0.75; }
+
+  .cover-grid {
+    height: 100%;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: minmax(0, auto) minmax(0, 1fr);
+    align-items: stretch;
+    gap: 0.18in;
+  }
+
+  .cover-eyebrow {
+    margin-bottom: 0.16in;
+    padding: 0.04in 0.1in;
+    letter-spacing: 0.04em;
+  }
+
+  .cover-title {
+    font-size: 23pt !important;
+    line-height: 1.02;
+    letter-spacing: 0 !important;
+    margin-bottom: 0.12in;
+  }
+
+  .cover-subtitle {
+    font-size: 9pt !important;
+    line-height: 1.42;
+    max-width: 100%;
+    margin-bottom: 0.18in;
+  }
+
+  .cover-meta-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.08in;
+    width: 100%;
+  }
+
+  .cover-meta-item {
+    min-width: 0;
+    padding: 0.09in 0.1in;
+    border-radius: 7px;
+  }
+
+  .cover-meta-label {
+    font-size: 6.5pt;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.04in;
+  }
+
+  .cover-meta-value {
+    font-size: 8pt;
+    line-height: 1.28;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .cover-completeness {
+    min-width: 0;
+    align-self: end;
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    grid-template-areas:
+      "label list"
+      "ring list";
+    column-gap: 0.18in;
+    row-gap: 0.06in;
+    padding: 0.14in;
+    border-radius: 8px;
+    text-align: left;
+    overflow: hidden !important;
+  }
+
+  .completeness-label {
+    grid-area: label;
+    font-size: 6.8pt;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    margin-bottom: 0;
+    text-align: center;
+  }
+
+  .completeness-ring {
+    grid-area: ring;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto;
+  }
+
+  .completeness-pct { font-size: 8pt; }
+
+  .completeness-items {
+    grid-area: list;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.035in 0.12in;
+    align-content: start;
+    padding-left: 0;
+    max-width: 100%;
+  }
+
+  .completeness-items li {
+    min-width: 0;
+    align-items: flex-start;
+    gap: 0.04in;
+    font-size: 6.8pt;
+    line-height: 1.18;
+    overflow-wrap: anywhere;
+  }
+
+  .completeness-items li::before {
+    width: 6px;
+    height: 6px;
+    margin-top: 2px;
+  }
 
   /* TOC */
-  .toc-section { break-after: page; page-break-after: always; padding: 0.3in 0; }
-  .toc-inner { max-width: 100%; padding: 0 0.1in; }
-  .toc-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.08in; }
+  .toc-section {
+    break-after: page;
+    page-break-after: always;
+    padding: 0.28in 0;
+    overflow: visible !important;
+  }
+
+  .toc-inner { padding: 0; }
+  .toc-heading { margin-bottom: 0.18in; }
+  .toc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; gap: 0.06in 0.1in; }
+  .toc-item { min-width: 0; padding: 0.08in 0.1in; }
+  .toc-text { overflow-wrap: anywhere; }
 
   /* Main content + section cards */
-  .main-content { max-width: 100%; padding: 0; gap: 0.2in; }
-  .section-card { break-inside: avoid; page-break-inside: avoid; max-width: 100%; box-shadow: none !important; border-radius: 8px; }
-  .section-card.long { break-inside: auto; page-break-inside: auto; }
-  .section-header { break-after: avoid; page-break-after: avoid; padding: 0.15in 0.18in; }
-  .section-body { padding: 0.15in 0.18in; }
-  h1, h2, h3, h4, .section-title, .section-svp { break-after: avoid; page-break-after: avoid; }
-
-  /* Tables — fixed layout, wrap, no horizontal overflow */
-  .table-wrap { overflow: visible !important; margin-bottom: 0.15in; }
-  .evidence-table { table-layout: fixed; width: 100%; font-size: 8.5pt; border-radius: 6px; }
-  .evidence-table th, .evidence-table td {
-    word-wrap: break-word; overflow-wrap: anywhere; white-space: normal !important;
-    padding: 5px 7px; vertical-align: top;
+  .main-content {
+    padding: 0 !important;
+    gap: 0.18in;
+    overflow: visible !important;
   }
-  .evidence-table th { font-size: 7pt; }
+
+  .section-card {
+    break-inside: auto;
+    page-break-inside: auto;
+    width: 100%;
+    box-shadow: none !important;
+    border-radius: 7px;
+    overflow: visible !important;
+  }
+
+  .section-card + .section-card { margin-top: 0.18in; }
+
+  .section-header {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 0.1in;
+    padding: 0.13in 0.15in;
+    break-inside: avoid;
+    break-after: avoid;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+    overflow: visible !important;
+  }
+
+  .section-num-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+  }
+
+  .section-heading-group { min-width: 0; }
+  .section-title { font-size: 11.5pt; letter-spacing: 0 !important; overflow-wrap: anywhere; }
+  .section-svp { font-size: 7pt; letter-spacing: 0.03em; }
+  .section-status { white-space: normal; max-width: 1.05in; justify-content: center; text-align: center; line-height: 1.15; padding: 2px 7px; }
+  .section-body { padding: 0.14in 0.15in; overflow: visible !important; }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .section-title,
+  .section-svp,
+  .section-subhead,
+  .alert-title {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .alert,
+  .pending-callout,
+  .preparer-note,
+  .prep-item,
+  .signoff-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .alert {
+    padding: 0.11in;
+    margin-bottom: 0.12in;
+    line-height: 1.38;
+  }
+
+  .body-text {
+    max-width: 100%;
+    line-height: 1.45;
+    margin-bottom: 0.13in;
+  }
+
+  .section-subhead {
+    margin-top: 0.13in;
+    margin-bottom: 0.08in;
+    letter-spacing: 0.04em;
+  }
+
+  .pending-callout {
+    padding: 0.13in;
+    margin-bottom: 0.13in;
+  }
+
+  .pending-callout ul,
+  .checklist,
+  .completeness-items { padding-left: 0; }
+
+  .notes-line { padding-bottom: 0.22in; }
+
+  /* Tables — wrap hard, never create horizontal print overflow */
+  .table-wrap {
+    width: 100% !important;
+    overflow: visible !important;
+    margin-bottom: 0.13in;
+  }
+
+  .evidence-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed;
+    font-size: 8pt;
+    line-height: 1.28;
+    border-radius: 6px;
+    overflow: visible !important;
+  }
+
+  .evidence-table th,
+  .evidence-table td {
+    min-width: 0 !important;
+    max-width: none !important;
+    padding: 4px 5px;
+    vertical-align: top;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-wrap: break-word;
+    word-break: normal;
+    hyphens: auto;
+  }
+
+  .evidence-table th {
+    font-size: 6.5pt;
+    line-height: 1.12;
+    letter-spacing: 0.02em;
+  }
+
   .evidence-table thead { display: table-header-group; }
+  .evidence-table tbody { display: table-row-group; }
   .evidence-table tr { break-inside: avoid; page-break-inside: avoid; }
 
   .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(1),
-  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(1) { width: 32%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(1) { width: 30%; }
   .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(2),
-  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(2) { width: 16%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(2) { width: 17%; }
   .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(3),
   .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(3) { width: 14%; }
   .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(4),
@@ -204,23 +508,45 @@ h1,h2,h3,h4,h5,h6 { line-height: 1.2; }
   .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(5),
   .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(5) { width: 14%; }
   .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(6),
-  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(6) { width: 10%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(6) { width: 11%; }
 
-  .uds-tracker th:nth-child(1), .uds-tracker td:nth-child(1) { width: 34%; }
+  .uds-tracker th:nth-child(1), .uds-tracker td:nth-child(1),
   .gaps-table th:nth-child(1), .gaps-table td:nth-child(1) { width: 34%; }
 
-  .tag { white-space: normal; word-break: break-word; }
+  .tag {
+    display: inline;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    padding: 1px 4px;
+    border-radius: 4px;
+    line-height: 1.2;
+  }
 
-  /* Other grids that overflow narrow print width */
-  .prep-grid, .signoff-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.12in; }
-  .completeness-items, .checklist, .pending-callout ul { padding-left: 0; max-width: 100%; }
-  .alert, .body-text, .preparer-note { max-width: 100%; }
+  /* Other grids that can overflow narrow print width */
+  .prep-grid,
+  .signoff-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.1in;
+  }
+
+  .prep-item { padding: 0.08in 0.1in; }
+  .prep-check { width: 16px; height: 16px; font-size: 10px; }
+  .signoff-label { margin-bottom: 0.18in; }
 
   /* Footer — no forced blank trailing page */
-  .site-footer { break-before: auto !important; page-break-before: auto !important; break-inside: avoid; padding: 0.2in 0; }
-  .footer-inner { max-width: 100%; padding: 0 0.1in; }
+  .site-footer {
+    break-before: auto !important;
+    page-break-before: auto !important;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    padding: 0.16in 0;
+    margin-top: 0.18in;
+  }
 
-  /* Safety: kill stray clipping */
-  .section-card, .section-body, .table-wrap, .alert, .pending-callout { overflow: visible !important; }
+  .footer-inner {
+    padding: 0;
+    gap: 0.08in;
+  }
 }
 `;
