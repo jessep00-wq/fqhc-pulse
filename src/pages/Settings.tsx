@@ -141,6 +141,9 @@ export default function Settings() {
 
   const orgMutation = useMutation({
     mutationFn: async () => {
+      if (!organization.id) {
+        throw new Error("No organization selected. Open the Admin Console and pick a clinic from the 'Acting as' dropdown.");
+      }
       const { error } = await supabase
         .from("organizations")
         .update({ name: orgName.trim(), npi: npiTrimmed || null })
@@ -438,11 +441,16 @@ export default function Settings() {
               </div>
               <Button
                 onClick={() => orgMutation.mutate()}
-                disabled={orgMutation.isPending || !orgName.trim() || (npiHasContent && !isValidNpi)}
+                disabled={orgMutation.isPending || !organization.id || !orgName.trim() || (npiHasContent && !isValidNpi)}
               >
                 {orgMutation.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
                 Save Organization
               </Button>
+              {!organization.id && (
+                <p className="text-xs text-amber-600">
+                  No organization selected. Open the Admin Console and pick a clinic from the "Acting as" dropdown to edit facility details.
+                </p>
+              )}
             </CardContent>
           </Card>
 
