@@ -2419,6 +2419,10 @@ export type Database = {
         Args: { _org_id: string }
         Returns: undefined
       }
+      admin_delete_waitlist_application: {
+        Args: { _id: string }
+        Returns: undefined
+      }
       admin_list_users: {
         Args: never
         Returns: {
