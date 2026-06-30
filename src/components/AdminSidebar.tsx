@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  Users,
   CreditCard,
   Activity,
   Newspaper,
@@ -30,6 +31,7 @@ import {
 
 const oversight = [
   { title: "Accounts", url: "/admin", icon: LayoutDashboard, end: true },
+  { title: "Users", url: "/admin/users", icon: Users },
   { title: "Adoption", url: "/admin/adoption", icon: Activity },
 ];
 

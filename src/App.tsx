@@ -54,6 +54,7 @@ import HowItWorks from "./pages/HowItWorks";
 import { AdminRoute } from "./components/AdminRoute";
 import { AdminLayout } from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
+import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPipeline from "./pages/admin/AdminPipeline";
 import AdminBilling from "./pages/admin/AdminBilling";
 import AdminAdoption from "./pages/admin/AdminAdoption";
@@ -200,6 +201,7 @@ const App = () => (
                         <ErrorBoundary>
                           <Routes>
                             <Route index element={<AdminOverview />} />
+                            <Route path="users" element={<AdminUsers />} />
                             <Route path="pipeline" element={<AdminPipeline />} />
                             <Route path="billing" element={<AdminBilling />} />
                             <Route path="adoption" element={<AdminAdoption />} />

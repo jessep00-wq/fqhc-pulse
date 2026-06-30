@@ -2419,6 +2419,22 @@ export type Database = {
         Args: { _org_id: string }
         Returns: undefined
       }
+      admin_list_users: {
+        Args: never
+        Returns: {
+          auth_created_at: string
+          email: string
+          email_confirmed_at: string
+          full_name: string
+          id: string
+          last_sign_in_at: string
+          organization_id: string
+          organization_name: string
+          profile_created_at: string
+          profile_updated_at: string
+          staff_role: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
