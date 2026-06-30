@@ -47,7 +47,15 @@ export default function QIReportWizard() {
   };
 
   const handleGenerate = async () => {
-    if (!organization?.id || !snapshot) return;
+    if (!organization?.id) {
+      toast({
+        title: "No organization selected",
+        description: "Pick an organization in the admin header before generating an AI draft.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!snapshot) return;
     setLoading(true);
 
     // Step 1: AI draft
@@ -60,7 +68,24 @@ export default function QIReportWizard() {
           snapshot,
         },
       });
-      if (aiErr) throw aiErr;
+      if (aiErr) {
+        // FunctionsHttpError carries the response body on `context` — pull
+        // the real status + message so the toast isn't generic.
+        let detail = aiErr.message ?? "Unknown error";
+        const ctx = (aiErr as unknown as { context?: Response }).context;
+        if (ctx && typeof ctx.json === "function") {
+          try {
+            const body = await ctx.clone().json();
+            if (body?.error) detail = `${body.error} (status ${ctx.status})`;
+          } catch {
+            try {
+              const text = await ctx.clone().text();
+              if (text) detail = `${text.slice(0, 300)} (status ${ctx.status})`;
+            } catch { /* ignore */ }
+          }
+        }
+        throw new Error(detail);
+      }
       if (data?.error) throw new Error(data.error);
       aiData = data as typeof aiData;
     } catch (e) {
@@ -76,6 +101,7 @@ export default function QIReportWizard() {
       setLoading(false);
       return;
     }
+
 
     const narratives = (aiData?.narratives ?? {}) as Record<string, string>;
     if (!narratives.exec_summary && !narratives.performance_narrative) {
