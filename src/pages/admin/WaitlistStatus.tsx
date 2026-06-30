@@ -233,12 +233,23 @@ export default function WaitlistStatus() {
               <table className="w-full text-sm">
                 <thead className="text-left text-muted-foreground border-b">
                   <tr>
+                    <th className="py-2 pr-2 w-6">
+                      <Checkbox
+                        checked={filtered.length > 0 && filtered.every((a) => selected[a.id])}
+                        onCheckedChange={(v) => {
+                          const next = { ...selected };
+                          for (const a of filtered) next[a.id] = !!v;
+                          setSelected(next);
+                        }}
+                      />
+                    </th>
                     <th className="py-2 pr-2 w-6"></th>
                     <th className="py-2 pr-2">Applicant</th>
                     <th className="py-2 pr-2">Step</th>
                     <th className="py-2 pr-2">Attempts</th>
                     <th className="py-2 pr-2">Last attempt</th>
                     <th className="py-2 pr-2">Applied</th>
+                    <th className="py-2 pr-2 w-10"></th>
                   </tr>
                 </thead>
                 <tbody>
@@ -251,6 +262,12 @@ export default function WaitlistStatus() {
                           className="border-b last:border-0 cursor-pointer hover:bg-muted/40"
                           onClick={() => setExpanded((s) => ({ ...s, [a.id]: !s[a.id] }))}
                         >
+                          <td className="py-2 pr-2" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              checked={!!selected[a.id]}
+                              onCheckedChange={(v) => setSelected((s) => ({ ...s, [a.id]: !!v }))}
+                            />
+                          </td>
                           <td className="py-2 pr-2">
                             {open ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
                           </td>
@@ -272,11 +289,23 @@ export default function WaitlistStatus() {
                           </td>
                           <td className="py-2 pr-2 text-xs">{fmt(a.last_attempt?.created_at)}</td>
                           <td className="py-2 pr-2 text-xs">{fmt(a.created_at)}</td>
+                          <td className="py-2 pr-2" onClick={(e) => e.stopPropagation()}>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-destructive hover:text-destructive"
+                              onClick={() => setDeleteTarget(a)}
+                              title="Delete applicant"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </td>
                         </tr>
                         {open && (
                           <tr key={a.id + "-detail"} className="bg-muted/20">
                             <td></td>
-                            <td colSpan={5} className="py-3 pr-3">
+                            <td></td>
+                            <td colSpan={6} className="py-3 pr-3">
                               {a.attempts.length === 0 ? (
                                 <p className="text-sm text-muted-foreground italic">No send attempts recorded for this applicant.</p>
                               ) : (
