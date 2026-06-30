@@ -45,7 +45,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 <Link
                   key={item.to}
                   to={item.to}
-                  className="px-2.5 py-2 font-medium text-muted-foreground hover:text-foreground rounded-md transition-colors"
+                  className="px-2.5 py-2 font-medium text-muted-foreground hover:text-foreground rounded-md transition-colors whitespace-nowrap"
                 >
                   {item.label}
                 </Link>
