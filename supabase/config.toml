@@ -47,3 +47,6 @@ project_id = "eeyigxcwewdqfeidqbxk"
     verify_jwt = false
   [functions.send-readiness-report]
     verify_jwt = false
+  [functions.subscribe-newsletter]
+    verify_jwt = false
+
