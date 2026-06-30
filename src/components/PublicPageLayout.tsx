@@ -17,7 +17,7 @@ interface PublicPageLayoutProps {
 
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-clip">
       
       <ExitIntentPlaybookDialog />
       <CartDrawer />
