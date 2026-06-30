@@ -141,6 +141,9 @@ export default function Settings() {
 
   const orgMutation = useMutation({
     mutationFn: async () => {
+      if (!organization.id) {
+        throw new Error("No organization selected. Open the Admin Console and pick a clinic from the 'Acting as' dropdown.");
+      }
       const { error } = await supabase
         .from("organizations")
         .update({ name: orgName.trim(), npi: npiTrimmed || null })
