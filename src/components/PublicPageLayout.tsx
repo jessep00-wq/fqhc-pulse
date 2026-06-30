@@ -63,8 +63,8 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             {!slimNav && (
               <Button size="sm" asChild className="px-3 sm:px-4 font-semibold shadow-sm whitespace-nowrap">
                 <Link to="/auth?signup=true">
-                  <span className="sm:hidden">Start trial</span>
-                  <span className="hidden sm:inline">Start 14-day free trial</span>
+                  <span className="xl:hidden">Start trial</span>
+                  <span className="hidden xl:inline">Start 14-day free trial</span>
                   <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                 </Link>
               </Button>
