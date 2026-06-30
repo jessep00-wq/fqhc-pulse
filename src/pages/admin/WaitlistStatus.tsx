@@ -75,9 +75,13 @@ export default function WaitlistStatus() {
   const [loading, setLoading] = useState(true);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [selected, setSelected] = useState<Record<string, boolean>>({});
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [templateFilter, setTemplateFilter] = useState<string>("all");
   const [q, setQ] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<Applicant | null>(null);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -88,6 +92,42 @@ export default function WaitlistStatus() {
   }
 
   useEffect(() => { load(); }, []);
+
+  async function deleteOne(id: string) {
+    const { error } = await supabase.rpc("admin_delete_waitlist_application" as any, { _id: id } as any);
+    if (error) throw error;
+  }
+
+  async function handleDeleteSingle() {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteOne(deleteTarget.id);
+      toast.success(`Deleted ${deleteTarget.email}`);
+      setApplicants((prev) => prev.filter((a) => a.id !== deleteTarget.id));
+      setSelected((s) => { const n = { ...s }; delete n[deleteTarget.id]; return n; });
+      setDeleteTarget(null);
+    } catch (e) {
+      toast.error(`Delete failed: ${(e as Error).message}`);
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  async function handleBulkDelete() {
+    const ids = Object.keys(selected).filter((id) => selected[id]);
+    if (!ids.length) return;
+    setDeleting(true);
+    let ok = 0, fail = 0;
+    for (const id of ids) {
+      try { await deleteOne(id); ok++; } catch { fail++; }
+    }
+    setApplicants((prev) => prev.filter((a) => !ids.includes(a.id)));
+    setSelected({});
+    setBulkDeleteOpen(false);
+    setDeleting(false);
+    toast[fail ? "warning" : "success"](`Deleted ${ok}${fail ? `, ${fail} failed` : ""}`);
+  }
 
   const templates = useMemo(() => {
     const set = new Set<string>();
