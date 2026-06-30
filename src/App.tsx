@@ -201,6 +201,7 @@ const App = () => (
                         <ErrorBoundary>
                           <Routes>
                             <Route index element={<AdminOverview />} />
+                            <Route path="users" element={<AdminUsers />} />
                             <Route path="pipeline" element={<AdminPipeline />} />
                             <Route path="billing" element={<AdminBilling />} />
                             <Route path="adoption" element={<AdminAdoption />} />
