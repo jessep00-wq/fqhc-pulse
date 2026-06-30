@@ -342,6 +342,20 @@ export default function Dashboard() {
     return date.toLocaleString(undefined, { month: "short", year: "2-digit" });
   };
 
+  if (!orgId && isAdmin) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <EmptyState
+          icon={Building2}
+          title="No organization selected"
+          description="Select a clinic from the 'Acting as' dropdown in the Admin Console header to view its dashboard."
+          actionLabel="Open Admin Console"
+          onAction={() => navigate("/admin")}
+        />
+      </div>
+    );
+  }
+
   if (!orgId || isInitialLoading) {
     return (
       <div className="flex items-center justify-center h-64">
