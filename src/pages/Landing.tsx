@@ -29,7 +29,8 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
-import founderPhoto from "@/assets/founder-jessica.png";
+import founderAsset from "@/assets/founder-jessica.webp.asset.json";
+const founderPhoto = founderAsset.url;
 import {
   LineChart as RechartsLineChart,
   Line,
