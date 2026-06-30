@@ -78,7 +78,7 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-3-pro",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -175,7 +175,7 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
       JSON.stringify({
         narratives,
         meta: {
-          model: "google/gemini-2.5-pro",
+          model: "google/gemini-3-pro",
           generated_at: new Date().toISOString(),
         },
       }),
