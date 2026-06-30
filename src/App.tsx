@@ -54,6 +54,7 @@ import HowItWorks from "./pages/HowItWorks";
 import { AdminRoute } from "./components/AdminRoute";
 import { AdminLayout } from "./components/AdminLayout";
 import AdminOverview from "./pages/admin/AdminOverview";
+import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPipeline from "./pages/admin/AdminPipeline";
 import AdminBilling from "./pages/admin/AdminBilling";
 import AdminAdoption from "./pages/admin/AdminAdoption";
