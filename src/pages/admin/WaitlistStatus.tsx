@@ -215,6 +215,12 @@ export default function WaitlistStatus() {
             <Button variant="outline" onClick={load} disabled={loading}>
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Refresh"}
             </Button>
+            {Object.values(selected).some(Boolean) && (
+              <Button variant="destructive" onClick={() => setBulkDeleteOpen(true)} disabled={deleting}>
+                <Trash2 className="h-4 w-4 mr-1" />
+                Delete {Object.values(selected).filter(Boolean).length}
+              </Button>
+            )}
           </div>
         </CardHeader>
         <CardContent>
