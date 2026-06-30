@@ -27,6 +27,7 @@ import {
 import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
+import { TrustStrip } from "@/components/landing/TrustStrip";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
 import {
