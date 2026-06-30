@@ -41,6 +41,19 @@ function fmt(ts: string | null) {
   return new Date(ts).toLocaleString();
 }
 
+function DateCell({ ts }: { ts: string | null }) {
+  if (!ts) return <span className="text-muted-foreground">—</span>;
+  const d = new Date(ts);
+  const date = d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  const time = d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+  return (
+    <div className="leading-tight text-sm">
+      <div className="text-foreground">{date}</div>
+      <div className="text-xs text-muted-foreground">{time}</div>
+    </div>
+  );
+}
+
 function csvEscape(v: unknown) {
   const s = v == null ? "" : String(v);
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
@@ -157,7 +170,7 @@ export default function AdminUsers() {
           <p className="text-sm text-destructive">Failed to load users: {(error as Error).message}</p>
         ) : (
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[1100px]">
               <TableHeader>
                 <TableRow>
                   <TableHead>Email</TableHead>
@@ -165,8 +178,8 @@ export default function AdminUsers() {
                   <TableHead>Role</TableHead>
                   <TableHead>Organization</TableHead>
                   <TableHead>Verified</TableHead>
-                  <TableHead>Signed up</TableHead>
-                  <TableHead>Last sign-in</TableHead>
+                  <TableHead className="min-w-[140px]">Signed up</TableHead>
+                  <TableHead className="min-w-[140px]">Last sign-in</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -198,12 +211,8 @@ export default function AdminUsers() {
                         ? <StatusBadge tone="success">Yes</StatusBadge>
                         : <StatusBadge tone="warning">No</StatusBadge>}
                     </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      {fmt(u.auth_created_at)}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap text-sm text-muted-foreground">
-                      {fmt(u.last_sign_in_at)}
-                    </TableCell>
+                    <TableCell><DateCell ts={u.auth_created_at} /></TableCell>
+                    <TableCell><DateCell ts={u.last_sign_in_at} /></TableCell>
                   </TableRow>
                 ))}
               </TableBody>
