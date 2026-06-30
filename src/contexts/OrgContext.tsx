@@ -84,7 +84,25 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (!profile || !profile.organization_id) {
+      let targetOrgId = profile?.organization_id ?? null;
+
+      // Founder-admin "acting as org" override: if the admin has no org of
+      // their own (or wants to act inside another tenant), they can set
+      // `mw_admin_active_org` in localStorage via the admin org switcher.
+      if (!targetOrgId && typeof window !== "undefined") {
+        const { data: roleRow } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", user.id)
+          .in("role", ["founder_admin", "internal_support"])
+          .maybeSingle();
+        if (roleRow) {
+          const acting = window.localStorage.getItem("mw_admin_active_org");
+          if (acting) targetOrgId = acting;
+        }
+      }
+
+      if (!targetOrgId) {
         // Authoritative "no org" — safe to send to onboarding.
         setOrganization(fallbackOrg);
         setHasOrgState(false);
@@ -93,10 +111,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+
       const { data: org, error: orgErr } = await supabase
         .from("organizations")
         .select("*")
-        .eq("id", profile.organization_id)
+        .eq("id", targetOrgId)
         .maybeSingle();
 
       if (orgErr) {

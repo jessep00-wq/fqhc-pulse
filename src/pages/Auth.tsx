@@ -17,6 +17,7 @@ import { trackAnonEvent } from "@/lib/trackEvent";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useOrg } from "@/contexts/OrgContext";
 import { Navigate, Link } from "react-router-dom";
 
@@ -32,6 +33,7 @@ const passwordRules = [
 
 export default function Auth() {
   const { session, loading: authLoading } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const { hasOrg, loading: orgLoading } = useOrg();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -58,17 +60,22 @@ export default function Auth() {
 
   // While auth or org state is still resolving for a signed-in visitor,
   // show a spinner instead of rendering the auth form (avoids flash).
-  if (session && (authLoading || orgLoading)) {
+  // While auth or org state is still resolving for a signed-in visitor,
+  // show a spinner instead of rendering the auth form (avoids flash).
+  if (session && (authLoading || orgLoading || roleLoading)) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
-  // Always hand authenticated users off to /dashboard. ProtectedRoute owns
-  // the /onboarding decision — it has a sticky confirmed-org flag and waits
-  // for both auth + org contexts to settle, so we avoid the race where
-  // hasOrg is transiently false right after authLoading flips.
+  // Founder admins go straight to the admin console — they don't have
+  // (and don't need) an organization of their own.
+  if (session && !authLoading && !roleLoading && isAdmin) {
+    return <Navigate to="/admin" replace />;
+  }
+  // Always hand authenticated non-admin users off to /dashboard.
+  // ProtectedRoute owns the /onboarding decision.
   if (session && !authLoading && !orgLoading) {
     return <Navigate to="/dashboard" replace />;
   }

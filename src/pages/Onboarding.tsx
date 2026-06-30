@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { toast } from "sonner";
 import { Loader2, Building2, ShieldCheck, FlaskConical, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
@@ -43,6 +44,7 @@ type DataMode = "demo" | "live";
 export default function Onboarding() {
   const { user, session, loading: authLoading } = useAuth();
   const { hasOrg, loading: orgLoading } = useOrg();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -66,7 +68,7 @@ export default function Onboarding() {
   const [dataMode, setDataMode] = useState<DataMode>("demo");
   const [acknowledged, setAcknowledged] = useState(false);
 
-  if (authLoading || orgLoading) {
+  if (authLoading || orgLoading || roleLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -76,6 +78,8 @@ export default function Onboarding() {
   // Audit fix 21: onboarding lives at a public route — explicitly bounce
   // unauthenticated visitors to /auth instead of silently no-op'ing on submit.
   if (!session) return <Navigate to="/auth" replace />;
+  // Founder admins should never see onboarding — they're routed to the admin console.
+  if (isAdmin) return <Navigate to="/admin" replace />;
   if (hasOrg) return <Navigate to="/dashboard" replace />;
 
   const step1Valid =

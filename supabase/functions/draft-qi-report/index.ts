@@ -142,22 +142,34 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
     }
 
     const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    const choice = data.choices?.[0];
+    const toolCall = choice?.message?.tool_calls?.[0];
     const argsRaw = toolCall?.function?.arguments;
     let narratives: Record<string, string> = {};
+    let parseErr: string | null = null;
     try {
       narratives = JSON.parse(argsRaw ?? "{}");
-    } catch (_e) {
+    } catch (e) {
+      parseErr = e instanceof Error ? e.message : String(e);
       narratives = {};
     }
 
     if (!narratives.exec_summary && !narratives.performance_narrative) {
-      console.error("draft-qi-report: empty narrative from AI", JSON.stringify(data).slice(0, 500));
+      console.error("draft-qi-report: empty narrative", JSON.stringify({
+        finish_reason: choice?.finish_reason,
+        has_tool_call: !!toolCall,
+        parse_error: parseErr,
+        raw_preview: JSON.stringify(data).slice(0, 1000),
+      }));
+      const reason = choice?.finish_reason
+        ? `model finish_reason=${choice.finish_reason}`
+        : "no tool call returned";
       return new Response(
-        JSON.stringify({ error: "AI did not return a draft. Please try again." }),
+        JSON.stringify({ error: `AI did not return a draft (${reason}). Please try again.` }),
         { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
+
 
     return new Response(
       JSON.stringify({
