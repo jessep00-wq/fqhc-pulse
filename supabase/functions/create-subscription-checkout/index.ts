@@ -128,6 +128,29 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Idempotency guard: refuse to start a second Checkout Session when the
+    // organization already has an active/trialing/past_due paid subscription
+    // in this environment. Without this, Stripe will happily create a second
+    // subscription on the same customer and double-bill the org silently.
+    const { data: existingSub } = await admin
+      .from("subscriptions")
+      .select("id, plan, status")
+      .eq("organization_id", organizationId)
+      .eq("environment", env)
+      .in("status", ["active", "trialing", "past_due"])
+      .neq("plan", "free")
+      .maybeSingle();
+    if (existingSub) {
+      return new Response(
+        JSON.stringify({
+          error:
+            "This organization already has an active subscription. Manage it from Settings → Billing instead of starting a new one.",
+          code: "subscription_exists",
+        }),
+        { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     const stripe = createStripeClient(env);
     const prices = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
     const price = prices.data[0];

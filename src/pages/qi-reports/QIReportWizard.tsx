@@ -178,7 +178,14 @@ export default function QIReportWizard() {
         <p className="text-sm text-muted-foreground mt-1">
           Pick a reporting quarter, preview the auto-pulled snapshot, then let the AI draft the narrative.
         </p>
+        {organization?.name && (
+          <div className="mt-3 inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-1.5 text-xs">
+            <span className="text-muted-foreground">Generating for</span>
+            <span className="font-semibold">{organization.name}</span>
+          </div>
+        )}
       </div>
+
 
       <Card className="p-5">
         <h3 className="font-semibold mb-3">1. Choose period</h3>
@@ -216,8 +223,15 @@ export default function QIReportWizard() {
               <Stat label="Measures tracked" value={snapshot.measures.length} />
               <Stat label="Safety events" value={snapshot.safety_events.length} />
             </div>
+            {(snapshot.measures.length === 0 ||
+              snapshot.active_pdsa.length === 0) && (
+              <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 text-amber-900 px-3 py-2 text-xs">
+                Some sections have no data for this period. The AI draft will explicitly state these gaps rather than fabricate content.
+              </div>
+            )}
             <MeasureSnapshotTable measures={snapshot.measures} />
           </Card>
+
 
           <Card className="p-5">
             <h3 className="font-semibold mb-2">3. Draft with AI</h3>
