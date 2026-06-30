@@ -1,57 +1,80 @@
-# Cleanup + Warning Fix + Authenticated QA Sweep
+## Part A — Finish the QA sweep
 
-## 1. Assign the orphan org to Jessica
+### A1. Verify AddAIToolDialog payload shape
+The earlier raw-API insert failed only because *my* test payload used `use_case` (the column is `purpose`) and a string `risk_tier` (the column is `int` 1–5). Confirm the dialog already sends `purpose` + numeric `risk_tier`. Read `src/components/ai-governance/AddAIToolDialog.tsx`; fix only if it sends the wrong field names. Then drive the dialog headlessly with Jessica's session, submit a "QA Test Tool" row, confirm it lands with the correct shape, delete it.
 
-The `Federally Qualified Health Center` org (`a82b614a-8405-4a5d-bab9-57062d5a5ecd`) has `owner_id = NULL` and Jessica's profile has `organization_id = NULL`. Wire them together via insert tool:
+### A2. Verify UploadDocumentDialog payload shape
+Same approach: my test used `category_code` (column is `category_id`). Read `src/components/evidence-binder/UploadDocumentDialog.tsx`; fix only if it sends the wrong field names. Then headlessly upload a tiny test PDF into the `evidence-binder` bucket, confirm an `evidence_documents` row + `evidence_document_versions` row land with the right `organization_id` and file path, delete both rows + the storage object.
 
-- `UPDATE organizations SET owner_id = '166e226f-…' WHERE id = 'a82b614a-…'`
-- `UPDATE profiles SET organization_id = 'a82b614a-…' WHERE id = '166e226f-…'`
+### A3. Exercise `download-watermarked-manual`
+Call the function as Jessica via `supabase.functions.invoke`. Confirm: 200 status, returns a PDF blob (correct content-type, non-empty body), `manual_downloads` row inserted with her user_id, watermark string includes her name/email. Then call once more anonymously and confirm it 401s.
 
-Result: Jessica becomes the formal owner and the "Acting as" picker can default to this org instead of empty.
+Report per-item pass/fail with the row IDs and any console errors. No app code changes unless A1/A2 reveal a real payload mismatch.
 
-## 2. Delete the 4 stale test signups
+---
 
-Keep:
-- Jessica Smith — `jessicawithintention@gmail.com` (founder_admin)
-- Mark Golden MBA — `markgoldenday20@gmail.com`
+## Part B — Landing page conversion + polish pass
 
-Delete these 5 auth users (cascades through `profiles` via FK) — wait, listing 4 since two "Smoke Test" + two "Test User E2E" + Ruth = 5. Re-reading: user said "only two are true signups, me and Mark", so everyone else goes. That's:
+Scope: `src/pages/Landing.tsx` only (the public `/` is served by `index.html` static shell + this React landing for in-app navigation). No backend, no routing, no component-library changes.
 
-| Email | User ID |
-|---|---|
-| testuser_e2e_0331@testmail.com | 4a245a4b-… |
-| testuser_e2e_031@test.com | 09d058b9-… |
-| jessep_00@hotmail.com (Ruth) | 60d6109e-… |
-| jessicawithintention+mwsmoke1781523830@gmail.com | 556b7f2f-… |
-| jessicawithintention+mw1781523870@gmail.com | 9f5e051c-… |
+### B1. Rewrite hero headline + subheadline (outcome-first)
+Current: *"FQHC quality leaders: stop running PDSA cycles that never show up in your UDS results."* — pain-first, not outcome-first.
 
-Confirming Ruth is in scope — the user said "only Jessica and Mark are true signups, the rest are test." Ruth (`jessep_00@hotmail.com`) signed up once on 2026-05-13, never returned, never onboarded, no org, no role. Treating as test/abandoned per user's instruction.
+New (proposed — feedback welcome):
+- **H1:** "FQHC quality teams: prove every PDSA cycle moved a UDS measure — and walk into your next HRSA site visit binder-ready."
+- **Sub:** "MeasureWise turns scattered cycles, spreadsheets, and audit prep into one defensible workflow. Move UDS rates in weeks, not quarters. Export a Chapter-10 audit binder in one click."
+- Add a 3-bullet outcome strip directly under the sub: "Move a measure in 90 days · Cut audit prep from 2 weeks to 2 hours · Replace 4–6 spreadsheets per cycle."
 
-For each: clean dependents then `DELETE FROM auth.users WHERE id = …` (Supabase cascades `profiles`, `user_roles`, etc. via existing FKs). Pre-delete any rows in `email_send_log`, `activity_log`, `readiness_submissions`, `playbook_leads`, `manual_downloads` keyed off those user ids if FK doesn't cascade.
+### B2. Tighten body copy across sections
+For every section heading and lead paragraph in `Landing.tsx`, rewrite to: lead with the outcome, name the audience (Quality Director / PCMH Coord / Ops Manager), strip jargon ("quality operations layer" → "quality system"), cap paragraphs at 3 sentences. Keep all existing section structure — only swap the strings.
 
-## 3. Fix the React `fetchPriority` DOM warning
+### B3. Add CTAs to every section
+Every section currently ends without a CTA except the hero and final contact block. Add a consistent button pair at the end of: "What MeasureWise does", "How it works", "SPC charts", "Features", "Comparison table", "Personas". Primary CTA "Start your 14-day free trial" (filled teal), secondary "Book a 20-min demo" (outline) linking to `/contact`. Use the existing `Button` component with `size="lg"` — no new variants.
 
-Source: `src/pages/Landing.tsx:358` — `<img … fetchPriority="high" … />`. React's DOM allowlist is rejecting the camelCase prop on every public route load (the `<link rel="preload" … fetchpriority="high">` in `index.html` is plain HTML and fine).
+### B4. Add a "Trusted by / Proof" strip
+New section directly under hero, above "What MeasureWise does":
+- Left: 4–6 client/partner logos in a muted greyscale strip (placeholder SVG logos until real ones land — labeled "FQHC partners" not real names, to avoid fake-testimonial issues)
+- Right: 1 short quote with attribution to a real persona role ("QI Director, 18-site FQHC" — generic role, not a fake name)
+- Below: 3 trust badges already in `securityItems` (HIPAA-ready, SOC 2 infra, 256-bit encryption) — pulled up from the bottom into a horizontal pill row
 
-Fix: rename the JSX prop to lowercase `fetchpriority="high"` so React forwards it as a literal HTML attribute without the warning. Browsers read the attribute case-insensitively, so the priority hint still applies.
+I will flag clearly in the plan deliverable that the logos and quote are placeholders; you'll need to supply real ones before publishing.
 
-Verify by reloading `/` headless and confirming the warning is gone.
+### B5. Standardize spacing + type scale
+Audit Landing.tsx and normalize:
+- Section vertical padding: every `<section>` → `py-20 md:py-24` (currently mixed `py-16`/`py-20`/`py-24`).
+- Container: every section's inner div → `max-w-6xl mx-auto px-6` (currently mixed `max-w-3xl`/`max-w-5xl`/`max-w-6xl`).
+- H2 scale: every section heading → `text-3xl md:text-4xl font-bold tracking-tight` (already mostly consistent; align outliers).
+- Body lead paragraph: `text-lg text-muted-foreground leading-relaxed` (consistent).
+- Card padding inside `<Card>` → `p-6 md:p-8`.
 
-## 4. Re-run the authenticated half of the QA sweep
+No new tokens — use existing semantic tokens in `index.css`.
 
-Sandbox `LOVABLE_BROWSER_AUTH_STATUS` is now `injected` (Jessica just signed in via Google — visible in auth logs). With her org wired up in step 1, run Playwright with the injected Supabase session against `localhost:8080`:
+### B6. Mobile + tablet check (Playwright, headless)
+After B1–B5 ship, screenshot `/` at 375px (iPhone SE), 768px (tablet), 1280px (desktop). Verify:
+- No horizontal overflow at any width
+- Hero buttons stack full-width on 375px and stay ≥44px tap target
+- Trust strip logos wrap to 2 rows on tablet, 1 row of 3 + 1 row of 3 on mobile
+- Comparison table either becomes a stacked card list under 768px or gets `overflow-x-auto` (whichever already exists)
+- Sticky header CTA stays visible and tappable
 
-- `/dashboard` — confirm it renders the org dashboard (not the empty-state card) now that Jessica has an org.
-- `/admin` + admin sidebar — every admin route renders 200, "Acting as" picker shows the org.
-- `/settings` Facility tab — save NPI/name with a real org id (no more uuid syntax error).
-- `/onboarding` — should redirect to `/dashboard` since profile now has org.
-- Create one row in each of: `pdsa_cycles` (PDSA Lab), `tasks` (Staff Tasks), `evidence_documents` (Evidence Binder upload to `evidence-binder` bucket), `ai_tools` (AI Governance). Verify via `supabase--read_query` that each row carries the right `organization_id`.
-- Trigger authenticated edge functions and check `supabase--edge_function_logs` for 2xx + side effects: `draft-qi-report`, `ai-root-cause`, `download-watermarked-manual`, `create-checkout`, `create-billing-portal`, `send-welcome-email` (admin-only), `admin-waitlist-status`.
-- RLS cross-org check: as founder_admin Jessica should see all orgs' rows; spot-check that the policies still scope correctly for a non-admin (skipped if no non-admin account remains after step 2 — will flag and ask whether to create a fresh standard_user for this check).
+Fix any overflow/clipping found.
 
-Report back with a per-item pass/fail table and any console errors observed.
+### B7. Header + footer CTAs
+Confirm `PublicPageLayout`'s header has a visible "Start free trial" button (primary teal) on desktop AND mobile (currently mobile hides behind the hamburger). If missing on mobile, surface a compact `Trial` button next to the menu icon. Footer: add a final-call CTA band ("Ready to make your next PDSA cycle defensible?") with the same button pair.
 
-## Notes / things I will flag, not auto-fix
+---
 
-- After step 2 there is no non-founder_admin account left to verify role-based access blocking. I'll call this out at the end of step 4 and ask if you want me to seed one (e.g., a `+staff` Gmail alias) before running the role-isolation check.
-- The orphan org's name `"Federally Qualified Health Center"` is generic — happy to rename it in the same migration if you give me the real clinic name.
+## What I'll flag, not auto-decide
+
+- **Real logos / real testimonial.** I'll use clearly-labeled placeholders for B4. You'll need to either give me real partner names + quotes, or approve shipping with generic role-only attributions ("QI Director at a 12-site FQHC in the Pacific Northwest").
+- **Headline wording.** B1's wording is my proposal — I'll implement as written unless you give me an alternative before I start.
+- **Demo CTA destination.** B3's secondary CTA points to `/contact`. If you want a Calendly link instead, drop it in and I'll wire it.
+
+---
+
+## Technical notes (for me, not for you)
+
+- AppLayout sections inside `/dashboard/*` aren't in scope.
+- `index.html` static shell is out of scope — that's the no-JS marketing fallback per the project memory; touching it risks breaking the no-React `/` route.
+- All changes stay in `src/pages/Landing.tsx`, `src/components/PublicPageLayout.tsx`, and possibly a new `src/components/landing/TrustStrip.tsx` if the JSX gets long.
+- No new dependencies. No font additions (existing brand fonts via index.css stay).
