@@ -149,8 +149,12 @@ export default function Auth() {
   };
 
   const handleGoogleSignIn = async () => {
+    // Point OAuth back to /auth so the post-login redirect logic above
+    // (founder_admin → /admin, otherwise → /dashboard) runs after the
+    // session is hydrated. Sending OAuth directly to /dashboard caused a
+    // brief "sign-in" flash for founder accounts before the session settled.
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/dashboard`,
+      redirect_uri: `${window.location.origin}/auth`,
     });
     if (error) toast.error("Google sign-in failed. Please try again.");
   };

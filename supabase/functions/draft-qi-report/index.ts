@@ -78,7 +78,7 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-pro",
+        model: "google/gemini-3-pro-preview",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
@@ -154,6 +154,23 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
       narratives = {};
     }
 
+    // Fallback: some models (Gemini 3 in particular) sometimes return the
+    // JSON in `message.content` instead of a tool_call. Try to recover it.
+    if (!narratives.exec_summary && !narratives.performance_narrative) {
+      const content = choice?.message?.content;
+      const text = typeof content === "string"
+        ? content
+        : Array.isArray(content)
+          ? content.map((c: { text?: string }) => c?.text ?? "").join("")
+          : "";
+      if (text) {
+        const match = text.match(/\{[\s\S]*\}/);
+        if (match) {
+          try { narratives = JSON.parse(match[0]); } catch { /* keep empty */ }
+        }
+      }
+    }
+
     if (!narratives.exec_summary && !narratives.performance_narrative) {
       console.error("draft-qi-report: empty narrative", JSON.stringify({
         finish_reason: choice?.finish_reason,
@@ -175,7 +192,7 @@ Draft the narrative for each section. Keep each section 3–6 sentences.`;
       JSON.stringify({
         narratives,
         meta: {
-          model: "google/gemini-3-pro",
+          model: "google/gemini-3-pro-preview",
           generated_at: new Date().toISOString(),
         },
       }),
