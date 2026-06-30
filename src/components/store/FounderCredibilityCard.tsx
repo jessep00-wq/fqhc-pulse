@@ -1,4 +1,5 @@
-import founderPhoto from "@/assets/founder-jessica.png";
+import founderAsset from "@/assets/founder-jessica.webp.asset.json";
+const founderPhoto = founderAsset.url;
 import { Card, CardContent } from "@/components/ui/card";
 
 interface FounderCredibilityCardProps {
