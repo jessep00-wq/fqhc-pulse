@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { BRAND } from "@/lib/brand";
+import jessicaPhoto from "@/assets/jessica-smith.jpg.asset.json";
 
 import {
   FlaskConical,
@@ -775,12 +776,12 @@ export default function Landing() {
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <div className="flex justify-center">
-            <div
-              aria-label={`${BRAND.founder.formalName}, Founder of ${BRAND.name}`}
-              className="flex h-36 w-36 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/10 text-3xl font-semibold text-primary shadow-lg md:h-44 md:w-44 md:text-4xl"
-            >
-              JS
-            </div>
+            <img
+              src={jessicaPhoto.url}
+              alt={`${BRAND.founder.formalName}, Founder of ${BRAND.name}`}
+              loading="lazy"
+              className="h-36 w-36 md:h-44 md:w-44 rounded-full object-cover border-2 border-primary/20 shadow-lg"
+            />
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
             Built for FQHCs by an FQHC operator

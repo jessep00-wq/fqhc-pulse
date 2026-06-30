@@ -9,7 +9,7 @@ export const BRAND = {
   legalLocation: "Fulton, MS",
   domain: "measurewise.org",
   url: "https://measurewise.org",
-  supportEmail: "support@measurewise.org",
+  supportEmail: "hello@measurewise.org",
   helloEmail: "hello@measurewise.org",
   founder: {
     name: "Jessica Smith",
