@@ -27,6 +27,7 @@ import {
 import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
+import { TrustStrip } from "@/components/landing/TrustStrip";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
 import {
@@ -297,50 +298,55 @@ export default function Landing() {
       />
 
 
-      {/* Hero — audience → problem → outcome */}
-      <section className="py-16 md:py-24 px-6">
+      {/* Hero — audience → outcome → proof */}
+      <section className="py-20 md:py-24 px-6">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left: copy + CTA */}
           <div className="space-y-7 text-center lg:text-left">
+            <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary uppercase tracking-wide">
+              Built for FQHC Quality Teams
+            </span>
+
             <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-extrabold tracking-tight text-foreground leading-[1.08]">
-              FQHC quality leaders: stop running PDSA cycles that never show up in your UDS results.
+              Move a UDS measure in 90 days — and walk into your next HRSA site visit binder-ready.
             </h1>
 
             <p className="text-lg text-muted-foreground leading-relaxed">
-              MeasureWise turns scattered audit prep and measure-tracking spreadsheets into one
-              defensible workflow — so every cycle produces HRSA-ready evidence and a UDS
-              measure you can prove moved.
+              MeasureWise gives FQHC quality directors one defensible workflow for every
+              PDSA cycle: guided templates, real-time SPC charts, and a one-click
+              Chapter-10 audit binder. Replace 4–6 spreadsheets with the system your
+              surveyors expect to see.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3">
-              <Button size="lg" asChild className="text-base px-8">
+            <ul className="grid sm:grid-cols-3 gap-3 text-left max-w-xl mx-auto lg:mx-0">
+              <li className="rounded-lg border border-border bg-card px-3 py-2.5">
+                <p className="text-sm font-semibold text-foreground">Move a measure in 90 days</p>
+                <p className="text-xs text-muted-foreground">SPC-backed cycles, not spreadsheets</p>
+              </li>
+              <li className="rounded-lg border border-border bg-card px-3 py-2.5">
+                <p className="text-sm font-semibold text-foreground">Audit prep: 2 weeks → 2 hours</p>
+                <p className="text-xs text-muted-foreground">Binder builds itself as you work</p>
+              </li>
+              <li className="rounded-lg border border-border bg-card px-3 py-2.5">
+                <p className="text-sm font-semibold text-foreground">Retire 4–6 spreadsheets</p>
+                <p className="text-xs text-muted-foreground">One system, one source of truth</p>
+              </li>
+            </ul>
+
+            <div className="flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-3 pt-1">
+              <Button size="lg" asChild className="text-base px-8 w-full sm:w-auto">
                 <Link to="/auth?signup=true">
-                  Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+                  Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="text-base px-8">
-                <Link to="/how-it-works">See how it works</Link>
+              <Button size="lg" variant="outline" asChild className="text-base px-8 w-full sm:w-auto">
+                <Link to="/contact">Book a 20-min demo</Link>
               </Button>
             </div>
 
             <p className="text-sm text-muted-foreground">
               14-day free trial · No credit card · Cancel anytime
             </p>
-
-            <ul className="space-y-2.5 pt-2 text-left max-w-md mx-auto lg:mx-0">
-              <li className="flex items-start gap-3">
-                <Shield className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-foreground">HRSA Chapter 10 + NCQA PCMH aligned</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <TrendingUp className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-foreground">Real UDS measure movement on SPC charts</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <FileCheck className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <span className="text-sm text-foreground">Audit binder exported in one click</span>
-              </li>
-            </ul>
           </div>
 
           {/* Right: dashboard preview */}
@@ -352,7 +358,7 @@ export default function Landing() {
                 <img
                   src={dashboardPreview}
                   alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking`}
-                  className="w-full"
+                  className="w-full h-auto"
                   width={1280}
                   height={720}
                   {...({ fetchpriority: "high" } as any)}
@@ -364,29 +370,35 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Social proof + trust */}
+      <TrustStrip />
 
-      <section className="py-20 px-6">
+
+      <section className="py-20 md:py-24 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            What MeasureWise actually does
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+            The quality system FQHCs were never given
           </h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            MeasureWise is a quality operations layer that sits on top of your existing
-            EHR and reporting tools. It structures every PDSA cycle, ties it to specific
-            UDS measures, and automatically generates audit-ready documentation so you can
-            show exactly how your quality work supports HRSA, NCQA, and funding outcomes.
+            MeasureWise sits on top of your EHR and Azara. It structures every PDSA cycle,
+            links it to the UDS measure it should move, and builds your HRSA audit binder
+            as you work — so quality improvement actually shows up in your numbers and in
+            your site-visit binder.
           </p>
           <p className="text-muted-foreground text-base leading-relaxed">
-            Unlike dashboards that only show you where your rates are, MeasureWise helps you
-            change them — and proves you did. Every cycle is guided, every measure is tracked
-            in real time, and every piece of evidence is organized for your next site visit
-            or PCMH submission.
+            Dashboards show you where your rates <em>are</em>. MeasureWise helps you
+            change them — and proves you did.
           </p>
-          <Button variant="outline" asChild>
-            <Link to="/how-it-works">
-              See the full workflow <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/how-it-works">See the full workflow</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -531,6 +543,16 @@ export default function Landing() {
               </Card>
             ))}
           </div>
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/contact">Book a 20-min demo</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -555,6 +577,16 @@ export default function Landing() {
                 <p className="text-sm text-muted-foreground leading-relaxed">{o.description}</p>
               </div>
             ))}
+          </div>
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/contact">Book a 20-min demo</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -725,6 +757,16 @@ export default function Landing() {
                 </Card>
               </Link>
             ))}
+          </div>
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/contact">Book a 20-min demo</Link>
+            </Button>
           </div>
         </div>
       </section>
