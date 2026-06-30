@@ -224,6 +224,7 @@ export default function Dashboard() {
   const { organization } = useOrg();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useUserRole();
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
