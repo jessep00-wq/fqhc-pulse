@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  Users,
   CreditCard,
   Activity,
   Newspaper,
