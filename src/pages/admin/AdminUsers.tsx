@@ -116,10 +116,9 @@ export default function AdminUsers() {
   return (
     <div className="space-y-6">
       <PageHeader
-        icon={UsersIcon}
         title="All Users"
         description="Every account that has signed up — including trial sign-ups that have not finished onboarding."
-        actions={
+        primaryAction={
           <Button variant="outline" size="sm" onClick={exportCsv} disabled={!filtered.length}>
             <Download className="h-4 w-4 mr-2" /> Export CSV
           </Button>
