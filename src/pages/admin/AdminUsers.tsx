@@ -132,7 +132,7 @@ export default function AdminUsers() {
         <Stat label="Email unverified" value={counts.unverified} tone="warning" />
       </div>
 
-      <SectionCard>
+      <SectionCard title="Users">
         <div className="flex flex-col md:flex-row md:items-center gap-3 mb-4">
           <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
             <TabsList>
