@@ -54,15 +54,16 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             <span />
           )}
 
-          <div className="justify-self-end flex items-center gap-2">
+          <div className="justify-self-end flex items-center gap-1.5 sm:gap-2">
             <CartButton />
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
               <Link to="/auth">Sign In</Link>
             </Button>
             {!slimNav && (
-              <Button size="sm" asChild className="ml-1 px-4 font-semibold shadow-sm whitespace-nowrap">
+              <Button size="sm" asChild className="px-3 sm:px-4 font-semibold shadow-sm whitespace-nowrap">
                 <Link to="/auth?signup=true">
-                  Start 14-day free trial
+                  <span className="sm:hidden">Start trial</span>
+                  <span className="hidden sm:inline">Start 14-day free trial</span>
                   <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
                 </Link>
               </Button>
