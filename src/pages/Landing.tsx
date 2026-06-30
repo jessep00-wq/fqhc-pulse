@@ -29,8 +29,6 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import dashboardPreview from "@/assets/dashboard-preview.jpg";
 import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
-import founderAsset from "@/assets/founder-jessica.webp.asset.json";
-const founderPhoto = founderAsset.url;
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -735,12 +733,12 @@ export default function Landing() {
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-3xl mx-auto text-center space-y-6">
           <div className="flex justify-center">
-            <img
-              src={founderPhoto}
-              alt={`${BRAND.founder.formalName}, Founder of ${BRAND.name}`}
-              className="h-36 w-36 md:h-44 md:w-44 rounded-full object-cover border-2 border-primary/20 shadow-lg"
-              loading="lazy"
-            />
+            <div
+              aria-label={`${BRAND.founder.formalName}, Founder of ${BRAND.name}`}
+              className="flex h-36 w-36 items-center justify-center rounded-full border-2 border-primary/20 bg-primary/10 text-3xl font-semibold text-primary shadow-lg md:h-44 md:w-44 md:text-4xl"
+            >
+              JS
+            </div>
           </div>
           <h2 className="text-2xl md:text-3xl font-bold text-foreground">
             Built for FQHCs by an FQHC operator
