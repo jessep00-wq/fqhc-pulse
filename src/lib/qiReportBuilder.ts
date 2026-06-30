@@ -49,11 +49,14 @@ export async function buildReportSnapshot(
   };
 
   // Active PDSA cycles (any cycle whose created_at falls in period or status not completed)
-  const { data: pdsaRows } = await client
+  const { data: pdsaRows, error: pdsaErr } = await client
     .from("pdsa_cycles")
     .select("id, title, status, uds_measure, improvement_pct, next_cycle_decision, created_at")
     .eq("organization_id", organizationId)
     .order("created_at", { ascending: false });
+  if (pdsaErr) throw new Error(`PDSA cycles query failed: ${pdsaErr.message}`);
+
+
 
   const cycles = (pdsaRows ?? []) as Array<PdsaSnapshotItem & { created_at: string }>;
 
@@ -72,16 +75,20 @@ export async function buildReportSnapshot(
     .map(({ created_at: _c, ...rest }) => rest);
 
   // UDS trend snapshot
-  const { data: trendRows } = await client
+  const { data: trendRows, error: trendsErr } = await client
     .from("uds_trends")
     .select("measure_id, month, value")
     .eq("organization_id", organizationId)
     .order("month", { ascending: true });
+  if (trendsErr) throw new Error(`UDS trends query failed: ${trendsErr.message}`);
 
-  const { data: targetRows } = await client
+  const { data: targetRows, error: targetsErr } = await client
     .from("uds_targets")
     .select("measure_id, baseline, goal")
     .eq("organization_id", organizationId);
+  if (targetsErr) throw new Error(`UDS targets query failed: ${targetsErr.message}`);
+
+
 
   const trends = (trendRows ?? []) as Array<{ measure_id: string; month: string; value: number }>;
   const targets = (targetRows ?? []) as Array<{ measure_id: string; baseline: number | null; goal: number | null }>;
@@ -118,7 +125,7 @@ export async function buildReportSnapshot(
   }
 
   // Patient safety events (re-use ai_incidents with patient_impact=true; gracefully empty if none)
-  const { data: incidentRows } = await client
+  const { data: incidentRows, error: incidentsErr } = await client
     .from("ai_incidents")
     .select("id, occurred_at, description, resolution_status, corrective_action, patient_impact")
     .eq("organization_id", organizationId)
@@ -126,6 +133,9 @@ export async function buildReportSnapshot(
     .gte("occurred_at", period.start)
     .lte("occurred_at", period.end + "T23:59:59")
     .order("occurred_at", { ascending: false });
+  if (incidentsErr) throw new Error(`Safety incidents query failed: ${incidentsErr.message}`);
+
+
 
   const safety_events: SafetyEventSnapshotItem[] = ((incidentRows ?? []) as Array<SafetyEventSnapshotItem>).slice(0, 25);
 
