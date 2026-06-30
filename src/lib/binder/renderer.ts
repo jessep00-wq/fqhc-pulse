@@ -143,10 +143,11 @@ const evidenceTable = (
       return `<tr><td>${esc(d.title)}</td>${cells}</tr>`;
     })
     .join("");
+  const columnCount = columns.length + 1;
   return `
     <div class="section-subhead">Evidence Included</div>
     <div class="table-wrap">
-      <table class="evidence-table">
+      <table class="evidence-table cols-${columnCount}">
         <thead><tr>${head}</tr></thead>
         <tbody>${rows}</tbody>
       </table>
@@ -340,7 +341,7 @@ function renderPdsaSection(
     ? `
       <div class="section-subhead">PDSA Cycle Tracker</div>
       <div class="table-wrap">
-        <table class="evidence-table">
+        <table class="evidence-table cols-6">
           <thead><tr><th>PDSA Title</th><th>UDS Measure</th><th>Start Date</th><th>Decision</th><th>Outcome</th><th>Status</th></tr></thead>
           <tbody>${cycleRows}</tbody>
         </table>
@@ -405,7 +406,7 @@ function renderGapsSection(): string {
       </header>
       <div class="section-body">
         <div class="table-wrap">
-          <table class="evidence-table gaps-table">
+          <table class="evidence-table gaps-table cols-3">
             <thead><tr><th>Common Gap</th><th>Risk Level</th><th>Mitigation</th></tr></thead>
             <tbody>${rows}</tbody>
           </table>
