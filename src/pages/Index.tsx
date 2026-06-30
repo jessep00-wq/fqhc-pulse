@@ -12,6 +12,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/lib/activityLogger";
 import { useOrg } from "@/contexts/OrgContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -222,6 +224,7 @@ export default function Dashboard() {
   const { organization } = useOrg();
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { isAdmin } = useUserRole();
   const orgId = organization.id;
   const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
@@ -338,6 +341,20 @@ export default function Dashboard() {
     const date = new Date(Number(year), Number(mm) - 1, 1);
     return date.toLocaleString(undefined, { month: "short", year: "2-digit" });
   };
+
+  if (!orgId && isAdmin) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <EmptyState
+          icon={Building2}
+          title="No organization selected"
+          description="Select a clinic from the 'Acting as' dropdown in the Admin Console header to view its dashboard."
+          actionLabel="Open Admin Console"
+          onAction={() => navigate("/admin")}
+        />
+      </div>
+    );
+  }
 
   if (!orgId || isInitialLoading) {
     return (

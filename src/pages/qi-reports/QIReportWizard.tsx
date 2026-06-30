@@ -178,7 +178,7 @@ export default function QIReportWizard() {
         <p className="text-sm text-muted-foreground mt-1">
           Pick a reporting quarter, preview the auto-pulled snapshot, then let the AI draft the narrative.
         </p>
-        {organization?.name && (
+        {organization?.id && (
           <div className="mt-3 inline-flex items-center gap-2 rounded-md border bg-muted/40 px-3 py-1.5 text-xs">
             <span className="text-muted-foreground">Generating for</span>
             <span className="font-semibold">{organization.name}</span>
@@ -186,7 +186,18 @@ export default function QIReportWizard() {
         )}
       </div>
 
-
+      {!organization?.id ? (
+        <Card className="p-5 border-amber-300 bg-amber-50">
+          <h3 className="font-semibold text-amber-900 mb-1">No organization selected</h3>
+          <p className="text-sm text-amber-900/90 mb-4">
+            Open the Admin Console and pick a clinic from the "Acting as" dropdown, then return here to generate a quarterly report.
+          </p>
+          <Button variant="outline" onClick={() => navigate("/admin")}>
+            Open Admin Console
+          </Button>
+        </Card>
+      ) : (
+      <>
       <Card className="p-5">
         <h3 className="font-semibold mb-3">1. Choose period</h3>
         <div className="flex gap-3">
@@ -245,6 +256,8 @@ export default function QIReportWizard() {
             </Button>
           </Card>
         </>
+      )}
+      </>
       )}
     </div>
   );
