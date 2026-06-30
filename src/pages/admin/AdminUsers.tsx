@@ -10,7 +10,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import { PageHeader, SectionCard, StatusBadge } from "@/components/dashboard";
-import { Download, Users as UsersIcon } from "lucide-react";
+import { Download } from "lucide-react";
 
 type AdminUser = {
   id: string;
