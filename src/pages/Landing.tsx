@@ -540,6 +540,16 @@ export default function Landing() {
               </Card>
             ))}
           </div>
+          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/contact">Book a 20-min demo</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
