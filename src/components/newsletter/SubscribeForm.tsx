@@ -18,20 +18,13 @@ export function SubscribeForm({ className }: { className?: string }) {
     }
     setLoading(true);
     try {
-      const { error } = await supabase
-        .from("newsletter_subscribers")
-        .insert({ email: trimmed } as any);
-      if (error) {
-        if (error.code === "23505") {
-          toast.info("You're already subscribed!");
-        } else {
-          throw error;
-        }
+      const { data, error } = await supabase.functions.invoke("subscribe-newsletter", {
+        body: { email: trimmed },
+      });
+      if (error) throw error;
+      if (data?.alreadySubscribed) {
+        toast.info("You're already subscribed!");
       } else {
-        // Fire-and-forget welcome + admin notification. Don't block UI on email.
-        supabase.functions
-          .invoke("newsletter-welcome", { body: { email: trimmed } })
-          .catch((err) => console.warn("newsletter-welcome invoke failed", err));
         toast.success("Subscribed! Check your inbox for a welcome email.");
       }
       setEmail("");
@@ -41,6 +34,7 @@ export function SubscribeForm({ className }: { className?: string }) {
       setLoading(false);
     }
   };
+
 
   return (
     <form onSubmit={handleSubscribe} className={`flex gap-2 max-w-md ${className ?? ""}`}>
