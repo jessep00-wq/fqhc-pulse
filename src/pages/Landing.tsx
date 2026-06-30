@@ -374,28 +374,31 @@ export default function Landing() {
       <TrustStrip />
 
 
-      <section className="py-20 px-6">
+      <section className="py-20 md:py-24 px-6">
         <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-            What MeasureWise actually does
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+            The quality system FQHCs were never given
           </h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
-            MeasureWise is a quality operations layer that sits on top of your existing
-            EHR and reporting tools. It structures every PDSA cycle, ties it to specific
-            UDS measures, and automatically generates audit-ready documentation so you can
-            show exactly how your quality work supports HRSA, NCQA, and funding outcomes.
+            MeasureWise sits on top of your EHR and Azara. It structures every PDSA cycle,
+            links it to the UDS measure it should move, and builds your HRSA audit binder
+            as you work — so quality improvement actually shows up in your numbers and in
+            your site-visit binder.
           </p>
           <p className="text-muted-foreground text-base leading-relaxed">
-            Unlike dashboards that only show you where your rates are, MeasureWise helps you
-            change them — and proves you did. Every cycle is guided, every measure is tracked
-            in real time, and every piece of evidence is organized for your next site visit
-            or PCMH submission.
+            Dashboards show you where your rates <em>are</em>. MeasureWise helps you
+            change them — and proves you did.
           </p>
-          <Button variant="outline" asChild>
-            <Link to="/how-it-works">
-              See the full workflow <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/how-it-works">See the full workflow</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
