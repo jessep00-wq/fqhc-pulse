@@ -31,11 +31,16 @@ Deno.serve(async (req) => {
 
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
 
+  // Only target legacy leads NOT in the structured nurture pipeline
+  // (send-playbook-nurture handles Day 3/7/14 for nurture_step > 0).
+  // This prevents duplicate "did you read it?" emails to the same recipient.
   const { data: leads, error } = await supabase
     .from("playbook_leads")
     .select("id, full_name, work_email, health_center_name")
     .lt("created_at", threeDaysAgo)
     .is("reminder_sent_at", null)
+    .or("nurture_step.is.null,nurture_step.eq.0")
+    .is("last_nurture_sent_at", null)
     .limit(50); // safety cap per run
 
   if (error) {
