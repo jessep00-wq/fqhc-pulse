@@ -154,11 +154,73 @@ h1,h2,h3,h4,h5,h6 { line-height: 1.2; }
 
 @page { size: Letter; margin: 0.5in; }
 @media print {
-  body { background: white; }
-  .cover { break-after: page; }
-  .toc-section { break-after: page; }
-  .section-card { break-inside: avoid; page-break-inside: avoid; }
-  .evidence-table { break-inside: auto; }
-  .site-footer { break-before: page; }
+  *, *::before, *::after { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  html, body { width: 7.5in; background: white !important; }
+  body { font-size: 10pt; }
+
+  /* Cover — one page, completeness stacked under meta */
+  .cover { padding: 0.4in 0.35in 0.5in; min-height: 9.4in; break-after: page; page-break-after: always; overflow: hidden; }
+  .cover-grid { grid-template-columns: 1fr !important; gap: 0.3in; max-width: 100%; align-items: stretch; }
+  .cover-title { font-size: 26pt !important; line-height: 1.1; }
+  .cover-subtitle { font-size: 10.5pt !important; max-width: 100%; margin-bottom: 0.25in; }
+  .cover-meta-grid { grid-template-columns: repeat(2, 1fr) !important; max-width: 100%; gap: 0.12in; }
+  .cover-meta-item { padding: 0.12in; }
+  .cover-completeness { min-width: 0; max-width: 100%; padding: 0.2in; }
+  .completeness-ring { width: 64px; height: 64px; margin-bottom: 0.15in; }
+  .completeness-items { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.06in 0.2in; }
+
+  /* TOC */
+  .toc-section { break-after: page; page-break-after: always; padding: 0.3in 0; }
+  .toc-inner { max-width: 100%; padding: 0 0.1in; }
+  .toc-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.08in; }
+
+  /* Main content + section cards */
+  .main-content { max-width: 100%; padding: 0; gap: 0.2in; }
+  .section-card { break-inside: avoid; page-break-inside: avoid; max-width: 100%; box-shadow: none !important; border-radius: 8px; }
+  .section-card.long { break-inside: auto; page-break-inside: auto; }
+  .section-header { break-after: avoid; page-break-after: avoid; padding: 0.15in 0.18in; }
+  .section-body { padding: 0.15in 0.18in; }
+  h1, h2, h3, h4, .section-title, .section-svp { break-after: avoid; page-break-after: avoid; }
+
+  /* Tables — fixed layout, wrap, no horizontal overflow */
+  .table-wrap { overflow: visible !important; margin-bottom: 0.15in; }
+  .evidence-table { table-layout: fixed; width: 100%; font-size: 8.5pt; border-radius: 6px; }
+  .evidence-table th, .evidence-table td {
+    word-wrap: break-word; overflow-wrap: anywhere; white-space: normal !important;
+    padding: 5px 7px; vertical-align: top;
+  }
+  .evidence-table th { font-size: 7pt; }
+  .evidence-table thead { display: table-header-group; }
+  .evidence-table tr { break-inside: avoid; page-break-inside: avoid; }
+
+  .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(1),
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(1) { width: 32%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(2),
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(2) { width: 16%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(3),
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(3) { width: 14%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(4),
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(4) { width: 14%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(5),
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(5) { width: 14%; }
+  .evidence-table:not(.uds-tracker):not(.gaps-table) th:nth-child(6),
+  .evidence-table:not(.uds-tracker):not(.gaps-table) td:nth-child(6) { width: 10%; }
+
+  .uds-tracker th:nth-child(1), .uds-tracker td:nth-child(1) { width: 34%; }
+  .gaps-table th:nth-child(1), .gaps-table td:nth-child(1) { width: 34%; }
+
+  .tag { white-space: normal; word-break: break-word; }
+
+  /* Other grids that overflow narrow print width */
+  .prep-grid, .signoff-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 0.12in; }
+  .completeness-items, .checklist, .pending-callout ul { padding-left: 0; max-width: 100%; }
+  .alert, .body-text, .preparer-note { max-width: 100%; }
+
+  /* Footer — no forced blank trailing page */
+  .site-footer { break-before: auto !important; page-break-before: auto !important; break-inside: avoid; padding: 0.2in 0; }
+  .footer-inner { max-width: 100%; padding: 0 0.1in; }
+
+  /* Safety: kill stray clipping */
+  .section-card, .section-body, .table-wrap, .alert, .pending-callout { overflow: visible !important; }
 }
 `;
