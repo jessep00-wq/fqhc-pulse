@@ -1,63 +1,57 @@
-# End-to-End QA Sweep
+# Cleanup + Warning Fix + Authenticated QA Sweep
 
-A read-only verification pass — no app code changes unless a defect is found. If issues surface, I will pause and report them before fixing.
+## 1. Assign the orphan org to Jessica
 
-## 1. Auth flows
-- Drive Playwright headlessly against `http://localhost:8080`:
-  - Email/password sign-up (new test user) → confirm `profiles` row created via trigger `handle_new_user`, redirect to `/onboarding`.
-  - Email/password login of existing user → redirect to `/dashboard`.
-  - Google OAuth — verify button wires through `lovable.auth.signInWithOAuth("google")` (cannot complete real Google consent in headless; confirm initiation + redirect URL).
-  - Password reset request → `/reset-password` page renders and accepts new password.
-- Verify `ProtectedRoute` bounces unauthenticated users to `/auth`, and `AdminRoute` bounces non-admins to `/dashboard`.
+The `Federally Qualified Health Center` org (`a82b614a-8405-4a5d-bab9-57062d5a5ecd`) has `owner_id = NULL` and Jessica's profile has `organization_id = NULL`. Wire them together via insert tool:
 
-## 2. Forms → DB writes
-For each user-facing form, submit a sample and confirm a row lands in the expected table:
-- Onboarding (create org) → `organizations`, `subscriptions` (via `handle_new_org_subscription`), `profiles.organization_id`.
-- Settings → Facility (org update) → `organizations`.
-- PDSA Lab create cycle → `pdsa_cycles` (+ `completeness_score` trigger).
-- Staff Tasks create task → `tasks`.
-- Evidence Binder upload → `evidence_documents` + `evidence-binder` storage bucket.
-- AI Governance add tool / vendor review → `ai_tools`, `ai_vendor_reviews`.
-- QI Report wizard generate → `qi_reports` (+ approvals/board actions).
-- Contact form → contact-form edge function → email queue row.
-- Newsletter subscribe → `newsletter_subscribers`.
-- Playbook lead magnet → `playbook_leads`.
-- Readiness score → `readiness_submissions`.
-- Waitlist apply → `waitlist_applications`.
-- Store checkout (sandbox) → `orders` after webhook.
+- `UPDATE organizations SET owner_id = '166e226f-…' WHERE id = 'a82b614a-…'`
+- `UPDATE profiles SET organization_id = 'a82b614a-…' WHERE id = '166e226f-…'`
 
-Confirm via `supabase--read_query` (or psql) that rows exist and `organization_id` scoping holds.
+Result: Jessica becomes the formal owner and the "Acting as" picker can default to this org instead of empty.
 
-## 3. Edge functions
-Inventory in `supabase/functions/`. For each, trigger and check logs via `supabase--edge_function_logs`:
-- `send-welcome-email` — fires on new signup (AuthContext effect). Verify `email_send_log` row.
-- `auth-email-hook` — triggered on password reset / signup email.
-- `contact-form`, `subscribe-newsletter`, `newsletter-welcome`, `newsletter-unsubscribe`.
-- `capture-playbook-lead`, `send-playbook-nurture`, `send-playbook-followups`.
-- `submit-waitlist-application`, `send-waitlist-nurture`.
-- `send-readiness-report`.
-- `create-checkout`, `payments-webhook`, `get-order`, `resend-purchase-email`, `download-watermarked-manual`, `get-manual-token`.
-- `draft-qi-report`, `ai-root-cause`.
-- `check-task-deadlines`, `weekly-digest`, `process-email-queue`, `compute-account-health` (cron-driven — invoke manually).
-- `generate-content-draft`, `publish-content-draft`.
-- `admin-waitlist-status`, `admin-waitlist-test` (admin-gated).
+## 2. Delete the 4 stale test signups
 
-For each: confirm 2xx response, expected DB/email side effect, and that admin/cron functions reject unauthorized callers.
+Keep:
+- Jessica Smith — `jessicawithintention@gmail.com` (founder_admin)
+- Mark Golden MBA — `markgoldenday20@gmail.com`
 
-## 4. Role-based access
-- Log in as `founder_admin` (existing Jessica account) → confirm AdminSidebar items render, `/admin/*` accessible, `/dashboard` accessible with org switcher.
-- Log in as a `standard_user` test account → confirm `/admin` redirects to `/dashboard`, no admin nav items, dashboard scoped to their org only.
-- Cross-check by querying as each role: `user_roles`, `organizations`, `pdsa_cycles` — confirm RLS denies cross-org reads for standard users and allows founder_admin to see all.
-- Verify `is_founder_admin` / `has_role` functions used in policies and `enforce_org_not_locked` trigger behavior on a locked org.
+Delete these 5 auth users (cascades through `profiles` via FK) — wait, listing 4 since two "Smoke Test" + two "Test User E2E" + Ruth = 5. Re-reading: user said "only two are true signups, me and Mark", so everyone else goes. That's:
 
-## Deliverable
-A QA report with:
-- Pass/fail per check.
-- Specific repro for any failure (route, request, response, DB state).
-- Edge function log excerpts where relevant.
-- Recommended fixes — applied only after you approve.
+| Email | User ID |
+|---|---|
+| testuser_e2e_0331@testmail.com | 4a245a4b-… |
+| testuser_e2e_031@test.com | 09d058b9-… |
+| jessep_00@hotmail.com (Ruth) | 60d6109e-… |
+| jessicawithintention+mwsmoke1781523830@gmail.com | 556b7f2f-… |
+| jessicawithintention+mw1781523870@gmail.com | 9f5e051c-… |
 
-## Technical notes
-- Browser automation via Playwright in the sandbox; auth restored via the injected `LOVABLE_BROWSER_SUPABASE_*` env vars when `LOVABLE_BROWSER_AUTH_STATUS=injected`. If `signed_out`, I will pause and ask you to sign in via the preview so the session injects.
-- DB inspection via `supabase--read_query` (read-only) and `supabase--edge_function_logs`.
-- A second test account (non-admin) is needed for role checks — I will create one through the sign-up flow during step 1 and reuse it in step 4.
+Confirming Ruth is in scope — the user said "only Jessica and Mark are true signups, the rest are test." Ruth (`jessep_00@hotmail.com`) signed up once on 2026-05-13, never returned, never onboarded, no org, no role. Treating as test/abandoned per user's instruction.
+
+For each: clean dependents then `DELETE FROM auth.users WHERE id = …` (Supabase cascades `profiles`, `user_roles`, etc. via existing FKs). Pre-delete any rows in `email_send_log`, `activity_log`, `readiness_submissions`, `playbook_leads`, `manual_downloads` keyed off those user ids if FK doesn't cascade.
+
+## 3. Fix the React `fetchPriority` DOM warning
+
+Source: `src/pages/Landing.tsx:358` — `<img … fetchPriority="high" … />`. React's DOM allowlist is rejecting the camelCase prop on every public route load (the `<link rel="preload" … fetchpriority="high">` in `index.html` is plain HTML and fine).
+
+Fix: rename the JSX prop to lowercase `fetchpriority="high"` so React forwards it as a literal HTML attribute without the warning. Browsers read the attribute case-insensitively, so the priority hint still applies.
+
+Verify by reloading `/` headless and confirming the warning is gone.
+
+## 4. Re-run the authenticated half of the QA sweep
+
+Sandbox `LOVABLE_BROWSER_AUTH_STATUS` is now `injected` (Jessica just signed in via Google — visible in auth logs). With her org wired up in step 1, run Playwright with the injected Supabase session against `localhost:8080`:
+
+- `/dashboard` — confirm it renders the org dashboard (not the empty-state card) now that Jessica has an org.
+- `/admin` + admin sidebar — every admin route renders 200, "Acting as" picker shows the org.
+- `/settings` Facility tab — save NPI/name with a real org id (no more uuid syntax error).
+- `/onboarding` — should redirect to `/dashboard` since profile now has org.
+- Create one row in each of: `pdsa_cycles` (PDSA Lab), `tasks` (Staff Tasks), `evidence_documents` (Evidence Binder upload to `evidence-binder` bucket), `ai_tools` (AI Governance). Verify via `supabase--read_query` that each row carries the right `organization_id`.
+- Trigger authenticated edge functions and check `supabase--edge_function_logs` for 2xx + side effects: `draft-qi-report`, `ai-root-cause`, `download-watermarked-manual`, `create-checkout`, `create-billing-portal`, `send-welcome-email` (admin-only), `admin-waitlist-status`.
+- RLS cross-org check: as founder_admin Jessica should see all orgs' rows; spot-check that the policies still scope correctly for a non-admin (skipped if no non-admin account remains after step 2 — will flag and ask whether to create a fresh standard_user for this check).
+
+Report back with a per-item pass/fail table and any console errors observed.
+
+## Notes / things I will flag, not auto-fix
+
+- After step 2 there is no non-founder_admin account left to verify role-based access blocking. I'll call this out at the end of step 4 and ask if you want me to seed one (e.g., a `+staff` Gmail alias) before running the role-isolation check.
+- The orphan org's name `"Federally Qualified Health Center"` is generic — happy to rename it in the same migration if you give me the real clinic name.
