@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
 import { mapStoreBundle, mapStoreProduct } from "@/lib/storeMappers";
+import { ProductHero } from "@/components/store/ProductHero";
 
 interface BundleCopy {
   subhead: string;
@@ -158,7 +159,13 @@ export default function StoreBundleDetail() {
           <div className="lg:col-span-2 space-y-8">
             <header className="space-y-4">
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-5xl">{bundle.hero_emoji ?? "🎁"}</span>
+                <ProductHero
+                  imageUrl={bundle.hero_image_url}
+                  icon={bundle.hero_icon}
+                  fallbackIcon="Package"
+                  size="lg"
+                  alt={bundle.name}
+                />
                 <Badge>Bundle</Badge>
                 {savings > 0 && (
                   <Badge variant="secondary">Save {formatPrice(savings, bundle.currency)}</Badge>
