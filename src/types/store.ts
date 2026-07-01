@@ -13,6 +13,8 @@ export interface StoreProduct {
   currency: string;
   status: "draft" | "published" | "archived";
   hero_emoji: string | null;
+  hero_image_url: string | null;
+  hero_icon: string | null;
   short_description: string | null;
   long_description: string | null;
   bullets: string[];
@@ -33,6 +35,8 @@ export interface StoreBundle {
   slug: string;
   name: string;
   hero_emoji: string | null;
+  hero_image_url: string | null;
+  hero_icon: string | null;
   short_description: string | null;
   long_description: string | null;
   price_cents: number;
