@@ -59,12 +59,6 @@ const tools = [
   { title: "Waitlist Status", url: "/admin/waitlist-status", icon: Mail },
 ];
 
-const content = [
-  { title: "Content Ops", url: "/admin/content", icon: Sparkles },
-  { title: "Blog", url: "/admin/blog", icon: FileText },
-  { title: "Newsletter", url: "/admin/newsletter", icon: Newspaper },
-  { title: "Store", url: "/admin/store", icon: ShoppingBag },
-];
 
 export function AdminSidebar() {
   const { state } = useSidebar();
@@ -118,8 +112,9 @@ export function AdminSidebar() {
 
       <SidebarContent>
         {renderGroup("Oversight", oversight)}
-        {renderGroup("Growth", growth)}
+        {renderGroup("Growth Ops", growth)}
         {renderGroup("Content", content)}
+        {renderGroup("Tools", tools)}
       </SidebarContent>
 
       <SidebarFooter className="p-3">
