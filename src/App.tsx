@@ -63,6 +63,10 @@ import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminReadinessLeads from "./pages/admin/AdminReadinessLeads";
 import AdminContent from "./pages/admin/AdminContent";
+import GrowthOverview from "./pages/admin/growth/GrowthOverview";
+import GrowthLeads from "./pages/admin/growth/GrowthLeads";
+import GrowthEmail from "./pages/admin/growth/GrowthEmail";
+import GrowthTraffic from "./pages/admin/growth/GrowthTraffic";
 
 // Newsletter pages
 import NewsletterIndex from "./pages/NewsletterIndex";
@@ -210,6 +214,10 @@ const App = () => (
                             <Route path="blog" element={<AdminBlog />} />
                             <Route path="readiness" element={<AdminReadinessLeads />} />
                             <Route path="content" element={<AdminContent />} />
+                            <Route path="growth" element={<GrowthOverview />} />
+                            <Route path="growth/leads" element={<GrowthLeads />} />
+                            <Route path="growth/email" element={<GrowthEmail />} />
+                            <Route path="growth/traffic" element={<GrowthTraffic />} />
                             <Route path="waitlist-test" element={<WaitlistTest />} />
                             <Route path="waitlist-status" element={<WaitlistStatus />} />
                             <Route path="account/:orgId" element={<AdminAccountDetail />} />
