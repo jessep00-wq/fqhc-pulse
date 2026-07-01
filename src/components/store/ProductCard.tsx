@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Users, FileText, Sparkles } from "lucide-react";
 import { formatPrice, type StoreProduct } from "@/types/store";
+import { ProductHero } from "./ProductHero";
 
 export function ProductCard({ product }: { product: StoreProduct }) {
   const audience = (product.who_its_for ?? []).slice(0, 2).join(" · ");
@@ -17,7 +18,12 @@ export function ProductCard({ product }: { product: StoreProduct }) {
       <Card className="h-full transition-shadow hover:shadow-md">
         <CardContent className="p-6 flex flex-col h-full">
           <div className="flex items-start justify-between mb-3">
-            <div className="text-4xl">{product.hero_emoji ?? "📋"}</div>
+            <ProductHero
+              imageUrl={product.hero_image_url}
+              icon={product.hero_icon}
+              size="md"
+              alt={product.name}
+            />
             <div className="flex flex-col items-end gap-1.5">
               {product.is_coming_soon && (
                 <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30">
