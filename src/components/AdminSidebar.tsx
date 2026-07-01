@@ -11,6 +11,9 @@ import {
   Sparkles,
   FlaskConical,
   Mail,
+  TrendingUp,
+  UserPlus,
+  BarChart3,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
@@ -33,13 +36,14 @@ const oversight = [
   { title: "Accounts", url: "/admin", icon: LayoutDashboard, end: true },
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Adoption", url: "/admin/adoption", icon: Activity },
+  { title: "Billing", url: "/admin/billing", icon: CreditCard },
 ];
 
 const growth = [
-  { title: "Billing", url: "/admin/billing", icon: CreditCard },
-  { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
-  { title: "Waitlist Tester", url: "/admin/waitlist-test", icon: FlaskConical },
-  { title: "Waitlist Status", url: "/admin/waitlist-status", icon: Mail },
+  { title: "Overview", url: "/admin/growth", icon: TrendingUp, end: true },
+  { title: "Leads", url: "/admin/growth/leads", icon: UserPlus },
+  { title: "Email Activity", url: "/admin/growth/email", icon: Mail },
+  { title: "Traffic", url: "/admin/growth/traffic", icon: BarChart3 },
 ];
 
 const content = [
@@ -48,6 +52,13 @@ const content = [
   { title: "Newsletter", url: "/admin/newsletter", icon: Newspaper },
   { title: "Store", url: "/admin/store", icon: ShoppingBag },
 ];
+
+const tools = [
+  { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
+  { title: "Waitlist Tester", url: "/admin/waitlist-test", icon: FlaskConical },
+  { title: "Waitlist Status", url: "/admin/waitlist-status", icon: Mail },
+];
+
 
 export function AdminSidebar() {
   const { state } = useSidebar();
@@ -101,8 +112,9 @@ export function AdminSidebar() {
 
       <SidebarContent>
         {renderGroup("Oversight", oversight)}
-        {renderGroup("Growth", growth)}
+        {renderGroup("Growth Ops", growth)}
         {renderGroup("Content", content)}
+        {renderGroup("Tools", tools)}
       </SidebarContent>
 
       <SidebarFooter className="p-3">

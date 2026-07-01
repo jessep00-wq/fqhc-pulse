@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Package, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
+import { ProductHero } from "./ProductHero";
 
 interface BundleCardProps {
   bundle: StoreBundle;
@@ -25,7 +26,13 @@ export function BundleCard({ bundle, includedProducts }: BundleCardProps) {
       <Card className="h-full border-primary/30 bg-gradient-to-br from-primary/5 to-transparent transition-shadow hover:shadow-md">
         <CardContent className="p-6 flex flex-col h-full">
           <div className="flex items-start justify-between mb-3">
-            <div className="text-4xl">{bundle.hero_emoji ?? "🎁"}</div>
+            <ProductHero
+              imageUrl={bundle.hero_image_url}
+              icon={bundle.hero_icon}
+              fallbackIcon="Package"
+              size="md"
+              alt={bundle.name}
+            />
             {savings > 0 && (
               <Badge className="bg-primary text-primary-foreground">
                 Save {formatPrice(savings, bundle.currency)}

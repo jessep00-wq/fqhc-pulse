@@ -13,6 +13,7 @@ import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCar
 import { CheckCircle, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreProduct } from "@/types/store";
 import { mapStoreProduct } from "@/lib/storeMappers";
+import { ProductHero } from "@/components/store/ProductHero";
 
 export default function StoreProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -78,7 +79,12 @@ export default function StoreProductDetail() {
           <div className="lg:col-span-2 space-y-8">
             <header className="space-y-3">
               <div className="flex items-center gap-3">
-                <span className="text-5xl">{product.hero_emoji ?? "📋"}</span>
+                <ProductHero
+                  imageUrl={product.hero_image_url}
+                  icon={product.hero_icon}
+                  size="lg"
+                  alt={product.name}
+                />
                 <Badge variant="secondary">{product.category}</Badge>
               </div>
               <h1 className="text-3xl md:text-4xl font-bold tracking-tight">{product.name}</h1>

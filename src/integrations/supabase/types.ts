@@ -1883,6 +1883,8 @@ export type Database = {
           created_at: string
           currency: string
           hero_emoji: string | null
+          hero_icon: string | null
+          hero_image_url: string | null
           id: string
           included_product_ids: string[]
           long_description: string | null
@@ -1902,6 +1904,8 @@ export type Database = {
           created_at?: string
           currency?: string
           hero_emoji?: string | null
+          hero_icon?: string | null
+          hero_image_url?: string | null
           id?: string
           included_product_ids?: string[]
           long_description?: string | null
@@ -1921,6 +1925,8 @@ export type Database = {
           created_at?: string
           currency?: string
           hero_emoji?: string | null
+          hero_icon?: string | null
+          hero_image_url?: string | null
           id?: string
           included_product_ids?: string[]
           long_description?: string | null
@@ -1978,6 +1984,8 @@ export type Database = {
           currency: string
           file_count: number
           hero_emoji: string | null
+          hero_icon: string | null
+          hero_image_url: string | null
           id: string
           is_coming_soon: boolean
           long_description: string | null
@@ -2004,6 +2012,8 @@ export type Database = {
           currency?: string
           file_count?: number
           hero_emoji?: string | null
+          hero_icon?: string | null
+          hero_image_url?: string | null
           id?: string
           is_coming_soon?: boolean
           long_description?: string | null
@@ -2030,6 +2040,8 @@ export type Database = {
           currency?: string
           file_count?: number
           hero_emoji?: string | null
+          hero_icon?: string | null
+          hero_image_url?: string | null
           id?: string
           is_coming_soon?: boolean
           long_description?: string | null

@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { formatPrice, type StoreBundle, type StoreProduct } from "@/types/store";
 import { mapStoreBundle, mapStoreProduct } from "@/lib/storeMappers";
+import { ProductHero } from "@/components/store/ProductHero";
 
 interface BundleCopy {
   subhead: string;
@@ -158,7 +159,13 @@ export default function StoreBundleDetail() {
           <div className="lg:col-span-2 space-y-8">
             <header className="space-y-4">
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-5xl">{bundle.hero_emoji ?? "🎁"}</span>
+                <ProductHero
+                  imageUrl={bundle.hero_image_url}
+                  icon={bundle.hero_icon}
+                  fallbackIcon="Package"
+                  size="lg"
+                  alt={bundle.name}
+                />
                 <Badge>Bundle</Badge>
                 {savings > 0 && (
                   <Badge variant="secondary">Save {formatPrice(savings, bundle.currency)}</Badge>
@@ -203,9 +210,14 @@ export default function StoreBundleDetail() {
                   return tiles.map((t, i) => (
                     <div
                       key={`${p.id}-${i}`}
-                      className="aspect-square rounded-md bg-card border flex flex-col items-center justify-center text-center p-2"
+                      className="aspect-square rounded-md bg-card border flex flex-col items-center justify-center text-center p-2 gap-1.5"
                     >
-                      <span className="text-2xl mb-1">{p.hero_emoji ?? "📋"}</span>
+                      <ProductHero
+                        imageUrl={p.hero_image_url}
+                        icon={p.hero_icon}
+                        size="sm"
+                        alt={p.name}
+                      />
                       <span className="text-[10px] font-medium leading-tight text-muted-foreground line-clamp-3">
                         {t}
                       </span>
@@ -234,7 +246,12 @@ export default function StoreBundleDetail() {
                   <Link key={p.id} to={`/store/${p.slug}`} className="block group">
                     <Card className="transition-shadow group-hover:shadow-md">
                       <CardContent className="p-4 flex items-start gap-3">
-                        <span className="text-3xl">{p.hero_emoji ?? "📋"}</span>
+                        <ProductHero
+                          imageUrl={p.hero_image_url}
+                          icon={p.hero_icon}
+                          size="md"
+                          alt={p.name}
+                        />
                         <div className="flex-1">
                           <div className="flex items-center justify-between gap-3">
                             <h3 className="font-semibold group-hover:text-primary transition-colors">{p.name}</h3>
