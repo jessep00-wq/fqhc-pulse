@@ -210,9 +210,14 @@ export default function StoreBundleDetail() {
                   return tiles.map((t, i) => (
                     <div
                       key={`${p.id}-${i}`}
-                      className="aspect-square rounded-md bg-card border flex flex-col items-center justify-center text-center p-2"
+                      className="aspect-square rounded-md bg-card border flex flex-col items-center justify-center text-center p-2 gap-1.5"
                     >
-                      <span className="text-2xl mb-1">{p.hero_emoji ?? "📋"}</span>
+                      <ProductHero
+                        imageUrl={p.hero_image_url}
+                        icon={p.hero_icon}
+                        size="sm"
+                        alt={p.name}
+                      />
                       <span className="text-[10px] font-medium leading-tight text-muted-foreground line-clamp-3">
                         {t}
                       </span>
@@ -241,7 +246,12 @@ export default function StoreBundleDetail() {
                   <Link key={p.id} to={`/store/${p.slug}`} className="block group">
                     <Card className="transition-shadow group-hover:shadow-md">
                       <CardContent className="p-4 flex items-start gap-3">
-                        <span className="text-3xl">{p.hero_emoji ?? "📋"}</span>
+                        <ProductHero
+                          imageUrl={p.hero_image_url}
+                          icon={p.hero_icon}
+                          size="md"
+                          alt={p.name}
+                        />
                         <div className="flex-1">
                           <div className="flex items-center justify-between gap-3">
                             <h3 className="font-semibold group-hover:text-primary transition-colors">{p.name}</h3>
