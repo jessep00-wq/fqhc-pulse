@@ -1,15 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
+import { HelmetProvider } from "react-helmet-async";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 let auth: { session: unknown; loading: boolean } = { session: null, loading: false };
 let org: { hasOrg: boolean; loading: boolean } = { hasOrg: false, loading: false };
+let role = { isAdmin: false, loading: false };
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => auth,
 }));
 vi.mock("@/contexts/OrgContext", () => ({
   useOrg: () => org,
+}));
+vi.mock("@/hooks/useUserRole", () => ({
+  useUserRole: () => role,
 }));
 
 vi.mock("@/integrations/supabase/client", () => ({
@@ -41,13 +46,15 @@ import Auth from "./Auth";
 
 function renderAuth() {
   return render(
-    <MemoryRouter initialEntries={["/auth"]}>
-      <Routes>
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/dashboard" element={<div>DASH</div>} />
-        <Route path="/onboarding" element={<div>ONBOARDING</div>} />
-      </Routes>
-    </MemoryRouter>
+    <HelmetProvider>
+      <MemoryRouter initialEntries={["/auth"]}>
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<div>DASH</div>} />
+          <Route path="/onboarding" element={<div>ONBOARDING</div>} />
+        </Routes>
+      </MemoryRouter>
+    </HelmetProvider>
   );
 }
 
@@ -55,6 +62,7 @@ describe("Auth page redirects", () => {
   beforeEach(() => {
     auth = { session: null, loading: false };
     org = { hasOrg: false, loading: false };
+    role = { isAdmin: false, loading: false };
   });
 
   it("renders the auth form when unauthenticated", () => {

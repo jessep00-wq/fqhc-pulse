@@ -73,7 +73,7 @@ export function EvidencePanel({
     mutationFn: async (file: File) => {
       if (file.size > MAX_BYTES) throw new Error("File exceeds 20MB limit");
       const { data: userData } = await supabase.auth.getUser();
-      const safeName = file.name.replace(/[^\w.\-]/g, "_");
+      const safeName = file.name.replace(/[^\w.-]/g, "_");
       const path = `${organizationId}/${cycleId}/${crypto.randomUUID()}-${safeName}`;
       const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, {
         contentType: file.type || undefined,

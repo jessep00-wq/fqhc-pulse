@@ -5,6 +5,8 @@ type AuthCallback = (event: string, session: unknown) => void;
 const h = vi.hoisted(() => ({
   capturedCb: null as AuthCallback | null,
   invokeMock: vi.fn(),
+  getUserMock: vi.fn(),
+  profileMaybeSingleMock: vi.fn(),
 }));
 
 vi.mock("@/integrations/supabase/client", () => ({
@@ -14,10 +16,16 @@ vi.mock("@/integrations/supabase/client", () => ({
         h.capturedCb = cb;
         return { data: { subscription: { unsubscribe: () => {} } } };
       },
+      getUser: h.getUserMock,
       signOut: vi.fn(),
     },
     from: () => ({
-      update: () => ({ eq: () => ({ then: (fn: () => void) => fn() }) }),
+      update: () => ({ eq: () => Promise.resolve({}) }),
+      select: () => ({
+        eq: () => ({
+          maybeSingle: h.profileMaybeSingleMock,
+        }),
+      }),
     }),
     functions: { invoke: h.invokeMock },
   },
@@ -34,6 +42,10 @@ describe("AuthContext welcome email flag", () => {
   beforeEach(() => {
     h.capturedCb = null;
     h.invokeMock.mockReset();
+    h.getUserMock.mockReset();
+    h.getUserMock.mockResolvedValue({ data: { user: SESSION.user }, error: null });
+    h.profileMaybeSingleMock.mockReset();
+    h.profileMaybeSingleMock.mockResolvedValue({ data: { welcome_email_sent_at: null }, error: null });
     window.localStorage.clear();
   });
 

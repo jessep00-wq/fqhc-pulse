@@ -4,7 +4,7 @@ import { useOrg, OrgProvider } from "./OrgContext";
 
 let mockUser: { id: string } | null = { id: "user-1" };
 vi.mock("@/contexts/AuthContext", () => ({
-  useAuth: () => ({ user: mockUser }),
+  useAuth: () => ({ user: mockUser, loading: false }),
 }));
 
 // Sequenced responses for maybeSingle() calls — alternates profiles / organizations.
@@ -15,10 +15,15 @@ function pushResponses(...r: typeof responses) {
 
 vi.mock("@/integrations/supabase/client", () => ({
   supabase: {
-    from: () => ({
+    from: (table: string) => ({
       select: () => ({
         eq: () => ({
-          maybeSingle: async () => responses.shift() ?? { data: null, error: null },
+          maybeSingle: async () =>
+            table === "user_roles" ? { data: null, error: null } : responses.shift() ?? { data: null, error: null },
+          in: () => ({
+            maybeSingle: async () =>
+              table === "user_roles" ? { data: null, error: null } : responses.shift() ?? { data: null, error: null },
+          }),
         }),
       }),
     }),
