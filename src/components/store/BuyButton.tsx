@@ -39,8 +39,9 @@ export function BuyButton({
       if (error) throw error;
       if (data?.error) throw new Error(data.error as string);
       if (data?.url) {
-        window.open(data.url as string, "_blank", "noopener,noreferrer");
-        setLoading(false);
+        // Same-tab redirect: Safari blocks window.open after an awaited promise
+        // because the user-activation gesture is consumed by the await.
+        window.location.href = data.url as string;
       } else {
         throw new Error("No checkout URL returned");
       }
