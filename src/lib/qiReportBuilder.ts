@@ -84,14 +84,16 @@ export async function buildReportSnapshot(
 
   const { data: targetRows, error: targetsErr } = await client
     .from("uds_targets")
-    .select("measure_id, baseline, goal")
+    .select("measure_id, target_value")
     .eq("organization_id", organizationId);
   if (targetsErr) throw new Error(`UDS targets query failed: ${targetsErr.message}`);
 
 
 
   const trends = (trendRows ?? []) as Array<{ measure_id: string; month: string; value: number }>;
-  const targets = (targetRows ?? []) as Array<{ measure_id: string; baseline: number | null; goal: number | null }>;
+  const targets = ((targetRows ?? []) as Array<{ measure_id: string; target_value: number | null }>).map(
+    (t) => ({ measure_id: t.measure_id, baseline: null as number | null, goal: t.target_value }),
+  );
 
   const byMeasure = new Map<string, typeof trends>();
   for (const t of trends) {
