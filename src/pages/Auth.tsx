@@ -171,7 +171,7 @@ export default function Auth() {
     // session is hydrated. Sending OAuth directly to /dashboard caused a
     // brief "sign-in" flash for founder accounts before the session settled.
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`,
+      redirect_uri: `${window.location.origin}${withNext("/auth")}`,
     });
     if (error) toast.error("Google sign-in failed. Please try again.");
   };
