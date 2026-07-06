@@ -40,6 +40,7 @@ import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
 import Pricing from "./pages/Pricing";
 import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 // Feature pages
 import FeaturePDSA from "./pages/features/FeaturePDSA";
@@ -112,6 +113,7 @@ import SPCChartsForUDSMeasures from "./pages/resources/SPCChartsForUDSMeasures";
 import AuditBinderExports from "./pages/resources/AuditBinderExports";
 import QualityCommitteeProof from "./pages/resources/QualityCommitteeProof";
 import SpreadsheetReplacementQITracking from "./pages/resources/SpreadsheetReplacementQITracking";
+import AzaraDRVSIntegrationGuide from "./pages/resources/AzaraDRVSIntegrationGuide";
 
 const queryClient = new QueryClient();
 
@@ -128,6 +130,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
@@ -169,6 +172,7 @@ const App = () => (
                 <Route path="/resources/audit-binder-exports" element={<AuditBinderExports />} />
                 <Route path="/resources/quality-committee-proof" element={<QualityCommitteeProof />} />
                 <Route path="/resources/spreadsheet-replacement-qi-tracking" element={<SpreadsheetReplacementQITracking />} />
+                <Route path="/resources/azara-drvs-integration-guide" element={<AzaraDRVSIntegrationGuide />} />
 
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
