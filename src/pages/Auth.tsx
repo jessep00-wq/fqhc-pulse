@@ -127,7 +127,7 @@ export default function Auth() {
       password,
       options: {
         data: { full_name: fullName, staff_role: staffRole },
-        emailRedirectTo: appendPlanToUrl(`${window.location.origin}/auth`, intent),
+        emailRedirectTo: appendPlanToUrl(`${window.location.origin}${withNext("/auth")}`, intent),
       },
     });
     setLoading(false);
