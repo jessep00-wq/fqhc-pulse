@@ -52,6 +52,17 @@ export default function Auth() {
     [password]
   );
 
+  // Preserve `?next=` for OAuth consent (MCP) or any other same-origin
+  // relative return path. Reject non-relative values to avoid open redirects.
+  const nextParam = searchParams.get("next");
+  const safeNext = useMemo(() => {
+    if (!nextParam) return null;
+    if (!nextParam.startsWith("/") || nextParam.startsWith("//")) return null;
+    return nextParam;
+  }, [nextParam]);
+  const withNext = (path: string) =>
+    safeNext ? `${path}?next=${encodeURIComponent(safeNext)}` : path;
+
   // Capture incoming ?plan=&billing= from /pricing → relay through signup,
   // email verification, and onboarding so we can launch checkout afterward.
   useEffect(() => {
@@ -68,6 +79,11 @@ export default function Auth() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+  // If a same-origin `next` is present (e.g. MCP OAuth consent), always
+  // honor it — including for founder admins — so the connector flow completes.
+  if (session && !authLoading && !roleLoading && safeNext) {
+    return <Navigate to={safeNext} replace />;
   }
   // Founder admins go straight to the admin console — they don't have
   // (and don't need) an organization of their own.
@@ -89,9 +105,10 @@ export default function Auth() {
     } else {
       // If the user came from /pricing with a plan intent, let the
       // post-login dashboard/onboarding redirect logic pick it up.
-      navigate("/dashboard");
+      navigate(safeNext ?? "/dashboard");
     }
   };
+
 
   const handleSignUp = async () => {
     if (!passwordValid) {
@@ -110,7 +127,7 @@ export default function Auth() {
       password,
       options: {
         data: { full_name: fullName, staff_role: staffRole },
-        emailRedirectTo: appendPlanToUrl(`${window.location.origin}/auth`, intent),
+        emailRedirectTo: appendPlanToUrl(`${window.location.origin}${withNext("/auth")}`, intent),
       },
     });
     setLoading(false);
@@ -154,7 +171,7 @@ export default function Auth() {
     // session is hydrated. Sending OAuth directly to /dashboard caused a
     // brief "sign-in" flash for founder accounts before the session settled.
     const { error } = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/auth`,
+      redirect_uri: `${window.location.origin}${withNext("/auth")}`,
     });
     if (error) toast.error("Google sign-in failed. Please try again.");
   };

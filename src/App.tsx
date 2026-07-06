@@ -40,6 +40,7 @@ import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
 import Pricing from "./pages/Pricing";
 import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 // Feature pages
 import FeaturePDSA from "./pages/features/FeaturePDSA";
@@ -128,6 +129,7 @@ const App = () => (
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/onboarding" element={<Onboarding />} />
                 <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
