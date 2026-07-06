@@ -40,6 +40,7 @@ import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
 import Pricing from "./pages/Pricing";
 import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
+import OAuthConsent from "./pages/OAuthConsent";
 
 // Feature pages
 import FeaturePDSA from "./pages/features/FeaturePDSA";
