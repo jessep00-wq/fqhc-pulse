@@ -113,6 +113,7 @@ import SPCChartsForUDSMeasures from "./pages/resources/SPCChartsForUDSMeasures";
 import AuditBinderExports from "./pages/resources/AuditBinderExports";
 import QualityCommitteeProof from "./pages/resources/QualityCommitteeProof";
 import SpreadsheetReplacementQITracking from "./pages/resources/SpreadsheetReplacementQITracking";
+import AzaraDRVSIntegrationGuide from "./pages/resources/AzaraDRVSIntegrationGuide";
 
 const queryClient = new QueryClient();
 
