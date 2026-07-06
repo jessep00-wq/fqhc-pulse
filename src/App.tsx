@@ -9,6 +9,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { Analytics } from "@vercel/analytics/react";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import PDSALab from "./pages/PDSALab";
@@ -125,6 +126,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <Analytics />
             <ScrollToTop />
             <ErrorBoundary>
               <Routes>
