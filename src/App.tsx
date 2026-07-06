@@ -172,6 +172,7 @@ const App = () => (
                 <Route path="/resources/audit-binder-exports" element={<AuditBinderExports />} />
                 <Route path="/resources/quality-committee-proof" element={<QualityCommitteeProof />} />
                 <Route path="/resources/spreadsheet-replacement-qi-tracking" element={<SpreadsheetReplacementQITracking />} />
+                <Route path="/resources/azara-drvs-integration-guide" element={<AzaraDRVSIntegrationGuide />} />
 
                 {/* Newsletter */}
                 <Route path="/newsletter" element={<NewsletterIndex />} />
