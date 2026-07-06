@@ -4,12 +4,16 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 let auth = { session: null as unknown, loading: false };
 let org = { hasOrg: false, loading: false };
+let role = { isAdmin: false, loading: false };
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuth: () => auth,
 }));
 vi.mock("@/contexts/OrgContext", () => ({
   useOrg: () => org,
+}));
+vi.mock("@/hooks/useUserRole", () => ({
+  useUserRole: () => role,
 }));
 
 import { ProtectedRoute } from "./ProtectedRoute";
@@ -31,6 +35,7 @@ describe("ProtectedRoute", () => {
   it("redirects unauthenticated users to /auth (not /)", () => {
     auth = { session: null, loading: false };
     org = { hasOrg: false, loading: false };
+    role = { isAdmin: false, loading: false };
     renderAt("/dashboard");
     expect(screen.getByText("AUTH PAGE")).toBeInTheDocument();
     expect(screen.queryByText("HOME")).not.toBeInTheDocument();
@@ -39,6 +44,7 @@ describe("ProtectedRoute", () => {
   it("redirects authenticated users without org to /onboarding", () => {
     auth = { session: { user: { id: "u1" } }, loading: false };
     org = { hasOrg: false, loading: false };
+    role = { isAdmin: false, loading: false };
     renderAt("/dashboard");
     expect(screen.getByText("ONBOARDING")).toBeInTheDocument();
   });
@@ -46,6 +52,7 @@ describe("ProtectedRoute", () => {
   it("renders children when authenticated and org exists", () => {
     auth = { session: { user: { id: "u1" } }, loading: false };
     org = { hasOrg: true, loading: false };
+    role = { isAdmin: false, loading: false };
     renderAt("/dashboard");
     expect(screen.getByText("DASH")).toBeInTheDocument();
   });

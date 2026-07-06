@@ -6,7 +6,7 @@ import {
   ArrowRight,
   CheckCircle,
   Users,
-  Infinity,
+  Infinity as InfinityIcon,
   Shield,
   ArrowLeft,
   Lock,
@@ -120,7 +120,7 @@ const differentiators = [
       "No per-seat pricing. Your QI Director, frontline MAs, RNs, and providers can all participate without procurement friction.",
   },
   {
-    icon: Infinity,
+    icon: InfinityIcon,
     title: "Unlimited PDSA cycles",
     description:
       "Run as many improvement cycles as your team needs. We never throttle your QI work.",

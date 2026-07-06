@@ -83,7 +83,7 @@ export function UploadDocumentDialog({
       if (!categoryId) throw new Error("Category required");
 
       const { data: userData } = await supabase.auth.getUser();
-      const safeName = file.name.replace(/[^\w.\-]/g, "_");
+      const safeName = file.name.replace(/[^\w.-]/g, "_");
       const docId = crypto.randomUUID();
       const cat = categories.find((c) => c.id === categoryId);
       const slug = cat?.slug ?? "uncategorized";
