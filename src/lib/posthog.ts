@@ -5,7 +5,7 @@ const POSTHOG_KEY =
   "phc_yykGVwtQWE69AH6RCGH34Se9UFPR4PK9SkdBA9efP2c6";
 const POSTHOG_HOST =
   (import.meta.env.VITE_POSTHOG_HOST as string | undefined) ??
-  "https://us.i.posthog.com";
+  "https://t.measurewise.org";
 
 let initialized = false;
 
@@ -13,6 +13,7 @@ export function initPostHog() {
   if (initialized || typeof window === "undefined") return;
   posthog.init(POSTHOG_KEY, {
     api_host: POSTHOG_HOST,
+    ui_host: "https://us.posthog.com",
     person_profiles: "identified_only",
     capture_pageview: true,
     capture_pageleave: true,
