@@ -25,6 +25,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo);
+    try {
+      posthog.captureException(error, { componentStack: errorInfo.componentStack });
+    } catch {
+      // best-effort
+    }
   }
 
   render() {
