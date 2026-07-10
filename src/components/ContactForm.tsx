@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Loader2, Send, CheckCircle } from "lucide-react";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 const ROLES = [
   "Quality Director / Manager",
@@ -136,6 +137,7 @@ export default function ContactForm() {
       if (error) throw error;
       setSent(true);
       toast.success("Message sent! Check your inbox for a confirmation.");
+      trackAnonEvent("contact_form_submitted", { role: parsed.data.role, timeline: parsed.data.timeline });
     } catch (err) {
       // Audit fix 35: dev-only logging — production should fail silently
       // to the user-facing toast below.

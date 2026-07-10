@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { trackEvent } from "@/lib/trackEvent";
 import {
   DOCUMENT_TYPE_LABELS,
   type EvidenceCategory,
@@ -156,6 +157,7 @@ export function UploadDocumentDialog({
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["evidence_documents"] });
       toast.success("Document uploaded");
+      trackEvent("evidence_document_uploaded", { document_type: docType });
       reset();
       onOpenChange(false);
     },

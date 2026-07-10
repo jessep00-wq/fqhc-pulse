@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Mail } from "lucide-react";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 export function SubscribeForm({ className }: { className?: string }) {
   const [email, setEmail] = useState("");
@@ -26,6 +27,7 @@ export function SubscribeForm({ className }: { className?: string }) {
         toast.info("You're already subscribed!");
       } else {
         toast.success("Subscribed! Check your inbox for a welcome email.");
+        trackAnonEvent("newsletter_subscribed", {});
       }
       setEmail("");
     } catch {

@@ -29,6 +29,7 @@ import type {
   EvidenceExportType,
 } from "@/types/evidenceBinder";
 import { printBinder, type PdsaCycleLite } from "@/lib/binder/renderer";
+import { trackEvent } from "@/lib/trackEvent";
 
 const EXPORT_OPTIONS: { value: EvidenceExportType; label: string; description: string }[] = [
   { value: "full_osv", label: "Full OSV Binder", description: "Every active document across all 12 Chapter 10 categories." },
@@ -169,6 +170,7 @@ export function ExportBinderDialog({
       toast.success("Binder opened in print dialog — choose 'Save as PDF'");
       qc.invalidateQueries({ queryKey: ["evidence_binder_exports"] });
       onOpenChange(false);
+      trackEvent("binder_exported", { export_type: exportType, document_count: filtered.docs.length });
     },
     onError: (e: Error) => toast.error(e.message || "Generation failed"),
   });
