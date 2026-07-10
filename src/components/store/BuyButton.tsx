@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { getStripeEnvironment } from "@/lib/stripe";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 interface BuyButtonProps {
   priceId: string | null;
@@ -41,6 +42,7 @@ export function BuyButton({
       if (data?.url) {
         // Same-tab redirect: Safari blocks window.open after an awaited promise
         // because the user-activation gesture is consumed by the await.
+        trackAnonEvent("store_checkout_started", { price_id: priceId });
         window.location.href = data.url as string;
       } else {
         throw new Error("No checkout URL returned");

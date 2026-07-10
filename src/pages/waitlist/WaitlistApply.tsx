@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { SEO } from "@/components/SEO";
+import { trackAnonEvent } from "@/lib/trackEvent";
 import "./waitlist.css";
 
 const ORG_TYPES = ["FQHC", "FQHC Look-Alike", "RHC", "Other"] as const;
@@ -66,6 +67,7 @@ export default function WaitlistApply() {
       );
       if (invokeError) throw invokeError;
       if (res && (res as any).error) throw new Error(typeof (res as any).error === "string" ? (res as any).error : "Submission failed");
+      trackAnonEvent("waitlist_applied", { org_type: payload.org_type, timing: payload.timing });
       navigate("/waitlist/thank-you", { replace: true });
     } catch (err: any) {
       console.error("waitlist submit failed", err);

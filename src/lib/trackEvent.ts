@@ -19,7 +19,14 @@ export type EventName =
   | "signup_started"
   | "signup_completed"
   | "onboarding_completed"
-  | "checkout_started";
+  | "checkout_started"
+  | "qi_report_generated"
+  | "evidence_document_uploaded"
+  | "contact_form_submitted"
+  | "store_checkout_started"
+  | "store_purchase_completed"
+  | "waitlist_applied"
+  | "newsletter_subscribed";
 
 /**
  * Fire-and-forget PostHog event for pre-auth funnel steps where there is
