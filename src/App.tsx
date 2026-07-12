@@ -63,6 +63,7 @@ import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
 import AdminBlog from "./pages/admin/AdminBlog";
 import AdminReadinessLeads from "./pages/admin/AdminReadinessLeads";
+import AdminOsvLeads from "./pages/admin/AdminOsvLeads";
 import AdminContent from "./pages/admin/AdminContent";
 import GrowthOverview from "./pages/admin/growth/GrowthOverview";
 import GrowthLeads from "./pages/admin/growth/GrowthLeads";
@@ -219,6 +220,7 @@ const App = () => (
                             <Route path="store" element={<AdminStore />} />
                             <Route path="blog" element={<AdminBlog />} />
                             <Route path="readiness" element={<AdminReadinessLeads />} />
+                            <Route path="osv-leads" element={<AdminOsvLeads />} />
                             <Route path="content" element={<AdminContent />} />
                             <Route path="growth" element={<GrowthOverview />} />
                             <Route path="growth/leads" element={<GrowthLeads />} />
