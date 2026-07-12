@@ -29,7 +29,18 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   const leadId = url.searchParams.get("lead");
   const token = url.searchParams.get("token");
-  const cronSecret = Deno.env.get("CRON_SECRET") ?? "";
+
+  const supabase = createClient(
+    Deno.env.get("SUPABASE_URL")!,
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  );
+
+  // Prefer the Vault-stored CRON_SECRET (matches send-osv-nurture / buildUnsubUrl
+  // generation path); fall back to env var for local dev.
+  const { data: secretData } = await supabase.rpc("get_cron_secret");
+  const cronSecret = (typeof secretData === "string" ? secretData : null)
+    ?? Deno.env.get("CRON_SECRET")
+    ?? "";
 
   if (!leadId || !token || !cronSecret) {
     return page("Unsubscribe link invalid",
@@ -41,6 +52,7 @@ Deno.serve(async (req) => {
     return page("Unsubscribe link invalid",
       "<h1 style='margin:0 0 12px;'>This unsubscribe link is invalid.</h1><p>Please email <a href='mailto:hello@measurewise.org'>hello@measurewise.org</a> and we'll remove you manually.</p>");
   }
+
 
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
