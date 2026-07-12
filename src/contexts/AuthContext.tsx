@@ -58,15 +58,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           loginTracked.current = true;
           trackEvent("login");
           // Flush any pending pre-auth signup_completed into the DB now that
-          // we have an authenticated session (email-verify signup path).
+          // we have an authenticated session. trackEvent no-ops if the profile
+          // has no organization_id yet — Onboarding will flush after org exists.
           try {
             if (typeof window !== "undefined") {
               const raw = window.localStorage.getItem("mw_pending_signup_completed");
               if (raw !== null) {
                 let meta: Record<string, unknown> = {};
                 try { meta = JSON.parse(raw) ?? {}; } catch { /* ignore */ }
-                window.localStorage.removeItem("mw_pending_signup_completed");
-                // Fire-and-forget; trackEvent no-ops if org isn't set yet.
+                // Best-effort: leave the flag in place; Onboarding removes it
+                // once it succeeds post-org-creation.
                 trackEvent("signup_completed", meta);
               }
             }
