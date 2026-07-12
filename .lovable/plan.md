@@ -1,87 +1,61 @@
+## Scope
 
-## OSV Panic Index Quiz — MeasureWise lead-gen funnel
+Replace the 8 questions and their 3-answer sets in `src/lib/osvQuiz.ts` with the exact wording from the uploaded standalone quiz screenshots. Keep everything else untouched: scoring shape (0/1/2 pts, max 16), tier thresholds, tier copy, lead-capture flow, and the `OsvQuiz.tsx` page UI.
 
-Standalone quiz funnel at `/osv-quiz` that assesses HRSA OSV evidence readiness, shows a tier result, then gates the full breakdown + follow-up materials behind a lead form. Note: the uploaded HTML is an obfuscated Lovable-bundler artifact (base64+gzip manifest), so the original quiz text isn't readable. I'll author 8 new OSV-focused questions in the same spirit and preserve the 0/1/2 scoring model.
+## File to change
 
-### Route & files
-- New public route `/osv-quiz` in `src/App.tsx` (above the `/admin/*` and `/dashboard/*` blocks).
-- New page `src/pages/OsvQuiz.tsx` — single component, `useState` state machine: `intro → quiz → result → form → thankyou`.
-- Quiz content + scoring in `src/lib/osvQuiz.ts` (pure, testable).
-- Reuses existing `<SEO>`, `<PublicPageLayout>`, shadcn `Button`/`Input`/`Label`/`Checkbox`/`Progress`/`Card`, and brand tokens from `index.css`. No new colors — uses `--primary` (teal), `--muted`, `--destructive`, plus a `warning` amber utility already present.
+`src/lib/osvQuiz.ts` — replace only the `OSV_QUESTIONS` array. Question `id` values are updated to reflect the new prompts (used only as internal keys and as JSON keys in the `answers` payload sent to `osv_quiz_leads.answers`, which is `jsonb` — no schema change needed).
 
-### Quiz content (8 questions, 3 answers each: 0 / 1 / 2 pts)
-1. **PDSA evidence** — Can you produce closed-loop PDSA docs (Plan→Do→Study→Act) for your top 3 UDS measures in <1 day? (No / Partial / Yes)
-2. **UDS trending cadence** — How often are priority UDS measures trended with a chart reviewers can see? (Annually / Quarterly / Monthly or better)
-3. **Board minutes specificity** — Do QI committee/Board minutes name UDS measures by number + current rate? (No / Sometimes / Consistently)
-4. **Binder retrieval** — If HRSA called Monday, how long to assemble the QI/QA evidence binder? (>1 week / 2–5 days / <1 day)
-5. **Incident→action loop** — Are incidents/grievances closed with documented action + follow-up? (No log / Log only / Full closed loop)
-6. **Credentialing files** — Provider credentialing + peer review current and centrally tracked? (Scattered / Mostly / Yes, audited)
-7. **Policy review cadence** — Clinical policies re-approved by Board on a defined ≤3-yr cycle? (No / Informal / Yes, scheduled)
-8. **Single source of truth** — QI evidence lives in one system reviewers can walk through? (SharePoint+Excel+EMR sprawl / Partially consolidated / One system)
+## New questions (verbatim from screenshots)
 
-Max score = 16. Tiers: **Red 0–6**, **Yellow 7–11**, **Green 12–16**.
+1. **pdsa_storage** — "Where are your current PDSAs stored?"
+   - Scattered across email, sticky notes, and people's memory (0)
+   - A shared drive folder or spreadsheet someone maintains (1)
+   - A dedicated QI system built for tracking cycles (2)
 
-### Result-screen copy
-- **Red — "You're doing work you may not be able to prove."** Reviewers grade the paper trail, not the effort. Your PDSA→UDS→minute chain has structural gaps that consistently draw findings.
-- **Yellow — "You have pieces, but your proof trail may break under review."** The structures exist; evidence is inconsistent or scattered. Closing 2–3 gaps before OSV is the highest-leverage move.
-- **Green — "You're organized — here's how to tighten the binder."** You'd pass OSV today. Focus on trend depth, board-minute specificity, and 1-day binder retrieval.
+2. **project_ownership** — "Can you show who owns each active QI project — right now, without searching?"
+   - No, I'd have to ask around (0)
+   - For most projects, yes (1)
+   - Yes, instantly, for every one (2)
 
-Each tier shows: score badge, headline, 2-sentence plain-language risk, and a "Get the full breakdown + checklist" CTA that scrolls to the lead form.
+3. **twelve_month_evidence** — "Can you produce 12 months of QI/QA assessment evidence today?"
+   - No — it's incomplete or scattered (0)
+   - Mostly, with some digging (1)
+   - Yes, it's already assembled (2)
 
-### Lead capture (shown AFTER result)
-Fields: first_name, last_name, email (validated), organization, job_title, phone (optional), consent checkbox (required, follow-up emails). Submit button label: **"Send Me the Breakdown"**. Secondary link: "Book a MeasureWise walkthrough" → `/contact`.
+4. **uds_to_improvement** — "Are your UDS measures tied to active improvement work?"
+   - Not really — they're tracked separately (0)
+   - Some of them are (1)
+   - Yes, every measure maps to a live PDSA (2)
 
-Trust microcopy under form: "Built for QI directors, PCMH coordinators, and compliance leads. Self-assessment only — not a compliance determination."
+5. **board_packet** — "Could your board packet show what changed, what failed, and what happens next?"
+   - No — it's mostly status updates (0)
+   - Partially (1)
+   - Yes, that's exactly how it's structured (2)
 
-### Data model — new table `osv_quiz_leads`
-Migration adds:
-```sql
-create table public.osv_quiz_leads (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  first_name text not null,
-  last_name text not null,
-  email text not null,
-  organization text not null,
-  job_title text not null,
-  phone text,
-  consent boolean not null default false,
-  score int not null,
-  tier text not null check (tier in ('red','yellow','green')),
-  answers jsonb not null,
-  page_url text,
-  utm jsonb,
-  user_agent text
-);
-grant insert on public.osv_quiz_leads to anon, authenticated;
-grant all on public.osv_quiz_leads to service_role;
-grant select on public.osv_quiz_leads to authenticated;  -- founder_admin reads via has_role policy
-alter table public.osv_quiz_leads enable row level security;
-create policy "anon+auth can insert leads" on public.osv_quiz_leads
-  for insert to anon, authenticated with check (true);
-create policy "founder_admin can read leads" on public.osv_quiz_leads
-  for select to authenticated using (public.has_role(auth.uid(), 'founder_admin'));
-```
-Submit path: client `supabase.from('osv_quiz_leads').insert({...})`. On error, fall back to `console.error` + still show thank-you (lead is also fired to PostHog via `trackAnonEvent('osv_quiz_submitted', {...})` for redundancy).
+6. **last_pdsa_update** — "When did your team last close out or update a PDSA cycle?"
+   - Honestly, not sure — it's been months (0)
+   - Within the last month (1)
+   - This week (2)
 
-### Analytics
-Fire `trackAnonEvent` on: `osv_quiz_started`, `osv_quiz_completed` (with tier+score), `osv_quiz_submitted` (with tier+score, no PII beyond email hash-safe fields already captured elsewhere).
+7. **assembly_time** — "If HRSA asked for evidence tomorrow, how long would it take to assemble it?"
+   - Days, maybe longer — and I'd worry about gaps (0)
+   - A day of pulling things together (1)
+   - Minutes — it's already in one place (2)
 
-### UX details
-- Progress bar (shadcn `Progress`) shows `step/8` during quiz.
-- Back button on Qs 2–8; disabled on Q1.
-- Selecting an answer auto-advances (200ms delay) except last question which shows "See my result".
-- Result tier uses colored left border + icon: red (destructive), amber (warning), teal-green (primary variant).
-- Mobile: single column, large 56px touch targets, sticky progress at top.
-- SEO: `<SEO title="OSV Panic Index — HRSA Readiness Quiz | MeasureWise" description="60-second self-assessment for FQHC QI directors and compliance leads. See where your OSV evidence binder is likely to break." canonical="/osv-quiz" />`.
+8. **bus_factor** — "If you were out sick this week, could someone else on your team produce this evidence?"
+   - No — it lives in my head (0)
+   - One other person could, maybe (1)
+   - Yes, anyone on the team could pull it (2)
 
-### Not doing this pass
-- Emailing the breakdown PDF (form only stores lead; follow-up sequence is a separate future edge function).
-- Admin page to view leads (founder can query DB directly; can add `/admin/osv-leads` later).
-- Embedding widget on external sites.
+Existing `helper` text is dropped since the source quiz doesn't include helpers.
 
-### Files touched
-- `src/App.tsx` — add route
-- `src/pages/OsvQuiz.tsx` — new
-- `src/lib/osvQuiz.ts` — new (questions + scoring)
-- new migration for `osv_quiz_leads` table + RLS + grants
+## Out of scope (deliberately unchanged this pass)
+
+- Tier thresholds (`≤6 red`, `7–11 yellow`, `≥12 green`) and tier headline/summary/nextStep copy
+- Intro headline, subheadline, and page layout in `OsvQuiz.tsx`
+- Result page visuals ("Red / You are doing work you may not be able to prove.")
+- Lead form fields and Supabase insert into `osv_quiz_leads`
+- Visual design (dark navy background + white card look shown in screenshots)
+
+If you want the result copy, intro subheading ("Eight questions. Sixty seconds. Find out if your QI evidence would survive a site visit…"), or the dark-navy visual treatment from the screenshots ported over too, say the word and I'll do those in follow-up passes.
