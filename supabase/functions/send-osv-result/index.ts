@@ -4,13 +4,10 @@
 // nurture cron picks up from step 2 automatically.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { renderNurteEmailEntry } from "../_shared/osv-nurture-emails.ts"; // no-op guard against unused warning
 import { renderNurtureEmail, type OsvTier } from "../_shared/osv-nurture-emails.ts";
 import { logEmailAttempt, logEmailException } from "../_shared/log-email-attempt.ts";
 import { buildUnsubUrl } from "../_shared/osv-unsub.ts";
 
-// intentionally unused re-export to keep bundlers quiet
-export const _renderNurteEmailEntry = renderNurteEmailEntry;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
