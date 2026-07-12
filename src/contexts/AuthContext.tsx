@@ -57,6 +57,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === "SIGNED_IN" && session?.user && !loginTracked.current) {
           loginTracked.current = true;
           trackEvent("login");
+          // Flush any pending pre-auth signup_completed into the DB now that
+          // we have an authenticated session (email-verify signup path).
+          try {
+            if (typeof window !== "undefined") {
+              const raw = window.localStorage.getItem("mw_pending_signup_completed");
+              if (raw !== null) {
+                let meta: Record<string, unknown> = {};
+                try { meta = JSON.parse(raw) ?? {}; } catch { /* ignore */ }
+                window.localStorage.removeItem("mw_pending_signup_completed");
+                // Fire-and-forget; trackEvent no-ops if org isn't set yet.
+                trackEvent("signup_completed", meta);
+              }
+            }
+          } catch {
+            // best-effort
+          }
           // Identify user in PostHog
           identifyUser(session.user.id, {
             email: session.user.email,
