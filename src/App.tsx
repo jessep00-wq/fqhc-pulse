@@ -197,6 +197,7 @@ const App = () => (
 
                 {/* Lead magnets */}
                 <Route path="/readiness" element={<ReadinessScore />} />
+                <Route path="/osv-quiz" element={<OsvQuiz />} />
 
 
 
