@@ -1308,6 +1308,60 @@ export type Database = {
         }
         Relationships: []
       }
+      osv_quiz_leads: {
+        Row: {
+          answers: Json
+          consent: boolean
+          created_at: string
+          email: string
+          first_name: string
+          id: string
+          job_title: string
+          last_name: string
+          organization: string
+          page_url: string | null
+          phone: string | null
+          score: number
+          tier: string
+          user_agent: string | null
+          utm: Json | null
+        }
+        Insert: {
+          answers: Json
+          consent?: boolean
+          created_at?: string
+          email: string
+          first_name: string
+          id?: string
+          job_title: string
+          last_name: string
+          organization: string
+          page_url?: string | null
+          phone?: string | null
+          score: number
+          tier: string
+          user_agent?: string | null
+          utm?: Json | null
+        }
+        Update: {
+          answers?: Json
+          consent?: boolean
+          created_at?: string
+          email?: string
+          first_name?: string
+          id?: string
+          job_title?: string
+          last_name?: string
+          organization?: string
+          page_url?: string | null
+          phone?: string | null
+          score?: number
+          tier?: string
+          user_agent?: string | null
+          utm?: Json | null
+        }
+        Relationships: []
+      }
       pdsa_cycles: {
         Row: {
           act_next_steps: string | null
