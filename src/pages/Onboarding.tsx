@@ -128,8 +128,7 @@ export default function Onboarding() {
       }
 
       const intent = readPlanIntent();
-      trackAnonEvent("onboarding_completed", {
-        organization_id: orgId,
+      await trackEvent("onboarding_completed", {
         priceId: intent?.priceId,
       });
 
