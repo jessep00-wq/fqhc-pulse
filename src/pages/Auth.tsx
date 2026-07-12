@@ -138,6 +138,19 @@ export default function Auth() {
         priceId: intent?.priceId,
         userId: data?.user?.id,
       });
+      // Also mark this signup so AuthContext can log a DB-backed
+      // signup_completed once the user has an authenticated session
+      // (email-verify flow means no session exists here).
+      try {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(
+            "mw_pending_signup_completed",
+            JSON.stringify({ priceId: intent?.priceId ?? null }),
+          );
+        }
+      } catch {
+        // best-effort
+      }
       // Welcome email is sent server-side by the `send-welcome-email` edge
       // function on first SIGNED_IN (see AuthContext) — do not invoke
       // `send-email` here with client-supplied HTML, which would let any
