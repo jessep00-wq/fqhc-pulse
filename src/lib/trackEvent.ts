@@ -19,7 +19,10 @@ export type EventName =
   | "signup_started"
   | "signup_completed"
   | "onboarding_completed"
-  | "checkout_started";
+  | "checkout_started"
+  | "osv_quiz_started"
+  | "osv_quiz_completed"
+  | "osv_quiz_submitted";
 
 /**
  * Fire-and-forget PostHog event for pre-auth funnel steps where there is

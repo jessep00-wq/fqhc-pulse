@@ -92,6 +92,7 @@ import WaitlistThankYou from "./pages/waitlist/WaitlistThankYou";
 
 // Lead magnets
 import ReadinessScore from "./pages/ReadinessScore";
+import OsvQuiz from "./pages/OsvQuiz";
 
 
 
@@ -196,6 +197,7 @@ const App = () => (
 
                 {/* Lead magnets */}
                 <Route path="/readiness" element={<ReadinessScore />} />
+                <Route path="/osv-quiz" element={<OsvQuiz />} />
 
 
 

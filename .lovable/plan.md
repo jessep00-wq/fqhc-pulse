@@ -1,46 +1,87 @@
-## Diagnosis
 
-`/admin/growth/traffic` (GrowthTraffic.tsx) reads funnel counts from the `usage_events` table for these 5 events:
+## OSV Panic Index Quiz — MeasureWise lead-gen funnel
 
-- `pricing_viewed`, `plan_selected`, `signup_started`, `signup_completed`, `onboarding_completed`
+Standalone quiz funnel at `/osv-quiz` that assesses HRSA OSV evidence readiness, shows a tier result, then gates the full breakdown + follow-up materials behind a lead form. Note: the uploaded HTML is an obfuscated Lovable-bundler artifact (base64+gzip manifest), so the original quiz text isn't readable. I'll author 8 new OSV-focused questions in the same spirit and preserve the 0/1/2 scoring model.
 
-But every one of those events is fired via `trackAnonEvent` (Pricing.tsx, Auth.tsx, Onboarding.tsx). `trackAnonEvent` **only sends to PostHog** and, by design, skips the `usage_events` DB insert (comment in `src/lib/trackEvent.ts` says so).
+### Route & files
+- New public route `/osv-quiz` in `src/App.tsx` (above the `/admin/*` and `/dashboard/*` blocks).
+- New page `src/pages/OsvQuiz.tsx` — single component, `useState` state machine: `intro → quiz → result → form → thankyou`.
+- Quiz content + scoring in `src/lib/osvQuiz.ts` (pure, testable).
+- Reuses existing `<SEO>`, `<PublicPageLayout>`, shadcn `Button`/`Input`/`Label`/`Checkbox`/`Progress`/`Card`, and brand tokens from `index.css`. No new colors — uses `--primary` (teal), `--muted`, `--destructive`, plus a `warning` amber utility already present.
 
-I confirmed the DB is empty for those events:
+### Quiz content (8 questions, 3 answers each: 0 / 1 / 2 pts)
+1. **PDSA evidence** — Can you produce closed-loop PDSA docs (Plan→Do→Study→Act) for your top 3 UDS measures in <1 day? (No / Partial / Yes)
+2. **UDS trending cadence** — How often are priority UDS measures trended with a chart reviewers can see? (Annually / Quarterly / Monthly or better)
+3. **Board minutes specificity** — Do QI committee/Board minutes name UDS measures by number + current rate? (No / Sometimes / Consistently)
+4. **Binder retrieval** — If HRSA called Monday, how long to assemble the QI/QA evidence binder? (>1 week / 2–5 days / <1 day)
+5. **Incident→action loop** — Are incidents/grievances closed with documented action + follow-up? (No log / Log only / Full closed loop)
+6. **Credentialing files** — Provider credentialing + peer review current and centrally tracked? (Scattered / Mostly / Yes, audited)
+7. **Policy review cadence** — Clinical policies re-approved by Board on a defined ≤3-yr cycle? (No / Informal / Yes, scheduled)
+8. **Single source of truth** — QI evidence lives in one system reviewers can walk through? (SharePoint+Excel+EMR sprawl / Partially consolidated / One system)
+
+Max score = 16. Tiers: **Red 0–6**, **Yellow 7–11**, **Green 12–16**.
+
+### Result-screen copy
+- **Red — "You're doing work you may not be able to prove."** Reviewers grade the paper trail, not the effort. Your PDSA→UDS→minute chain has structural gaps that consistently draw findings.
+- **Yellow — "You have pieces, but your proof trail may break under review."** The structures exist; evidence is inconsistent or scattered. Closing 2–3 gaps before OSV is the highest-leverage move.
+- **Green — "You're organized — here's how to tighten the binder."** You'd pass OSV today. Focus on trend depth, board-minute specificity, and 1-day binder retrieval.
+
+Each tier shows: score badge, headline, 2-sentence plain-language risk, and a "Get the full breakdown + checklist" CTA that scrolls to the lead form.
+
+### Lead capture (shown AFTER result)
+Fields: first_name, last_name, email (validated), organization, job_title, phone (optional), consent checkbox (required, follow-up emails). Submit button label: **"Send Me the Breakdown"**. Secondary link: "Book a MeasureWise walkthrough" → `/contact`.
+
+Trust microcopy under form: "Built for QI directors, PCMH coordinators, and compliance leads. Self-assessment only — not a compliance determination."
+
+### Data model — new table `osv_quiz_leads`
+Migration adds:
+```sql
+create table public.osv_quiz_leads (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  first_name text not null,
+  last_name text not null,
+  email text not null,
+  organization text not null,
+  job_title text not null,
+  phone text,
+  consent boolean not null default false,
+  score int not null,
+  tier text not null check (tier in ('red','yellow','green')),
+  answers jsonb not null,
+  page_url text,
+  utm jsonb,
+  user_agent text
+);
+grant insert on public.osv_quiz_leads to anon, authenticated;
+grant all on public.osv_quiz_leads to service_role;
+grant select on public.osv_quiz_leads to authenticated;  -- founder_admin reads via has_role policy
+alter table public.osv_quiz_leads enable row level security;
+create policy "anon+auth can insert leads" on public.osv_quiz_leads
+  for insert to anon, authenticated with check (true);
+create policy "founder_admin can read leads" on public.osv_quiz_leads
+  for select to authenticated using (public.has_role(auth.uid(), 'founder_admin'));
 ```
-select event_name, count(*) from usage_events where event_name in (...) → 0 rows
-```
+Submit path: client `supabase.from('osv_quiz_leads').insert({...})`. On error, fall back to `console.error` + still show thank-you (lead is also fired to PostHog via `trackAnonEvent('osv_quiz_submitted', {...})` for redundancy).
 
-Additionally, `usage_events` requires non-null `organization_id` + `user_id` and its INSERT policy demands `auth.uid()`, so pre-auth events can't write directly even if we tried.
+### Analytics
+Fire `trackAnonEvent` on: `osv_quiz_started`, `osv_quiz_completed` (with tier+score), `osv_quiz_submitted` (with tier+score, no PII beyond email hash-safe fields already captured elsewhere).
 
-**Meanwhile PostHog is receiving these events** (that's what `trackAnonEvent` does). So the data exists — it's just not in the place GrowthTraffic looks.
+### UX details
+- Progress bar (shadcn `Progress`) shows `step/8` during quiz.
+- Back button on Qs 2–8; disabled on Q1.
+- Selecting an answer auto-advances (200ms delay) except last question which shows "See my result".
+- Result tier uses colored left border + icon: red (destructive), amber (warning), teal-green (primary variant).
+- Mobile: single column, large 56px touch targets, sticky progress at top.
+- SEO: `<SEO title="OSV Panic Index — HRSA Readiness Quiz | MeasureWise" description="60-second self-assessment for FQHC QI directors and compliance leads. See where your OSV evidence binder is likely to break." canonical="/osv-quiz" />`.
 
-## Recommended fix (Option A — small, keeps DB clean)
+### Not doing this pass
+- Emailing the breakdown PDF (form only stores lead; follow-up sequence is a separate future edge function).
+- Admin page to view leads (founder can query DB directly; can add `/admin/osv-leads` later).
+- Embedding widget on external sites.
 
-Backfill the events that CAN be attributed once the user is authenticated, and read the rest from PostHog. Concretely:
-
-1. **`signup_completed`** and **`onboarding_completed`** — fire these with `trackEvent` (not `trackAnonEvent`) once the auth session + profile exists:
-   - `Auth.tsx`: after `signUp` succeeds, if `data.session` is present, call `trackEvent("signup_completed", ...)`. Otherwise queue a flag in localStorage and fire `trackEvent` after the first authenticated session hydrates (in `AuthContext.tsx`'s login effect).
-   - `Onboarding.tsx`: change `trackAnonEvent("onboarding_completed", ...)` → `trackEvent("onboarding_completed", ...)` (org is set by that point).
-
-2. **`pricing_viewed`, `plan_selected`, `signup_started`** — genuinely pre-auth, no org. Keep them in PostHog only. Update `GrowthTraffic.tsx` to:
-   - Show the 2 attributable steps (`signup_completed`, `onboarding_completed`) from `usage_events`.
-   - Show the 3 pre-auth steps with a "View in PostHog" link + a small note explaining pre-auth funnel lives in PostHog (with a deep link to the PostHog insight/funnel).
-   - Keep the "Open PostHog" button already on the page.
-
-## Alternative fix (Option B — everything in DB)
-
-Add a public RPC `log_anon_event(event_name text, metadata jsonb)` that inserts into a new `anon_usage_events` table (nullable org/user, RLS locked to founder_admin SELECT, INSERT open to `anon`). Change `trackAnonEvent` to call it in addition to PostHog. GrowthTraffic then unions both tables.
-
-More moving parts (new table, new RPC, rate-limit concern for an open INSERT), but gives you all 5 steps in one place without PostHog dependency.
-
-## Recommendation
-
-Go with **Option A**. It's minimal, keeps `usage_events` authenticated-only, and matches how PostHog is already wired. Pre-auth funnel analysis is exactly what PostHog is best at.
-
-## Files touched (Option A)
-
-- `src/pages/Auth.tsx` — swap `signup_completed` firing to `trackEvent` (post-session)
-- `src/contexts/AuthContext.tsx` — small hook to flush a "pending signup_completed" flag on first authenticated load (handles email-verify signup flow where no session exists at signUp time)
-- `src/pages/Onboarding.tsx` — swap `onboarding_completed` to `trackEvent`
-- `src/pages/admin/growth/GrowthTraffic.tsx` — split UI: 2 DB-backed KPIs + 3 PostHog-only steps with deep link
+### Files touched
+- `src/App.tsx` — add route
+- `src/pages/OsvQuiz.tsx` — new
+- `src/lib/osvQuiz.ts` — new (questions + scoring)
+- new migration for `osv_quiz_leads` table + RLS + grants
