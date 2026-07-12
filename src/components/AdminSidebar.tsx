@@ -55,6 +55,7 @@ const content = [
 
 const tools = [
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
+  { title: "OSV Quiz Leads", url: "/admin/osv-leads", icon: Sparkles },
   { title: "Waitlist Tester", url: "/admin/waitlist-test", icon: FlaskConical },
   { title: "Waitlist Status", url: "/admin/waitlist-status", icon: Mail },
 ];
