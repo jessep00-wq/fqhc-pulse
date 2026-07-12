@@ -127,9 +127,18 @@ export default function OsvQuiz() {
       user_agent: typeof navigator !== "undefined" ? navigator.userAgent : null,
     };
 
-    const { error } = await supabase.from("osv_quiz_leads").insert(payload);
+    const { data: inserted, error } = await supabase
+      .from("osv_quiz_leads")
+      .insert(payload)
+      .select("id")
+      .maybeSingle();
     if (error) {
       console.error("osv_quiz_leads insert failed", error);
+    } else if (inserted?.id) {
+      // Fire-and-forget: kick off the Day-0 result email + nurture sequence.
+      supabase.functions
+        .invoke("send-osv-result", { body: { lead_id: inserted.id } })
+        .catch((e) => console.error("send-osv-result invoke failed", e));
     }
 
     trackAnonEvent("osv_quiz_submitted", {

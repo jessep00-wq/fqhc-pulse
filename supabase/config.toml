@@ -50,3 +50,9 @@ project_id = "eeyigxcwewdqfeidqbxk"
   [functions.subscribe-newsletter]
     verify_jwt = false
 
+  [functions.send-osv-result]
+    verify_jwt = false
+  [functions.send-osv-nurture]
+    verify_jwt = false
+  [functions.osv-unsubscribe]
+    verify_jwt = false

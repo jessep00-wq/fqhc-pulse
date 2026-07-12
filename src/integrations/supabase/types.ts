@@ -1313,16 +1313,20 @@ export type Database = {
           answers: Json
           consent: boolean
           created_at: string
+          delivery_sent_at: string | null
           email: string
           first_name: string
           id: string
           job_title: string
           last_name: string
+          last_nurture_sent_at: string | null
+          nurture_step: number
           organization: string
           page_url: string | null
           phone: string | null
           score: number
           tier: string
+          unsubscribed_at: string | null
           user_agent: string | null
           utm: Json | null
         }
@@ -1330,16 +1334,20 @@ export type Database = {
           answers: Json
           consent?: boolean
           created_at?: string
+          delivery_sent_at?: string | null
           email: string
           first_name: string
           id?: string
           job_title: string
           last_name: string
+          last_nurture_sent_at?: string | null
+          nurture_step?: number
           organization: string
           page_url?: string | null
           phone?: string | null
           score: number
           tier: string
+          unsubscribed_at?: string | null
           user_agent?: string | null
           utm?: Json | null
         }
@@ -1347,16 +1355,20 @@ export type Database = {
           answers?: Json
           consent?: boolean
           created_at?: string
+          delivery_sent_at?: string | null
           email?: string
           first_name?: string
           id?: string
           job_title?: string
           last_name?: string
+          last_nurture_sent_at?: string | null
+          nurture_step?: number
           organization?: string
           page_url?: string | null
           phone?: string | null
           score?: number
           tier?: string
+          unsubscribed_at?: string | null
           user_agent?: string | null
           utm?: Json | null
         }
