@@ -68,7 +68,9 @@ Deno.serve(async (req) => {
 
   const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
   const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-  const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
+  const { data: cronSecretData } = await supabase.rpc("get_cron_secret");
+  const CRON_SECRET = (typeof cronSecretData === "string" ? cronSecretData : null)
+    ?? Deno.env.get("CRON_SECRET") ?? "";
   if (!RESEND_API_KEY || !LOVABLE_API_KEY) {
     return new Response(JSON.stringify({ skipped: true, reason: "missing_keys" }), {
       status: 200,
