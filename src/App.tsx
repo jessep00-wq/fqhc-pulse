@@ -92,6 +92,7 @@ import WaitlistThankYou from "./pages/waitlist/WaitlistThankYou";
 
 // Lead magnets
 import ReadinessScore from "./pages/ReadinessScore";
+import OsvQuiz from "./pages/OsvQuiz";
 
 
 
