@@ -1,61 +1,89 @@
 ## Scope
 
-Replace the 8 questions and their 3-answer sets in `src/lib/osvQuiz.ts` with the exact wording from the uploaded standalone quiz screenshots. Keep everything else untouched: scoring shape (0/1/2 pts, max 16), tier thresholds, tier copy, lead-capture flow, and the `OsvQuiz.tsx` page UI.
+Build a 7-step, tier-branched nurture sequence for `osv_quiz_leads`, modeled on the existing `send-playbook-nurture` cron pattern. One email/day-based cadence, driven by `created_at` + `nurture_step`, per-tier copy variants (red / yellow / green), with tier-specific CTAs.
 
-## File to change
+## Cadence
 
-`src/lib/osvQuiz.ts` — replace only the `OSV_QUESTIONS` array. Question `id` values are updated to reflect the new prompts (used only as internal keys and as JSON keys in the `answers` payload sent to `osv_quiz_leads.answers`, which is `jsonb` — no schema change needed).
+Day 0 (immediate — result delivered), Day 2, Day 4, Day 7, Day 10, Day 13, Day 17. Total window ~17 days. Only the Day 0 delivery email is sent inline from the quiz submit path; Days 2–17 are sent by a daily cron.
 
-## New questions (verbatim from screenshots)
+## Database changes (single migration)
 
-1. **pdsa_storage** — "Where are your current PDSAs stored?"
-   - Scattered across email, sticky notes, and people's memory (0)
-   - A shared drive folder or spreadsheet someone maintains (1)
-   - A dedicated QI system built for tracking cycles (2)
+Add nurture state to `osv_quiz_leads`:
 
-2. **project_ownership** — "Can you show who owns each active QI project — right now, without searching?"
-   - No, I'd have to ask around (0)
-   - For most projects, yes (1)
-   - Yes, instantly, for every one (2)
+- `nurture_step int not null default 0`
+- `last_nurture_sent_at timestamptz`
+- `unsubscribed_at timestamptz`
+- `delivery_sent_at timestamptz` (Day 0 result email)
+- index on `(nurture_step, created_at)`
 
-3. **twelve_month_evidence** — "Can you produce 12 months of QI/QA assessment evidence today?"
-   - No — it's incomplete or scattered (0)
-   - Mostly, with some digging (1)
-   - Yes, it's already assembled (2)
+No new tables; grants unchanged (existing insert-only anon policy + founder read still apply).
 
-4. **uds_to_improvement** — "Are your UDS measures tied to active improvement work?"
-   - Not really — they're tracked separately (0)
-   - Some of them are (1)
-   - Yes, every measure maps to a live PDSA (2)
+## Files
 
-5. **board_packet** — "Could your board packet show what changed, what failed, and what happens next?"
-   - No — it's mostly status updates (0)
-   - Partially (1)
-   - Yes, that's exactly how it's structured (2)
+**New — content module**
+`supabase/functions/_shared/osv-nurture-emails.ts`
+- Exports `OSV_NURTURE`: array of 7 entries `{ step, daysAfterSignup, subjectByTier, previewByTier, htmlByTier(firstName, org, score) }`.
+- Uses same `wrap()` / brand tokens as `playbook-nurture-emails.ts` (teal `#01696f`, cream bg, Jessica sig).
+- Copy per tier follows the strategy doc verbatim for Red; the Yellow/Green variants use the tone + subject-line examples given.
+- Every email has one CTA button. CTA URL varies by tier:
+  - Red → `/contact?src=osv-nurture&tier=red&step=N` ("Book a MeasureWise walkthrough")
+  - Yellow → `/contact?src=osv-nurture&tier=yellow&step=N` ("See the framework" / "Get the checklist")
+  - Green → `/contact?src=osv-nurture&tier=green&step=N` ("Pressure-test your process")
+- Footer includes `List-Unsubscribe`-compatible link to `/osv-quiz/unsubscribe?token=…` (see below).
 
-6. **last_pdsa_update** — "When did your team last close out or update a PDSA cycle?"
-   - Honestly, not sure — it's been months (0)
-   - Within the last month (1)
-   - This week (2)
+**New — delivery email (Day 0)**
+`supabase/functions/send-osv-result/index.ts`
+- Called from `OsvQuiz.tsx` right after the successful `osv_quiz_leads` insert (invoked with `supabase.functions.invoke`).
+- Renders "Your Panic Index results are in" (Email 1 in the doc, tier-specific interpretation), sends via existing Resend gateway pattern, stamps `delivery_sent_at`.
+- Uses the same brand `wrap()` helper (re-exported from `osv-nurture-emails.ts`).
+- Idempotent via `messageId = osv-{lead_id}-delivery` and check-before-send on `delivery_sent_at`.
 
-7. **assembly_time** — "If HRSA asked for evidence tomorrow, how long would it take to assemble it?"
-   - Days, maybe longer — and I'd worry about gaps (0)
-   - A day of pulling things together (1)
-   - Minutes — it's already in one place (2)
+**New — cron sender (Days 2–17)**
+`supabase/functions/send-osv-nurture/index.ts`
+- Copy of `send-playbook-nurture/index.ts` adapted to `osv_quiz_leads`.
+- Auth: same `x-cron-secret` / `get_cron_secret` pattern.
+- Query: `nurture_step < 7 AND unsubscribed_at IS NULL AND consent = true`, limit 100.
+- For each row: pick `OSV_NURTURE[nextStep - 1]`; skip until `created_at + daysAfterSignup` has elapsed; branch copy on `row.tier`; send via Resend gateway; log via `logEmailAttempt`; update `nurture_step` and `last_nurture_sent_at`.
+- Tags: `category=osv_nurture`, `tier=<red|yellow|green>`, `step=<N>`.
 
-8. **bus_factor** — "If you were out sick this week, could someone else on your team produce this evidence?"
-   - No — it lives in my head (0)
-   - One other person could, maybe (1)
-   - Yes, anyone on the team could pull it (2)
+**New — unsubscribe endpoint**
+Reuse existing pattern: add a `POST` handler in `send-osv-nurture` (or a small `osv-unsubscribe` function) that accepts a signed token (`hmac(lead_id, CRON_SECRET)`) and stamps `unsubscribed_at`. Link renders in every nurture footer. No new page needed — reuse the existing `NewsletterUnsubscribe.tsx` shape at `/osv-quiz/unsubscribe`.
 
-Existing `helper` text is dropped since the source quiz doesn't include helpers.
+**Edited — quiz page**
+`src/pages/OsvQuiz.tsx`
+- After successful insert, `supabase.functions.invoke("send-osv-result", { body: { lead_id, tier, score, first_name, email } })` (fire-and-forget with error log). No UI change.
 
-## Out of scope (deliberately unchanged this pass)
+**Edited — cron schedule**
+Add a daily `pg_cron` job for `send-osv-nurture` using the `net.http_post` pattern (per the schedule-jobs guide). This is an `insert`, not a migration, because it embeds the anon key + function URL.
 
-- Tier thresholds (`≤6 red`, `7–11 yellow`, `≥12 green`) and tier headline/summary/nextStep copy
-- Intro headline, subheadline, and page layout in `OsvQuiz.tsx`
-- Result page visuals ("Red / You are doing work you may not be able to prove.")
-- Lead form fields and Supabase insert into `osv_quiz_leads`
-- Visual design (dark navy background + white card look shown in screenshots)
+## Copy plan
 
-If you want the result copy, intro subheading ("Eight questions. Sixty seconds. Find out if your QI evidence would survive a site visit…"), or the dark-navy visual treatment from the screenshots ported over too, say the word and I'll do those in follow-up passes.
+Email content follows the strategy doc:
+
+| Step | Day | Purpose |
+|---|---|---|
+| 1 | 0 | Result delivered (score + tier interpretation) |
+| 2 | 2 | What tier really means (workflow framing) |
+| 3 | 4 | Cost of inaction (Red) / missed refinement (Yellow) / maintenance risk (Green) |
+| 4 | 7 | Quick win + 1-page checklist link |
+| 5 | 10 | MeasureWise intro |
+| 6 | 13 | Framework / credibility example |
+| 7 | 17 | Final conversion — book walkthrough |
+
+Subject lines: use the doc's Red set verbatim; Yellow and Green use the doc's example subject lines mapped to steps 1–7.
+
+Personalization tokens available: `first_name`, `organization`, `score`, `tier`. (Weakest-domain personalization is out of scope this pass — noted as a follow-up.)
+
+## Out of scope (this pass)
+
+- Weakest-answer-domain personalization
+- Open/click analytics beyond existing `email_send_log`
+- A/B subject-line testing harness
+- Admin UI to view/replay nurture state (existing `osv_quiz_leads` admin view still works)
+
+## Verification
+
+- Type-check passes (auto).
+- Manually invoke `send-osv-nurture` with `x-cron-secret` against a seeded lead with `created_at` backdated 3 days; confirm exactly one send per invocation and `nurture_step` increments.
+- Confirm Day 0 email fires on real quiz submit and `delivery_sent_at` stamps.
+- Confirm unsubscribe link stops further sends.
