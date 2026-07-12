@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { Loader2, Building2, ShieldCheck, FlaskConical, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { readPlanIntent, clearPlanIntent } from "@/lib/planIntent";
-import { trackAnonEvent } from "@/lib/trackEvent";
+import { trackAnonEvent, trackEvent } from "@/lib/trackEvent";
 import { getStripeEnvironment } from "@/lib/stripe";
 
 const ORG_TYPES = ["FQHC", "FQHC Look-Alike", "RHC", "Other"];
@@ -128,8 +128,22 @@ export default function Onboarding() {
       }
 
       const intent = readPlanIntent();
-      trackAnonEvent("onboarding_completed", {
-        organization_id: orgId,
+      // Flush any pending signup_completed from the pre-auth signup step,
+      // now that this user has an organization_id.
+      try {
+        if (typeof window !== "undefined") {
+          const raw = window.localStorage.getItem("mw_pending_signup_completed");
+          if (raw !== null) {
+            let meta: Record<string, unknown> = {};
+            try { meta = JSON.parse(raw) ?? {}; } catch { /* ignore */ }
+            window.localStorage.removeItem("mw_pending_signup_completed");
+            await trackEvent("signup_completed", meta);
+          }
+        }
+      } catch {
+        // best-effort
+      }
+      await trackEvent("onboarding_completed", {
         priceId: intent?.priceId,
       });
 
