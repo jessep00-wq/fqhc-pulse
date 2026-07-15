@@ -23,7 +23,6 @@ vi.mock("@/integrations/supabase/client", () => ({
   },
 }));
 vi.mock("@/lib/trackEvent", () => ({ trackEvent: vi.fn() }));
-vi.mock("@/lib/posthog", () => ({ identifyUser: vi.fn(), resetPostHog: vi.fn() }));
 
 import { AuthProvider } from "./AuthContext";
 
