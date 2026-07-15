@@ -3,8 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader, KpiCard, SectionCard } from "@/components/dashboard";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Eye, MousePointer2, UserPlus, CheckCircle2, ExternalLink, ArrowRight, Info } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { CheckCircle2, ArrowRight } from "lucide-react";
 
 type Range = "24h" | "7d" | "30d";
 const RANGE_MS: Record<Range, number> = {
@@ -17,13 +16,6 @@ const RANGE_MS: Record<Range, number> = {
 const DB_STEPS = [
   { event: "signup_completed", label: "Signup completed", icon: CheckCircle2 },
   { event: "onboarding_completed", label: "Onboarding done", icon: CheckCircle2 },
-] as const;
-
-// Pre-auth funnel steps — no user/org yet, so they live only in PostHog.
-const POSTHOG_STEPS = [
-  { event: "pricing_viewed", label: "Pricing viewed", icon: Eye },
-  { event: "plan_selected", label: "Plan selected", icon: MousePointer2 },
-  { event: "signup_started", label: "Signup started", icon: UserPlus },
 ] as const;
 
 export default function GrowthTraffic() {
@@ -56,14 +48,7 @@ export default function GrowthTraffic() {
     <div className="space-y-6">
       <PageHeader
         title="Traffic & Funnel"
-        description="Signup conversion (post-auth). Pre-auth funnel steps and full page-view analytics live in PostHog."
-        primaryAction={
-          <Button asChild variant="outline" size="sm">
-            <a href="https://us.posthog.com" target="_blank" rel="noreferrer" className="gap-1.5">
-              <ExternalLink className="h-3.5 w-3.5" /> Open PostHog
-            </a>
-          </Button>
-        }
+        description="Signup conversion (post-auth)."
         secondaryActions={
           <Tabs value={range} onValueChange={(v) => setRange(v as Range)}>
             <TabsList>
@@ -115,54 +100,6 @@ export default function GrowthTraffic() {
               No signup or onboarding events tracked in this window yet.
             </p>
           )}
-        </div>
-      </SectionCard>
-
-      <SectionCard
-        title="Pre-auth funnel (PostHog)"
-        description="Pricing → plan → signup started. No auth session yet, so these events are tracked in PostHog only."
-      >
-        <div className="rounded-md border bg-muted/30 px-3 py-2 flex items-start gap-2 text-xs text-muted-foreground mb-4">
-          <Info className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-          <span>
-            These steps happen before a user creates an account, so there's no organization to attribute them
-            to in the database. See counts and drop-off in the PostHog project.
-          </span>
-        </div>
-        <ul className="divide-y">
-          {POSTHOG_STEPS.map((s) => (
-            <li key={s.event} className="py-2.5 flex items-center gap-3">
-              <s.icon className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium flex-1">{s.label}</span>
-              <code className="text-[11px] text-muted-foreground">{s.event}</code>
-            </li>
-          ))}
-        </ul>
-        <div className="mt-3">
-          <Button asChild variant="outline" size="sm">
-            <a
-              href="https://us.posthog.com/insights?events=pricing_viewed,plan_selected,signup_started"
-              target="_blank"
-              rel="noreferrer"
-              className="gap-1.5"
-            >
-              <ExternalLink className="h-3.5 w-3.5" /> View pre-auth funnel in PostHog
-            </a>
-          </Button>
-        </div>
-      </SectionCard>
-
-      <SectionCard title="Web analytics" description="Detailed pageviews, sources, and sessions">
-        <p className="text-sm text-muted-foreground">
-          MeasureWise ships PostHog page-view tracking. For full traffic dashboards — unique visitors, top pages,
-          referrers, session recordings — open the PostHog project.
-        </p>
-        <div className="mt-3">
-          <Button asChild variant="outline" size="sm">
-            <a href="https://us.posthog.com/project" target="_blank" rel="noreferrer" className="gap-1.5">
-              <ExternalLink className="h-3.5 w-3.5" /> Open PostHog dashboard
-            </a>
-          </Button>
         </div>
       </SectionCard>
     </div>
