@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { trackPostHogEvent } from "@/lib/posthog";
 
 export type EventName =
   | "login"
@@ -25,16 +24,13 @@ export type EventName =
   | "osv_quiz_submitted";
 
 /**
- * Fire-and-forget PostHog event for pre-auth funnel steps where there is
+ * Fire-and-forget anon event for pre-auth funnel steps where there is
  * no authenticated user yet (pricing_viewed, plan_selected, signup_started).
  * Skips the org-scoped usage_events DB insert.
  */
 export function trackAnonEvent(eventName: EventName, metadata?: Record<string, unknown>) {
-  try {
-    trackPostHogEvent(eventName, metadata ?? {});
-  } catch {
-    console.warn("Failed to track anon event:", eventName);
-  }
+  // No-op: analytics provider removed. Kept as a stable no-op so call sites
+  // don't need to change.
 }
 
 export async function trackEvent(
@@ -52,9 +48,6 @@ export async function trackEvent(
       .single();
 
     if (!profile?.organization_id) return;
-
-    // Mirror to PostHog
-    trackPostHogEvent(eventName, { organization_id: profile.organization_id, ...metadata });
 
     await supabase.from("usage_events").insert([{
       user_id: user.id,
