@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { trackEvent } from "@/lib/trackEvent";
-import { identifyUser, resetPostHog } from "@/lib/posthog";
 
 interface AuthContextType {
   user: User | null;
@@ -74,10 +73,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } catch {
             // best-effort
           }
-          // Identify user in PostHog
-          identifyUser(session.user.id, {
-            email: session.user.email,
-          });
           const userId = session.user.id;
           setTimeout(() => {
             supabase
@@ -118,7 +113,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
-          resetPostHog();
         }
       }
     );
@@ -129,9 +123,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-
   const signOut = async () => {
-    resetPostHog();
     await supabase.auth.signOut();
   };
 
