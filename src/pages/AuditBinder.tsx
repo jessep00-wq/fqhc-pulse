@@ -614,14 +614,14 @@ export default function AuditBinder() {
   return (
     <div className="space-y-6 p-6">
       <Helmet>
-        <title>Audit Binder — MeasureWise</title>
+        <title>OSV Export Packet — MeasureWise</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Audit Binder</h1>
+          <h1 className="text-2xl font-bold tracking-tight">OSV Export Packet</h1>
           <p className="text-muted-foreground text-sm">
-            Composite, audit-ready PDF combining QI infrastructure, measures, PDSA logs, evidence, and meetings.
+            Composite, audit-ready PDF that pulls in QI oversight, committee meetings, UDS measures, PDSA logs, and evidence uploaded in the Evidence Library.
           </p>
         </div>
         <Button onClick={() => setGenerateOpen(true)}>
