@@ -120,7 +120,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             <div className="space-y-2">
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Product</p>
               <ul className="space-y-1.5 text-muted-foreground">
-                <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">Features</Link></li>
+                <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
                 <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
                 <li><Link to="/store" className="hover:text-foreground transition-colors">Store</Link></li>
                 <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How it works</Link></li>
