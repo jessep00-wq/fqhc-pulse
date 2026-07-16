@@ -492,48 +492,6 @@ describe("Contact — contact-form edge function", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 7. Waitlist / Apply form — submit-waitlist-application edge function
-//    Page : /waitlist/*  (src/pages/waitlist)
-//    Side-effect: supabase.functions.invoke("submit-waitlist-application", { body })
-// ─────────────────────────────────────────────────────────────────────────────
-describe("Waitlist — submit-waitlist-application edge function", () => {
-  const invokeFn = makeFunctionsInvoke({ data: { id: "wl-001", status: "pending" }, error: null });
-  const mockSupabase = { functions: { invoke: invokeFn } };
-
-  afterEach(() => vi.clearAllMocks());
-
-  it("submits application with org, role, and contact fields", async () => {
-    const body = {
-      org_name: "Tri-County Health Center",
-      contact_name: "Maria Lopez",
-      contact_email: "mlopez@trichc.org",
-      role: "QI Director",
-      patient_panel_size: 8500,
-    };
-    await mockSupabase.functions.invoke("submit-waitlist-application", { body });
-    expect(invokeFn).toHaveBeenCalledWith(
-      "submit-waitlist-application",
-      expect.objectContaining({ body: expect.objectContaining({ org_name: "Tri-County Health Center" }) })
-    );
-  });
-
-  it("returns application id and pending status on success", async () => {
-    const result = await mockSupabase.functions.invoke("submit-waitlist-application", {
-      body: { org_name: "CHC", contact_email: "admin@chc.org" },
-    });
-    expect(result.data?.status).toBe("pending");
-    expect(result.data?.id).toBeTruthy();
-  });
-
-  it("returns 409 when org already on waitlist", async () => {
-    invokeFn.mockResolvedValueOnce({ data: null, error: { status: 409, message: "Organization already on waitlist" } });
-    const result = await mockSupabase.functions.invoke("submit-waitlist-application", {
-      body: { org_name: "Existing CHC", contact_email: "admin@existing.org" },
-    });
-    expect(result.error?.status).toBe(409);
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. Readiness Score — send-readiness-report edge function

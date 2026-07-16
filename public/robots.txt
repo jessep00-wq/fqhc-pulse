@@ -6,7 +6,6 @@ Disallow: /auth
 Disallow: /onboarding
 Disallow: /reset-password
 Disallow: /store/success
-Disallow: /newsletter/unsubscribe
 
 User-agent: Bingbot
 Allow: /
@@ -16,7 +15,6 @@ Disallow: /auth
 Disallow: /onboarding
 Disallow: /reset-password
 Disallow: /store/success
-Disallow: /newsletter/unsubscribe
 
 User-agent: Twitterbot
 Allow: /
@@ -41,6 +39,5 @@ Disallow: /auth
 Disallow: /onboarding
 Disallow: /reset-password
 Disallow: /store/success
-Disallow: /newsletter/unsubscribe
 
 Sitemap: https://measurewise.org/sitemap.xml

@@ -3,17 +3,10 @@ import {
   Users,
   CreditCard,
   Activity,
-  Newspaper,
-  FileText,
   ShoppingBag,
   ArrowLeft,
   Shield,
   Sparkles,
-  FlaskConical,
-  Mail,
-  TrendingUp,
-  UserPlus,
-  BarChart3,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
@@ -39,25 +32,12 @@ const oversight = [
   { title: "Billing", url: "/admin/billing", icon: CreditCard },
 ];
 
-const growth = [
-  { title: "Overview", url: "/admin/growth", icon: TrendingUp, end: true },
-  { title: "Leads", url: "/admin/growth/leads", icon: UserPlus },
-  { title: "Email Activity", url: "/admin/growth/email", icon: Mail },
-  { title: "Traffic", url: "/admin/growth/traffic", icon: BarChart3 },
-];
-
 const content = [
-  { title: "Content Ops", url: "/admin/content", icon: Sparkles },
-  { title: "Blog", url: "/admin/blog", icon: FileText },
-  { title: "Newsletter", url: "/admin/newsletter", icon: Newspaper },
   { title: "Store", url: "/admin/store", icon: ShoppingBag },
 ];
 
 const tools = [
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
-  { title: "OSV Quiz Leads", url: "/admin/osv-leads", icon: Sparkles },
-  { title: "Waitlist Tester", url: "/admin/waitlist-test", icon: FlaskConical },
-  { title: "Waitlist Status", url: "/admin/waitlist-status", icon: Mail },
 ];
 
 
@@ -113,7 +93,6 @@ export function AdminSidebar() {
 
       <SidebarContent>
         {renderGroup("Oversight", oversight)}
-        {renderGroup("Growth Ops", growth)}
         {renderGroup("Content", content)}
         {renderGroup("Tools", tools)}
       </SidebarContent>

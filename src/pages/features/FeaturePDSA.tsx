@@ -102,7 +102,6 @@ export default function FeaturePDSA() {
           <ul className="space-y-3">
             <li><Link to="/features/uds-tracking" className="text-primary hover:underline">UDS Measure Tracking →</Link> — See how PDSA cycles connect to your UDS performance data</li>
             <li><Link to="/features/hrsa-audit-binder" className="text-primary hover:underline">HRSA Audit Binder Generator →</Link> — Export your PDSA documentation for site visits</li>
-            <li><Link to="/blog/pdsa-cycle-fqhc-guide" className="text-primary hover:underline">How to Run Effective PDSA Cycles at Your FQHC →</Link> — Step-by-step guide</li>
             <li><Link to="/features/spc-charts" className="text-primary hover:underline">SPC Charts for Healthcare →</Link> — Understand the statistical analysis behind your cycles</li>
           </ul>
         </div>

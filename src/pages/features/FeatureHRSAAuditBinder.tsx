@@ -95,7 +95,6 @@ export default function FeatureHRSAAuditBinder() {
           <ul className="space-y-3">
             <li><Link to="/features/pdsa-cycle-manager" className="text-primary hover:underline">PDSA Cycle Manager →</Link> — The cycles that populate your audit binder</li>
             <li><Link to="/features/uds-tracking" className="text-primary hover:underline">UDS Tracking →</Link> — Measure data included in binder reports</li>
-            <li><Link to="/blog/hrsa-site-visit-checklist" className="text-primary hover:underline">HRSA Site Visit Checklist →</Link> — What to prepare before your OSV</li>
             <li><Link to="/features/pcmh-evidence" className="text-primary hover:underline">PCMH Evidence Collection →</Link> — Similar export for NCQA recertification</li>
           </ul>
         </div>

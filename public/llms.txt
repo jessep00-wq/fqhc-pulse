@@ -30,29 +30,10 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 - [PCMH Coordinators](/for/pcmh-coordinators): How MeasureWise supports PCMH recognition work.
 - [Operations Managers](/for/operations-managers): How MeasureWise supports CHC operations.
 
-## Blog
-
-- [Blog Index](/blog): Articles on FQHC quality improvement.
-- [PDSA Cycle Guide for FQHCs](/blog/pdsa-cycle-fqhc-guide): How to run cycles that move UDS measures.
-- [UDS Clinical Quality Measures 2026](/blog/uds-clinical-quality-measures-2026): What's changing in UDS reporting.
-- [HRSA Site Visit Checklist](/blog/hrsa-site-visit-checklist): Prepare for an OSV.
-- [Quality Improvement for FQHC Staff](/blog/quality-improvement-fqhc-staff): Building a QI culture.
-
-## Resources
-
-- [UDS-aligned PDSA](/resources/uds-aligned-pdsa): How to run PDSA cycles that move the UDS measure.
-- [HRSA-ready QI documentation](/resources/hrsa-ready-qi-documentation): Capture OSV-ready evidence as part of the workflow.
-- [FQHC quality improvement evidence](/resources/fqhc-quality-improvement-evidence): What counts as evidence — and what doesn't.
-- [AthenaOne documentation workflows](/resources/athenaone-documentation-workflows): UDS reporting workflows on top of athena.
-- [SPC charts for UDS measures](/resources/spc-charts-for-uds-measures): Practical SPC analysis on UDS line items.
-- [Audit binder exports](/resources/audit-binder-exports): What goes into an OSV-defensible binder.
-- [Quality committee proof](/resources/quality-committee-proof): Minutes that defend HRSA findings.
-- [Spreadsheet replacement for QI tracking](/resources/spreadsheet-replacement-qi-tracking): Moving off the Excel workbook.
 
 
 ## Optional
 
-- [Newsletter](/newsletter): Monthly FQHC quality updates.
 - [Privacy Policy](/privacy): Privacy practices.
 - [Terms of Service](/terms): Terms of use.
 - [Refund Policy](/refund-policy): Refund and cancellation terms.
