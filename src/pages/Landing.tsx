@@ -516,7 +516,7 @@ export default function Landing() {
                 </li>
               </ul>
               <Button asChild className="mt-2">
-                <Link to="/features/spc-charts">
+                <Link to="/features#spc-charts">
                   Learn more about SPC <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
