@@ -35,19 +35,49 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
-  { title: "Network", url: "/dashboard/network", icon: Building2, badge: "Enterprise" },
-  { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
-  { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
-  { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
-  { title: "Evidence Library", url: "/dashboard/evidence-binder", icon: FolderArchive, badge: "HRSA" },
-  { title: "OSV Export Packet", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
-  { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
-  { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+const navGroups: {
+  label: string;
+  items: {
+    title: string;
+    url: string;
+    icon: typeof LayoutDashboard;
+    accent?: boolean;
+    badge?: string;
+  }[];
+}[] = [
+  {
+    label: "Overview",
+    items: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Network", url: "/dashboard/network", icon: Building2, badge: "Enterprise" },
+    ],
+  },
+  {
+    label: "Quality Tools",
+    items: [
+      { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
+      { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
+      { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
+      { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
+    ],
+  },
+  {
+    label: "Compliance & Reporting",
+    items: [
+      { title: "Evidence Library", url: "/dashboard/evidence-binder", icon: FolderArchive, badge: "HRSA" },
+      { title: "OSV Export Packet", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
+      { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
+    ],
+  },
+  {
+    label: "Team & Settings",
+    items: [
+      { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
+      { title: "Settings", url: "/dashboard/settings", icon: Settings },
+    ],
+  },
 ];
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
