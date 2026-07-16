@@ -35,19 +35,49 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-const navItems = [
-  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
-  { title: "Network", url: "/dashboard/network", icon: Building2, badge: "Enterprise" },
-  { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
-  { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
-  { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
-  { title: "Evidence Library", url: "/dashboard/evidence-binder", icon: FolderArchive, badge: "HRSA" },
-  { title: "OSV Export Packet", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
-  { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
-  { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
-  { title: "Settings", url: "/dashboard/settings", icon: Settings },
+const navGroups: {
+  label: string;
+  items: {
+    title: string;
+    url: string;
+    icon: typeof LayoutDashboard;
+    accent?: boolean;
+    badge?: string;
+  }[];
+}[] = [
+  {
+    label: "Overview",
+    items: [
+      { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+      { title: "Network", url: "/dashboard/network", icon: Building2, badge: "Enterprise" },
+    ],
+  },
+  {
+    label: "Quality Tools",
+    items: [
+      { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
+      { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
+      { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
+      { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
+    ],
+  },
+  {
+    label: "Compliance & Reporting",
+    items: [
+      { title: "Evidence Library", url: "/dashboard/evidence-binder", icon: FolderArchive, badge: "HRSA" },
+      { title: "OSV Export Packet", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
+      { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
+    ],
+  },
+  {
+    label: "Team & Settings",
+    items: [
+      { title: "Staff Tasks", url: "/dashboard/staff-tasks", icon: Users },
+      { title: "Settings", url: "/dashboard/settings", icon: Settings },
+    ],
+  },
 ];
+
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -60,7 +90,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2.5 min-w-0">
+        <Link
+          to="/dashboard"
+          aria-label="Go to dashboard"
+          className="flex items-center gap-2.5 min-w-0 rounded-md hover:bg-sidebar-accent/40 transition-colors -m-1 p-1"
+        >
           <Logo size="sm" markOnly />
           {!collapsed && (
             <div className="flex flex-col min-w-0 flex-1">
@@ -72,8 +106,9 @@ export function AppSidebar() {
               </span>
             </div>
           )}
-        </div>
+        </Link>
       </SidebarHeader>
+
 
       <SidebarContent>
         {isAdmin && (
@@ -104,42 +139,45 @@ export function AppSidebar() {
             <Separator className="mx-3 my-1 w-auto bg-sidebar-border" />
           </>
         )}
-        <SidebarGroup>
-          <SidebarGroupLabel className="text-sidebar-foreground/40 text-xs uppercase tracking-wider">
-            Navigation
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink
-                      to={item.url}
-                      end={item.url === "/dashboard"}
-                      className="hover:bg-sidebar-accent/50"
-                      activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
-                    >
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!collapsed && (
-                        <span className="flex items-center gap-2">
-                          {item.title}
-                          {item.accent && (
-                            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                          )}
-                          {"badge" in item && item.badge && (
-                            <span className="text-[9px] font-semibold rounded bg-primary/10 text-primary px-1.5 py-0.5 leading-none">
-                              {item.badge}
-                            </span>
-                          )}
-                        </span>
-                      )}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {navGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel className="text-sidebar-foreground/40 text-xs uppercase tracking-wider">
+              {group.label}
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <NavLink
+                        to={item.url}
+                        end={item.url === "/dashboard"}
+                        className="hover:bg-sidebar-accent/50"
+                        activeClassName="bg-sidebar-accent text-sidebar-primary font-medium"
+                      >
+                        <item.icon className="mr-2 h-4 w-4" />
+                        {!collapsed && (
+                          <span className="flex items-center gap-2">
+                            {item.title}
+                            {item.accent && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                            )}
+                            {item.badge && (
+                              <span className="text-[9px] font-semibold rounded bg-primary/10 text-primary px-1.5 py-0.5 leading-none">
+                                {item.badge}
+                              </span>
+                            )}
+                          </span>
+                        )}
+                      </NavLink>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
       </SidebarContent>
 
       <SidebarFooter className="p-4 space-y-3">
