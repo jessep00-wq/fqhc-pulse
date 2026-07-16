@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { LogOut, Building2 } from "lucide-react";
+import { LogOut, Building2, LayoutDashboard, UserCircle2 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
@@ -10,13 +11,22 @@ import { TrialGuard } from "@/components/TrialGuard";
 import { DemoWatermark } from "@/components/DemoWatermark";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
+
   const { organization, hasOrg, isDemo } = useOrg();
 
   const truncated =
