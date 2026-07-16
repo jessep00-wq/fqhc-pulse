@@ -95,7 +95,6 @@ export default function FeatureUDSTracking() {
           <ul className="space-y-3">
             <li><Link to="/features/pdsa-cycle-manager" className="text-primary hover:underline">PDSA Cycle Manager →</Link> — Run improvement cycles linked to your UDS measures</li>
             <li><Link to="/features/spc-charts" className="text-primary hover:underline">SPC Charts →</Link> — Statistical analysis for each measure's performance</li>
-            <li><Link to="/blog/uds-clinical-quality-measures-2026" className="text-primary hover:underline">UDS Clinical Quality Measures in 2026 →</Link> — What's changed this reporting year</li>
             <li><Link to="/features/hrsa-audit-binder" className="text-primary hover:underline">HRSA Audit Binder →</Link> — Export UDS performance data for site visits</li>
           </ul>
         </div>

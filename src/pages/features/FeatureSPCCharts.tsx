@@ -95,7 +95,6 @@ export default function FeatureSPCCharts() {
           <ul className="space-y-3">
             <li><Link to="/features/uds-tracking" className="text-primary hover:underline">UDS Tracking →</Link> — The measure data that feeds your SPC charts</li>
             <li><Link to="/features/pdsa-cycle-manager" className="text-primary hover:underline">PDSA Cycle Manager →</Link> — Link interventions to chart annotations</li>
-            <li><Link to="/blog/quality-improvement-fqhc-staff" className="text-primary hover:underline">Quality Improvement Guide for FQHC Staff →</Link> — Learn QI fundamentals</li>
             <li><Link to="/features/hrsa-audit-binder" className="text-primary hover:underline">HRSA Audit Binder →</Link> — Include SPC charts in your site visit documentation</li>
           </ul>
         </div>

@@ -95,7 +95,6 @@ export default function FeaturePCMHEvidence() {
             <li><Link to="/for/pcmh-coordinators" className="text-primary hover:underline">For PCMH Coordinators →</Link> — See how MeasureWise supports your role</li>
             <li><Link to="/features/hrsa-audit-binder" className="text-primary hover:underline">HRSA Audit Binder →</Link> — Similar export for HRSA site visits</li>
             <li><Link to="/features/pdsa-cycle-manager" className="text-primary hover:underline">PDSA Cycle Manager →</Link> — The cycles that generate your PCMH evidence</li>
-            <li><Link to="/blog/quality-improvement-fqhc-staff" className="text-primary hover:underline">Quality Improvement Guide →</Link> — Build a QI culture that supports PCMH</li>
           </ul>
         </div>
       </section>
