@@ -81,21 +81,73 @@ const personas = [
     title: "QI Directors",
     description:
       "Clinical quality management made simple — track UDS measures, run PDSA cycles, and quantify HRSA Quality Award impact with AI for clinical improvement.",
-    link: "/for/qi-directors",
+    link: "#for-qi-directors",
   },
   {
     icon: ClipboardCheck,
     title: "PCMH Coordinators",
     description:
       "Federally qualified health center solutions for Q-PASS evidence, documentation workflows, and year-round audit readiness.",
-    link: "/for/pcmh-coordinators",
+    link: "#for-pcmh-coordinators",
   },
   {
     icon: DollarSign,
     title: "CHC Operations Managers",
     description:
       "Replace expensive tools with clinical operations software that tracks value-based care reporting, staff tasks, and financial impact.",
-    link: "/for/operations-managers",
+    link: "#for-operations-managers",
+  },
+];
+
+type PersonaDeep = {
+  id: string;
+  icon: typeof LineChart;
+  eyebrow: string;
+  headline: string;
+  pain: string;
+  capabilities: string[];
+  quote: string;
+};
+
+const personaDeepSections: PersonaDeep[] = [
+  {
+    id: "for-qi-directors",
+    icon: LineChart,
+    eyebrow: "For QI Directors",
+    headline: "Your UDS measures, PDSA cycles, and Quality Award tracking — unified",
+    pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and the financial impact of hitting your next HRSA Quality Award tier in one view.",
+    capabilities: [
+      "UDS dashboards with peer benchmarks and Quality Award tier tracking",
+      "Guided PDSA cycles linked to the exact UDS measure they're meant to move",
+      "SPC charts with control limits so you know when a change is real, not noise",
+    ],
+    quote: "\"We stopped emailing UDS spreadsheets around and started running PDSA cycles that actually move the number.\"",
+  },
+  {
+    id: "for-pcmh-coordinators",
+    icon: ClipboardCheck,
+    eyebrow: "For PCMH Coordinators",
+    headline: "Stay PCMH audit-ready every single day",
+    pain: "Stop scrambling before recertification. MeasureWise maps your QI activities directly to NCQA Q-PASS evidence requirements so you're always prepared.",
+    capabilities: [
+      "Q-PASS standards mapping for every PDSA cycle and quality activity",
+      "Year-round readiness dashboard — see gaps before recertification hits",
+      "One-click NCQA recertification binder export, organized by standard",
+    ],
+    quote: "\"Q-PASS submission used to eat two months. Now the evidence is already there when we need it.\"",
+  },
+  {
+    id: "for-operations-managers",
+    icon: DollarSign,
+    eyebrow: "For CHC Operations Managers",
+    headline: "Enterprise QI capability, community-health pricing",
+    pain: "Your health center deserves real QI tools — not another spreadsheet workaround or a six-figure enterprise contract you can't justify.",
+    capabilities: [
+      "Staff task management so improvement cycles keep moving between committee meetings",
+      "Financial impact tracking — Quality Award tiers, ACO shared savings, grant compliance",
+      "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
+    ],
+    quote: "\"Same evidence trail our old enterprise vendor produced, at a fraction of the cost.\"",
   },
 ];
 
