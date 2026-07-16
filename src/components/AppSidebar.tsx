@@ -90,7 +90,11 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2.5 min-w-0">
+        <Link
+          to="/dashboard"
+          aria-label="Go to dashboard"
+          className="flex items-center gap-2.5 min-w-0 rounded-md hover:bg-sidebar-accent/40 transition-colors -m-1 p-1"
+        >
           <Logo size="sm" markOnly />
           {!collapsed && (
             <div className="flex flex-col min-w-0 flex-1">
@@ -102,8 +106,9 @@ export function AppSidebar() {
               </span>
             </div>
           )}
-        </div>
+        </Link>
       </SidebarHeader>
+
 
       <SidebarContent>
         {isAdmin && (
