@@ -31,7 +31,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
           {!slimNav ? (
             <nav className="justify-self-center hidden lg:flex items-center gap-1 text-sm">
               {[
-                { to: "/features/pdsa-cycle-manager", label: "Features" },
+                { to: "/features", label: "Features" },
                 { to: "/how-it-works", label: "How It Works" },
                 { to: "/case-studies", label: "Case Studies" },
                 { to: "/store", label: "Store" },
