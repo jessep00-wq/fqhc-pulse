@@ -59,21 +59,8 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPipeline from "./pages/admin/AdminPipeline";
 import AdminBilling from "./pages/admin/AdminBilling";
 import AdminAdoption from "./pages/admin/AdminAdoption";
-import AdminNewsletter from "./pages/admin/AdminNewsletter";
 import AdminAccountDetail from "./pages/admin/AdminAccountDetail";
-import AdminBlog from "./pages/admin/AdminBlog";
 import AdminReadinessLeads from "./pages/admin/AdminReadinessLeads";
-import AdminOsvLeads from "./pages/admin/AdminOsvLeads";
-import AdminContent from "./pages/admin/AdminContent";
-import GrowthOverview from "./pages/admin/growth/GrowthOverview";
-import GrowthLeads from "./pages/admin/growth/GrowthLeads";
-import GrowthEmail from "./pages/admin/growth/GrowthEmail";
-import GrowthTraffic from "./pages/admin/growth/GrowthTraffic";
-
-// Newsletter pages
-import NewsletterIndex from "./pages/NewsletterIndex";
-import NewsletterDetail from "./pages/NewsletterDetail";
-import NewsletterUnsubscribe from "./pages/NewsletterUnsubscribe";
 
 // Store pages
 import StoreIndex from "./pages/store/StoreIndex";
@@ -81,41 +68,11 @@ import StoreProductDetail from "./pages/store/StoreProductDetail";
 import StoreBundleDetail from "./pages/store/StoreBundleDetail";
 import StoreSuccess from "./pages/store/StoreSuccess";
 import AdminStore from "./pages/admin/AdminStore";
-import WaitlistTest from "./pages/admin/WaitlistTest";
-import WaitlistStatus from "./pages/admin/WaitlistStatus";
 import ManualLanding from "./pages/ManualLanding";
 import ManualThankYou from "./pages/ManualThankYou";
 
-// Waitlist
-import WaitlistLanding from "./pages/waitlist/WaitlistLanding";
-import WaitlistApply from "./pages/waitlist/WaitlistApply";
-import WaitlistThankYou from "./pages/waitlist/WaitlistThankYou";
-
 // Lead magnets
 import ReadinessScore from "./pages/ReadinessScore";
-import OsvQuiz from "./pages/OsvQuiz";
-
-
-
-
-// Blog pages
-import BlogIndex from "./pages/blog/BlogIndex";
-import BlogPDSAGuide from "./pages/blog/BlogPDSAGuide";
-import BlogUDSMeasures2026 from "./pages/blog/BlogUDSMeasures2026";
-import BlogHRSAChecklist from "./pages/blog/BlogHRSAChecklist";
-import BlogQICulture from "./pages/blog/BlogQICulture";
-import BlogPostDynamic from "./pages/blog/BlogPostDynamic";
-
-// Resource cornerstones (SEO moat)
-import UDSAlignedPDSA from "./pages/resources/UDSAlignedPDSA";
-import HRSAReadyQIDocumentation from "./pages/resources/HRSAReadyQIDocumentation";
-import FQHCQualityImprovementEvidence from "./pages/resources/FQHCQualityImprovementEvidence";
-import AthenaOneDocumentationWorkflows from "./pages/resources/AthenaOneDocumentationWorkflows";
-import SPCChartsForUDSMeasures from "./pages/resources/SPCChartsForUDSMeasures";
-import AuditBinderExports from "./pages/resources/AuditBinderExports";
-import QualityCommitteeProof from "./pages/resources/QualityCommitteeProof";
-import SpreadsheetReplacementQITracking from "./pages/resources/SpreadsheetReplacementQITracking";
-import AzaraDRVSIntegrationGuide from "./pages/resources/AzaraDRVSIntegrationGuide";
 
 const queryClient = new QueryClient();
 
@@ -157,30 +114,6 @@ const App = () => (
                 <Route path="/features/spc-charts" element={<FeatureSPCCharts />} />
                 <Route path="/features/pcmh-evidence" element={<FeaturePCMHEvidence />} />
 
-                {/* Blog */}
-                <Route path="/blog" element={<BlogIndex />} />
-                <Route path="/blog/pdsa-cycle-fqhc-guide" element={<BlogPDSAGuide />} />
-                <Route path="/blog/uds-clinical-quality-measures-2026" element={<BlogUDSMeasures2026 />} />
-                <Route path="/blog/hrsa-site-visit-checklist" element={<BlogHRSAChecklist />} />
-                <Route path="/blog/quality-improvement-fqhc-staff" element={<BlogQICulture />} />
-                <Route path="/blog/:slug" element={<BlogPostDynamic />} />
-
-                {/* Resource cornerstones (UDS-aligned PDSA SEO moat) */}
-                <Route path="/resources/uds-aligned-pdsa" element={<UDSAlignedPDSA />} />
-                <Route path="/resources/hrsa-ready-qi-documentation" element={<HRSAReadyQIDocumentation />} />
-                <Route path="/resources/fqhc-quality-improvement-evidence" element={<FQHCQualityImprovementEvidence />} />
-                <Route path="/resources/athenaone-documentation-workflows" element={<AthenaOneDocumentationWorkflows />} />
-                <Route path="/resources/spc-charts-for-uds-measures" element={<SPCChartsForUDSMeasures />} />
-                <Route path="/resources/audit-binder-exports" element={<AuditBinderExports />} />
-                <Route path="/resources/quality-committee-proof" element={<QualityCommitteeProof />} />
-                <Route path="/resources/spreadsheet-replacement-qi-tracking" element={<SpreadsheetReplacementQITracking />} />
-                <Route path="/resources/azara-drvs-integration-guide" element={<AzaraDRVSIntegrationGuide />} />
-
-                {/* Newsletter */}
-                <Route path="/newsletter" element={<NewsletterIndex />} />
-                <Route path="/newsletter/unsubscribe" element={<NewsletterUnsubscribe />} />
-                <Route path="/newsletter/:slug" element={<NewsletterDetail />} />
-
                 {/* Store */}
                 <Route path="/store" element={<StoreIndex />} />
                 <Route path="/store/success" element={<StoreSuccess />} />
@@ -191,18 +124,8 @@ const App = () => (
                 <Route path="/manual" element={<ManualLanding />} />
                 <Route path="/manual/thank-you" element={<ManualThankYou />} />
 
-                {/* Waitlist funnel */}
-                <Route path="/waitlist" element={<WaitlistLanding />} />
-                <Route path="/waitlist/apply" element={<WaitlistApply />} />
-                <Route path="/waitlist/thank-you" element={<WaitlistThankYou />} />
-
                 {/* Lead magnets */}
                 <Route path="/readiness" element={<ReadinessScore />} />
-                <Route path="/osv-quiz" element={<OsvQuiz />} />
-
-
-
-
 
                 <Route
                   path="/admin/*"
@@ -216,18 +139,8 @@ const App = () => (
                             <Route path="pipeline" element={<AdminPipeline />} />
                             <Route path="billing" element={<AdminBilling />} />
                             <Route path="adoption" element={<AdminAdoption />} />
-                            <Route path="newsletter" element={<AdminNewsletter />} />
                             <Route path="store" element={<AdminStore />} />
-                            <Route path="blog" element={<AdminBlog />} />
                             <Route path="readiness" element={<AdminReadinessLeads />} />
-                            <Route path="osv-leads" element={<AdminOsvLeads />} />
-                            <Route path="content" element={<AdminContent />} />
-                            <Route path="growth" element={<GrowthOverview />} />
-                            <Route path="growth/leads" element={<GrowthLeads />} />
-                            <Route path="growth/email" element={<GrowthEmail />} />
-                            <Route path="growth/traffic" element={<GrowthTraffic />} />
-                            <Route path="waitlist-test" element={<WaitlistTest />} />
-                            <Route path="waitlist-status" element={<WaitlistStatus />} />
                             <Route path="account/:orgId" element={<AdminAccountDetail />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
