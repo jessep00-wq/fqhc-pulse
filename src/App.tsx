@@ -34,20 +34,13 @@ import CaseStudies from "./pages/CaseStudies";
 import CaseStudyRedirect from "./pages/CaseStudyRedirect";
 import About from "./pages/About";
 import Onboarding from "./pages/Onboarding";
-import PersonaQIDirector from "./pages/PersonaQIDirector";
-import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
-import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
 import Pricing from "./pages/Pricing";
 import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
-// Feature pages
-import FeaturePDSA from "./pages/features/FeaturePDSA";
-import FeatureUDSTracking from "./pages/features/FeatureUDSTracking";
-import FeatureHRSAAuditBinder from "./pages/features/FeatureHRSAAuditBinder";
-import FeatureSPCCharts from "./pages/features/FeatureSPCCharts";
-import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
+// Features (consolidated single page)
+import Features from "./pages/Features";
 import NetworkDashboard from "./pages/NetworkDashboard";
 import HowItWorks from "./pages/HowItWorks";
 
