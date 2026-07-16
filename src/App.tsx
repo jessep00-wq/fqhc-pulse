@@ -85,9 +85,10 @@ const App = () => (
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
-                <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
-                <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
+                {/* Persona pages consolidated into homepage anchors */}
+                <Route path="/for/qi-directors" element={<Navigate to="/#for-qi-directors" replace />} />
+                <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-pcmh-coordinators" replace />} />
+                <Route path="/for/operations-managers" element={<Navigate to="/#for-operations-managers" replace />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/status" element={<Status />} />
@@ -100,12 +101,13 @@ const App = () => (
                 <Route path="/case-studies" element={<CaseStudies />} />
                 <Route path="/case-studies/:slug" element={<CaseStudyRedirect />} />
 
-                {/* Feature pages */}
-                <Route path="/features/pdsa-cycle-manager" element={<FeaturePDSA />} />
-                <Route path="/features/uds-tracking" element={<FeatureUDSTracking />} />
-                <Route path="/features/hrsa-audit-binder" element={<FeatureHRSAAuditBinder />} />
-                <Route path="/features/spc-charts" element={<FeatureSPCCharts />} />
-                <Route path="/features/pcmh-evidence" element={<FeaturePCMHEvidence />} />
+                {/* Features (single page with hash anchors; old slugs redirect for SEO) */}
+                <Route path="/features" element={<Features />} />
+                <Route path="/features/pdsa-cycle-manager" element={<Navigate to="/features#pdsa" replace />} />
+                <Route path="/features/uds-tracking" element={<Navigate to="/features#uds-tracking" replace />} />
+                <Route path="/features/hrsa-audit-binder" element={<Navigate to="/features#audit-binder" replace />} />
+                <Route path="/features/spc-charts" element={<Navigate to="/features#spc-charts" replace />} />
+                <Route path="/features/pcmh-evidence" element={<Navigate to="/features#pcmh-evidence" replace />} />
 
                 {/* Store */}
                 <Route path="/store" element={<StoreIndex />} />
