@@ -34,13 +34,9 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 { to: "/features/pdsa-cycle-manager", label: "Features" },
                 { to: "/how-it-works", label: "How It Works" },
                 { to: "/case-studies", label: "Case Studies" },
-                { to: "/blog", label: "Blog" },
-                { to: "/newsletter", label: "Newsletter" },
                 { to: "/store", label: "Store" },
                 { to: "/about", label: "About" },
                 { to: "/pricing", label: "Pricing" },
-                { to: "/waitlist", label: "Waitlist" },
-
               ].map((item) => (
                 <Link
                   key={item.to}
