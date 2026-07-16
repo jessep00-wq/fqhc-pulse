@@ -46,42 +46,7 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/for/qi-directors</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/for/pcmh-coordinators</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/for/operations-managers</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/features/pdsa-cycle-manager</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/features/uds-tracking</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/features/hrsa-audit-binder</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/features/spc-charts</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/features/pcmh-evidence</loc>
+    <loc>https://measurewise.org/features</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>

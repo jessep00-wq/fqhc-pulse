@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -34,20 +34,13 @@ import CaseStudies from "./pages/CaseStudies";
 import CaseStudyRedirect from "./pages/CaseStudyRedirect";
 import About from "./pages/About";
 import Onboarding from "./pages/Onboarding";
-import PersonaQIDirector from "./pages/PersonaQIDirector";
-import PersonaPCMHCoordinator from "./pages/PersonaPCMHCoordinator";
-import PersonaCHCOpsManager from "./pages/PersonaCHCOpsManager";
 import Pricing from "./pages/Pricing";
 import Status from "./pages/Status";
 import NotFound from "./pages/NotFound";
 import OAuthConsent from "./pages/OAuthConsent";
 
-// Feature pages
-import FeaturePDSA from "./pages/features/FeaturePDSA";
-import FeatureUDSTracking from "./pages/features/FeatureUDSTracking";
-import FeatureHRSAAuditBinder from "./pages/features/FeatureHRSAAuditBinder";
-import FeatureSPCCharts from "./pages/features/FeatureSPCCharts";
-import FeaturePCMHEvidence from "./pages/features/FeaturePCMHEvidence";
+// Features (consolidated single page)
+import Features from "./pages/Features";
 import NetworkDashboard from "./pages/NetworkDashboard";
 import HowItWorks from "./pages/HowItWorks";
 
@@ -92,9 +85,10 @@ const App = () => (
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/onboarding" element={<Onboarding />} />
-                <Route path="/for/qi-directors" element={<PersonaQIDirector />} />
-                <Route path="/for/pcmh-coordinators" element={<PersonaPCMHCoordinator />} />
-                <Route path="/for/operations-managers" element={<PersonaCHCOpsManager />} />
+                {/* Persona pages consolidated into homepage anchors */}
+                <Route path="/for/qi-directors" element={<Navigate to="/#for-qi-directors" replace />} />
+                <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-pcmh-coordinators" replace />} />
+                <Route path="/for/operations-managers" element={<Navigate to="/#for-operations-managers" replace />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/how-it-works" element={<HowItWorks />} />
                 <Route path="/status" element={<Status />} />
@@ -107,12 +101,13 @@ const App = () => (
                 <Route path="/case-studies" element={<CaseStudies />} />
                 <Route path="/case-studies/:slug" element={<CaseStudyRedirect />} />
 
-                {/* Feature pages */}
-                <Route path="/features/pdsa-cycle-manager" element={<FeaturePDSA />} />
-                <Route path="/features/uds-tracking" element={<FeatureUDSTracking />} />
-                <Route path="/features/hrsa-audit-binder" element={<FeatureHRSAAuditBinder />} />
-                <Route path="/features/spc-charts" element={<FeatureSPCCharts />} />
-                <Route path="/features/pcmh-evidence" element={<FeaturePCMHEvidence />} />
+                {/* Features (single page with hash anchors; old slugs redirect for SEO) */}
+                <Route path="/features" element={<Features />} />
+                <Route path="/features/pdsa-cycle-manager" element={<Navigate to="/features#pdsa" replace />} />
+                <Route path="/features/uds-tracking" element={<Navigate to="/features#uds-tracking" replace />} />
+                <Route path="/features/hrsa-audit-binder" element={<Navigate to="/features#audit-binder" replace />} />
+                <Route path="/features/spc-charts" element={<Navigate to="/features#spc-charts" replace />} />
+                <Route path="/features/pcmh-evidence" element={<Navigate to="/features#pcmh-evidence" replace />} />
 
                 {/* Store */}
                 <Route path="/store" element={<StoreIndex />} />
