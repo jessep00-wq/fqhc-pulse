@@ -106,9 +106,9 @@ export default function EvidenceBinderOverview() {
     <div className="space-y-6 p-6 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Evidence Binder</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Evidence Library</h1>
           <p className="text-sm text-muted-foreground mt-1">
-            HRSA Chapter 8 QI/QA documentation — a living repository, not a pre-visit scramble.
+            HRSA Chapter 8 QI/QA documentation — a living repository of the evidence that feeds your OSV Export Packet.
           </p>
         </div>
         <div className="flex gap-2">
