@@ -824,6 +824,55 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Per-role deep sections (were separate /for/* pages) */}
+      {personaDeepSections.map((p, idx) => {
+        const Icon = p.icon;
+        const alt = idx % 2 === 0;
+        return (
+          <section
+            key={p.id}
+            id={p.id}
+            className={`py-20 px-6 scroll-mt-24 ${alt ? "bg-background" : "bg-muted/30"}`}
+          >
+            <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-start">
+              <div className="space-y-5">
+                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-sm text-muted-foreground">
+                  <Icon className="h-4 w-4 text-primary" />
+                  {p.eyebrow}
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
+                  {p.headline}
+                </h2>
+                <p className="text-muted-foreground text-lg leading-relaxed">{p.pain}</p>
+                <blockquote className="border-l-2 border-primary/40 pl-4 text-sm italic text-muted-foreground">
+                  {p.quote}
+                </blockquote>
+                <div className="flex flex-wrap gap-3 pt-2">
+                  <Button asChild>
+                    <Link to="/pricing">
+                      Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/how-it-works">See how it works</Link>
+                  </Button>
+                </div>
+              </div>
+              <ul className="space-y-4">
+                {p.capabilities.map((cap) => (
+                  <li key={cap} className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+                    <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm text-foreground leading-relaxed">{cap}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        );
+      })}
+
+
+
       {/* Founder Authority */}
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-3xl mx-auto text-center space-y-6">
