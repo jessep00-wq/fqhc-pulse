@@ -1,0 +1,1 @@
+select cron.unschedule('weekly-digest-monday');
