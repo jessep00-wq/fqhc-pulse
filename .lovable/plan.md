@@ -1,62 +1,56 @@
-## Simplify: strip marketing/growth surface area back to core product
+## Consolidate marketing pages + clarify binder/readiness
 
-Goal: remove the OSV quiz, Growth admin, Newsletter, Blog, Resources, Waitlist, and OSV/Waitlist debug pages so the app is just: public marketing (Landing, Pricing, About, Contact, Security, HowItWorks, Personas, Features, Case Studies, Store) → Auth → `/dashboard` → `/admin` (Oversight + Content-lite + Store + Readiness Leads).
+### 1. Merge 3 persona pages → homepage sections
 
-### 1. OSV Panic Index quiz — full removal
-- Delete `src/pages/OsvQuiz.tsx`, `src/lib/osvQuiz.ts`, `src/pages/admin/AdminOsvLeads.tsx`.
-- Delete edge functions: `send-osv-result`, `send-osv-nurture`, `osv-unsubscribe`, plus `supabase/functions/_shared/osv-nurture-emails.ts` and `_shared/osv-unsub.ts`. Call `supabase--delete_edge_functions` for the three deployed functions.
-- Remove any cron schedule for `send-osv-nurture` (drop via migration if it exists in `cron.job`).
-- Drop `osv_quiz_leads` table (migration) and any references in `email_send_log`/`email_unsubscribe_tokens` are left intact.
-- Remove routes and nav entries (AdminSidebar "OSV Quiz Leads", any Landing/Pricing CTA linking to `/osv-quiz`).
+- Add a "Built for your role" section on `src/pages/Landing.tsx` with three anchor blocks: `#for-qi-directors`, `#for-pcmh-coordinators`, `#for-operations-managers`. Each shows: pain point, 3 relevant capabilities, one testimonial-style line, CTA to Pricing.
+- Reuse the existing persona cards on Landing (lines ~84-98) as the entry, but expand into full sections below (not new routes).
+- Delete `src/pages/PersonaQIDirector.tsx`, `PersonaPCMHCoordinator.tsx`, `PersonaCHCOpsManager.tsx`.
+- In `src/App.tsx`, replace the three `/for/*` routes with `<Navigate>` redirects to `/#for-qi-directors` etc. (preserves SEO backlinks + Google Ads landers).
+- Update `public/sitemap.xml` and `public/llms.txt`: drop `/for/*` URLs (they're now hash anchors on `/`).
 
-### 2. Growth admin — full removal
-- Delete `src/pages/admin/growth/` (Overview, Leads, Email, Traffic).
-- Remove the "Growth Ops" group from `AdminSidebar.tsx`.
-- Remove `/admin/growth*` routes from `App.tsx`.
+### 2. Merge 5 Features pages → one `/features` page
 
-### 3. Newsletter — full removal
-- Delete `src/pages/NewsletterIndex.tsx`, `NewsletterDetail.tsx`, `NewsletterUnsubscribe.tsx`, `src/pages/admin/AdminNewsletter.tsx`, `src/components/newsletter/`, `src/types/newsletter.ts`.
-- Delete edge functions: `subscribe-newsletter`, `newsletter-welcome`, `newsletter-unsubscribe`, `send-newsletter`, `weekly-digest` (weekly-digest is newsletter-only — confirm below).
-- Drop tables `newsletters` and `newsletter_subscribers` (migration).
-- Remove Newsletter link from `AdminSidebar` and any footer/nav links on public pages.
+- New `src/pages/Features.tsx` with five stacked sections keyed by hash: `#pdsa`, `#uds-tracking`, `#spc-charts`, `#audit-binder`, `#pcmh-evidence`. Reuse the existing copy verbatim; drop each old page's separate `<PublicPageLayout>` wrapper and "Related resources" cross-links (all now on the same page).
+- Delete the five `src/pages/features/Feature*.tsx` files.
+- In `App.tsx`, replace the five `/features/*` routes with one `/features` route + `<Navigate replace>` redirects from each old slug to `/features#<anchor>`.
+- Update `PublicPageLayout.tsx` nav "Features" link from `/features/pdsa-cycle-manager` → `/features`.
+- Update `public/sitemap.xml` + `public/llms.txt` to a single `/features` entry (drop the five old slugs).
 
-### 4. Blog — full removal (no static keep)
-- Delete `src/pages/blog/` (Index + 4 static posts + dynamic route) and `src/pages/admin/AdminBlog.tsx`.
-- Drop `blog_posts` table.
-- Remove `/blog*` and `/admin/blog` routes, and Blog link in AdminSidebar + any public nav/footer link.
-- Assumption: dropping all four posts rather than keeping any. Flag me if you want to preserve one or two as hardcoded pages.
+### 3. Audit Binder vs. Evidence Binder — clarify, keep both
 
-### 5. Resources (9 articles) — full removal
-- Delete `src/pages/resources/` entirely and `src/components/ResourcePage.tsx` if only used there.
-- Remove `/resources/*` routes and any links from Landing/personas/features/footer.
-- Update `public/sitemap.xml` and `public/llms.txt` to drop these URLs.
+They are distinct dashboard tools, not duplicates:
 
-### 6. Waitlist flow — full removal
-- Delete `src/pages/waitlist/` (Landing, Apply, ThankYou, css).
-- Delete edge function `submit-waitlist-application` and `send-waitlist-nurture`, plus `_shared/waitlist-nurture-emails.ts`.
-- Drop `waitlist_applications` table (migration).
-- Remove `/waitlist*` routes and any homepage/Pricing CTA pointing to waitlist. Pricing becomes the single entry point.
+- **Evidence Binder** (`/dashboard/evidence-binder`): document library keyed to HRSA Chapter 8 categories, per-category upload/expiration tracking, completeness score, ExportBinderDialog. This is the *content*.
+- **Audit Binder** (`/dashboard/audit-binder`): QI oversight roles, QI committee meetings, and a one-click OSV PDF that assembles those tables together with UDS/PDSA data from other parts of the app. This is the *narrative export*.
 
-### 7. Waitlist admin debug pages
-- Delete `src/pages/admin/WaitlistStatus.tsx`, `WaitlistTest.tsx`.
-- Delete edge functions `admin-waitlist-status` and `admin-waitlist-test`.
-- Remove "Waitlist Tester" and "Waitlist Status" from AdminSidebar `tools` group.
-- Also remove the `admin_delete_waitlist_application` DB function (no longer referenced).
+They cross-reference each other but solve different jobs (evidence lives in Evidence Binder; the OSV-ready packet is composed in Audit Binder). No merge — but rename sidebar labels to make the split obvious:
+- "Evidence Binder" → "Evidence Library (HRSA)"
+- "Audit Binder" → "OSV Export Packet"
 
-### 8. Post-cleanup verification
-- `rg` for stale imports and route strings (`/osv-quiz`, `/waitlist`, `/blog`, `/resources`, `/newsletter`, `/admin/growth`, `AdminOsvLeads`, `NewsletterSectionRenderer`, etc.).
-- Run typecheck + build; fix broken imports on Landing/Footer/PublicPageLayout as they surface.
-- Update `public/sitemap.xml`, `public/llms.txt`, `public/robots.txt` if needed, and any SEO `<link rel=canonical>` references.
+And add a one-line description on each page header explaining how they relate (evidence uploads flow into the OSV export). No route/file changes.
 
-### What survives in `/admin`
-Oversight (Accounts, Users, Adoption, Billing) · Content Ops + Store (kept — paid product) · Readiness Leads (kept — feeds real Pricing trial funnel).
+If you'd rather actually merge them, say so and I'll fold the Audit Binder oversight/meetings tables into new tabs inside Evidence Binder and drop `/dashboard/audit-binder`.
 
-### Technical notes / open questions
+### 4. Public `/readiness` vs. dashboard — keep, they don't overlap
 
-1. **Contact form + Pricing trial** remain the only lead-capture surfaces. Confirm.
-2. **`weekly-digest` function** — I'll read it to confirm it's newsletter-only before deleting. If it also emails in-app users, I'll keep it.
-3. **Case Studies, Personas, Feature pages, Store, Playbook Library, Readiness Score** — all kept as-is (not in your removal list).
-4. **Data loss:** dropping `osv_quiz_leads`, `newsletters`, `newsletter_subscribers`, `blog_posts`, `waitlist_applications` is destructive. If you want a CSV export of any before drop, say so and I'll add an export step before the migration.
-5. **Deployed edge functions** get removed via `supabase--delete_edge_functions` so they stop serving after publish.
+- Public `/readiness` (`src/pages/ReadinessScore.tsx`): 12-question HRSA-readiness quiz that captures a lead into `readiness_submissions` and emails a report. Marketing/top-of-funnel lead magnet feeding `/admin/readiness`.
+- Dashboard equivalent (`Evidence Binder` completeness score): computed from actual uploaded documents inside a paying customer's workspace.
 
-Reply with any adjustments (e.g. keep a blog post, export data first) and I'll switch to build mode.
+These are different: one is a self-scored pre-purchase questionnaire, the other is measured from real evidence. Neither is redundant with the other, so keep both. Only cleanup:
+- Rename public page label to "HRSA Readiness Quiz" in copy so it's not mistaken for the in-app score.
+- No dashboard-side "readiness" page exists to remove.
+
+If you disagree — e.g. you want the public quiz gone and replaced with a "Sign up to see your real score" nudge — say so and I'll cut `/readiness`, `src/lib/readiness/*`, the `send-readiness-report` function, and `readiness_submissions`.
+
+### Technical notes
+
+- Redirects use `react-router-dom` `Navigate` with `replace` so old ad links land on the merged surface with the right anchor.
+- ScrollToTop already exists; add a small hash-scroll effect on `Landing` and `Features` so `/features#spc-charts` scrolls to the section on load.
+- Sitemap + llms.txt updated in the same pass.
+- SEO/canonical tags on merged pages: single canonical per new page; old persona/feature `<Helmet>` blocks disappear with their files.
+
+### Open questions
+
+1. Confirm you want backward-compatible redirects for the 8 removed URLs (recommended for SEO/ads). Yes/no.
+2. Confirm Audit Binder + Evidence Binder stay split (with clearer labels), or force-merge into one dashboard page.
+3. Confirm public `/readiness` stays as the pre-signup lead magnet.
