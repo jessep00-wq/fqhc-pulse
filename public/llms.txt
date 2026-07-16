@@ -18,17 +18,16 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 
 ## Features
 
-- [PDSA Cycle Manager](/features/pdsa-cycle-manager): Guided Plan-Do-Study-Act cycles tied to UDS measures.
-- [UDS Tracking](/features/uds-tracking): Track UDS clinical quality measures over time.
-- [SPC Charts](/features/spc-charts): Statistical process control charts on UDS measures.
-- [HRSA Audit Binder](/features/hrsa-audit-binder): One-click OSV-ready PDF export.
-- [PCMH Evidence](/features/pcmh-evidence): Automated NCQA Q-PASS evidence collection.
+- [Features](/features): One page covering PDSA cycles, UDS tracking, SPC charts, HRSA audit binder export, and PCMH Q-PASS evidence collection.
 
-## For
+## Roles served
 
-- [QI Directors](/for/qi-directors): How MeasureWise supports Quality Improvement Directors.
-- [PCMH Coordinators](/for/pcmh-coordinators): How MeasureWise supports PCMH recognition work.
-- [Operations Managers](/for/operations-managers): How MeasureWise supports CHC operations.
+The homepage has anchor sections for each role we serve:
+- QI Directors (/#for-qi-directors)
+- PCMH Coordinators (/#for-pcmh-coordinators)
+- CHC Operations Managers (/#for-operations-managers)
+
+
 
 
 
