@@ -1,36 +1,62 @@
-## Goal
-Link the GitHub REST API connector so edge functions can call GitHub on your behalf. This does **not** sync your codebase — it lets the app itself read/write GitHub data at runtime.
+## Simplify: strip marketing/growth surface area back to core product
 
-## What this enables
-Once linked, backend code (edge functions) can call the GitHub API through Lovable's connector gateway using `LOVABLE_API_KEY` + `GITHUB_API_KEY`. Typical uses:
-- Open/track issues from admin actions
-- List repo activity in the admin console
-- Trigger workflows or read release info
-- Sync tickets/leads to a GitHub project
+Goal: remove the OSV quiz, Growth admin, Newsletter, Blog, Resources, Waitlist, and OSV/Waitlist debug pages so the app is just: public marketing (Landing, Pricing, About, Contact, Security, HowItWorks, Personas, Features, Case Studies, Store) → Auth → `/dashboard` → `/admin` (Oversight + Content-lite + Store + Readiness Leads).
 
-## Steps
-1. Use `standard_connectors--connect` with `connector_id: github` — you'll pick an existing connection or authorize a new one (personal access token, scoped per the endpoints you want to hit).
-2. After the connection is linked, `GITHUB_API_KEY` will be available to edge functions automatically. No code changes needed yet.
-3. Confirm with a quick verify call so we know the token works.
+### 1. OSV Panic Index quiz — full removal
+- Delete `src/pages/OsvQuiz.tsx`, `src/lib/osvQuiz.ts`, `src/pages/admin/AdminOsvLeads.tsx`.
+- Delete edge functions: `send-osv-result`, `send-osv-nurture`, `osv-unsubscribe`, plus `supabase/functions/_shared/osv-nurture-emails.ts` and `_shared/osv-unsub.ts`. Call `supabase--delete_edge_functions` for the three deployed functions.
+- Remove any cron schedule for `send-osv-nurture` (drop via migration if it exists in `cron.job`).
+- Drop `osv_quiz_leads` table (migration) and any references in `email_send_log`/`email_unsubscribe_tokens` are left intact.
+- Remove routes and nav entries (AdminSidebar "OSV Quiz Leads", any Landing/Pricing CTA linking to `/osv-quiz`).
 
-## What I need from you before coding anything
-You haven't told me the specific workflow yet. Linking the connector alone doesn't do anything user-facing. So after step 1, tell me the use case (e.g., "When a new OSV quiz lead comes in, open a GitHub issue in `measurewise/ops`") and I'll build the edge function + admin UI in a follow-up plan.
+### 2. Growth admin — full removal
+- Delete `src/pages/admin/growth/` (Overview, Leads, Email, Traffic).
+- Remove the "Growth Ops" group from `AdminSidebar.tsx`.
+- Remove `/admin/growth*` routes from `App.tsx`.
 
-## Not included in this plan
-- Codebase sync to a GitHub repo (that's the Plus → GitHub UI flow, not something I can trigger)
-- Any specific feature/edge function using the GitHub API (needs your use case first)
-- Make integration (separate — you'd add a `MAKE_WEBHOOK_URL` secret when ready)
+### 3. Newsletter — full removal
+- Delete `src/pages/NewsletterIndex.tsx`, `NewsletterDetail.tsx`, `NewsletterUnsubscribe.tsx`, `src/pages/admin/AdminNewsletter.tsx`, `src/components/newsletter/`, `src/types/newsletter.ts`.
+- Delete edge functions: `subscribe-newsletter`, `newsletter-welcome`, `newsletter-unsubscribe`, `send-newsletter`, `weekly-digest` (weekly-digest is newsletter-only — confirm below).
+- Drop tables `newsletters` and `newsletter_subscribers` (migration).
+- Remove Newsletter link from `AdminSidebar` and any footer/nav links on public pages.
 
-## Technical detail
-Connector gateway pattern (for reference, will be used when we build the actual feature):
-```typescript
-const res = await fetch(`https://connector-gateway.lovable.dev/github/repos/${owner}/${repo}/issues`, {
-  method: 'POST',
-  headers: {
-    Authorization: `Bearer ${Deno.env.get('LOVABLE_API_KEY')}`,
-    'X-Connection-Api-Key': Deno.env.get('GITHUB_API_KEY')!,
-    Accept: 'application/vnd.github+json',
-  },
-  body: JSON.stringify({ title, body }),
-});
-```
+### 4. Blog — full removal (no static keep)
+- Delete `src/pages/blog/` (Index + 4 static posts + dynamic route) and `src/pages/admin/AdminBlog.tsx`.
+- Drop `blog_posts` table.
+- Remove `/blog*` and `/admin/blog` routes, and Blog link in AdminSidebar + any public nav/footer link.
+- Assumption: dropping all four posts rather than keeping any. Flag me if you want to preserve one or two as hardcoded pages.
+
+### 5. Resources (9 articles) — full removal
+- Delete `src/pages/resources/` entirely and `src/components/ResourcePage.tsx` if only used there.
+- Remove `/resources/*` routes and any links from Landing/personas/features/footer.
+- Update `public/sitemap.xml` and `public/llms.txt` to drop these URLs.
+
+### 6. Waitlist flow — full removal
+- Delete `src/pages/waitlist/` (Landing, Apply, ThankYou, css).
+- Delete edge function `submit-waitlist-application` and `send-waitlist-nurture`, plus `_shared/waitlist-nurture-emails.ts`.
+- Drop `waitlist_applications` table (migration).
+- Remove `/waitlist*` routes and any homepage/Pricing CTA pointing to waitlist. Pricing becomes the single entry point.
+
+### 7. Waitlist admin debug pages
+- Delete `src/pages/admin/WaitlistStatus.tsx`, `WaitlistTest.tsx`.
+- Delete edge functions `admin-waitlist-status` and `admin-waitlist-test`.
+- Remove "Waitlist Tester" and "Waitlist Status" from AdminSidebar `tools` group.
+- Also remove the `admin_delete_waitlist_application` DB function (no longer referenced).
+
+### 8. Post-cleanup verification
+- `rg` for stale imports and route strings (`/osv-quiz`, `/waitlist`, `/blog`, `/resources`, `/newsletter`, `/admin/growth`, `AdminOsvLeads`, `NewsletterSectionRenderer`, etc.).
+- Run typecheck + build; fix broken imports on Landing/Footer/PublicPageLayout as they surface.
+- Update `public/sitemap.xml`, `public/llms.txt`, `public/robots.txt` if needed, and any SEO `<link rel=canonical>` references.
+
+### What survives in `/admin`
+Oversight (Accounts, Users, Adoption, Billing) · Content Ops + Store (kept — paid product) · Readiness Leads (kept — feeds real Pricing trial funnel).
+
+### Technical notes / open questions
+
+1. **Contact form + Pricing trial** remain the only lead-capture surfaces. Confirm.
+2. **`weekly-digest` function** — I'll read it to confirm it's newsletter-only before deleting. If it also emails in-app users, I'll keep it.
+3. **Case Studies, Personas, Feature pages, Store, Playbook Library, Readiness Score** — all kept as-is (not in your removal list).
+4. **Data loss:** dropping `osv_quiz_leads`, `newsletters`, `newsletter_subscribers`, `blog_posts`, `waitlist_applications` is destructive. If you want a CSV export of any before drop, say so and I'll add an export step before the migration.
+5. **Deployed edge functions** get removed via `supabase--delete_edge_functions` so they stop serving after publish.
+
+Reply with any adjustments (e.g. keep a blog post, export data first) and I'll switch to build mode.
