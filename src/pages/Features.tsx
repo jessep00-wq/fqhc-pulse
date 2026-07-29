@@ -69,10 +69,10 @@ const sections: FeatureSection[] = [
     title: "UDS measure tracking software",
     titleAccent: "for FQHCs",
     intro:
-      "The spreadsheet you inherited can't tell you which UDS measure is sliding this month. MeasureWise replaces that spreadsheet with a live, trend-aware tracker for every UDS clinical quality measure, so you act on declining numbers before they end up in HRSA's report.",
+      "The spreadsheet you inherited can't tell you which UDS measure is sliding this month. MeasureWise replaces that spreadsheet with a live, trend-aware tracker for the 7 core UDS clinical quality measures, so you act on declining numbers before they end up in HRSA's report.",
     cardsHeading: "What you can track",
     cards: [
-      { icon: BarChart3, title: "20+ UDS Measures", description: "Cervical cancer screening, diabetes HbA1c, hypertension, depression screening, BMI, and more — every measure HRSA reviews." },
+      { icon: BarChart3, title: "7 Core UDS Measures", description: "Depression screening, tobacco use, colorectal cancer, cervical cancer, breast cancer, hypertension control, and diabetes HbA1c > 9%." },
       { icon: TrendingUp, title: "Real-Time Trend Analysis", description: "See how each measure trends month over month. Identify declining measures before they become audit findings." },
       { icon: Target, title: "Gap-to-Target Tracking", description: "Set targets and instantly see which measures are below goal. Weekly digest tells you exactly where to focus." },
       { icon: LineChart, title: "SPC Chart Integration", description: "Statistical Process Control charts distinguish real improvement from random variation." },

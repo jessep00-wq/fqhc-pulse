@@ -122,7 +122,7 @@ export default function PlaybookLibrary() {
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">UDS & ACO Playbook Library</h1>
+        <h1 className="text-2xl font-bold tracking-tight">UDS Playbook Library</h1>
         <p className="text-muted-foreground">Pre-mapped workflow templates for common FQHC challenges</p>
       </div>
 
