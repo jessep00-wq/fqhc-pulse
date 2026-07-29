@@ -1,3 +1,4 @@
+import { UDS_MEASURE_LABELS } from "@/data/udsMeasures";
 import { useState, useRef, useCallback } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -21,12 +22,7 @@ interface BoardReportDialogProps {
   financials: any;
 }
 
-const MEASURE_LABELS: Record<string, string> = {
-  CMS124: "Cervical Cancer Screening",
-  CMS125: "Breast Cancer Screening",
-  CMS165: "BP Control",
-  CMS122: "HbA1c Poor Control",
-};
+const MEASURE_LABELS: Record<string, string> = UDS_MEASURE_LABELS;
 
 const currentYear = new Date().getFullYear();
 const quarters = [

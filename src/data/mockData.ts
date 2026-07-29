@@ -1,3 +1,4 @@
+import { UDS_MEASURE_VALUES } from "@/data/udsMeasures";
 export const ORG_ID = "org-001";
 
 export type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
@@ -50,18 +51,7 @@ export interface UDSPlaybook {
   };
 }
 
-export const UDS_MEASURES = [
-  "CMS122: Diabetes HbA1c Poor Control",
-  "CMS124: Cervical Cancer Screening",
-  "CMS125: Breast Cancer Screening",
-  "CMS127: Pneumococcal Vaccination",
-  "CMS130: Colorectal Cancer Screening",
-  "CMS138: Tobacco Screening & Cessation",
-  "CMS165: Blood Pressure Control",
-  "CMS2: Depression Screening",
-  "CMS69: BMI Screening & Follow-Up",
-  "CMS75: Children Dental Decay",
-];
+export const UDS_MEASURES = UDS_MEASURE_VALUES;
 
 export const mockPDSACycles: PDSACycle[] = [
   {

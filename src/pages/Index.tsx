@@ -35,18 +35,15 @@ import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 
+import { UDS_MEASURE_LABELS, UDS_MEASURE_LIST } from "@/data/udsMeasures";
+
 const VARIANT_BORDER: Record<string, string> = {
   default: "border-l-4 border-l-primary",
   warning: "border-l-4 border-l-warning",
   success: "border-l-4 border-l-success",
 };
 
-const MEASURE_LABELS: Record<string, string> = {
-  CMS124: "Cervical Cancer Screening",
-  CMS125: "Breast Cancer Screening",
-  CMS165: "BP Control",
-  CMS122: "HbA1c Poor Control",
-};
+const MEASURE_LABELS: Record<string, string> = UDS_MEASURE_LABELS;
 
 const MetricCard = ({
   title, value, icon: Icon, description, variant = "default", onClick,
@@ -581,10 +578,20 @@ export default function Dashboard() {
                   <Legend />
                   <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
                   <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
-                  <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
-                  <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
-                  <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
-                  <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
+                  {UDS_MEASURE_LIST.map((m) => (
+                    <Line
+                      key={m.id}
+                      yAxisId={m.inverse ? "right" : "left"}
+                      type="monotone"
+                      dataKey={m.id}
+                      stroke={m.color}
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      name={m.inverse ? `${m.short} ↓` : m.short}
+                      strokeDasharray={m.inverse ? "5 2" : undefined}
+                      connectNulls
+                    />
+                  ))}
                 </LineChart>
               </ResponsiveContainer>
             </TabsContent>
