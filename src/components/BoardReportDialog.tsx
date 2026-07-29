@@ -1,3 +1,4 @@
+import { UDS_MEASURE_LABELS } from "@/data/udsMeasures";
 import { useState, useRef, useCallback } from "react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
@@ -18,15 +19,9 @@ interface BoardReportDialogProps {
   cycles: any[];
   tasks: any[];
   trends: any[];
-  financials: any;
 }
 
-const MEASURE_LABELS: Record<string, string> = {
-  CMS124: "Cervical Cancer Screening",
-  CMS125: "Breast Cancer Screening",
-  CMS165: "BP Control",
-  CMS122: "HbA1c Poor Control",
-};
+const MEASURE_LABELS: Record<string, string> = UDS_MEASURE_LABELS;
 
 const currentYear = new Date().getFullYear();
 const quarters = [
@@ -40,7 +35,7 @@ const quarters = [
   `Q4 ${currentYear - 1}`,
 ];
 
-export function BoardReportDialog({ open, onClose, cycles, tasks, trends, financials }: BoardReportDialogProps) {
+export function BoardReportDialog({ open, onClose, cycles, tasks, trends }: BoardReportDialogProps) {
   const { organization, isDemo } = useOrg();
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -292,35 +287,6 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends, financ
               )}
             </div>
 
-            {/* Financial Impact */}
-            {financials && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-gray-900 border-b border-gray-200 pb-2">
-                  Financial Impact
-                </h3>
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="text-center p-4 bg-teal-50 rounded-lg">
-                    <p className="text-2xl font-bold text-teal-800">
-                      ${(financials.shared_savings / 1000).toFixed(0)}K
-                    </p>
-                    <p className="text-xs text-gray-600 mt-1">ACO Shared Savings</p>
-                    <p className="text-xs text-teal-600 font-medium">+{financials.trend}% vs. prior</p>
-                  </div>
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-800">
-                      ${(financials.revenue_protected / 1000).toFixed(0)}K
-                    </p>
-                    <p className="text-xs text-gray-600 mt-1">Revenue Protected</p>
-                  </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-2xl font-bold text-purple-800">
-                      ${(financials.hrsa_quality_award / 1000).toFixed(0)}K
-                    </p>
-                    <p className="text-xs text-gray-600 mt-1">HRSA Quality Award</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Footer */}
             <div className="pt-6 border-t border-gray-200 text-center">

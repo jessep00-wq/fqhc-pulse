@@ -1,3 +1,4 @@
+import { UDS_MEASURE_LIST, UDS_MEASURE_IDS } from "@/data/udsMeasures";
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -30,17 +31,7 @@ import { SEO } from "@/components/SEO";
 
 const STAFF_ROLES = ["QI Manager", "Provider", "MA/RN", "Front Desk", "Care Coordinator", "Administrator"];
 
-const UDS_MEASURES = [
-  { id: "CMS2", label: "CMS2 – Depression Screening", short: "Depression Screening" },
-  { id: "CMS122", label: "CMS122 – Diabetes HbA1c Poor Control", short: "Diabetes HbA1c Poor Control" },
-  { id: "CMS124", label: "CMS124 – Cervical Cancer Screening", short: "Cervical Cancer Screening" },
-  { id: "CMS125", label: "CMS125 – Breast Cancer Screening", short: "Breast Cancer Screening" },
-  { id: "CMS127", label: "CMS127 – Pneumococcal Vaccination", short: "Pneumococcal Vaccination" },
-  { id: "CMS130", label: "CMS130 – Colorectal Cancer Screening", short: "Colorectal Cancer Screening" },
-  { id: "CMS138", label: "CMS138 – Tobacco Use Screening", short: "Tobacco Use Screening" },
-  { id: "CMS147", label: "CMS147 – Influenza Immunization", short: "Influenza Immunization" },
-  { id: "CMS165", label: "CMS165 – Controlling Blood Pressure", short: "Controlling Blood Pressure" },
-];
+const UDS_MEASURES = UDS_MEASURE_LIST.map((m) => ({ id: m.id, label: m.label, short: m.short }));
 
 const MEASURE_MAP: Record<string, string> = UDS_MEASURES.reduce((acc, m) => {
   acc[m.id] = m.short;
@@ -238,7 +229,7 @@ export default function Settings() {
         throw new Error("CSV must have columns: measure_id, month, value");
       }
 
-      const VALID_MEASURES = new Set(["CMS2","CMS122","CMS124","CMS125","CMS127","CMS130","CMS138","CMS147","CMS165"]);
+      const VALID_MEASURES = new Set(UDS_MEASURE_IDS);
       const MONTH_RE = /^\d{4}-(0[1-9]|1[0-2])$/;
       const MAX_ROWS = 500;
 

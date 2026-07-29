@@ -1,14 +1,10 @@
 import { useState, useMemo } from "react";
 import { JargonTooltip } from "@/components/JargonTooltip";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { UDS_MEASURE_LIST } from "@/data/udsMeasures";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from "recharts";
 
-const MEASURES = [
-  { id: "CMS124", label: "Cervical Cancer Screening" },
-  { id: "CMS125", label: "Breast Cancer Screening" },
-  { id: "CMS165", label: "BP Control" },
-  { id: "CMS122", label: "HbA1c Poor Control" },
-];
+const MEASURES = UDS_MEASURE_LIST.map((m) => ({ id: m.id, label: m.short }));
 
 const MONTH_ORDER = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
 
