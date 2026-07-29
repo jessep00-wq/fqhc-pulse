@@ -130,7 +130,9 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
   const reset = () => {
     setStep("template");
     setData({ ...emptyWizard });
+    setQuery("");
   };
+
 
   const canProceed = () => {
     switch (step) {
