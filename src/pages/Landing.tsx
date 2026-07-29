@@ -63,7 +63,7 @@ const features = [
     title: "Real-Time UDS Measure Tracking",
     painPoint: "Waiting until year-end to see if your QI work moved the needle?",
     description:
-      "Track 20+ UDS clinical quality measures with live trend updates as your team completes cycles — so you know whether to scale an intervention or pivot before HRSA reporting.",
+      "Track the 7 core UDS clinical quality measures with live trend updates as your team completes cycles — so you know whether to scale an intervention or pivot before HRSA reporting.",
   },
 
   {
@@ -94,7 +94,7 @@ const personas = [
     icon: DollarSign,
     title: "CHC Operations Managers",
     description:
-      "Replace expensive tools with clinical operations software that tracks value-based care reporting, staff tasks, and financial impact.",
+      "Replace expensive tools with clinical operations software that tracks improvement work, staff tasks, and audit evidence.",
     link: "#for-operations-managers",
   },
 ];
@@ -115,9 +115,9 @@ const personaDeepSections: PersonaDeep[] = [
     icon: LineChart,
     eyebrow: "For QI Directors",
     headline: "Your UDS measures, PDSA cycles, and Quality Award tracking — unified",
-    pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and the financial impact of hitting your next HRSA Quality Award tier in one view.",
+    pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and every piece of audit evidence in one view.",
     capabilities: [
-      "UDS dashboards with peer benchmarks and Quality Award tier tracking",
+      "UDS dashboards for the 7 core measures, with targets and gap-to-goal tracking",
       "Guided PDSA cycles linked to the exact UDS measure they're meant to move",
       "SPC charts with control limits so you know when a change is real, not noise",
     ],
@@ -144,7 +144,7 @@ const personaDeepSections: PersonaDeep[] = [
     pain: "Your health center deserves real QI tools — not another spreadsheet workaround or a six-figure enterprise contract you can't justify.",
     capabilities: [
       "Staff task management so improvement cycles keep moving between committee meetings",
-      "Financial impact tracking — Quality Award tiers, ACO shared savings, grant compliance",
+      "Evidence Library that keeps every cycle log, task, and attachment OSV-ready",
       "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
     ],
     quote: "\"Same evidence trail our old enterprise vendor produced, at a fraction of the cost.\"",
@@ -163,7 +163,7 @@ const securityItems = [
 
 const comparisonRows = [
   { feature: "PDSA cycle management", measurewise: true, spreadsheet: "Manual", generic: "Partial" },
-  { feature: "UDS measure tracking (20+)", measurewise: true, spreadsheet: "Manual", generic: false },
+  { feature: "UDS measure tracking (7 core measures)", measurewise: true, spreadsheet: "Manual", generic: false },
   { feature: "SPC charts with control limits", measurewise: true, spreadsheet: false, generic: "Add-on" },
   { feature: "HRSA audit binder export", measurewise: true, spreadsheet: false, generic: false },
   { feature: "NCQA Q-PASS evidence mapping", measurewise: true, spreadsheet: false, generic: false },
@@ -192,7 +192,7 @@ const howItWorksSteps = [
     icon: Target,
     number: "01",
     title: "Set up your UDS measures",
-    description: "Select the clinical quality measures your FQHC is tracking — cervical cancer screening, diabetes HbA1c, depression screening, and more. MeasureWise pre-loads the full UDS measure set so you're ready in minutes.",
+    description: "Select the clinical quality measures your FQHC is tracking — cervical cancer screening, diabetes HbA1c, depression screening, and more. MeasureWise pre-loads the 7 core UDS measures so you're ready in minutes.",
   },
   {
     icon: FlaskConical,
@@ -210,7 +210,7 @@ const howItWorksSteps = [
     icon: FileCheck,
     number: "04",
     title: "Generate audit-ready documentation",
-    description: "One click produces a complete HRSA audit binder or NCQA Q-PASS evidence packet — cycle logs, task evidence, baseline-to-result deltas, and next-cycle linkages included.",
+    description: "One click produces a complete OSV Export Packet from your Evidence Library — cycle logs, task evidence, baseline-to-result deltas, and next-cycle linkages included.",
   },
 ];
 
@@ -232,8 +232,8 @@ const outcomes = [
   },
   {
     icon: DollarSign,
-    title: "Visible funding impact",
-    description: "Link quality work directly to value-based care revenue, HRSA Quality Awards, and grant deliverables for your board.",
+    title: "Evidence your board can read",
+    description: "Show your board and HRSA reviewers exactly what changed, when, and what evidence backs it.",
   },
 ];
 
@@ -256,7 +256,7 @@ const objectionItems = [
 const faqItems = [
   {
     q: "What is MeasureWise?",
-    a: "MeasureWise is a quality improvement platform built exclusively for Federally Qualified Health Centers (FQHCs). It connects PDSA cycles to UDS measures and HRSA funding outcomes — replacing spreadsheets with guided workflows, SPC charts, and one-click audit binders.",
+    a: "MeasureWise is a quality improvement platform built exclusively for Federally Qualified Health Centers (FQHCs). It connects PDSA cycles to the core UDS measures and keeps the documentation HRSA asks for — replacing spreadsheets with guided workflows, SPC charts, and one-click evidence exports.",
   },
   {
     q: "Does this replace our EHR or Azara?",
@@ -272,7 +272,7 @@ const faqItems = [
   },
   {
     q: "Can we start with one site or pilot program?",
-    a: "Absolutely. Many FQHCs start with a single site or a single clinical measure and expand from there. The free tier supports up to 3 active PDSA cycles, which is plenty for a pilot. Multi-site features are available on our Enterprise tier.",
+    a: "Absolutely. Many FQHCs start with a single site or a single clinical measure and expand from there. Every plan starts with a 14-day free trial, which is plenty of time to run a pilot cycle. Multi-site features are available on the Multi-Site and Network plans.",
   },
   {
     q: "Do I need to be an FQHC to use MeasureWise?",
@@ -284,7 +284,7 @@ const faqItems = [
   },
   {
     q: "How is MeasureWise different from spreadsheets?",
-    a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, generate HRSA-ready audit binders, or link clinical improvements to financial outcomes. MeasureWise does all of this in one purpose-built tool.",
+    a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, or assemble an OSV export packet from linked evidence. MeasureWise does all of this in one purpose-built tool.",
   },
   {
     q: "Is there a free trial?",
@@ -410,7 +410,7 @@ export default function Landing() {
                 <source srcSet={dashboardPreviewWebp} type="image/webp" />
                 <img
                   src={dashboardPreview}
-                  alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and financial impact tracking`}
+                  alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and audit evidence`}
                   className="w-full h-auto"
                   width={1280}
                   height={720}
@@ -449,21 +449,21 @@ export default function Landing() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <Link to="/how-it-works">See the full workflow</Link>
+              <a href="#how-it-works">See the full workflow</a>
             </Button>
           </div>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-20 px-6 bg-muted/30">
+      <section id="how-it-works" className="py-20 px-6 bg-muted/30 scroll-mt-24">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               How it works — in four steps
             </h2>
             <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              From measure selection to audit-ready binder, MeasureWise guides your team through
+              From measure selection to OSV Export Packet, MeasureWise guides your team through
               the entire quality improvement workflow.
             </p>
           </div>
@@ -854,7 +854,7 @@ export default function Landing() {
                     </Link>
                   </Button>
                   <Button variant="outline" asChild>
-                    <Link to="/how-it-works">See how it works</Link>
+                    <a href="#how-it-works">See how it works</a>
                   </Button>
                 </div>
               </div>

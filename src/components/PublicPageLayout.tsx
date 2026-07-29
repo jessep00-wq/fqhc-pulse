@@ -32,7 +32,6 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             <nav className="justify-self-center hidden lg:flex items-center gap-1 text-sm">
               {[
                 { to: "/features", label: "Features" },
-                { to: "/how-it-works", label: "How It Works" },
                 { to: "/store", label: "Store" },
                 { to: "/about", label: "About" },
                 { to: "/pricing", label: "Pricing" },
@@ -95,7 +94,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
-              <Link to="/how-it-works">See how it works</Link>
+              <a href="/#how-it-works">See how it works</a>
             </Button>
           </div>
         </div>
@@ -122,7 +121,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
                 <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
                 <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
                 <li><Link to="/store" className="hover:text-foreground transition-colors">Store</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How it works</Link></li>
+                <li><a href="/#how-it-works" className="hover:text-foreground transition-colors">How it works</a></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">Status</Link></li>
               </ul>
             </div>

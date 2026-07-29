@@ -7,7 +7,7 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 ## Pages
 
 - [Home](/): Product overview and value proposition for FQHC quality teams.
-- [How It Works](/how-it-works): Walkthrough of PDSA cycles, SPC charts, and audit binders.
+- [How It Works](/#how-it-works): Walkthrough of PDSA cycles, SPC charts, and evidence exports.
 - [Pricing](/pricing): Solo $149, Multi-Site $349, Network $699 — 14-day free trial on every plan.
 - [About](/about): Founder story and mission.
 - [Contact](/contact): Get in touch with the MeasureWise team.
