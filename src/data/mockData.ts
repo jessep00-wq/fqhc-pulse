@@ -31,7 +31,7 @@ export interface Task {
   acknowledged: boolean;
 }
 
-export type PlaybookDomain = "Preventive Care" | "Chronic Disease" | "Behavioral Health" | "Financial/ACO";
+export type PlaybookDomain = "Preventive Care" | "Chronic Disease" | "Behavioral Health";
 
 export interface UDSPlaybook {
   id: string;
@@ -197,29 +197,6 @@ export const mockPlaybooks: UDSPlaybook[] = [
     },
   },
   {
-    id: "pb-003",
-    measure_id: "AWV",
-    domain: "Financial/ACO",
-    financial_impact: "High ROI: ACO Shared Savings",
-    title: "Annual Wellness Visit (AWV) Optimization",
-    description: "Comprehensive workflow to maximize AWV completion rates and proper documentation/coding.",
-    ehr_workflow_steps: [
-      "Build AWV-specific visit template with all required elements",
-      "Configure scheduling rules to prioritize AWV-eligible patients",
-      "Create MA pre-visit questionnaire workflow",
-      "Set up proper E&M coding guidance for AWV vs. problem-focused visits",
-      "Implement AWV completion tracking dashboard",
-    ],
-    azara_cadence: "Weekly scheduling review, monthly completion rate analysis",
-    pdsa_template: {
-      title: "AWV Completion Rate Improvement",
-      root_cause: "AWV visits not properly identified at scheduling. Documentation incomplete leading to coding errors.",
-      target_goal: "Achieve 80% AWV completion for eligible Medicare patients",
-      clinical_workflow_impact: "Scheduling workflow, visit template standardization, coding training",
-      assigned_staff: ["Front Desk", "MA/RN", "Provider", "QI Manager"],
-    },
-  },
-  {
     id: "pb-004",
     measure_id: "CMS165",
     domain: "Chronic Disease",
@@ -334,42 +311,12 @@ export const mockPlaybooks: UDSPlaybook[] = [
       assigned_staff: ["Provider", "MA/RN", "Care Coordinator", "QI Manager"],
     },
   },
-  {
-    id: "pb-009",
-    measure_id: "AWV",
-    domain: "Financial/ACO" as PlaybookDomain,
-    financial_impact: "High ROI: ACO Shared Savings + Revenue Generation",
-    title: "ACO Quality Measure Alignment",
-    description: "Strategic workflow to align FQHC quality improvement efforts with ACO quality measure requirements for maximum shared savings.",
-    ehr_workflow_steps: [
-      "Map ACO quality measures to existing UDS measures to identify overlap",
-      "Configure ACO-specific quality dashboards in Azara DRVS",
-      "Create care gap reports segmented by ACO-attributed patients",
-      "Set up provider-level ACO performance scorecards",
-      "Implement monthly ACO quality review meetings with leadership",
-    ],
-    azara_cadence: "Weekly ACO panel review, monthly quality scorecard distribution, quarterly ACO performance analysis",
-    pdsa_template: {
-      title: "ACO Quality Measure Performance Improvement",
-      root_cause: "ACO-attributed patients not identified in workflows. No provider-level accountability for ACO measures. Reactive rather than proactive panel management.",
-      target_goal: "Achieve top-quartile performance on 80% of ACO quality measures within 12 months",
-      clinical_workflow_impact: "Patient attribution identification, provider scorecards, targeted outreach for ACO gaps",
-      assigned_staff: ["QI Manager", "Provider", "Care Coordinator"],
-    },
-  },
 ];
 
 export const dashboardMetrics = {
   activePDSA: 4,
   measuresAtRisk: 3,
   tasksDue: 6,
-  financialImpact: {
-    sharedSavings: 285000,
-    revenueProtected: 142000,
-    hrsaQualityAward: 98000,
-    trend: 12.5,
-    grantTrend: 8.2,
-  },
   udsTrends: [
     { month: "Jul", CMS124: 48, CMS125: 55, CMS165: 58, CMS122: 38 },
     { month: "Aug", CMS124: 50, CMS125: 56, CMS165: 59, CMS122: 36 },
