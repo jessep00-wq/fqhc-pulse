@@ -456,14 +456,14 @@ export default function Landing() {
       </section>
 
       {/* How It Works */}
-      <section className="py-20 px-6 bg-muted/30">
+      <section id="how-it-works" className="py-20 px-6 bg-muted/30 scroll-mt-24">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground">
               How it works — in four steps
             </h2>
             <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              From measure selection to audit-ready binder, MeasureWise guides your team through
+              From measure selection to OSV Export Packet, MeasureWise guides your team through
               the entire quality improvement workflow.
             </p>
           </div>

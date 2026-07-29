@@ -43,7 +43,6 @@ const NotFound = lazy(() => import("./pages/NotFound"));
 const OAuthConsent = lazy(() => import("./pages/OAuthConsent"));
 const Features = lazy(() => import("./pages/Features"));
 const NetworkDashboard = lazy(() => import("./pages/NetworkDashboard"));
-const HowItWorks = lazy(() => import("./pages/HowItWorks"));
 
 const AdminRoute = lazy(() => import("./components/AdminRoute").then(m => ({ default: m.AdminRoute })));
 const AdminLayout = lazy(() => import("./components/AdminLayout").then(m => ({ default: m.AdminLayout })));
@@ -89,7 +88,7 @@ const App = () => (
                 <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-pcmh-coordinators" replace />} />
                 <Route path="/for/operations-managers" element={<Navigate to="/#for-operations-managers" replace />} />
                 <Route path="/pricing" element={<Pricing />} />
-                <Route path="/how-it-works" element={<HowItWorks />} />
+                <Route path="/how-it-works" element={<Navigate to="/#how-it-works" replace />} />
                 <Route path="/status" element={<Status />} />
                 <Route path="/terms" element={<TermsOfService />} />
                 <Route path="/privacy" element={<PrivacyPolicy />} />

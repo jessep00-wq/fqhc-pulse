@@ -21,7 +21,6 @@ interface ChecklistData {
   cycleCount: number;
   taskCount: number;
   trendCount: number;
-  financialsExist: boolean;
 }
 
 const CHECKLIST_ITEMS: ChecklistItem[] = [
@@ -49,14 +48,6 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
     route: "/dashboard/staff-tasks",
     checkFn: (d) => d.taskCount > 0,
   },
-  {
-    id: "financials",
-    step: 4,
-    label: "Configure financial impact",
-    description: "Enter shared savings and grant data to connect clinical work to revenue.",
-    route: "/dashboard",
-    checkFn: (d) => d.financialsExist,
-  },
 ];
 
 export function OnboardingChecklist() {
@@ -74,20 +65,15 @@ export function OnboardingChecklist() {
   const { data } = useQuery({
     queryKey: ["onboarding_checklist", orgId],
     queryFn: async () => {
-      const [cycles, tasks, trends, financials] = await Promise.all([
+      const [cycles, tasks, trends] = await Promise.all([
         supabase.from("pdsa_cycles").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
         supabase.from("tasks").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
         supabase.from("uds_trends").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
-        supabase
-          .from("org_financials")
-          .select("id", { count: "exact", head: true })
-          .eq("organization_id", orgId),
       ]);
       return {
         cycleCount: cycles.count ?? 0,
         taskCount: tasks.count ?? 0,
         trendCount: trends.count ?? 0,
-        financialsExist: (financials.count ?? 0) > 0,
       } as ChecklistData;
     },
     enabled: !!orgId,

@@ -11,11 +11,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/how-it-works</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://measurewise.org/about</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
