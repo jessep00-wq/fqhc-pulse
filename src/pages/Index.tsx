@@ -63,94 +63,6 @@ const MetricCard = ({
   </Card>
 );
 
-function FinancialsDialog({
-  open, onClose, initial, orgId,
-}: {
-  open: boolean; onClose: () => void;
-  initial: { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string } | null;
-  orgId: string;
-}) {
-  const queryClient = useQueryClient();
-  const [form, setForm] = useState({
-    shared_savings: initial?.shared_savings ?? 0,
-    revenue_protected: initial?.revenue_protected ?? 0,
-    hrsa_quality_award: initial?.hrsa_quality_award ?? 0,
-    trend: initial?.trend ?? 0,
-    grant_trend: initial?.grant_trend ?? 0,
-    period: initial?.period ?? "Q1 2026",
-  });
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (initial) {
-        const { error } = await supabase
-          .from("org_financials")
-          .update({ ...form })
-          .eq("organization_id", orgId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("org_financials")
-          .insert({ ...form, organization_id: orgId });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["org_financials", orgId] });
-      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
-      logActivity(orgId, "Financial impact data configured", "success");
-      toast.success("Financial data saved");
-      onClose();
-    },
-    onError: (err: Error) => toast.error(err.message || "Failed to save"),
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Configure Financial Impact</DialogTitle>
-          <DialogDescription>Enter your organization's financial metrics for the dashboard.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label>Period</Label>
-            <Input value={form.period} onChange={(e) => setForm({ ...form, period: e.target.value })} placeholder="e.g., Q1 2026" />
-          </div>
-          <div className="space-y-1">
-            <Label>Shared Savings (ACO) $</Label>
-            <Input type="number" value={form.shared_savings} onChange={(e) => setForm({ ...form, shared_savings: Number(e.target.value) })} />
-          </div>
-          <div className="space-y-1">
-            <Label>Revenue Protected $</Label>
-            <Input type="number" value={form.revenue_protected} onChange={(e) => setForm({ ...form, revenue_protected: Number(e.target.value) })} />
-          </div>
-          <div className="space-y-1">
-            <Label>HRSA Quality Award $</Label>
-            <Input type="number" value={form.hrsa_quality_award} onChange={(e) => setForm({ ...form, hrsa_quality_award: Number(e.target.value) })} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>ACO Trend %</Label>
-              <Input type="number" step="0.1" value={form.trend} onChange={(e) => setForm({ ...form, trend: Number(e.target.value) })} />
-            </div>
-            <div className="space-y-1">
-              <Label>Grant Trend %</Label>
-              <Input type="number" step="0.1" value={form.grant_trend} onChange={(e) => setForm({ ...form, grant_trend: Number(e.target.value) })} />
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
-            {mutation.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : null}
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function AtRiskDialog({
   open,
@@ -223,7 +135,6 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
   const orgId = organization.id;
-  const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
   const [boardReportOpen, setBoardReportOpen] = useState(false);
   const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
@@ -274,20 +185,6 @@ export default function Dashboard() {
     enabled: !!orgId,
   });
   const activity = activityQuery.data;
-
-  const { data: financials } = useQuery({
-    queryKey: ["org_financials", orgId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("org_financials")
-        .select("*")
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(1);
-      return data?.[0] || null;
-    },
-    enabled: !!orgId,
-  });
 
   const isInitialLoading =
     cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading;
@@ -384,7 +281,6 @@ export default function Dashboard() {
   }
 
 
-  const fin = financials;
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
   const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
@@ -476,7 +372,7 @@ export default function Dashboard() {
         <OnboardingChecklist />
 
         {/* KPI ROW */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <KpiCard
             title="Active PDSAs"
             value={activePDSA}
@@ -515,22 +411,9 @@ export default function Dashboard() {
             badge={overdueTasks > 0 ? { label: `${overdueTasks} overdue`, tone: "destructive" } : undefined}
             onClick={() => navigate("/dashboard/staff-tasks")}
           />
-          <KpiCard
-            title="VBC Shared Savings"
-            value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
-            icon={DollarSign}
-            tone={fin ? "success" : "default"}
-            description={
-              fin
-                ? `+${fin.trend}% vs last quarter`
-                : "Configure to track financial impact"
-            }
-            onClick={() => setFinDialogOpen(true)}
-          />
         </div>
 
 
-      <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
       <BoardReportDialog
         open={boardReportOpen}
@@ -538,7 +421,6 @@ export default function Dashboard() {
         cycles={cycles || []}
         tasks={tasks || []}
         trends={trends || []}
-        financials={fin}
       />
 
       {/* FULL-WIDTH CLINICAL ANALYTICS */}
@@ -630,52 +512,6 @@ export default function Dashboard() {
       </SectionCard>
 
 
-      {/* FINANCIAL IMPACT DETAIL (collapsible) */}
-      {fin && (
-        <SectionCard
-          title="Financial Impact"
-          description={`Period: ${fin.period}`}
-          collapsible
-          defaultOpen={false}
-          action={
-            <Button variant="ghost" size="sm" className="gap-1.5 h-7 text-xs" onClick={() => setFinDialogOpen(true)}>
-              <Settings2 className="h-3.5 w-3.5" />
-              Edit
-            </Button>
-          }
-        >
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Value-Based Care (<JargonTooltip term="ACO" showIcon={false}>ACO</JargonTooltip>)
-              </p>
-              <div className="mt-1 text-2xl font-bold text-success">${(fin.shared_savings / 1000).toFixed(0)}K</div>
-              <StatusBadge tone="success" className="mt-2">
-                <TrendingUp className="h-3 w-3" />
-                +{fin.trend}% QoQ
-              </StatusBadge>
-            </div>
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Revenue Protected</p>
-              <div className="mt-1 text-2xl font-bold text-primary">${(fin.revenue_protected / 1000).toFixed(0)}K</div>
-              <p className="mt-2 text-xs text-muted-foreground">Grant & FFS at risk without QI</p>
-            </div>
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                <JargonTooltip term="HRSA" showIcon={false}>HRSA</JargonTooltip> Quality Award
-              </p>
-              <div className="mt-1 flex items-center gap-2 text-2xl font-bold text-primary">
-                <Award className="h-5 w-5" />
-                ${(fin.hrsa_quality_award / 1000).toFixed(0)}K
-              </div>
-              <StatusBadge tone="info" className="mt-2">
-                <TrendingUp className="h-3 w-3" />
-                +{fin.grant_trend}% QoQ
-              </StatusBadge>
-            </div>
-          </div>
-        </SectionCard>
-      )}
       </div>
     </div>
   );
