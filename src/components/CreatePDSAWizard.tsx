@@ -75,8 +75,17 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
 }) {
   const [step, setStep] = useState<WizardStep>("template");
   const [data, setData] = useState<WizardData>({ ...emptyWizard });
+  const [query, setQuery] = useState("");
+
+  const q = query.trim().toLowerCase();
+  const filteredTemplates = q
+    ? PDSA_TEMPLATES.filter((t) =>
+        `${t.name} ${t.description} ${t.udsMeasure} ${t.title}`.toLowerCase().includes(q)
+      )
+    : PDSA_TEMPLATES;
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
+
 
   const applyTemplate = (t: PDSATemplate) => {
     setData({
@@ -121,7 +130,9 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
   const reset = () => {
     setStep("template");
     setData({ ...emptyWizard });
+    setQuery("");
   };
+
 
   const canProceed = () => {
     switch (step) {
@@ -156,20 +167,32 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
             <p className="text-sm text-muted-foreground">
               Choose a common QI use case to get started with pre-filled guidance, or start from scratch.
             </p>
-            <div className="grid grid-cols-2 gap-3">
-              {PDSA_TEMPLATES.map((t) => (
-                <button
-                  key={t.id}
-                  className="rounded-lg border border-border p-3 text-left hover:border-primary/40 hover:bg-primary/5 transition-colors space-y-1"
-                  onClick={() => applyTemplate(t)}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{t.icon}</span>
-                    <span className="text-sm font-medium">{t.name}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
-                </button>
-              ))}
+            <Input
+              placeholder="Search templates (e.g., referral, BP, no-show)"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <div className="max-h-[45vh] overflow-y-auto pr-1">
+              <div className="grid grid-cols-2 gap-3">
+                {filteredTemplates.map((t) => (
+                  <button
+                    key={t.id}
+                    className="rounded-lg border border-border p-3 text-left hover:border-primary/40 hover:bg-primary/5 transition-colors space-y-1"
+                    onClick={() => applyTemplate(t)}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{t.icon}</span>
+                      <span className="text-sm font-medium">{t.name}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2">{t.description}</p>
+                  </button>
+                ))}
+              </div>
+              {filteredTemplates.length === 0 && (
+                <p className="text-sm text-muted-foreground py-6 text-center">
+                  No templates match "{query}".
+                </p>
+              )}
             </div>
             <button
               className="w-full rounded-lg border border-dashed border-border p-3 text-sm text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
@@ -179,6 +202,7 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
             </button>
           </div>
         )}
+
 
         {step === "aim" && (
           <div className="space-y-4">
