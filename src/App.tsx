@@ -35,8 +35,6 @@ const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const Security = lazy(() => import("./pages/Security"));
 const Contact = lazy(() => import("./pages/Contact"));
-const CaseStudies = lazy(() => import("./pages/CaseStudies"));
-const CaseStudyRedirect = lazy(() => import("./pages/CaseStudyRedirect"));
 const About = lazy(() => import("./pages/About"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Pricing = lazy(() => import("./pages/Pricing"));
@@ -99,8 +97,6 @@ const App = () => (
                 <Route path="/security" element={<Security />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />
-                <Route path="/case-studies" element={<CaseStudies />} />
-                <Route path="/case-studies/:slug" element={<CaseStudyRedirect />} />
 
                 {/* Features (single page with hash anchors; old slugs redirect for SEO) */}
                 <Route path="/features" element={<Features />} />

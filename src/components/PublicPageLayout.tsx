@@ -33,7 +33,6 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               {[
                 { to: "/features", label: "Features" },
                 { to: "/how-it-works", label: "How It Works" },
-                { to: "/case-studies", label: "Case Studies" },
                 { to: "/store", label: "Store" },
                 { to: "/about", label: "About" },
                 { to: "/pricing", label: "Pricing" },
@@ -132,7 +131,6 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Company</p>
               <ul className="space-y-1.5 text-muted-foreground">
                 <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link to="/case-studies" className="hover:text-foreground transition-colors">Case Studies</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
                 <li><a href={`mailto:${BRAND.supportEmail}`} className="hover:text-foreground transition-colors">{BRAND.supportEmail}</a></li>
 

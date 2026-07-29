@@ -10,7 +10,6 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 - [How It Works](/how-it-works): Walkthrough of PDSA cycles, SPC charts, and audit binders.
 - [Pricing](/pricing): Solo $149, Multi-Site $349, Network $699 — 14-day free trial on every plan.
 - [About](/about): Founder story and mission.
-- [Case Studies](/case-studies): Real FQHCs using MeasureWise to move UDS measures.
 - [Contact](/contact): Get in touch with the MeasureWise team.
 - [Status](/status): System uptime and incident history.
 - [Security & Compliance](/security): TLS 1.2+, AES-256, aggregate UDS data only, no PHI stored.

@@ -21,26 +21,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://measurewise.org/case-studies</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/case-studies/valley-community-health</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/case-studies/northside-family-health</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://measurewise.org/case-studies/sunrise-health-partners</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://measurewise.org/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
