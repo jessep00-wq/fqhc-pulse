@@ -75,8 +75,17 @@ export function CreatePDSAWizard({ open, onClose, onCreate }: {
 }) {
   const [step, setStep] = useState<WizardStep>("template");
   const [data, setData] = useState<WizardData>({ ...emptyWizard });
+  const [query, setQuery] = useState("");
+
+  const q = query.trim().toLowerCase();
+  const filteredTemplates = q
+    ? PDSA_TEMPLATES.filter((t) =>
+        `${t.name} ${t.description} ${t.udsMeasure} ${t.title}`.toLowerCase().includes(q)
+      )
+    : PDSA_TEMPLATES;
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
+
 
   const applyTemplate = (t: PDSATemplate) => {
     setData({
