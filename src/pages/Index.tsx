@@ -17,8 +17,8 @@ import { Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
-  FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight, FileText,
+  FlaskConical, AlertTriangle, CheckSquare, TrendingUp,
+  ArrowUpRight, Loader2, Info, ArrowRight, FileText,
 } from "lucide-react";
 // UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
@@ -318,7 +318,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       <SEO
         title="Dashboard — Quality Operations"
-        description="Your MeasureWise dashboard: active PDSA cycles, at-risk UDS measures, tasks due, and financial impact for your FQHC."
+        description="Your MeasureWise dashboard: active PDSA cycles, at-risk UDS measures, and tasks due for your FQHC."
         canonical="https://measurewise.org/dashboard"
       />
       {/* Slim sticky sample-data strip */}
