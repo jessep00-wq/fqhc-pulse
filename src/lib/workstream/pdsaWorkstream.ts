@@ -126,7 +126,7 @@ export function getPdsaWorkstream(
     key: "complete",
     label: STAGE_LABEL.complete,
     status: phaseIdx >= 5 ? "complete" : "not_started",
-    unlocks: "Cycle is closed and archived to the evidence binder.",
+    unlocks: "Cycle is closed and included in the OSV export packet.",
   });
 
   const currentStageKey =

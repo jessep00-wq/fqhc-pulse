@@ -102,7 +102,7 @@ export function ExportReportDialog({
                 Both PDFs
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                Recommended for OSV evidence binder.
+                Recommended for the OSV export packet.
               </p>
             </div>
           </div>
