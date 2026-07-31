@@ -44,13 +44,6 @@ export interface AuditBinderPdfMeasureRow {
   status: "Improving" | "Declining" | "At target" | "Flat";
 }
 
-export interface AuditBinderPdfEvidenceRow {
-  title: string;
-  related: string | null;
-  owner: string | null;
-  status: string;
-}
-
 export interface AuditBinderPdfTaskRow {
   title: string;
   assigned_role: string | null;
@@ -74,14 +67,12 @@ export interface AuditBinderPdfInput {
   oversight: AuditBinderPdfOversightRow[];
   pdsaCycles: AuditBinderPdfPdsaCycle[];
   measures: AuditBinderPdfMeasureRow[];
-  evidenceRows: AuditBinderPdfEvidenceRow[];
   openTasks: AuditBinderPdfTaskRow[];
   meetings: AuditBinderPdfMeeting[];
   checklist: AuditBinderPdfChecklistRow[];
   stats: {
     activePdsaCount: number;
     measuresMonitored: number;
-    evidenceItemsTracked: number;
   };
 }
 
@@ -105,7 +96,7 @@ const STANDARD_WORKFLOW = [
   "Assign interventions and owners.",
   "Review data trend and implementation status.",
   "Document decision to adopt, adapt, or abandon.",
-  "Export binder-ready evidence packet for leadership or survey review.",
+  "Export the OSV packet for leadership or survey review.",
 ];
 
 const FOLDER_STRUCTURE = [
@@ -114,7 +105,6 @@ const FOLDER_STRUCTURE = [
   "  02 Measure Monitoring",
   "  03 PDSA Cycle Summaries",
   "  04 Detailed PDSA Logs",
-  "  05 Evidence Register",
   "  06 Committee Minutes",
   "  07 Audit Readiness Checklist",
 ];
@@ -250,9 +240,8 @@ export function generateAuditBinderPdf(input: AuditBinderPdfInput): jsPDF {
   const badges: { label: string; value: number }[] = [
     { label: "Active PDSA Projects", value: input.stats.activePdsaCount },
     { label: "Measures Monitored", value: input.stats.measuresMonitored },
-    { label: "Evidence Items Tracked", value: input.stats.evidenceItemsTracked },
   ];
-  const badgeW = (PAGE_W - MARGIN * 2 - 24) / 3;
+  const badgeW = (PAGE_W - MARGIN * 2 - 12) / 2;
   const badgeH = 70;
   for (let i = 0; i < badges.length; i++) {
     const bx = MARGIN + i * (badgeW + 12);
@@ -434,27 +423,8 @@ export function generateAuditBinderPdf(input: AuditBinderPdfInput): jsPDF {
     }
   }
 
-  // ── Section 5 — Evidence & Task Tracking ───────
-  sectionHeader("5. Evidence & Task Tracking");
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(12);
-  doc.text("Evidence Register", MARGIN, y);
-  y += 16;
-  if (input.evidenceRows.length === 0) {
-    paragraph("No evidence documents recorded for this period.", { italic: true, muted: true });
-  } else {
-    drawTable(
-      ["Evidence Item", "Related Standard/Use", "Owner", "Status"],
-      input.evidenceRows.map((e) => [
-        truncate(e.title, 60),
-        e.related || "—",
-        e.owner || "—",
-        e.status,
-      ]),
-      [180, 150, 90, 83],
-    );
-  }
-  newPageIfNeeded(40);
+  // ── Section 5 — Task Tracking ───────
+  sectionHeader("5. Task Tracking");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
   doc.text("Open Tasks", MARGIN, y);
