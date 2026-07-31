@@ -48,7 +48,7 @@ internal owner.
 Before adoption and at minimum annually thereafter, the assigned owner completes a
 Vendor Review covering: BAA status, data retention terms, model update
 notification process, audit rights, indemnification, and documented limitations.
-Signed agreements and BAAs are stored in the evidence binder.
+Signed agreements and BAAs are stored with the vendor review record.
 
 ## 6. Human Review and Approval
 

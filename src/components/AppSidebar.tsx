@@ -64,7 +64,6 @@ const navGroups: {
   {
     label: "Compliance & Reporting",
     items: [
-      { title: "Evidence Library", url: "/dashboard/evidence-binder", icon: FolderArchive, badge: "HRSA" },
       { title: "OSV Export Packet", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
       { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
     ],

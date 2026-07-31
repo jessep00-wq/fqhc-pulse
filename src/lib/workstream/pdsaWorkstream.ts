@@ -126,7 +126,7 @@ export function getPdsaWorkstream(
     key: "complete",
     label: STAGE_LABEL.complete,
     status: phaseIdx >= 5 ? "complete" : "not_started",
-    unlocks: "Cycle is closed and archived to the evidence binder.",
+    unlocks: "Cycle is closed and included in the OSV export packet.",
   });
 
   const currentStageKey =
@@ -142,14 +142,15 @@ export function getPdsaWorkstream(
       href: "/dashboard/qi-reports",
     },
     {
-      label: "Evidence binder (Chapter 8)",
+      label: "HRSA OSV export packet",
       readiness:
         evidenceCount === 0
           ? "No artifacts"
-          : `${evidenceCount} artifact${evidenceCount === 1 ? "" : "s"} feeding binder`,
+          : `${evidenceCount} artifact${evidenceCount === 1 ? "" : "s"} feeding the packet`,
       tone: evidenceCount === 0 ? "warning" : "success",
-      href: "/dashboard/evidence-binder",
+      href: "/dashboard/audit-binder",
     },
+
   ];
 
   const requires: WorkstreamFacts["requires"] = [
@@ -177,7 +178,7 @@ export function getPdsaWorkstream(
   let nextUnlock: WorkstreamFacts["nextUnlock"];
   const firstUnsatisfied = requires.find((r) => !r.satisfied);
   if (phaseIdx >= 5) {
-    nextUnlock = { sentence: "Cycle is complete. It will appear in the next QI report and evidence binder export." };
+    nextUnlock = { sentence: "Cycle is complete. It will appear in the next QI report and OSV export packet." };
   } else if (firstUnsatisfied) {
     nextUnlock = { sentence: `Next step: ${firstUnsatisfied.label.toLowerCase()}.` };
   } else {

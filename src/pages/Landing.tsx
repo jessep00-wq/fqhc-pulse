@@ -144,7 +144,7 @@ const personaDeepSections: PersonaDeep[] = [
     pain: "Your health center deserves real QI tools — not another spreadsheet workaround or a six-figure enterprise contract you can't justify.",
     capabilities: [
       "Staff task management so improvement cycles keep moving between committee meetings",
-      "Evidence Library that keeps every cycle log, task, and attachment OSV-ready",
+      "OSV Export Packet that keeps every cycle log, task, and attachment survey-ready",
       "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
     ],
     quote: "\"Same evidence trail our old enterprise vendor produced, at a fraction of the cost.\"",
@@ -210,7 +210,7 @@ const howItWorksSteps = [
     icon: FileCheck,
     number: "04",
     title: "Generate audit-ready documentation",
-    description: "One click produces a complete OSV Export Packet from your Evidence Library — cycle logs, task evidence, baseline-to-result deltas, and next-cycle linkages included.",
+    description: "One click produces a complete OSV Export Packet — cycle logs, task evidence, baseline-to-result deltas, and next-cycle linkages included.",
   },
 ];
 
