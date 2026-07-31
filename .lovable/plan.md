@@ -1,50 +1,42 @@
-## 1. One shared UDS measure set (7 measures)
+# Remove the Evidence Library (Evidence Binder) from the dashboard
 
-Create a single source of truth `src/data/udsMeasures.ts` exporting:
+Full removal: sidebar entry, routes, pages, dialogs, helper libraries, and the underlying database tables and storage bucket. The OSV Export Packet stays, but stops referencing uploaded evidence documents.
 
-| ID | Label |
-|---|---|
-| CMS2 | Depression Screening |
-| CMS138 | Tobacco Use Screening & Cessation |
-| CMS130 | Colorectal Cancer Screening |
-| CMS124 | Cervical Cancer Screening |
-| CMS125 | Breast Cancer Screening |
-| CMS165 | Controlling Blood Pressure (Hypertension Control) |
-| CMS122 | Diabetes HbA1c Poor Control (>9% or untested) |
+## What the user will see
 
-Drops CMS127 (Pneumococcal) and CMS147 (Influenza).
+- No "Evidence Library" item in the dashboard sidebar; `/dashboard/evidence-binder` no longer exists.
+- The OSV Export Packet page no longer shows or exports an evidence-documents section or the "Evidence uploaded" checklist row; everything else (QI oversight, committee meetings, UDS measures, PDSA logs) is unchanged.
+- Workstream ribbons on the PDSA and QI Report pages no longer link to the evidence binder; those tiles/links are removed rather than left pointing at a dead route.
+- Marketing copy on the homepage and pricing page that names "Evidence Library" is reworded so it no longer advertises a feature that isn't there.
 
-Consume it in:
-- `src/pages/Settings.tsx` — clinical measures picker + CSV import validation list + sample CSV text
-- `src/components/SPCChart.tsx` — measure dropdown (currently 4)
-- `src/pages/Index.tsx` — `MEASURE_LABELS` and dashboard trend chart lines (one line per measure, distinct colors)
-- `src/components/CreatePDSAWizard.tsx` — UDS measure select
-- `src/components/BoardReportDialog.tsx` and `src/pages/PlaybookLibrary.tsx` — label/icon maps
+## Frontend changes
 
-Existing rows for CMS127/CMS147 in the database are left untouched; they simply stop being selectable and render with their raw ID if present.
+Delete:
+- `src/pages/evidence-binder/Overview.tsx`, `src/pages/evidence-binder/CategoryDetail.tsx`
+- `src/components/evidence-binder/` (CategoryTile, CompletenessHero, UploadDocumentDialog, ExportBinderDialog)
+- `src/lib/evidenceCompleteness.ts`, `src/lib/workstream/evidenceWorkstream.ts`
+- `src/lib/binder/renderer.ts` and `src/lib/binder/styles.ts` (evidence-binder PDF renderer, used only by the deleted export dialog — confirm no other importer before deleting; keep if the OSV packet uses it)
+- `src/types/evidenceBinder.ts`, `src/data/evidenceChapter8Categories.ts`
 
-## 2. Remove the Financial track (both places)
+Edit:
+- `src/App.tsx` — remove the two lazy imports and the two `evidence-binder` routes.
+- `src/components/AppSidebar.tsx` — remove the "Evidence Library" nav item.
+- `src/lib/workstream/pdsaWorkstream.ts` and `src/lib/workstream/qiReportWorkstream.ts` — remove the evidence-binder downstream tiles/hrefs and reword the related sentences.
+- `src/pages/AuditBinder.tsx` — drop the `evidence_documents` query, the `evidenceRows`/`evidenceItemsTracked` payload, the evidence checklist row, and the copy referencing uploaded evidence.
+- `src/types/auditBinder.ts` and `src/lib/auditBinderPdf.ts` — remove the evidence rows section from the PDF model and renderer.
+- `src/pages/Landing.tsx`, `src/pages/Pricing.tsx` — reword the "Evidence Library" bullets/descriptions.
+- Remove the stale evidence reference in `src/test/form-edge-function.test.ts` if it breaks.
 
-Playbooks:
-- Drop `"Financial/ACO"` from the `PlaybookDomain` type in `src/data/mockData.ts` and remove the playbooks/templates using it
-- Remove the domain filter option and color entry in `src/pages/PlaybookLibrary.tsx`
+## Database changes (destructive)
 
-Dashboard / reporting:
-- Remove the Financial Impact KPI card, the `FinancialsDialog` config modal, and the Financial Impact collapsible section from `src/pages/Index.tsx`
-- Remove the Financial Impact block from `src/components/BoardReportDialog.tsx`
-- Clean up now-unused financial imports/queries in those files
+One migration:
+- Drop `public.evidence_document_versions`, `public.evidence_documents`, `public.evidence_categories`, and `public.evidence_binder_exports` (cascade).
+- Drop the `public.refresh_evidence_document_status()` trigger function.
+- Clear `qi_reports.evidence_document_id` (drop the column, since it pointed at deleted documents).
+- Remove the `evidence-binder` storage bucket and its objects, plus its `storage.objects` policies.
 
-The underlying financial table stays in the database (no destructive migration); the UI just stops reading and writing it.
-
-## 3. Remove case studies entirely
-
-- Delete `src/pages/CaseStudies.tsx`, `src/pages/CaseStudyRedirect.tsx`
-- Delete `public/case-studies/*.html` (3 files)
-- Remove `/case-studies` and `/case-studies/:slug` routes from `src/App.tsx`
-- Remove the Case Studies link from `src/components/PublicPageLayout.tsx` footer/nav
-- Remove case study URLs from `public/sitemap.xml` and `public/llms.txt`
-- Remove any remaining case-study links in marketing pages (Landing, Features, HowItWorks, Pricing) if present
+Note: `pdsa_evidence` (PDSA cycle attachments) and the `ai-governance-evidence` bucket are separate features and are left untouched.
 
 ## Verification
 
-Typecheck plus a grep for `Financial/ACO`, `case-stud`, `CMS127`, and `CMS147` to confirm no dangling references.
+Typecheck, run the test suite, and load `/dashboard`, `/dashboard/pdsa`, and the OSV Export Packet page to confirm no broken links or query errors.
