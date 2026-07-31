@@ -495,208 +495,6 @@ export type Database = {
         }
         Relationships: []
       }
-      evidence_binder_exports: {
-        Row: {
-          export_type: string
-          file_path: string | null
-          generated_at: string
-          generated_by: string | null
-          id: string
-          included_document_ids: string[]
-          organization_id: string
-          period_end: string | null
-          period_start: string | null
-          toc: Json
-        }
-        Insert: {
-          export_type?: string
-          file_path?: string | null
-          generated_at?: string
-          generated_by?: string | null
-          id?: string
-          included_document_ids?: string[]
-          organization_id: string
-          period_end?: string | null
-          period_start?: string | null
-          toc?: Json
-        }
-        Update: {
-          export_type?: string
-          file_path?: string | null
-          generated_at?: string
-          generated_by?: string | null
-          id?: string
-          included_document_ids?: string[]
-          organization_id?: string
-          period_end?: string | null
-          period_start?: string | null
-          toc?: Json
-        }
-        Relationships: []
-      }
-      evidence_categories: {
-        Row: {
-          chapter8_reference: string | null
-          created_at: string
-          default_review_cadence_months: number
-          description: string | null
-          id: string
-          name: string
-          required_doc_types: string[]
-          slug: string
-          sort_order: number
-        }
-        Insert: {
-          chapter8_reference?: string | null
-          created_at?: string
-          default_review_cadence_months?: number
-          description?: string | null
-          id?: string
-          name: string
-          required_doc_types?: string[]
-          slug: string
-          sort_order?: number
-        }
-        Update: {
-          chapter8_reference?: string | null
-          created_at?: string
-          default_review_cadence_months?: number
-          description?: string | null
-          id?: string
-          name?: string
-          required_doc_types?: string[]
-          slug?: string
-          sort_order?: number
-        }
-        Relationships: []
-      }
-      evidence_document_versions: {
-        Row: {
-          change_note: string | null
-          document_id: string
-          file_name: string
-          file_path: string
-          id: string
-          mime_type: string | null
-          organization_id: string
-          size_bytes: number | null
-          uploaded_at: string
-          uploaded_by: string | null
-          version: number
-        }
-        Insert: {
-          change_note?: string | null
-          document_id: string
-          file_name: string
-          file_path: string
-          id?: string
-          mime_type?: string | null
-          organization_id: string
-          size_bytes?: number | null
-          uploaded_at?: string
-          uploaded_by?: string | null
-          version?: number
-        }
-        Update: {
-          change_note?: string | null
-          document_id?: string
-          file_name?: string
-          file_path?: string
-          id?: string
-          mime_type?: string | null
-          organization_id?: string
-          size_bytes?: number | null
-          uploaded_at?: string
-          uploaded_by?: string | null
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "evidence_document_versions_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "evidence_documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      evidence_documents: {
-        Row: {
-          associated_measure: string | null
-          associated_requirement: string | null
-          author_name_override: string | null
-          author_user_id: string | null
-          category_id: string
-          created_at: string
-          current_version_id: string | null
-          doc_date: string | null
-          document_type: string
-          expires_at: string | null
-          id: string
-          notes: string | null
-          organization_id: string
-          review_date: string | null
-          source: string
-          source_ref_id: string | null
-          status: string
-          tags: string[]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          associated_measure?: string | null
-          associated_requirement?: string | null
-          author_name_override?: string | null
-          author_user_id?: string | null
-          category_id: string
-          created_at?: string
-          current_version_id?: string | null
-          doc_date?: string | null
-          document_type?: string
-          expires_at?: string | null
-          id?: string
-          notes?: string | null
-          organization_id: string
-          review_date?: string | null
-          source?: string
-          source_ref_id?: string | null
-          status?: string
-          tags?: string[]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          associated_measure?: string | null
-          associated_requirement?: string | null
-          author_name_override?: string | null
-          author_user_id?: string | null
-          category_id?: string
-          created_at?: string
-          current_version_id?: string | null
-          doc_date?: string | null
-          document_type?: string
-          expires_at?: string | null
-          id?: string
-          notes?: string | null
-          organization_id?: string
-          review_date?: string | null
-          source?: string
-          source_ref_id?: string | null
-          status?: string
-          tags?: string[]
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "evidence_documents_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "evidence_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       manual_downloads: {
         Row: {
           buyer_email: string
@@ -1365,7 +1163,6 @@ export type Database = {
           board_sections: Json
           committee_sections: Json
           created_at: string
-          evidence_document_id: string | null
           generated_by: string | null
           id: string
           organization_id: string
@@ -1381,7 +1178,6 @@ export type Database = {
           board_sections?: Json
           committee_sections?: Json
           created_at?: string
-          evidence_document_id?: string | null
           generated_by?: string | null
           id?: string
           organization_id: string
@@ -1397,7 +1193,6 @@ export type Database = {
           board_sections?: Json
           committee_sections?: Json
           created_at?: string
-          evidence_document_id?: string | null
           generated_by?: string | null
           id?: string
           organization_id?: string
