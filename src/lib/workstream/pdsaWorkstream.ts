@@ -142,14 +142,15 @@ export function getPdsaWorkstream(
       href: "/dashboard/qi-reports",
     },
     {
-      label: "Evidence binder (Chapter 8)",
+      label: "HRSA OSV export packet",
       readiness:
         evidenceCount === 0
           ? "No artifacts"
-          : `${evidenceCount} artifact${evidenceCount === 1 ? "" : "s"} feeding binder`,
+          : `${evidenceCount} artifact${evidenceCount === 1 ? "" : "s"} feeding the packet`,
       tone: evidenceCount === 0 ? "warning" : "success",
-      href: "/dashboard/evidence-binder",
+      href: "/dashboard/audit-binder",
     },
+
   ];
 
   const requires: WorkstreamFacts["requires"] = [
