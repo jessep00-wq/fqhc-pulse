@@ -22,8 +22,6 @@ const AIAssistant = lazy(() => import("./pages/AIAssistant"));
 const StaffTasks = lazy(() => import("./pages/StaffTasks"));
 const Settings = lazy(() => import("./pages/Settings"));
 const AIGovernance = lazy(() => import("./pages/AIGovernance"));
-const EvidenceBinderOverview = lazy(() => import("./pages/evidence-binder/Overview"));
-const EvidenceBinderCategoryDetail = lazy(() => import("./pages/evidence-binder/CategoryDetail"));
 const AuditBinder = lazy(() => import("./pages/AuditBinder"));
 const QIReportsList = lazy(() => import("./pages/qi-reports/QIReportsList"));
 const QIReportWizard = lazy(() => import("./pages/qi-reports/QIReportWizard"));
@@ -158,8 +156,6 @@ const App = () => (
                               <Route path="ai-assistant" element={<AIAssistant />} />
                               <Route path="staff-tasks" element={<StaffTasks />} />
                               <Route path="ai-governance" element={<AIGovernance />} />
-                              <Route path="evidence-binder" element={<EvidenceBinderOverview />} />
-                              <Route path="evidence-binder/category/:slug" element={<EvidenceBinderCategoryDetail />} />
                               <Route path="audit-binder" element={<AuditBinder />} />
                               <Route path="qi-reports" element={<QIReportsList />} />
                               <Route path="qi-reports/new" element={<QIReportWizard />} />
