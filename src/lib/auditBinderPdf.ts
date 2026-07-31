@@ -105,8 +105,8 @@ const FOLDER_STRUCTURE = [
   "  02 Measure Monitoring",
   "  03 PDSA Cycle Summaries",
   "  04 Detailed PDSA Logs",
-  "  06 Committee Minutes",
-  "  07 Audit Readiness Checklist",
+  "  05 Committee Minutes",
+  "  06 Audit Readiness Checklist",
 ];
 
 export function generateAuditBinderPdf(input: AuditBinderPdfInput): jsPDF {
