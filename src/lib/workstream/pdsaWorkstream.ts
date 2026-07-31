@@ -178,7 +178,7 @@ export function getPdsaWorkstream(
   let nextUnlock: WorkstreamFacts["nextUnlock"];
   const firstUnsatisfied = requires.find((r) => !r.satisfied);
   if (phaseIdx >= 5) {
-    nextUnlock = { sentence: "Cycle is complete. It will appear in the next QI report and evidence binder export." };
+    nextUnlock = { sentence: "Cycle is complete. It will appear in the next QI report and OSV export packet." };
   } else if (firstUnsatisfied) {
     nextUnlock = { sentence: `Next step: ${firstUnsatisfied.label.toLowerCase()}.` };
   } else {

@@ -100,7 +100,7 @@ function OversightDialog({
           </div>
           <div>
             <Label>Documentation Location</Label>
-            <Input value={docLoc} onChange={(e) => setDocLoc(e.target.value)} placeholder="e.g., MeasureWise Evidence Binder" />
+            <Input value={docLoc} onChange={(e) => setDocLoc(e.target.value)} placeholder="e.g., Shared drive > QI > Policies" />
           </div>
         </div>
         <DialogFooter>
@@ -232,7 +232,6 @@ function GenerateDialog({
         pdsaRes,
         trendsRes,
         targetsRes,
-        evidenceRes,
         tasksRes,
       ] = await Promise.all([
         sb.from("qi_oversight_roles").select("*").eq("organization_id", orgId).order("sort_order"),
@@ -244,8 +243,6 @@ function GenerateDialog({
         sb.from("uds_trends").select("*").eq("organization_id", orgId)
           .gte("month", start.slice(0, 7)).lte("month", end.slice(0, 7)),
         sb.from("uds_targets").select("*").eq("organization_id", orgId),
-        sb.from("evidence_documents").select("*").eq("organization_id", orgId)
-          .gte("created_at", start).lte("created_at", `${end}T23:59:59`),
         sb.from("tasks").select("*").eq("organization_id", orgId).neq("status", "completed"),
       ]);
 
@@ -254,13 +251,6 @@ function GenerateDialog({
       const pdsaCycles = (pdsaRes.data ?? []) as AuditBinderPdfPdsaCycle[];
       const trends = (trendsRes.data ?? []) as { measure_id: string; month: string; value: number }[];
       const targets = (targetsRes.data ?? []) as { measure_id: string; target_value: number }[];
-      const evidence = (evidenceRes.data ?? []) as Array<{
-        title: string;
-        associated_requirement: string | null;
-        associated_measure: string | null;
-        author_name_override: string | null;
-        status: string;
-      }>;
       const tasks = (tasksRes.data ?? []) as Array<{
         title: string;
         assigned_role: string | null;
@@ -373,13 +363,6 @@ function GenerateDialog({
           evidence: closureStatus,
           notes: `${closedCount} task(s) closed in period; ${openTaskCount} still open.`,
         },
-        {
-          requirement: "Supporting artifacts centrally organized",
-          evidence: evidence.length >= 1 ? "Yes" : "No",
-          notes: evidence.length >= 1
-            ? `${evidence.length} evidence item(s) tracked.`
-            : "No evidence documents logged in period.",
-        },
       ];
 
       const pdf = generateAuditBinderPdf({
@@ -396,12 +379,6 @@ function GenerateDialog({
         })),
         pdsaCycles,
         measures,
-        evidenceRows: evidence.map((e) => ({
-          title: e.title,
-          related: e.associated_requirement || e.associated_measure || null,
-          owner: e.author_name_override || null,
-          status: e.status,
-        })),
         openTasks: tasks.map((t) => ({
           title: t.title,
           assigned_role: t.assigned_role,
@@ -420,7 +397,6 @@ function GenerateDialog({
         stats: {
           activePdsaCount,
           measuresMonitored: measureSet.size,
-          evidenceItemsTracked: evidence.length,
         },
       });
 
@@ -434,7 +410,7 @@ function GenerateDialog({
         generated_by: userData.user?.id ?? null,
         pdsa_count: pdsaCycles.length,
         measure_count: measureSet.size,
-        evidence_count: evidence.length,
+        evidence_count: 0,
       });
     },
     onSuccess: () => {
@@ -621,7 +597,7 @@ export default function AuditBinder() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">OSV Export Packet</h1>
           <p className="text-muted-foreground text-sm">
-            Composite, audit-ready PDF that pulls in QI oversight, committee meetings, UDS measures, PDSA logs, and evidence uploaded in the Evidence Library.
+            Composite, audit-ready PDF that pulls in QI oversight, committee meetings, UDS measures, and PDSA logs.
           </p>
         </div>
         <Button onClick={() => setGenerateOpen(true)}>
