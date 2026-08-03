@@ -808,15 +808,24 @@ export default function PDSALab() {
     setSearchParams(sp, { replace: true });
   };
 
-  const handleNewCycle = useCallback(() => {
+  const handleNewCycle = useCallback(async () => {
     if (!canCreateCycle) {
       setUpgradeOpen(true);
       return;
     }
+    // Starting fresh replaces any unfinished draft (explicit user action).
+    await discardDraft();
     setWizardSeed(undefined);
     setWizardStartStep(undefined);
     setNewOpen(true);
-  }, [canCreateCycle]);
+  }, [canCreateCycle, discardDraft]);
+
+  const handleResumeDraft = useCallback(() => {
+    if (!draft) return;
+    setWizardSeed(draft.form_data as Partial<WizardData>);
+    setWizardStartStep((draft.current_step as WizardStep) || "aim");
+    setNewOpen(true);
+  }, [draft]);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
