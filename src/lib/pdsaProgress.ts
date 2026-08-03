@@ -34,6 +34,8 @@ export interface PdsaCycleFields {
 interface FieldSpec {
   key: keyof PdsaCycleFields;
   label: string;
+  /** Optional alternative keys — the field counts as filled if any is filled. */
+  altKeys?: (keyof PdsaCycleFields)[];
 }
 
 export const STAGE_FIELDS: Record<
@@ -47,8 +49,11 @@ export const STAGE_FIELDS: Record<
     { key: "measurement_plan", label: "Measurement plan" },
   ],
   do: [
-    { key: "intervention_description", label: "Intervention description" },
-    { key: "test_description", label: "Action description" },
+    {
+      key: "intervention_description",
+      label: "Action description",
+      altKeys: ["test_description"],
+    },
   ],
   study: [
     { key: "actual_outcome", label: "Actual outcome" },
@@ -60,6 +65,7 @@ export const STAGE_FIELDS: Record<
     { key: "act_next_steps", label: "Next steps" },
   ],
 };
+
 
 export const PDSA_STAGE_ORDER: PdsaStageKey[] = ["plan", "do", "study", "act", "complete"];
 
