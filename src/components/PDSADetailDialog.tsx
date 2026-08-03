@@ -140,6 +140,8 @@ export default function PDSADetailDialog({
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("aim");
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [evidenceDocOpen, setEvidenceDocOpen] = useState(false);
+
   const [newTaskRole, setNewTaskRole] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date>();
   const [actualOutcomeDraft, setActualOutcomeDraft] = useState<string>(cycle?.actual_outcome || "");
