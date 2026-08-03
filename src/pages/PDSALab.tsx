@@ -773,6 +773,7 @@ export default function PDSALab() {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const { draft, saveState, savedAt, saveDraft, markComplete, discardDraft } = usePdsaDraft(organization.id);
   const { canCreateCycle, cyclesRemaining, isFreeTier } = useTierLimits();
 
   // Responsive: narrower than 1100px → tabbed view (DnD board overflows there).
