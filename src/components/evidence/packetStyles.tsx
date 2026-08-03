@@ -171,6 +171,11 @@ export function Field({ label, value, emptyNote, editedOn }: { label: string; va
     <div style={{ marginBottom: "20px" }}>
       <p style={{ fontSize: "12px", fontWeight: 700, color: TEAL, letterSpacing: "0.04em", marginBottom: "6px" }}>
         {label.toUpperCase()}
+        {editedOn && (
+          <span style={{ fontWeight: 400, color: GRAY_TEXT, letterSpacing: 0, marginLeft: "8px" }}>
+            · entered {editedOn}
+          </span>
+        )}
       </p>
       <p style={{ ...bodyTextStyle, marginBottom: 0, color: filled ? "#1a1a1a" : GRAY_TEXT, fontStyle: filled ? "normal" : "italic" }}>
         {filled ? value : emptyNote}
