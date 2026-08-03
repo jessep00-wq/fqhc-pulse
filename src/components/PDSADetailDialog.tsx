@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { UDS_MEASURES } from "@/data/mockData";
-import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X } from "lucide-react";
+import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
