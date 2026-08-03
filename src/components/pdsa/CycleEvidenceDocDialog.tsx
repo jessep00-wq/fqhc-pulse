@@ -253,7 +253,7 @@ export default function CycleEvidenceDocDialog({
             <p className="text-sm font-medium truncate">{cycle.title}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{topic} · {reference}</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mt-4">
-              <div><p className="text-2xl font-bold text-primary">{stageOf(cycle.status)}</p><p className="text-xs text-muted-foreground">Stage</p></div>
+              <div><p className="text-2xl font-bold text-primary">{currentStageLabel}</p><p className="text-xs text-muted-foreground">Stage</p></div>
               <div><p className="text-2xl font-bold text-foreground">{score}%</p><p className="text-xs text-muted-foreground">Complete</p></div>
               <div><p className="text-2xl font-bold text-foreground">{tasks.length}</p><p className="text-xs text-muted-foreground">Linked tasks</p></div>
               <div><p className="text-2xl font-bold text-foreground">{revisions.length}</p><p className="text-xs text-muted-foreground">Logged changes</p></div>
@@ -298,7 +298,7 @@ export default function CycleEvidenceDocDialog({
                   <p style={{ fontSize: "20px", marginBottom: "20px", lineHeight: 1.4 }}>{cycle.title}</p>
                   <p style={{ fontSize: "13px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Health Center:</span> {orgName}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Measure / Focus Area:</span> {topic}</p>
-                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Current Stage:</span> {stageOf(cycle.status)}</p>
+                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Current Stage:</span> {currentStageLabel}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Cycle Pace:</span> {pace.label}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Opened:</span> {fmtDate(cycle.opened_at || cycle.created_at)}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Target End:</span> {fmtDate(cycle.target_end_date, "Not set")}</p>
@@ -343,7 +343,7 @@ export default function CycleEvidenceDocDialog({
                 <table style={tableStyle}>
                   <tbody>
                     {[
-                      ["Current stage", stageOf(cycle.status)],
+                      ["Current stage", currentStageLabel],
                       ["Pace", pace.label],
                       ["Opened", fmtDate(cycle.opened_at || cycle.created_at)],
                       ["Start date", fmtDate(cycle.start_date, "Not set")],
