@@ -53,11 +53,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (authLoading) {
-      setLoading(true);
+      if (!confirmedOrgRef.current) setLoading(true);
       return;
     }
 
-    if (!user) {
+    if (!userId) {
       setOrganization(fallbackOrg);
       setHasOrgState(false);
       confirmedOrgRef.current = false;
@@ -67,7 +67,9 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     }
 
     const fetchOrg = async () => {
-      setLoading(true);
+      // Only surface a loading state before the first successful resolution.
+      // Background refreshes stay silent so the app never flashes a spinner.
+      if (!confirmedOrgRef.current) setLoading(true);
       setError(null);
 
       const { data: profile, error: profileErr } = await supabase
