@@ -73,7 +73,7 @@ interface DialogTask {
   acknowledged: boolean;
 }
 
-type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
+type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "focus_area" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
 type CycleNumberField = "improvement_pct" | "baseline_rate";
 
 const STAFF_ROLES = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
@@ -333,7 +333,11 @@ export default function PDSADetailDialog({
               <DialogTitle className="text-lg">{cycle.title}</DialogTitle>
               <DialogDescription>
                 <Badge variant="outline" className="mr-2">{cycle.status.toUpperCase()}</Badge>
-                {cycle.uds_measure && <Badge variant="secondary">{cycle.uds_measure.split(":")[0]}</Badge>}
+                {cycle.uds_measure
+                  ? <Badge variant="secondary">{cycle.uds_measure.split(":")[0]}</Badge>
+                  : cycle.focus_area
+                    ? <Badge variant="secondary">{cycle.focus_area}</Badge>
+                    : null}
               </DialogDescription>
             </div>
             <CompletenessRing score={score} />
@@ -410,18 +414,30 @@ export default function PDSADetailDialog({
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
-                <Label>UDS Measure *</Label>
+                <Label>UDS Measure (optional)</Label>
                 <Select
-                  defaultValue={cycle.uds_measure || ""}
-                  onValueChange={(v) => updateCycle.mutate({ uds_measure: v })}
+                  defaultValue={cycle.uds_measure || "__none__"}
+                  onValueChange={(v) =>
+                    updateCycle.mutate(
+                      v === "__none__" ? { uds_measure: null } : { uds_measure: v, focus_area: null },
+                    )
+                  }
                 >
                   <SelectTrigger><SelectValue placeholder="Select measure" /></SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="__none__">Not tied to a UDS measure</SelectItem>
                     {UDS_MEASURES.map((m) => (
                       <SelectItem key={m} value={m}>{m}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {!cycle.uds_measure && (
+                  <Input
+                    defaultValue={cycle.focus_area || ""}
+                    placeholder="Focus area (e.g., No-show rate)"
+                    onBlur={(e) => handleBlurUpdate("focus_area", e.target.value)}
+                  />
+                )}
               </div>
               <div className="space-y-2">
                 <Label>Baseline Rate *</Label>
@@ -719,6 +735,7 @@ export default function PDSADetailDialog({
             <CycleChain
               organizationId={cycle.organization_id}
               udsMeasure={cycle.uds_measure}
+              focusArea={cycle.focus_area ?? null}
               highlightCycleId={cycle.id}
             />
           </TabsContent>

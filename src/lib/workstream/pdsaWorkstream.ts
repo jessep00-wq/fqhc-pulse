@@ -6,6 +6,7 @@ interface PdsaLike {
   title: string;
   status: string;
   uds_measure: string | null;
+  focus_area?: string | null;
   start_date?: string | null;
   owner_user_id?: string | null;
   completeness_score?: number | null;

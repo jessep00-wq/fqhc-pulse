@@ -7,6 +7,7 @@ export interface PdsaCycleForScore {
   owner_user_id?: string | null;
   start_date?: string | null;
   uds_measure?: string | null;
+  focus_area?: string | null;
   baseline_rate?: number | null;
   predicted_outcome?: string | null;
   intervention_description?: string | null;
@@ -33,7 +34,7 @@ export function computeCompleteness(
 
   add(has(cycle.owner_user_id), 10, "Cycle owner");
   add(has(cycle.start_date), 10, "Start date");
-  add(has(cycle.uds_measure), 15, "Linked UDS measure");
+  add(has(cycle.uds_measure) || has(cycle.focus_area), 15, "Linked UDS measure or focus area");
   add(has(cycle.baseline_rate), 10, "Baseline rate");
   add(has(cycle.predicted_outcome), 10, "Predicted outcome");
   add(has(cycle.intervention_description), 10, "Intervention description");

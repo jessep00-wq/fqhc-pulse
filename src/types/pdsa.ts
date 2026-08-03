@@ -6,6 +6,7 @@ export interface DBCycle {
   title: string;
   status: string;
   uds_measure: string | null;
+  focus_area?: string | null;
   root_cause: string | null;
   target_goal: string | null;
   clinical_workflow_impact: string | null;
