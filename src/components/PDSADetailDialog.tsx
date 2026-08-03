@@ -404,6 +404,33 @@ export default function PDSADetailDialog({
                 />
               </div>
             </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Opened / Created Date</Label>
+                <Input
+                  type="date"
+                  defaultValue={(cycle.opened_at || cycle.created_at).slice(0, 10)}
+                  onBlur={(e) =>
+                    handleBlurUpdate(
+                      "opened_at",
+                      e.target.value ? new Date(`${e.target.value}T12:00:00`).toISOString() : null,
+                    )
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Adjust if the cycle actually began before it was entered in MeasureWise.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Target End Date</Label>
+                <Input
+                  type="date"
+                  defaultValue={cycle.target_end_date || ""}
+                  onBlur={(e) => handleBlurUpdate("target_end_date", e.target.value || null)}
+                />
+                <p className="text-xs text-muted-foreground">Used to show cycle pace on the evidence document.</p>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Aim Statement</Label>
               <CoachingTip>What are you trying to accomplish? Be specific about the population, measure, and timeframe.</CoachingTip>
