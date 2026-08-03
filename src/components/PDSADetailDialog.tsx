@@ -763,8 +763,15 @@ export default function PDSADetailDialog({
             />
           </TabsContent>
         </Tabs>
+
+        <CycleEvidenceDocDialog
+          cycle={evidenceDocOpen ? cycle : null}
+          open={evidenceDocOpen}
+          onClose={() => setEvidenceDocOpen(false)}
+        />
       </DialogContent>
     </Dialog>
+
   );
 }
 
