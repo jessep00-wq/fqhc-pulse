@@ -74,9 +74,7 @@ const STAGE_LABEL: Record<string, string> = {
 
 const STAGE_RANK: Record<string, number> = { plan: 0, do: 1, study: 2, act: 3, completed: 4 };
 
-function stageOf(status: string) {
-  return STAGE_LABEL[status] ?? status;
-}
+
 
 function humanSize(bytes: number | null) {
   if (!bytes) return "—";
