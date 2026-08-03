@@ -3,6 +3,9 @@
 
 export type StageKey =
   | "plan"
+  | "do"
+  | "study"
+  | "act"
   | "execute"
   | "collect_evidence"
   | "validate"
