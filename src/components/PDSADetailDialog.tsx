@@ -792,6 +792,15 @@ export default function PDSADetailDialog({
               highlightCycleId={cycle.id}
             />
           </TabsContent>
+
+          {/* HISTORY TAB */}
+          <TabsContent value="history" className="mt-4">
+            <CycleHistoryTab
+              revisions={cycleRevisions}
+              loading={revisionsLoading}
+              names={profileNames}
+            />
+          </TabsContent>
         </Tabs>
 
         <CycleEvidenceDocDialog
