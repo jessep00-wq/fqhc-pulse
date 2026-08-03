@@ -39,6 +39,7 @@ const fallbackOrg: Organization = {
 
 export function OrgProvider({ children }: { children: ReactNode }) {
   const { user, loading: authLoading } = useAuth();
+  const userId = user?.id;
   const [organization, setOrganization] = useState<Organization>(fallbackOrg);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -75,7 +76,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       const { data: profile, error: profileErr } = await supabase
         .from("profiles")
         .select("organization_id")
-        .eq("id", user.id)
+        .eq("id", userId)
         .maybeSingle();
 
       if (profileErr) {
@@ -95,7 +96,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
         const { data: roleRow } = await supabase
           .from("user_roles")
           .select("role")
-          .eq("user_id", user.id)
+          .eq("user_id", userId)
           .in("role", ["founder_admin", "internal_support"])
           .maybeSingle();
         if (roleRow) {
@@ -154,7 +155,7 @@ export function OrgProvider({ children }: { children: ReactNode }) {
     };
 
     fetchOrg();
-  }, [user, refreshKey, authLoading]);
+  }, [userId, refreshKey, authLoading]);
 
   const hasOrg = hasOrgState || confirmedOrgRef.current;
   const isDemo = hasOrg && organization.dataMode === "demo";
