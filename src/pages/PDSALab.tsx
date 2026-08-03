@@ -890,7 +890,7 @@ export default function PDSALab() {
 
   const createCycle = useMutation({
     mutationFn: async (wizardData: WizardData) => {
-      const { error } = await supabase.from("pdsa_cycles").insert({
+      const { data, error } = await supabase.from("pdsa_cycles").insert({
         organization_id: organization.id,
         title: wizardData.title,
         status: "plan",
@@ -904,8 +904,9 @@ export default function PDSALab() {
         measurement_plan: wizardData.measurementPlan || null,
         test_description: wizardData.testDescription || null,
         template_id: wizardData.template?.id || null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      await markComplete(data?.id);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
