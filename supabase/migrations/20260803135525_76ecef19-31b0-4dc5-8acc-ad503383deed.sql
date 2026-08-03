@@ -1,0 +1,1 @@
+DELETE FROM public.pdsa_drafts WHERE id = 'adce233d-cbd9-4773-98b9-816eb9647982';
