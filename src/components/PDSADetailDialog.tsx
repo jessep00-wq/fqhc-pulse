@@ -79,7 +79,7 @@ interface DialogTask {
   acknowledged: boolean;
 }
 
-type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "focus_area" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
+type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "focus_area" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "opened_at" | "target_end_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
 type CycleNumberField = "improvement_pct" | "baseline_rate";
 
 const STAFF_ROLES = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
