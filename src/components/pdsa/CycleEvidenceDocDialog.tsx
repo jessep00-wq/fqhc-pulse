@@ -5,12 +5,17 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { useTierLimits } from "@/hooks/useTierLimits";
+import { useRecordHistory } from "@/hooks/useRecordHistory";
 import { confirmDemoExport } from "@/lib/demoExportGate";
 import { computeCompleteness, type PdsaCycleForScore } from "@/lib/pdsaCompleteness";
 import { exportNodeToPdf, printNode, slugify } from "@/lib/evidencePdf";
 import {
-  TEAL, TEAL_LIGHT, GRAY_BORDER, GRAY_TEXT, pageStyle, tableStyle, thStyle, tdStyle,
-  PageHeader, PageFooter, SectionHeading, Field,
+  buildStageTimeline, cyclePace, docId, fieldLabel, fmtDate, fmtDateTime,
+  displayValue, lastChangedAt, sectionAsOf, CREATED_FIELD,
+} from "@/lib/cycleHistory";
+import {
+  TEAL, GRAY_TEXT, pageStyle, tableStyle, thStyle, tdStyle,
+  PageHeader, PageFooter, SectionHeading, Field, AsOf, MetricRow, TimelineStrip, PendingPanel,
 } from "@/components/evidence/packetStyles";
 import { FileText, Loader2, Download, Printer } from "lucide-react";
 import { format } from "date-fns";
@@ -22,6 +27,9 @@ export interface EvidenceDocCycle extends PdsaCycleForScore {
   title: string;
   status: string;
   created_at: string;
+  opened_at?: string | null;
+  target_end_date?: string | null;
+  doc_version?: number | null;
   root_cause?: string | null;
   target_goal?: string | null;
   clinical_workflow_impact?: string | null;
@@ -63,6 +71,8 @@ const STAGE_LABEL: Record<string, string> = {
   act: "Act",
   completed: "Completed",
 };
+
+const STAGE_RANK: Record<string, number> = { plan: 0, do: 1, study: 2, act: 3, completed: 4 };
 
 function stageOf(status: string) {
   return STAGE_LABEL[status] ?? status;
@@ -127,6 +137,13 @@ export default function CycleEvidenceDocDialog({
     enabled: open && !!cycleId && !!organization.id,
   });
 
+  const { data: revisions = [] } = useRecordHistory(
+    "pdsa_cycle",
+    cycleId ? [cycleId] : [],
+    organization.id,
+    open,
+  );
+
   const orgName = organization.name || "Health Center";
   const isComplete = cycle?.status === "completed";
   const { score, missing } = cycle
@@ -189,6 +206,32 @@ export default function CycleEvidenceDocDialog({
   const topic = cycle.uds_measure || cycle.focus_area || "Not linked to a measure";
   const generatedOn = format(new Date(), "MMMM d, yyyy");
   const docLabel = "PDSA Evidence Document";
+  const version = cycle.doc_version ?? 1;
+  const reference = docId(cycle.id, version);
+
+  const timeline = buildStageTimeline(cycle as never, revisions).map((s) => ({
+    label: s.label,
+    date: s.enteredAt ? fmtDate(s.enteredAt) : null,
+    reached: s.reached,
+    current: s.current,
+  }));
+  const pace = cyclePace(cycle as never);
+  const rank = STAGE_RANK[cycle.status] ?? 0;
+
+  const baseline = cycle.baseline_rate;
+  const openTasks = tasks.filter((t) => t.status !== "completed").length;
+  const editedOn = (f: string) => {
+    const at = lastChangedAt(revisions, f);
+    return at ? fmtDate(at) : null;
+  };
+
+  const planAsOf = sectionAsOf(revisions, [
+    "aim_statement", "root_cause", "target_goal", "predicted_outcome", "prediction",
+    "measurement_plan", "baseline_rate",
+  ]);
+  const doAsOf = sectionAsOf(revisions, ["intervention_description", "test_description", "clinical_workflow_impact"]);
+  const studyAsOf = sectionAsOf(revisions, ["actual_outcome", "study_results", "analysis_summary", "what_worked", "what_didnt_work"]);
+  const actAsOf = sectionAsOf(revisions, ["next_cycle_decision", "decision", "act_next_steps"]);
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) { setRendered(false); onClose(); } }}>
@@ -199,21 +242,22 @@ export default function CycleEvidenceDocDialog({
             PDSA Evidence Document
           </DialogTitle>
           <DialogDescription>
-            A branded, audit-ready record for this single cycle. Available at any stage — sections you
-            haven't filled in yet are shown as outstanding rather than hidden.
+            A branded, audit-ready progression record for this cycle. Available at any stage — it opens
+            with a dashboard and timeline, then shows each phase with the date its entries were made.
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           <div className="rounded-lg border bg-muted/50 p-4">
             <p className="text-sm font-medium truncate">{cycle.title}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{topic}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{topic} · {reference}</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mt-4">
               <div><p className="text-2xl font-bold text-primary">{stageOf(cycle.status)}</p><p className="text-xs text-muted-foreground">Stage</p></div>
               <div><p className="text-2xl font-bold text-foreground">{score}%</p><p className="text-xs text-muted-foreground">Complete</p></div>
               <div><p className="text-2xl font-bold text-foreground">{tasks.length}</p><p className="text-xs text-muted-foreground">Linked tasks</p></div>
-              <div><p className="text-2xl font-bold text-foreground">{files.length}</p><p className="text-xs text-muted-foreground">Attached files</p></div>
+              <div><p className="text-2xl font-bold text-foreground">{revisions.length}</p><p className="text-xs text-muted-foreground">Logged changes</p></div>
             </div>
+            <p className="text-xs text-muted-foreground mt-3">{pace.label}</p>
           </div>
 
           {!isComplete && (
@@ -248,15 +292,17 @@ export default function CycleEvidenceDocDialog({
                 </div>
                 <div style={{ flex: 1, padding: "0 48px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                   <p style={{ fontSize: "16px", color: "#94a3b8", marginBottom: "4px" }}>QUALITY IMPROVEMENT</p>
-                  <h1 style={{ fontSize: "38px", fontWeight: 700, marginBottom: "8px" }}>PDSA Evidence Document</h1>
+                  <h1 style={{ fontSize: "38px", fontWeight: 700, marginBottom: "8px" }}>PDSA Progression Record</h1>
                   <div style={{ width: "80px", height: "4px", backgroundColor: TEAL, marginBottom: "28px" }} />
                   <p style={{ fontSize: "20px", marginBottom: "20px", lineHeight: 1.4 }}>{cycle.title}</p>
                   <p style={{ fontSize: "13px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Health Center:</span> {orgName}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Measure / Focus Area:</span> {topic}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Current Stage:</span> {stageOf(cycle.status)}</p>
-                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Documentation Completeness:</span> {score}%</p>
-                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Cycle Started:</span> {cycle.start_date ? format(new Date(cycle.start_date), "MMMM d, yyyy") : format(new Date(cycle.created_at), "MMMM d, yyyy")}</p>
+                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Cycle Pace:</span> {pace.label}</p>
+                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Opened:</span> {fmtDate(cycle.opened_at || cycle.created_at)}</p>
+                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Target End:</span> {fmtDate(cycle.target_end_date, "Not set")}</p>
                   {organization.npi && <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>NPI:</span> {organization.npi}</p>}
+                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Document ID:</span> {reference}</p>
 
                   <div style={{ marginTop: "36px", padding: "14px 18px", borderRadius: "6px", border: "1px solid rgba(255,255,255,0.2)", backgroundColor: "rgba(255,255,255,0.05)" }}>
                     <p style={{ fontSize: "12px", color: isComplete ? "#5eead4" : "#fcd34d", fontWeight: 700, letterSpacing: "0.05em" }}>
@@ -265,31 +311,45 @@ export default function CycleEvidenceDocDialog({
                     <p style={{ fontSize: "12px", color: "#94a3b8", marginTop: "4px" }}>
                       {isComplete
                         ? "All stages of this Plan-Do-Study-Act cycle have been documented and closed out."
-                        : "This document reflects the cycle as of the generation date. Outstanding sections are marked."}
+                        : "This document reflects the cycle as of the generation date. Phases not yet reached are marked pending."}
                     </p>
                   </div>
                 </div>
                 <div style={{ padding: "24px 48px", textAlign: "center" }}>
                   <p style={{ fontSize: "11px", color: "#64748b", fontStyle: "italic" }}>
-                    Generated by MeasureWise on {generatedOn}.
+                    Generated by MeasureWise on {generatedOn} · Version {version}
                   </p>
                 </div>
               </div>
 
-              {/* 01 — Cycle Overview */}
+              {/* 01 — Progression dashboard */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 01 — CYCLE OVERVIEW" title="Cycle Overview" />
+                <SectionHeading label="SECTION 01 — AT A GLANCE" title="Cycle Progression" />
+                <TimelineStrip stages={timeline} />
+                <MetricRow
+                  metrics={[
+                    { val: `${score}%`, label: "Documentation complete" },
+                    { val: baseline != null ? `${baseline}%` : "—", label: "Baseline rate" },
+                    {
+                      val: cycle.improvement_pct != null ? `${cycle.improvement_pct > 0 ? "+" : ""}${cycle.improvement_pct}%` : "—",
+                      label: "Change to date",
+                    },
+                    { val: pace.dayNumber ?? "—", label: "Days elapsed", tone: pace.overdue ? "warning" : "default" },
+                  ]}
+                />
+                <div style={{ height: "24px" }} />
                 <table style={tableStyle}>
                   <tbody>
                     {[
-                      ["Cycle title", cycle.title],
-                      ["Measure / focus area", topic],
                       ["Current stage", stageOf(cycle.status)],
-                      ["Start date", cycle.start_date ? format(new Date(cycle.start_date), "MMM d, yyyy") : "Not set"],
-                      ["Created", format(new Date(cycle.created_at), "MMM d, yyyy")],
-                      ["Baseline rate", cycle.baseline_rate != null ? `${cycle.baseline_rate}%` : "Not recorded"],
-                      ["Improvement to date", cycle.improvement_pct != null ? `${cycle.improvement_pct}%` : "Not recorded"],
+                      ["Pace", pace.label],
+                      ["Opened", fmtDate(cycle.opened_at || cycle.created_at)],
+                      ["Start date", fmtDate(cycle.start_date, "Not set")],
+                      ["Target end date", fmtDate(cycle.target_end_date, "Not set")],
+                      ["Open tasks", `${openTasks} of ${tasks.length}`],
+                      ["Evidence artifacts", `${files.length}`],
+                      ["Logged changes", `${revisions.length}`],
                       ["Assigned staff", (cycle.assigned_staff || []).join(", ") || "None assigned"],
                       ["Part of a cycle chain", cycle.previous_cycle_id || cycle.next_cycle_id ? "Yes" : "No"],
                     ].map((row, i) => (
@@ -300,87 +360,16 @@ export default function CycleEvidenceDocDialog({
                     ))}
                   </tbody>
                 </table>
-
-                <div style={{ display: "flex", gap: "1px", border: `1px solid ${GRAY_BORDER}`, borderRadius: "6px", overflow: "hidden", marginTop: "32px" }}>
-                  {[
-                    { val: `${score}%`, label: "Documentation Complete" },
-                    { val: tasks.length, label: "Linked Tasks" },
-                    { val: files.length, label: "Evidence Files" },
-                  ].map((m) => (
-                    <div key={m.label} style={{ flex: 1, textAlign: "center", padding: "20px 16px", backgroundColor: TEAL_LIGHT }}>
-                      <p style={{ fontSize: "32px", fontWeight: 700, color: TEAL }}>{m.val}</p>
-                      <p style={{ fontSize: "12px", color: GRAY_TEXT }}>{m.label}</p>
-                    </div>
-                  ))}
-                </div>
                 <div style={{ flex: 1 }} />
-                <PageFooter pageNum={2} note={`PDSA evidence record — ${orgName}`} />
+                <PageFooter pageNum={2} note={`${reference} — ${orgName}`} />
               </div>
 
-              {/* 02 — Plan */}
+              {/* 02 — Accountability */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 02 — PLAN" title="Plan" />
-                <Field label="Aim statement" value={cycle.aim_statement} emptyNote={emptyNote} />
-                <Field label="Root cause" value={cycle.root_cause} emptyNote={emptyNote} />
-                <Field label="Target goal" value={cycle.target_goal} emptyNote={emptyNote} />
-                <Field label="Prediction" value={cycle.predicted_outcome || cycle.prediction} emptyNote={emptyNote} />
-                <Field label="Measurement plan" value={cycle.measurement_plan} emptyNote={emptyNote} />
-                <div style={{ flex: 1 }} />
-                <PageFooter pageNum={3} note={`PDSA evidence record — ${orgName}`} />
-              </div>
-
-              {/* 03 — Do */}
-              <div style={pageStyle}>
-                <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 03 — DO" title="Do" />
-                <Field label="Intervention description" value={cycle.intervention_description} emptyNote={emptyNote} />
-                <Field label="Test description" value={cycle.test_description} emptyNote={emptyNote} />
-                <Field label="Clinical workflow impact" value={cycle.clinical_workflow_impact} emptyNote={emptyNote} />
-                <div style={{ flex: 1 }} />
-                <PageFooter pageNum={4} note={`PDSA evidence record — ${orgName}`} />
-              </div>
-
-              {/* 04 — Study */}
-              <div style={pageStyle}>
-                <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 04 — STUDY" title="Study" />
-                <Field label="Actual outcome" value={cycle.actual_outcome} emptyNote={emptyNote} />
-                <Field label="Study results" value={cycle.study_results} emptyNote={emptyNote} />
-                <Field label="Analysis summary" value={cycle.analysis_summary} emptyNote={emptyNote} />
-                <Field label="What worked" value={cycle.what_worked} emptyNote={emptyNote} />
-                <Field label="What didn't work" value={cycle.what_didnt_work} emptyNote={emptyNote} />
-                <div style={{ flex: 1 }} />
-                <PageFooter pageNum={5} note={`PDSA evidence record — ${orgName}`} />
-              </div>
-
-              {/* 05 — Act */}
-              <div style={pageStyle}>
-                <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 05 — ACT" title="Act" />
-                <Field
-                  label="Next-cycle decision"
-                  value={cycle.next_cycle_decision || cycle.decision}
-                  emptyNote={emptyNote}
-                />
-                <Field label="Next steps" value={cycle.act_next_steps} emptyNote={emptyNote} />
-                <Field
-                  label="Follow-on cycle"
-                  value={cycle.next_cycle_id ? "A follow-on PDSA cycle has been created from this cycle." : null}
-                  emptyNote="No follow-on cycle has been created yet."
-                />
-                <div style={{ flex: 1 }} />
-                <PageFooter pageNum={6} note={`PDSA evidence record — ${orgName}`} />
-              </div>
-
-              {/* 06 — Linked tasks */}
-              <div style={pageStyle}>
-                <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 06 — ACCOUNTABILITY" title="Linked Tasks" />
+                <SectionHeading label="SECTION 02 — ACCOUNTABILITY" title="Who Is Doing What" />
                 {tasks.length === 0 ? (
-                  <p style={{ fontSize: "14px", color: GRAY_TEXT, fontStyle: "italic" }}>
-                    No tasks have been linked to this cycle yet.
-                  </p>
+                  <PendingPanel stage="accountability" note="No tasks have been linked to this cycle yet. Assign owners so the work is traceable." />
                 ) : (
                   <table style={tableStyle}>
                     <thead>
@@ -403,17 +392,94 @@ export default function CycleEvidenceDocDialog({
                   </table>
                 )}
                 <div style={{ flex: 1 }} />
-                <PageFooter pageNum={7} note={`PDSA evidence record — ${orgName}`} />
+                <PageFooter pageNum={3} note={`${reference} — ${orgName}`} />
               </div>
 
-              {/* 07 — Attached evidence */}
+              {/* 03 — Plan */}
+              <div style={pageStyle}>
+                <PageHeader orgName={orgName} docLabel={docLabel} />
+                <SectionHeading label="SECTION 03 — PLAN" title="Plan" />
+                <AsOf date={planAsOf ? fmtDate(planAsOf) : null} />
+                <Field label="Aim statement" value={cycle.aim_statement} emptyNote={emptyNote} editedOn={editedOn("aim_statement")} />
+                <Field label="Root cause" value={cycle.root_cause} emptyNote={emptyNote} editedOn={editedOn("root_cause")} />
+                <Field label="Target goal" value={cycle.target_goal} emptyNote={emptyNote} editedOn={editedOn("target_goal")} />
+                <Field label="Prediction" value={cycle.predicted_outcome || cycle.prediction} emptyNote={emptyNote} editedOn={editedOn("predicted_outcome")} />
+                <Field label="Measurement plan" value={cycle.measurement_plan} emptyNote={emptyNote} editedOn={editedOn("measurement_plan")} />
+                <div style={{ flex: 1 }} />
+                <PageFooter pageNum={4} note={`${reference} — ${orgName}`} />
+              </div>
+
+              {/* 04 — Do */}
+              <div style={pageStyle}>
+                <PageHeader orgName={orgName} docLabel={docLabel} />
+                <SectionHeading label="SECTION 04 — DO" title="Do" />
+                {rank < 1 ? (
+                  <PendingPanel stage="Do" />
+                ) : (
+                  <>
+                    <AsOf date={doAsOf ? fmtDate(doAsOf) : null} />
+                    <Field label="Intervention description" value={cycle.intervention_description} emptyNote={emptyNote} editedOn={editedOn("intervention_description")} />
+                    <Field label="Test description" value={cycle.test_description} emptyNote={emptyNote} editedOn={editedOn("test_description")} />
+                    <Field label="Clinical workflow impact" value={cycle.clinical_workflow_impact} emptyNote={emptyNote} editedOn={editedOn("clinical_workflow_impact")} />
+                  </>
+                )}
+                <div style={{ flex: 1 }} />
+                <PageFooter pageNum={5} note={`${reference} — ${orgName}`} />
+              </div>
+
+              {/* 05 — Study */}
+              <div style={pageStyle}>
+                <PageHeader orgName={orgName} docLabel={docLabel} />
+                <SectionHeading label="SECTION 05 — STUDY" title="Study" />
+                {rank < 2 ? (
+                  <PendingPanel stage="Study" />
+                ) : (
+                  <>
+                    <AsOf date={studyAsOf ? fmtDate(studyAsOf) : null} />
+                    <Field label="Actual outcome" value={cycle.actual_outcome} emptyNote={emptyNote} editedOn={editedOn("actual_outcome")} />
+                    <Field label="Study results" value={cycle.study_results} emptyNote={emptyNote} editedOn={editedOn("study_results")} />
+                    <Field label="Analysis summary" value={cycle.analysis_summary} emptyNote={emptyNote} editedOn={editedOn("analysis_summary")} />
+                    <Field label="What worked" value={cycle.what_worked} emptyNote={emptyNote} editedOn={editedOn("what_worked")} />
+                    <Field label="What didn't work" value={cycle.what_didnt_work} emptyNote={emptyNote} editedOn={editedOn("what_didnt_work")} />
+                  </>
+                )}
+                <div style={{ flex: 1 }} />
+                <PageFooter pageNum={6} note={`${reference} — ${orgName}`} />
+              </div>
+
+              {/* 06 — Act */}
+              <div style={pageStyle}>
+                <PageHeader orgName={orgName} docLabel={docLabel} />
+                <SectionHeading label="SECTION 06 — ACT" title="Act" />
+                {rank < 3 ? (
+                  <PendingPanel stage="Act" />
+                ) : (
+                  <>
+                    <AsOf date={actAsOf ? fmtDate(actAsOf) : null} />
+                    <Field
+                      label="Next-cycle decision"
+                      value={cycle.next_cycle_decision || cycle.decision}
+                      emptyNote={emptyNote}
+                      editedOn={editedOn("next_cycle_decision")}
+                    />
+                    <Field label="Next steps" value={cycle.act_next_steps} emptyNote={emptyNote} editedOn={editedOn("act_next_steps")} />
+                    <Field
+                      label="Follow-on cycle"
+                      value={cycle.next_cycle_id ? "A follow-on PDSA cycle has been created from this cycle." : null}
+                      emptyNote="No follow-on cycle has been created yet."
+                    />
+                  </>
+                )}
+                <div style={{ flex: 1 }} />
+                <PageFooter pageNum={7} note={`${reference} — ${orgName}`} />
+              </div>
+
+              {/* 07 — Supporting artifacts */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
                 <SectionHeading label="SECTION 07 — SUPPORTING ARTIFACTS" title="Attached Evidence Files" />
                 {files.length === 0 ? (
-                  <p style={{ fontSize: "14px", color: GRAY_TEXT, fontStyle: "italic" }}>
-                    No supporting files have been attached to this cycle yet.
-                  </p>
+                  <PendingPanel stage="evidence" note="No supporting files have been attached to this cycle yet." />
                 ) : (
                   <table style={tableStyle}>
                     <thead>
@@ -439,7 +505,7 @@ export default function CycleEvidenceDocDialog({
                   Files themselves are stored securely in MeasureWise and can be retrieved from the cycle's Evidence tab.
                 </p>
                 <div style={{ flex: 1 }} />
-                <PageFooter pageNum={8} note={`PDSA evidence record — ${orgName}`} />
+                <PageFooter pageNum={8} note={`${reference} — ${orgName}`} />
               </div>
 
               {/* 08 — Completeness checklist */}
@@ -481,41 +547,56 @@ export default function CycleEvidenceDocDialog({
                   </tbody>
                 </table>
                 <p style={{ fontSize: "14px", lineHeight: 1.7, marginTop: "24px" }}>
-                  Overall documentation completeness for this cycle is <strong>{score}%</strong>.
-                  {missing.length > 0
-                    ? ` Outstanding items: ${missing.join(", ")}.`
-                    : " All required documentation elements are present."}
+                  Documentation completeness for this cycle is <strong>{score}%</strong>. Items marked
+                  outstanding are the fastest way to raise the score before a site visit.
                 </p>
                 <div style={{ flex: 1 }} />
-                <PageFooter pageNum={9} note={`PDSA evidence record — ${orgName}`} />
+                <PageFooter pageNum={9} note={`${reference} — ${orgName}`} />
               </div>
 
-              {/* Appendix — Disclaimer */}
-              <div style={{ ...pageStyle, pageBreakAfter: "auto" }}>
+              {/* 09 — Change log */}
+              <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="APPENDIX — DISCLAIMER" title="About This Document" />
-                <p style={{ fontSize: "14px", lineHeight: 1.7, marginBottom: "16px" }}>
-                  This document was generated by MeasureWise on {generatedOn} for {orgName}. It reflects the
-                  Plan-Do-Study-Act cycle titled “{cycle.title}” exactly as recorded in the platform at the time
-                  of generation.
-                </p>
-                <p style={{ fontSize: "14px", lineHeight: 1.7, marginBottom: "16px" }}>
-                  Sections marked as not yet documented indicate work still in progress and are shown
-                  deliberately so reviewers can see the current state of the cycle rather than an incomplete
-                  picture. Regenerate this document at any point to capture updated content.
-                </p>
-                <p style={{ fontSize: "14px", lineHeight: 1.7 }}>
-                  MeasureWise does not store protected health information. All content herein is
-                  aggregate quality-improvement documentation intended for internal review, HRSA Operational
-                  Site Visit preparation, and accreditation evidence.
+                <SectionHeading label="SECTION 09 — AUDIT TRAIL" title="Change Log" />
+                {revisions.length === 0 ? (
+                  <PendingPanel stage="audit trail" note="No changes have been recorded for this cycle yet." />
+                ) : (
+                  <table style={tableStyle}>
+                    <thead>
+                      <tr>{["Date", "Field", "Previous value", "New value"].map((h) => <th key={h} style={thStyle}>{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {revisions.slice(0, 40).map((r, i) => (
+                        <tr key={r.id}>
+                          {[
+                            fmtDateTime(r.created_at),
+                            fieldLabel(r.field_name),
+                            r.field_name === CREATED_FIELD ? "—" : truncate(displayValue(r.field_name, r.old_value)),
+                            r.field_name === CREATED_FIELD ? "Cycle created" : truncate(displayValue(r.field_name, r.new_value)),
+                          ].map((cell, j) => (
+                            <td key={j} style={{ ...tdStyle, fontSize: "11px", backgroundColor: i % 2 === 0 ? "#fff" : "#f9fafb" }}>{cell}</td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+                <p style={{ fontSize: "12px", color: GRAY_TEXT, marginTop: "16px", fontStyle: "italic" }}>
+                  Entries are immutable. Previous values are retained in full inside MeasureWise; long
+                  values are abbreviated here for print.
                 </p>
                 <div style={{ flex: 1 }} />
-                <PageFooter pageNum={10} note={`PDSA evidence record — ${orgName}`} />
+                <PageFooter pageNum={10} note={`${reference} — ${orgName}`} />
               </div>
+
             </div>
           </div>
         )}
       </DialogContent>
     </Dialog>
   );
+}
+
+function truncate(value: string, max = 90) {
+  return value.length > max ? `${value.slice(0, max)}…` : value;
 }
