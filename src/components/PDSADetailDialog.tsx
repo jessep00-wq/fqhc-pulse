@@ -63,6 +63,9 @@ interface DBCycle {
   next_cycle_id?: string | null;
   completeness_score?: number | null;
   focus_area?: string | null;
+  opened_at?: string | null;
+  target_end_date?: string | null;
+  doc_version?: number | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
