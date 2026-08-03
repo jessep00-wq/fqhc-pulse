@@ -364,7 +364,13 @@ export default function PDSADetailDialog({
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-7">
-
+            <TabsTrigger value="aim">Aim</TabsTrigger>
+            <TabsTrigger value="test">Test</TabsTrigger>
+            <TabsTrigger value="analyze">Analyze</TabsTrigger>
+            <TabsTrigger value="decide">Decide</TabsTrigger>
+            <TabsTrigger value="evidence">Evidence</TabsTrigger>
+            <TabsTrigger value="chain">Chain</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
           {/* AIM & PLAN TAB */}
