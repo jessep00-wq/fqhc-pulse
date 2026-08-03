@@ -60,6 +60,7 @@ interface DBCycle {
   previous_cycle_id?: string | null;
   next_cycle_id?: string | null;
   completeness_score?: number | null;
+  focus_area?: string | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
