@@ -34,6 +34,8 @@ export interface PdsaCycleFields {
 interface FieldSpec {
   key: keyof PdsaCycleFields;
   label: string;
+  /** Optional alternative keys — the field counts as filled if any is filled. */
+  altKeys?: (keyof PdsaCycleFields)[];
 }
 
 export const STAGE_FIELDS: Record<
@@ -47,8 +49,11 @@ export const STAGE_FIELDS: Record<
     { key: "measurement_plan", label: "Measurement plan" },
   ],
   do: [
-    { key: "intervention_description", label: "Intervention description" },
-    { key: "test_description", label: "Action description" },
+    {
+      key: "intervention_description",
+      label: "Action description",
+      altKeys: ["test_description"],
+    },
   ],
   study: [
     { key: "actual_outcome", label: "Actual outcome" },
@@ -60,6 +65,7 @@ export const STAGE_FIELDS: Record<
     { key: "act_next_steps", label: "Next steps" },
   ],
 };
+
 
 export const PDSA_STAGE_ORDER: PdsaStageKey[] = ["plan", "do", "study", "act", "complete"];
 
@@ -115,7 +121,9 @@ export function getPdsaProgress(
 
   const base = keys.map((key) => {
     const specs = STAGE_FIELDS[key];
-    const missing = specs.filter((s) => !filled(cycle[s.key])).map((s) => s.label);
+    const specFilled = (s: FieldSpec) =>
+      filled(cycle[s.key]) || (s.altKeys ?? []).some((k) => filled(cycle[k]));
+    const missing = specs.filter((s) => !specFilled(s)).map((s) => s.label);
     const filledCount = specs.length - missing.length;
     return { key, specs, missing, filledCount };
   });
