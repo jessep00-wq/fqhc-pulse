@@ -339,7 +339,8 @@ export default function PDSADetailDialog({
     }
   };
 
-  const score = cycle.completeness_score ?? computeCompleteness(cycle).score;
+  const progress = getPdsaProgress(cycle, { evidenceCount: cycleEvidence.length });
+  const score = progress.completenessPct;
 
   const workstreamFacts = getPdsaWorkstream(
     cycle,
