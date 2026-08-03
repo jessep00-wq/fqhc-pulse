@@ -727,9 +727,21 @@ export default function PDSADetailDialog({
           </TabsContent>
 
           {/* EVIDENCE TAB */}
-          <TabsContent value="evidence" className="mt-4">
+          <TabsContent value="evidence" className="mt-4 space-y-4">
+            <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Cycle evidence document</p>
+                <p className="text-xs text-muted-foreground">
+                  Branded, printable record of this cycle — available at any stage.
+                </p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => setEvidenceDocOpen(true)}>
+                <FileText className="h-4 w-4 mr-1" /> Generate
+              </Button>
+            </div>
             <EvidencePanel cycleId={cycle.id} organizationId={cycle.organization_id} />
           </TabsContent>
+
 
           {/* CHAIN TAB */}
           <TabsContent value="chain" className="mt-4">
