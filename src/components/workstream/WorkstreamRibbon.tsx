@@ -32,6 +32,11 @@ const STATUS_STYLES: Record<
     ring: "bg-destructive/40",
     label: "text-destructive font-semibold",
   },
+  warning: {
+    dot: "bg-warning text-warning-foreground border-warning",
+    ring: "bg-warning/40",
+    label: "text-warning font-semibold",
+  },
   ready: {
     dot: "bg-warning text-warning-foreground border-warning",
     ring: "bg-warning/40",
