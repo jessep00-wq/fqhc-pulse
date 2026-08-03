@@ -34,6 +34,7 @@ import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
+import { usePdsaDraft, type DraftSaveState } from "@/hooks/usePdsaDraft";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
