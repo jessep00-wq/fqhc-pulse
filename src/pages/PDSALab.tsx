@@ -34,6 +34,7 @@ import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
+import { usePdsaDraft, type DraftSaveState } from "@/hooks/usePdsaDraft";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
@@ -398,24 +399,41 @@ const emptyWizard: WizardData = {
   clinicalWorkflowImpact: "",
 };
 
-function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }: {
+function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, onDraftChange, saveState, savedAt }: {
   open: boolean;
   onClose: () => void;
   onCreate: (data: WizardData) => void;
   initialData?: Partial<WizardData>;
   initialStep?: WizardStep;
+  onDraftChange?: (step: WizardStep, data: WizardData) => void;
+  saveState?: DraftSaveState;
+  savedAt?: Date | null;
 }) {
   const [step, setStep] = useState<WizardStep>(initialStep ?? "template");
   const [data, setData] = useState<WizardData>({ ...emptyWizard, ...(initialData ?? {}) });
+  const skipNextSave = useRef(true);
 
   // When opened (or initial seed changes), reset to seeded state.
   useEffect(() => {
     if (open) {
+      skipNextSave.current = true;
       setStep(initialStep ?? "template");
       setData({ ...emptyWizard, ...(initialData ?? {}) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialStep, initialData?.title, initialData?.aim, initialData?.rootCause]);
+
+  // Auto-save every field / step change once past the template picker.
+  useEffect(() => {
+    if (!open) return;
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
+      return;
+    }
+    if (step === "template") return;
+    onDraftChange?.(step, data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, step, data]);
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
 
@@ -713,12 +731,19 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }:
 
         {/* Navigation */}
         {step !== "template" && (
-          <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <Button variant="ghost" size="sm" onClick={prev}>
-              <ArrowLeft className="h-4 w-4 mr-1" />Back
-            </Button>
+          <DialogFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={prev}>
+                <ArrowLeft className="h-4 w-4 mr-1" />Back
+              </Button>
+              <span className="text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
+                {saveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" />Saving…</>)}
+                {saveState === "saved" && (<><CheckCircle className="h-3 w-3 text-success" />Draft saved{savedAt ? ` · ${format(savedAt, "h:mm a")}` : ""}</>)}
+                {saveState === "error" && <span className="text-destructive">Saved on this device only</span>}
+              </span>
+            </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { reset(); onClose(); }}>Cancel</Button>
+              <Button variant="outline" onClick={() => { reset(); onClose(); }}>Close</Button>
               {step === "review" ? (
                 <Button onClick={handleCreate}>
                   <CheckCircle className="h-4 w-4 mr-1" />Create Cycle
@@ -748,6 +773,7 @@ export default function PDSALab() {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const { draft, saveState, savedAt, saveDraft, markComplete, discardDraft } = usePdsaDraft(organization.id);
   const { canCreateCycle, cyclesRemaining, isFreeTier } = useTierLimits();
 
   // Responsive: narrower than 1100px → tabbed view (DnD board overflows there).
@@ -782,15 +808,24 @@ export default function PDSALab() {
     setSearchParams(sp, { replace: true });
   };
 
-  const handleNewCycle = useCallback(() => {
+  const handleNewCycle = useCallback(async () => {
     if (!canCreateCycle) {
       setUpgradeOpen(true);
       return;
     }
+    // Starting fresh replaces any unfinished draft (explicit user action).
+    await discardDraft();
     setWizardSeed(undefined);
     setWizardStartStep(undefined);
     setNewOpen(true);
-  }, [canCreateCycle]);
+  }, [canCreateCycle, discardDraft]);
+
+  const handleResumeDraft = useCallback(() => {
+    if (!draft) return;
+    setWizardSeed(draft.form_data as Partial<WizardData>);
+    setWizardStartStep((draft.current_step as WizardStep) || "aim");
+    setNewOpen(true);
+  }, [draft]);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
@@ -865,7 +900,7 @@ export default function PDSALab() {
 
   const createCycle = useMutation({
     mutationFn: async (wizardData: WizardData) => {
-      const { error } = await supabase.from("pdsa_cycles").insert({
+      const { data, error } = await supabase.from("pdsa_cycles").insert({
         organization_id: organization.id,
         title: wizardData.title,
         status: "plan",
@@ -879,8 +914,9 @@ export default function PDSALab() {
         measurement_plan: wizardData.measurementPlan || null,
         test_description: wizardData.testDescription || null,
         template_id: wizardData.template?.id || null,
-      });
+      }).select("id").single();
       if (error) throw error;
+      await markComplete(data?.id);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
@@ -1003,6 +1039,28 @@ export default function PDSALab() {
           </div>
         </div>
 
+        {draft && !newOpen && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary shrink-0" />
+                  Unfinished PDSA cycle
+                </p>
+                <p className="text-sm text-muted-foreground truncate">
+                  {((draft.form_data as Partial<WizardData>)?.title as string) || "Untitled draft"}
+                  {draft.updated_at ? ` · saved ${format(new Date(draft.updated_at), "MMM d, h:mm a")}` : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={handleResumeDraft}>Resume draft</Button>
+                <Button size="sm" variant="outline" onClick={handleNewCycle}>Start new</Button>
+                <Button size="sm" variant="ghost" onClick={() => void discardDraft()}>Discard</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
           <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
         )}
@@ -1094,6 +1152,9 @@ export default function PDSALab() {
           onCreate={(data) => createCycle.mutate(data)}
           initialData={wizardSeed}
           initialStep={wizardStartStep}
+          onDraftChange={(step, data) => saveDraft(step, data)}
+          saveState={saveState}
+          savedAt={savedAt}
         />
         <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
         <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
