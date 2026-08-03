@@ -82,6 +82,9 @@ export const STAGE_ORDER: StageKey[] = [
 
 export const STAGE_LABEL: Record<StageKey, string> = {
   plan: "Plan",
+  do: "Do",
+  study: "Study",
+  act: "Act",
   execute: "Execute",
   collect_evidence: "Collect Evidence",
   validate: "Validate",
