@@ -121,7 +121,9 @@ export function getPdsaProgress(
 
   const base = keys.map((key) => {
     const specs = STAGE_FIELDS[key];
-    const missing = specs.filter((s) => !filled(cycle[s.key])).map((s) => s.label);
+    const specFilled = (s: FieldSpec) =>
+      filled(cycle[s.key]) || (s.altKeys ?? []).some((k) => filled(cycle[k]));
+    const missing = specs.filter((s) => !specFilled(s)).map((s) => s.label);
     const filledCount = specs.length - missing.length;
     return { key, specs, missing, filledCount };
   });
