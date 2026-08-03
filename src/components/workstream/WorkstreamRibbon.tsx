@@ -69,7 +69,10 @@ function StageNode({
   const s = STATUS_STYLES[stage.status];
   const navigable = stage.status === "complete" || stage.status === "in_progress";
   const content = (
-    <div className="flex flex-col items-center gap-1.5 min-w-[88px] cursor-pointer group">
+    <div
+      className="flex flex-col items-center gap-1.5 min-w-[88px] cursor-pointer group"
+      title={stage.reason ? `${stage.label} — ${stage.reason}` : stage.label}
+    >
       <div
         className={cn(
           "h-7 w-7 rounded-full border-2 flex items-center justify-center transition-transform group-hover:scale-110",
