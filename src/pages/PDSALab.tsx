@@ -1152,6 +1152,9 @@ export default function PDSALab() {
           onCreate={(data) => createCycle.mutate(data)}
           initialData={wizardSeed}
           initialStep={wizardStartStep}
+          onDraftChange={(step, data) => saveDraft(step, data)}
+          saveState={saveState}
+          savedAt={savedAt}
         />
         <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
         <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
