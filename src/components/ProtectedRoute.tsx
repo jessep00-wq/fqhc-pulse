@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useOrg } from "@/contexts/OrgContext";
 import { useUserRole } from "@/hooks/useUserRole";
@@ -9,13 +10,20 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { hasOrg, loading: orgLoading, error, refetchOrg } = useOrg();
   const { isAdmin, loading: roleLoading } = useUserRole();
 
-  if (loading || orgLoading || roleLoading) {
+  // Once the guard has resolved once, never unmount the app shell again for a
+  // background refresh (e.g. a token refresh on tab focus). Unmounting here
+  // destroyed in-progress form state and looked like a full page reload.
+  const resolvedOnce = useRef(false);
+  if (!loading && !orgLoading && !roleLoading) resolvedOnce.current = true;
+
+  if ((loading || orgLoading || roleLoading) && !resolvedOnce.current) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
   }
+
 
   if (!session) {
     return <Navigate to="/auth" replace />;

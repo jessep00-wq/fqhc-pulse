@@ -17,13 +17,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const loginTracked = useRef(false);
+  // Last server-verified user id. Used to avoid re-verifying (and re-setting a
+  // new object identity) on background TOKEN_REFRESHED events fired when the
+  // browser tab regains focus — that churn used to cascade into OrgContext
+  // reloading and unmounting the whole dashboard, wiping in-progress forms.
+  const verifiedUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        // Optimistic: surface the JWT user immediately to avoid logged-out flash.
-        setUser(session?.user ?? null);
+        // Optimistic: surface the JWT user immediately to avoid logged-out flash,
+        // but keep the existing object identity when it's the same user so
+        // downstream effects keyed on `user` don't re-run.
+        setUser((prev) => {
+          const next = session?.user ?? null;
+          if (prev && next && prev.id === next.id) return prev;
+          return next;
+        });
         setLoading(false);
 
         // IMPORTANT: never await or call other supabase.auth.* methods synchronously
@@ -32,7 +43,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // lock is force-stolen, producing an unhandled AbortError. Defer all
         // supabase work to a microtask via setTimeout(..., 0).
 
-        if (session) {
+        const alreadyVerified =
+          !!session?.user && verifiedUserIdRef.current === session.user.id;
+
+        if (session && !alreadyVerified) {
           setTimeout(() => {
             // Server-verify identity. session.user is decoded from the local JWT
             // and must not be trusted for authorization decisions.
@@ -40,10 +54,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .getUser()
               .then(({ data, error }) => {
                 if (error || !data?.user) {
+                  verifiedUserIdRef.current = null;
                   setUser(null);
                   return;
                 }
-                setUser(data.user);
+                verifiedUserIdRef.current = data.user.id;
+                setUser((prev) => (prev && prev.id === data.user.id ? prev : data.user));
               })
               .catch(() => {
                 // Swallow lock-steal aborts and transient network errors —
@@ -113,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
+          verifiedUserIdRef.current = null;
         }
       }
     );

@@ -34,7 +34,9 @@ import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
-import { usePdsaDraft, type DraftSaveState } from "@/hooks/usePdsaDraft";
+import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDraft";
+
+const WIZARD_OPEN_KEY = "mw_pdsa_wizard_open";
 
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
@@ -826,6 +828,31 @@ export default function PDSALab() {
     setWizardStartStep((draft.current_step as WizardStep) || "aim");
     setNewOpen(true);
   }, [draft]);
+
+  // Safety net: if the wizard was open when the page was refreshed/closed,
+  // reopen it automatically on the saved step with all values restored.
+  const autoResumedRef = useRef(false);
+  useEffect(() => {
+    if (autoResumedRef.current || newOpen) return;
+    if (typeof window === "undefined") return;
+    if (window.sessionStorage.getItem(WIZARD_OPEN_KEY) !== "1") return;
+    const mirror = readMirror();
+    const source = draft
+      ? { form_data: draft.form_data, current_step: draft.current_step }
+      : mirror;
+    if (!source) return;
+    autoResumedRef.current = true;
+    setWizardSeed(source.form_data as Partial<WizardData>);
+    setWizardStartStep((source.current_step as WizardStep) || "aim");
+    setNewOpen(true);
+  }, [draft, newOpen]);
+
+  // Remember whether the wizard is open across refreshes.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (newOpen) window.sessionStorage.setItem(WIZARD_OPEN_KEY, "1");
+    else window.sessionStorage.removeItem(WIZARD_OPEN_KEY);
+  }, [newOpen]);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
