@@ -517,15 +517,11 @@ export default function CycleEvidenceDocDialog({
                   </thead>
                   <tbody>
                     {[
-                      "Cycle owner",
-                      "Start date",
-                      "Linked UDS measure or focus area",
-                      "Baseline rate",
-                      "Predicted outcome",
-                      "Intervention description",
-                      "Aim statement",
-                      "Measurement plan",
-                      ...(isComplete ? ["Actual outcome", "Next-cycle decision (Adapt/Adopt/Abandon)"] : []),
+                      ...STAGE_FIELDS.plan.map((f) => f.label),
+                      ...STAGE_FIELDS.do.map((f) => f.label),
+                      ...STAGE_FIELDS.study.map((f) => f.label),
+                      ...STAGE_FIELDS.act.map((f) => f.label),
+
                     ].map((item, i) => {
                       const present = !missing.includes(item);
                       return (
