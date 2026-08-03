@@ -62,7 +62,18 @@ const ManualThankYou = lazy(() => import("./pages/ManualThankYou"));
 
 const ReadinessScore = lazy(() => import("./pages/ReadinessScore"));
 
-const queryClient = new QueryClient();
+// Tab-focus must never trigger a refetch/loading flash: returning to the tab
+// should feel like un-pausing, not reloading. Data refreshes on explicit
+// invalidation after mutations, or once it is genuinely stale.
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
