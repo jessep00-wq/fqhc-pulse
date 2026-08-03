@@ -831,6 +831,42 @@ export type Database = {
           },
         ]
       }
+      pdsa_drafts: {
+        Row: {
+          created_at: string
+          current_step: string
+          form_data: Json
+          id: string
+          organization_id: string
+          pdsa_cycle_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: string
+          form_data?: Json
+          id?: string
+          organization_id: string
+          pdsa_cycle_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: string
+          form_data?: Json
+          id?: string
+          organization_id?: string
+          pdsa_cycle_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       pdsa_evidence: {
         Row: {
           created_at: string
