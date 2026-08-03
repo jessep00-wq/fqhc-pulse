@@ -129,6 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
+          verifiedUserIdRef.current = null;
         }
       }
     );
