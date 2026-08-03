@@ -38,6 +38,7 @@ import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDr
 
 const WIZARD_OPEN_KEY = "mw_pdsa_wizard_open";
 
+import { blockersForCompletion } from "@/lib/pdsaProgress";
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
 interface DBCycle {
