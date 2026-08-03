@@ -2,11 +2,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import {
-  FlaskConical, Target, ClipboardList, BarChart3, Users, RefreshCw,
+  FlaskConical, Target, ClipboardList, BarChart3, Users, Save,
   TrendingUp, Bell, FileCheck, LineChart,
-  Download, FolderOpen, Clock, Shield, Printer,
-  AlertTriangle, Sigma, Eye,
-  ClipboardCheck, CalendarCheck, Layers,
+  Download, Clock, Printer,
+  AlertTriangle, Sigma, BookOpen,
+  ClipboardCheck, Bot, ShieldCheck, Building2, PenLine,
 } from "lucide-react";
 
 const jsonLd = {
@@ -16,8 +16,8 @@ const jsonLd = {
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description:
-    "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA audit binders, and PCMH Q-PASS evidence collection.",
-  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "Free 14-day trial" },
+    "Quality operations platform for FQHCs — PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA OSV Export Packet.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "14-day free trial" },
 };
 
 type FeatureCard = { icon: typeof FlaskConical; title: string; description: string };
@@ -37,27 +37,27 @@ type FeatureSection = {
 const sections: FeatureSection[] = [
   {
     id: "pdsa",
-    eyebrow: "PDSA Cycle Manager",
+    eyebrow: "PDSA Lab",
     eyebrowIcon: FlaskConical,
     title: "UDS-aligned PDSA cycles",
     titleAccent: "built for FQHCs",
     intro:
-      "FQHC Quality Directors run dozens of Plan-Do-Study-Act cycles each year, but most live in disconnected spreadsheets that never tie back to a UDS measure. MeasureWise structures every cycle around the specific UDS clinical quality measure it's meant to move — and proves the movement with an SPC chart HRSA reviewers expect to see.",
-    cardsHeading: "Why FQHCs need a dedicated PDSA tool",
+      "FQHC Quality Directors run improvement cycles all year, but most live in disconnected spreadsheets that never tie back to a UDS measure. PDSA Lab is a Kanban board where every cycle is structured around the UDS measure it's meant to move, with the Plan-Do-Study-Act detail HRSA reviewers expect to see.",
+    cardsHeading: "What PDSA Lab does today",
     cards: [
-      { icon: FlaskConical, title: "Guided 4-Phase Workflow", description: "Walk your team through Plan → Do → Study → Act with built-in coaching prompts, prediction fields, and structured data collection at each phase." },
-      { icon: Target, title: "Linked to UDS Measures", description: "Every PDSA cycle connects to one or more UDS clinical quality measures. When your cycle succeeds, you can see the measure move — and prove it to HRSA." },
-      { icon: ClipboardList, title: "Pre-Built FQHC Templates", description: "Start from 30+ templates covering cervical cancer screening, diabetes control, depression screening, hypertension, and more." },
-      { icon: BarChart3, title: "SPC Charts Per Cycle", description: "Statistical Process Control charts auto-generate for each cycle, showing whether your intervention produced a statistically significant change." },
-      { icon: Users, title: "Team Task Assignment", description: "Assign cycle tasks to specific staff members with deadlines and accountability tracking." },
-      { icon: RefreshCw, title: "Cycle-to-Cycle Linkage", description: "Link completed cycles to the next iteration — a documented chain of improvement auditors love to see." },
+      { icon: FlaskConical, title: "Guided 4-Phase Workflow", description: "A creation wizard walks your team through Plan → Do → Study → Act with prompts, prediction fields, and structured fields at each phase." },
+      { icon: Target, title: "Linked to UDS Measures", description: "Each cycle is tied to one of the 7 core UDS clinical quality measures, with a baseline and target recorded on the cycle." },
+      { icon: ClipboardList, title: "20 Pre-Built FQHC Templates", description: "Start from templates covering diabetes control, hypertension, cervical and colorectal cancer screening, depression screening, tobacco use, and more — searchable in the wizard." },
+      { icon: Users, title: "Team Task Assignment", description: "Assign cycle tasks to staff with owners and due dates, tracked on the Staff Tasks page." },
+      { icon: Save, title: "Auto-Saved Drafts", description: "Progress saves as you type. Leave mid-cycle and resume from the step you left off, on desktop or mobile." },
+      { icon: ClipboardCheck, title: "Completeness Tracking", description: "A completeness indicator on every card shows which phase fields are still missing before the cycle is documentation-ready." },
     ],
     narrative: [
       {
         heading: "How PDSA cycles work in MeasureWise",
         paragraphs: [
-          "When you create a new PDSA cycle in MeasureWise, you start by selecting a UDS measure — for example, Cervical Cancer Screening (CMS124). The system pulls your current baseline and asks you to set an aim statement and a prediction.",
-          "The Plan phase defines intervention, test population, and assigned tasks. The Do phase captures what actually happened. The Study phase compares results against your prediction and generates an SPC chart. The Act phase asks you to Adopt, Adapt, or Abandon — each decision links forward to the next cycle.",
+          "When you create a cycle you pick a UDS measure — for example, Cervical Cancer Screening (CMS124) — then record your aim, baseline, and prediction.",
+          "The Plan phase defines the intervention, test population, and assigned tasks. The Do phase captures what actually happened. The Study phase records results against your prediction. The Act phase asks you to Adopt, Adapt, or Abandon. Everything you enter flows into the OSV Export Packet.",
         ],
       },
     ],
@@ -66,105 +66,120 @@ const sections: FeatureSection[] = [
     id: "uds-tracking",
     eyebrow: "UDS Measure Tracking",
     eyebrowIcon: BarChart3,
-    title: "UDS measure tracking software",
-    titleAccent: "for FQHCs",
+    title: "UDS measure tracking",
+    titleAccent: "for the 7 core measures",
     intro:
-      "The spreadsheet you inherited can't tell you which UDS measure is sliding this month. MeasureWise replaces that spreadsheet with a live, trend-aware tracker for the 7 core UDS clinical quality measures, so you act on declining numbers before they end up in HRSA's report.",
+      "MeasureWise tracks monthly performance for the seven core UDS clinical quality measures, so you can see which one is sliding before it shows up in your HRSA report. Measure values are entered by your team — MeasureWise does not connect to an EHR.",
     cardsHeading: "What you can track",
     cards: [
       { icon: BarChart3, title: "7 Core UDS Measures", description: "Depression screening, tobacco use, colorectal cancer, cervical cancer, breast cancer, hypertension control, and diabetes HbA1c > 9%." },
-      { icon: TrendingUp, title: "Real-Time Trend Analysis", description: "See how each measure trends month over month. Identify declining measures before they become audit findings." },
-      { icon: Target, title: "Gap-to-Target Tracking", description: "Set targets and instantly see which measures are below goal. Weekly digest tells you exactly where to focus." },
-      { icon: LineChart, title: "SPC Chart Integration", description: "Statistical Process Control charts distinguish real improvement from random variation." },
-      { icon: Bell, title: "Automated Alerts", description: "Get notified when a measure drops below target or shows a declining trend." },
-      { icon: FileCheck, title: "Audit-Ready Reports", description: "Generate UDS performance summaries formatted for HRSA site visit reviewers. One click, done." },
+      { icon: TrendingUp, title: "Monthly Trend View", description: "Enter monthly values and see each measure trend across the reporting year on the dashboard." },
+      { icon: Target, title: "Gap-to-Target Tracking", description: "Set a target per measure and see at a glance which measures sit below goal." },
+      { icon: LineChart, title: "SPC Chart on Your Data", description: "The dashboard SPC chart is built from the same monthly measure data — no separate entry." },
+      { icon: Bell, title: "In-App Notifications & Task Emails", description: "A notification feed in the app plus automated email reminders when assigned tasks approach their due date." },
+      { icon: FileCheck, title: "Measures in Your Exports", description: "Current measure performance is included in the OSV Export Packet and QI/QA board reports." },
     ],
     narrative: [
       {
         heading: "Why UDS tracking matters for FQHCs",
         paragraphs: [
-          "The Uniform Data System (UDS) is the primary reporting mechanism for HRSA-funded health centers. Strong UDS performance leads to better site-visit outcomes, higher grant funding, and Quality Award eligibility.",
-          "MeasureWise connects your UDS measure data to your active PDSA cycles, creating a live feedback loop. When cervical cancer screening drops, you see it immediately — and you can link it to the PDSA cycle working to improve it.",
+          "The Uniform Data System (UDS) is the primary reporting mechanism for HRSA-funded health centers. Strong UDS performance leads to better site-visit outcomes and Quality Award eligibility.",
+          "MeasureWise keeps measure performance next to the PDSA cycles working on it, so the connection between the work and the number is documented rather than remembered.",
         ],
       },
     ],
   },
   {
     id: "spc-charts",
-    eyebrow: "SPC Charts",
+    eyebrow: "SPC Chart",
     eyebrowIcon: LineChart,
-    title: "SPC charts for",
-    titleAccent: "UDS measure tracking",
+    title: "A control chart on your",
+    titleAccent: "UDS measure data",
     intro:
-      "Did the intervention actually move the UDS measure, or was it random month-to-month noise? MeasureWise auto-generates Statistical Process Control charts on every UDS line item — so your QI committee can answer that question with a chart, not a hunch.",
-    cardsHeading: "SPC made simple for healthcare",
+      "Was that change real, or month-to-month noise? The dashboard SPC chart plots any of the seven UDS measures against calculated control limits so your QI committee can answer with a chart instead of a hunch.",
+    cardsHeading: "What the SPC chart gives you",
     cards: [
-      { icon: LineChart, title: "Auto-Generated Charts", description: "SPC charts generate automatically from your UDS measure data — no manual entry, no Excel formulas." },
-      { icon: TrendingUp, title: "Trend Detection", description: "MeasureWise flags runs, shifts, and trends using Western Electric rules." },
-      { icon: AlertTriangle, title: "Out-of-Control Signals", description: "Points outside control limits are highlighted automatically." },
-      { icon: Sigma, title: "Control Limits Calculated", description: "UCL/LCL calculated using standard SPC formulas. Center line, ±1σ, ±2σ, and ±3σ all displayed." },
-      { icon: BarChart3, title: "Before/After Comparison", description: "Split at the intervention point to see separate control limits for pre- and post-intervention periods." },
-      { icon: Eye, title: "Board-Ready Visuals", description: "Export as images for board presentations. Clean, professional, annotated." },
+      { icon: LineChart, title: "Generated From Your Entries", description: "The chart builds itself from the monthly UDS values your team already enters — no Excel formulas." },
+      { icon: Sigma, title: "Center Line and 3σ Limits", description: "Center line plus upper and lower control limits calculated at three standard deviations, labeled directly on the axis." },
+      { icon: AlertTriangle, title: "Out-of-Control Points Flagged", description: "Any point falling outside the control limits is highlighted on the chart." },
+      { icon: BarChart3, title: "Measure Switcher", description: "Switch between all seven core UDS measures from a single control on the dashboard." },
     ],
     narrative: [
       {
         heading: "Why SPC matters for quality improvement",
         paragraphs: [
-          "The Institute for Healthcare Improvement (IHI) recommends SPC charts as the primary tool for distinguishing common cause variation from special cause variation. Without SPC, teams either celebrate random improvement as real or panic about a random decline.",
-          "For FQHCs, well-annotated SPC charts linked to documented PDSA cycles are exactly the evidence of \"data-driven quality improvement\" that HRSA Chapter 10 requires.",
+          "The Institute for Healthcare Improvement recommends control charts as the primary tool for separating common cause variation from special cause variation. Without one, teams celebrate random improvement as real or panic over a random dip.",
+          "For FQHCs, a control chart paired with documented PDSA cycles is the kind of evidence of data-driven quality improvement HRSA expects to see.",
         ],
       },
     ],
   },
   {
     id: "audit-binder",
-    eyebrow: "HRSA Audit Binder",
+    eyebrow: "OSV Export Packet",
     eyebrowIcon: FileCheck,
-    title: "HRSA audit binder generator for",
-    titleAccent: "FQHC quality improvement",
+    title: "HRSA OSV packet generated from",
+    titleAccent: "the work you already logged",
     intro:
-      "HRSA Operational Site Visits demand a documented trail of UDS-aligned PDSA cycles, SPC analysis, and QI committee action. Most FQHC Quality Directors spend two to four weeks assembling that binder by hand. MeasureWise generates it in seconds because the evidence is captured as you work.",
-    cardsHeading: "What's in the binder",
+      "HRSA Operational Site Visits demand a documented trail of UDS-aligned improvement work, QI committee oversight, and follow-through. MeasureWise assembles that packet as a paginated PDF from the data already in your workspace.",
+    cardsHeading: "What's in the packet",
     cards: [
-      { icon: Download, title: "One-Click PDF Export", description: "Generate a complete, paginated audit binder PDF in seconds." },
-      { icon: FolderOpen, title: "Organized by HRSA Chapter", description: "Evidence organized by HRSA Compliance Manual chapters — Chapter 10, Chapter 19, and more." },
-      { icon: FileCheck, title: "PDSA Cycle Documentation", description: "Aim, baseline, intervention, results, SPC chart, and decision rationale for every cycle." },
-      { icon: Clock, title: "Timestamped Audit Trail", description: "Every action is timestamped and attributed to a specific staff member." },
-      { icon: Shield, title: "Compliance Gap Analysis", description: "Run a gap analysis before the site visit to see which HRSA requirements have documented evidence." },
-      { icon: Printer, title: "Print-Ready Formatting", description: "Professional formatting with headers, page numbers, table of contents, and appendices." },
+      { icon: Download, title: "One-Click PDF Export", description: "Generate a complete, paginated packet as a PDF in seconds." },
+      { icon: ShieldCheck, title: "Quality Infrastructure", description: "Your documented QI oversight roles and quality program structure." },
+      { icon: BarChart3, title: "Measure Monitoring", description: "Current UDS measure performance against targets for the reporting period." },
+      { icon: FlaskConical, title: "PDSA Documentation", description: "Cycle summaries plus full phase-by-phase detail for each documented cycle." },
+      { icon: Clock, title: "Task & Meeting Records", description: "Task tracking history and QI committee meeting documentation you've logged." },
+      { icon: Printer, title: "Audit Readiness Checklist", description: "A closing checklist flagging which sections still have gaps before you rely on the packet." },
     ],
     narrative: [
       {
-        heading: "Why site-visit prep is so painful",
+        heading: "Honest about what it is",
         paragraphs: [
-          "Every 3-5 years HRSA runs an Operational Site Visit. Reviewers evaluate 19 program requirements covering governance, clinical operations, financial management, and — critically — quality improvement.",
-          "Because MeasureWise captures your QI activities as you do them, the audit binder generates itself. Every cycle, every task, every data point is already structured, timestamped, and attributed.",
+          "The packet reflects what your team has entered into MeasureWise — nothing more. Completeness depends on what's been logged for the period, which is exactly why the readiness checklist is printed at the end.",
+          "Because the evidence is captured as you work, prep becomes review instead of reconstruction.",
         ],
       },
     ],
   },
   {
-    id: "pcmh-evidence",
-    eyebrow: "PCMH Q-PASS Evidence",
+    id: "qi-reports",
+    eyebrow: "QI/QA Reports",
     eyebrowIcon: ClipboardCheck,
-    title: "PCMH Q-PASS evidence collection,",
-    titleAccent: "automated",
+    title: "Board-ready QI/QA reports",
+    titleAccent: "without the rewrite",
     intro:
-      "NCQA PCMH recertification requires evidence across dozens of Q-PASS standards. MeasureWise collects that evidence as part of your daily QI workflow — so you're always audit-ready, not scrambling before your recertification window.",
-    cardsHeading: "Evidence collection on autopilot",
+      "Quality committees and boards need a periodic QI/QA report. MeasureWise builds one from your measure data and active cycles, then exports it as a PDF you can hand to your board.",
+    cardsHeading: "What the report module does",
     cards: [
-      { icon: ClipboardCheck, title: "Q-PASS Standards Mapping", description: "Every PDSA cycle and QI activity maps to relevant NCQA Q-PASS evidence requirements." },
-      { icon: FolderOpen, title: "Evidence Organized by Domain", description: "Documentation categorized by PCMH concept areas: Team-Based Care, Population Health, Care Coordination, and QI." },
-      { icon: FileCheck, title: "One-Click Recertification Binder", description: "Every document organized, labeled, and cross-referenced to the relevant standard." },
-      { icon: CalendarCheck, title: "Year-Round Readiness Dashboard", description: "See which standards have current evidence, which need updates, and which have upcoming deadlines." },
-      { icon: Shield, title: "Compliance Gap Alerts", description: "Get notified when evidence is aging out or when new Q-PASS requirements need documentation." },
-      { icon: Layers, title: "Dual Compliance", description: "Many evidence items satisfy both HRSA and NCQA requirements. Document once, satisfy both." },
+      { icon: PenLine, title: "Guided Report Wizard", description: "Step through the report period, measure snapshot, cycle summaries, and board actions." },
+      { icon: BarChart3, title: "Measure Snapshot Table", description: "Current performance against target for the reporting period, pulled from your entered data." },
+      { icon: ClipboardList, title: "Board Actions Table", description: "Track the actions and recommendations the report puts in front of your board." },
+      { icon: Users, title: "Approval Chain", description: "Record who reviewed and approved the report before it goes to the board." },
+      { icon: Download, title: "PDF Export", description: "Export the full report or a condensed board view as a formatted PDF." },
+    ],
+    narrative: [],
+  },
+  {
+    id: "ai-and-more",
+    eyebrow: "Also Included",
+    eyebrowIcon: Bot,
+    title: "The rest of the",
+    titleAccent: "workspace",
+    intro:
+      "Beyond the core cycle-to-packet workflow, your workspace includes tools your quality team reaches for week to week.",
+    cardsHeading: "Included in every plan unless noted",
+    cards: [
+      { icon: Bot, title: "AI Quality Assistant", description: "Chat-based help with root cause analysis and framing improvement work, grounded in your workspace context." },
+      { icon: ShieldCheck, title: "AI Governance (NIST)", description: "Inventory the AI tools your health center uses, log vendor reviews and incidents, and score your posture against NIST AI RMF characteristics." },
+      { icon: BookOpen, title: "Playbook Library", description: "Reference playbooks organized by clinical domain to start improvement work from a proven approach." },
+      { icon: Users, title: "Team Roles & Staff Tasks", description: "Invite teammates, assign cycle tasks by role, and track what's due on the Staff Tasks page." },
+      { icon: Building2, title: "Network Dashboard — Network plan only", description: "Multi-site rollup comparing performance across the health centers in your network. Available on the Network plan." },
     ],
     narrative: [
       {
-        heading: "How MeasureWise helps",
+        heading: "What MeasureWise does not do",
         paragraphs: [
-          "Because MeasureWise already captures your PDSA cycles, quality activities, and measure tracking as structured data, it automatically maps this evidence to Q-PASS standards. Your daily QI work generates the documentation NCQA needs to see.",
+          "No EHR integration — measure values are entered by your team. No claims, billing, or financial ROI modeling. No PCMH recertification module. We would rather you know that now than discover it in week two of a trial.",
         ],
       },
     ],
@@ -175,8 +190,8 @@ export default function Features() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
-        title="Features — PDSA, UDS, SPC, HRSA & PCMH for FQHCs"
-        description="Every MeasureWise feature in one place: guided PDSA cycles, UDS measure tracking, SPC charts, HRSA audit binder export, and PCMH Q-PASS evidence collection."
+        title="Features — PDSA, UDS Tracking, SPC & HRSA OSV Packets"
+        description="Everything MeasureWise does today: guided PDSA cycles, 7-measure UDS tracking, an SPC control chart, QI/QA board reports, and the HRSA OSV Export Packet."
         canonical="https://measurewise.org/features"
         jsonLd={jsonLd}
       />
@@ -190,7 +205,7 @@ export default function Features() {
             <span className="text-primary">in one place</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Five capabilities that together replace the spreadsheets, binders, and one-off consultants FQHC quality teams stitch together today.
+            One workflow: run UDS-aligned PDSA cycles, watch the measures, and export the documentation HRSA asks for. Listed below is what ships today — nothing planned, nothing retired.
           </p>
           <nav className="flex flex-wrap justify-center gap-2 pt-2 text-sm">
             {sections.map((s) => (
