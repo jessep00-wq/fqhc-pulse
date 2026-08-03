@@ -146,12 +146,13 @@ export default function CycleEvidenceDocDialog({
 
   const orgName = organization.name || "Health Center";
   const isComplete = cycle?.status === "completed";
-  const { score, missing } = cycle
-    ? computeCompleteness(cycle, files.length)
-    : { score: 0, missing: [] as string[] };
+  const progress = cycle ? getPdsaProgress(cycle, { evidenceCount: files.length }) : null;
+  const score = progress?.completenessPct ?? 0;
+  const missing = progress?.missing ?? [];
+  const currentStageLabel = progress?.currentStageLabel ?? "Plan";
 
   const emptyNote = cycle
-    ? `Not yet documented — cycle currently in ${stageOf(cycle.status)}.`
+    ? `Not yet documented — cycle currently in ${currentStageLabel}.`
     : "Not yet documented.";
 
   const renderThen = useCallback(async (fn: () => void | Promise<void>) => {
