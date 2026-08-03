@@ -7,7 +7,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { useRecordHistory } from "@/hooks/useRecordHistory";
 import { confirmDemoExport } from "@/lib/demoExportGate";
-import { computeCompleteness, type PdsaCycleForScore } from "@/lib/pdsaCompleteness";
+import { getPdsaProgress, STAGE_FIELDS, type PdsaCycleFields as PdsaCycleForScore } from "@/lib/pdsaProgress";
 import { exportNodeToPdf, printNode, slugify } from "@/lib/evidencePdf";
 import {
   buildStageTimeline, cyclePace, docId, fieldLabel, fmtDate, fmtDateTime,
