@@ -143,10 +143,19 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
 
         <div className="flex flex-wrap items-center gap-1.5">
           {(cycle.uds_measure || cycle.focus_area) && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
-              {cycle.uds_measure ? cycle.uds_measure.split(":")[0] : cycle.focus_area}
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 py-0 max-w-[9rem] truncate whitespace-nowrap block"
+                >
+                  {cycle.uds_measure ? cycle.uds_measure.split(":")[0] : cycle.focus_area}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>{cycle.uds_measure || cycle.focus_area}</TooltipContent>
+            </Tooltip>
           )}
+
           {earliestDue && (
             <Tooltip>
               <TooltipTrigger asChild>
