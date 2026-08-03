@@ -345,8 +345,14 @@ export default function PDSADetailDialog({
                     : null}
               </DialogDescription>
             </div>
-            <CompletenessRing score={score} />
+            <div className="flex items-center gap-3 shrink-0">
+              <Button size="sm" variant="outline" onClick={() => setEvidenceDocOpen(true)}>
+                <FileText className="h-4 w-4 mr-1" /> Evidence doc
+              </Button>
+              <CompletenessRing score={score} />
+            </div>
           </div>
+
         </DialogHeader>
 
         <WorkstreamRibbon facts={workstreamFacts} className="mb-2" />
