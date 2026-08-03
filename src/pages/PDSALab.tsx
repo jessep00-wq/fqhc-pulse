@@ -46,6 +46,7 @@ interface DBCycle {
   title: string;
   status: string;
   uds_measure: string | null;
+  focus_area?: string | null;
   root_cause: string | null;
   target_goal: string | null;
   clinical_workflow_impact: string | null;
@@ -141,8 +142,10 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
         <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
 
         <div className="flex flex-wrap items-center gap-1.5">
-          {cycle.uds_measure && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{cycle.uds_measure.split(":")[0]}</Badge>
+          {(cycle.uds_measure || cycle.focus_area) && (
+            <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+              {cycle.uds_measure ? cycle.uds_measure.split(":")[0] : cycle.focus_area}
+            </Badge>
           )}
           {earliestDue && (
             <Tooltip>
@@ -290,7 +293,7 @@ function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle:
             <h3 className="font-semibold text-sm">1. PDSA Cycle Summary</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div><span className="text-gray-500">Title:</span> {cycle.title}</div>
-              <div><span className="text-gray-500">UDS Measure:</span> {cycle.uds_measure}</div>
+              <div><span className="text-gray-500">Measure / focus area:</span> {cycle.uds_measure || cycle.focus_area || "—"}</div>
               <div><span className="text-gray-500">Status:</span> Completed</div>
               <div><span className="text-gray-500">Started:</span> {new Date(cycle.created_at).toLocaleDateString()}</div>
             </div>
@@ -370,6 +373,8 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 }
 
 // ─── Guided PDSA Creation Wizard ───────────────────────────────────────
+const NON_UDS_OPTION = "__none__";
+
 const WIZARD_STEPS = ["template", "aim", "prediction", "measurement", "test", "review"] as const;
 type WizardStep = typeof WIZARD_STEPS[number];
 
@@ -380,6 +385,7 @@ interface WizardData {
   prediction: string;
   measurementPlan: string;
   udsMeasure: string;
+  focusArea: string;
   testDescription: string;
   assignedStaff: StaffRole[];
   rootCause: string;
@@ -394,6 +400,7 @@ const emptyWizard: WizardData = {
   prediction: "",
   measurementPlan: "",
   udsMeasure: "",
+  focusArea: "",
   testDescription: "",
   assignedStaff: ["QI Manager"],
   rootCause: "",
@@ -447,6 +454,7 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
       prediction: t.prediction,
       measurementPlan: t.measurementPlan,
       udsMeasure: t.udsMeasure,
+      focusArea: "",
       testDescription: t.testDescription,
       assignedStaff: t.assignedStaff,
       rootCause: t.rootCause,
@@ -488,7 +496,8 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
     switch (step) {
       case "aim": return data.title.trim().length > 0 && data.aim.trim().length > 0;
       case "prediction": return data.prediction.trim().length > 0;
-      case "measurement": return data.udsMeasure.length > 0;
+      case "measurement":
+        return data.udsMeasure.length > 0 || data.focusArea.trim().length > 0;
       case "test": return data.testDescription.trim().length > 0;
       default: return true;
     }
@@ -607,16 +616,37 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
             <div className="space-y-2">
               <Label className="text-base font-semibold">How will you know a change is an improvement?</Label>
               <CoachingTip>
-                Define what data you'll collect and how often. Link to a UDS measure if applicable — the run chart will be generated automatically.
+                Define what data you'll collect and how often. Link to a UDS measure if applicable — the run chart will be generated automatically. Not every cycle maps to UDS; pick "Not tied to a UDS measure" and name your own focus area instead.
               </CoachingTip>
             </div>
             <div className="space-y-2">
-              <Label>UDS Measure</Label>
-              <Select value={data.udsMeasure} onValueChange={(v) => setData({ ...data, udsMeasure: v })}>
+              <Label>UDS Measure (optional)</Label>
+              <Select
+                value={data.udsMeasure || NON_UDS_OPTION}
+                onValueChange={(v) =>
+                  setData({ ...data, udsMeasure: v === NON_UDS_OPTION ? "" : v })
+                }
+              >
                 <SelectTrigger><SelectValue placeholder="Select a measure" /></SelectTrigger>
-                <SelectContent>{UDS_MEASURES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                <SelectContent>
+                  <SelectItem value={NON_UDS_OPTION}>Not tied to a UDS measure</SelectItem>
+                  {UDS_MEASURES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
+            {!data.udsMeasure && (
+              <div className="space-y-2">
+                <Label>Focus area</Label>
+                <Input
+                  placeholder="e.g., Annual Wellness Visit completion, No-show rate, Referral loop closure"
+                  value={data.focusArea}
+                  onChange={(e) => setData({ ...data, focusArea: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Name the operational topic this cycle improves. Counts the same as a UDS measure toward cycle completeness.
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Measurement Plan</Label>
               <Textarea
@@ -710,8 +740,8 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
                 <p className="text-sm">{data.prediction}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">UDS Measure</p>
-                <p className="text-sm">{data.udsMeasure || "None selected"}</p>
+                <p className="text-xs text-muted-foreground">Measure / focus area</p>
+                <p className="text-sm">{data.udsMeasure || data.focusArea || "None selected"}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Measurement Plan</p>
@@ -932,6 +962,7 @@ export default function PDSALab() {
         title: wizardData.title,
         status: "plan",
         uds_measure: wizardData.udsMeasure || null,
+        focus_area: wizardData.udsMeasure ? null : wizardData.focusArea.trim() || null,
         root_cause: wizardData.rootCause || null,
         target_goal: wizardData.targetGoal || null,
         clinical_workflow_impact: wizardData.clinicalWorkflowImpact || null,
@@ -968,6 +999,7 @@ export default function PDSALab() {
     const set = new Set<string>();
     cycles.forEach((c) => {
       if (c.uds_measure) set.add(c.uds_measure.split(":")[0]);
+      else if (c.focus_area) set.add(c.focus_area);
     });
     return Array.from(set).sort();
   }, [cycles]);
@@ -975,7 +1007,11 @@ export default function PDSALab() {
   const filteredCycles = useMemo(() => {
     let out = [...cycles];
     if (filters.measure !== "all") {
-      out = out.filter((c) => c.uds_measure?.split(":")[0] === filters.measure);
+      out = out.filter((c) =>
+        c.uds_measure
+          ? c.uds_measure.split(":")[0] === filters.measure
+          : c.focus_area === filters.measure,
+      );
     }
     if (filters.role !== "all") {
       out = out.filter((c) => (c.assigned_staff || []).includes(filters.role));

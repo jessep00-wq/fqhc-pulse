@@ -720,6 +720,7 @@ export type Database = {
           completeness_score: number
           created_at: string
           decision: string | null
+          focus_area: string | null
           id: string
           improvement_pct: number | null
           intervention_description: string | null
@@ -755,6 +756,7 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          focus_area?: string | null
           id?: string
           improvement_pct?: number | null
           intervention_description?: string | null
@@ -790,6 +792,7 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          focus_area?: string | null
           id?: string
           improvement_pct?: number | null
           intervention_description?: string | null
