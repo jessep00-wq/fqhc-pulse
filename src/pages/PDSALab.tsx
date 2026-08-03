@@ -731,12 +731,19 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
 
         {/* Navigation */}
         {step !== "template" && (
-          <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <Button variant="ghost" size="sm" onClick={prev}>
-              <ArrowLeft className="h-4 w-4 mr-1" />Back
-            </Button>
+          <DialogFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={prev}>
+                <ArrowLeft className="h-4 w-4 mr-1" />Back
+              </Button>
+              <span className="text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
+                {saveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" />Saving…</>)}
+                {saveState === "saved" && (<><CheckCircle className="h-3 w-3 text-success" />Draft saved{savedAt ? ` · ${format(savedAt, "h:mm a")}` : ""}</>)}
+                {saveState === "error" && <span className="text-destructive">Saved on this device only</span>}
+              </span>
+            </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { reset(); onClose(); }}>Cancel</Button>
+              <Button variant="outline" onClick={() => { reset(); onClose(); }}>Close</Button>
               {step === "review" ? (
                 <Button onClick={handleCreate}>
                   <CheckCircle className="h-4 w-4 mr-1" />Create Cycle
