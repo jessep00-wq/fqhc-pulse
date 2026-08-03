@@ -389,7 +389,7 @@ export default function PDSADetailDialog({
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <div className="space-y-2">
-            <TabsList className="grid w-full grid-cols-4">
+            <TabsList className="grid w-full grid-cols-4 h-auto p-1 gap-1">
               {[
                 { value: "aim", label: "Plan", sub: "Aim" },
                 { value: "test", label: "Do", sub: "Action" },
@@ -402,30 +402,37 @@ export default function PDSADetailDialog({
                   ] === s.key,
                 );
                 return (
-                  <TabsTrigger key={t.value} value={t.value} className="flex-col gap-0 py-1.5">
-                    <span className="flex items-center gap-1">
+                  <TabsTrigger
+                    key={t.value}
+                    value={t.value}
+                    className="flex-col gap-0 py-2 px-1 h-auto min-w-0 whitespace-normal"
+                  >
+                    <span className="flex items-center gap-1 leading-tight">
                       {t.label}
-                      {st?.state === "complete" && <CheckCircle2 className="h-3 w-3 text-success" />}
+                      {st?.state === "complete" && <CheckCircle2 className="h-3 w-3 shrink-0 text-success" />}
                       {st?.state === "out_of_sequence" && (
-                        <AlertTriangle className="h-3 w-3 text-warning" />
+                        <AlertTriangle className="h-3 w-3 shrink-0 text-warning" />
                       )}
                     </span>
-                    <span className="text-[10px] font-normal text-muted-foreground">{t.sub}</span>
+                    <span className="text-[10px] font-normal leading-tight text-muted-foreground">
+                      {t.sub}
+                    </span>
                   </TabsTrigger>
                 );
               })}
             </TabsList>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-1">
               <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
                 Cycle records
               </span>
-              <TabsList className="h-8 bg-muted/60">
+              <TabsList className="h-8 bg-muted/60 flex-wrap">
                 <TabsTrigger value="evidence" className="text-xs h-6">Evidence</TabsTrigger>
                 <TabsTrigger value="chain" className="text-xs h-6">Chain</TabsTrigger>
                 <TabsTrigger value="history" className="text-xs h-6">History</TabsTrigger>
               </TabsList>
             </div>
           </div>
+
 
 
           {/* AIM & PLAN TAB */}
