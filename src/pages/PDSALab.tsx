@@ -398,24 +398,41 @@ const emptyWizard: WizardData = {
   clinicalWorkflowImpact: "",
 };
 
-function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }: {
+function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, onDraftChange, saveState, savedAt }: {
   open: boolean;
   onClose: () => void;
   onCreate: (data: WizardData) => void;
   initialData?: Partial<WizardData>;
   initialStep?: WizardStep;
+  onDraftChange?: (step: WizardStep, data: WizardData) => void;
+  saveState?: DraftSaveState;
+  savedAt?: Date | null;
 }) {
   const [step, setStep] = useState<WizardStep>(initialStep ?? "template");
   const [data, setData] = useState<WizardData>({ ...emptyWizard, ...(initialData ?? {}) });
+  const skipNextSave = useRef(true);
 
   // When opened (or initial seed changes), reset to seeded state.
   useEffect(() => {
     if (open) {
+      skipNextSave.current = true;
       setStep(initialStep ?? "template");
       setData({ ...emptyWizard, ...(initialData ?? {}) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialStep, initialData?.title, initialData?.aim, initialData?.rootCause]);
+
+  // Auto-save every field / step change once past the template picker.
+  useEffect(() => {
+    if (!open) return;
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
+      return;
+    }
+    if (step === "template") return;
+    onDraftChange?.(step, data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, step, data]);
 
   const stepIndex = WIZARD_STEPS.indexOf(step);
 
