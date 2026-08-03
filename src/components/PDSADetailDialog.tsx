@@ -316,7 +316,7 @@ export default function PDSADetailDialog({
   const handleComplete = async () => {
     const actual = actualOutcomeDraft.trim();
     if (!actual) {
-      toast.error("Add an Actual Outcome on the Analyze tab before marking the cycle completed.");
+      toast.error("Add an Actual Outcome on the Study (Results) tab before marking the cycle completed.");
       return;
     }
     const decision = decisionDraft.toLowerCase();
@@ -392,9 +392,9 @@ export default function PDSADetailDialog({
             <TabsList className="grid w-full grid-cols-4">
               {[
                 { value: "aim", label: "Plan", sub: "Aim" },
-                { value: "test", label: "Do", sub: "Test" },
-                { value: "analyze", label: "Study", sub: "Analyze" },
-                { value: "decide", label: "Act", sub: "Decide" },
+                { value: "test", label: "Do", sub: "Action" },
+                { value: "analyze", label: "Study", sub: "Results" },
+                { value: "decide", label: "Act", sub: "Decision" },
               ].map((t) => {
                 const st = progress.stages.find((s) =>
                   ({ aim: "plan", test: "do", analyze: "study", decide: "act" } as const)[

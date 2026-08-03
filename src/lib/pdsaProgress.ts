@@ -48,7 +48,7 @@ export const STAGE_FIELDS: Record<
   ],
   do: [
     { key: "intervention_description", label: "Intervention description" },
-    { key: "test_description", label: "Test description" },
+    { key: "test_description", label: "Action description" },
   ],
   study: [
     { key: "actual_outcome", label: "Actual outcome" },
