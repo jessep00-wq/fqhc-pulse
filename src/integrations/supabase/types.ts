@@ -720,6 +720,7 @@ export type Database = {
           completeness_score: number
           created_at: string
           decision: string | null
+          doc_version: number
           focus_area: string | null
           id: string
           improvement_pct: number | null
@@ -727,6 +728,7 @@ export type Database = {
           measurement_plan: string | null
           next_cycle_decision: string | null
           next_cycle_id: string | null
+          opened_at: string | null
           organization_id: string
           owner_user_id: string | null
           predicted_outcome: string | null
@@ -737,6 +739,7 @@ export type Database = {
           start_date: string | null
           status: string
           study_results: string | null
+          target_end_date: string | null
           target_goal: string | null
           template_id: string | null
           test_description: string | null
@@ -756,6 +759,7 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          doc_version?: number
           focus_area?: string | null
           id?: string
           improvement_pct?: number | null
@@ -763,6 +767,7 @@ export type Database = {
           measurement_plan?: string | null
           next_cycle_decision?: string | null
           next_cycle_id?: string | null
+          opened_at?: string | null
           organization_id: string
           owner_user_id?: string | null
           predicted_outcome?: string | null
@@ -773,6 +778,7 @@ export type Database = {
           start_date?: string | null
           status?: string
           study_results?: string | null
+          target_end_date?: string | null
           target_goal?: string | null
           template_id?: string | null
           test_description?: string | null
@@ -792,6 +798,7 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          doc_version?: number
           focus_area?: string | null
           id?: string
           improvement_pct?: number | null
@@ -799,6 +806,7 @@ export type Database = {
           measurement_plan?: string | null
           next_cycle_decision?: string | null
           next_cycle_id?: string | null
+          opened_at?: string | null
           organization_id?: string
           owner_user_id?: string | null
           predicted_outcome?: string | null
@@ -809,6 +817,7 @@ export type Database = {
           start_date?: string | null
           status?: string
           study_results?: string | null
+          target_end_date?: string | null
           target_goal?: string | null
           template_id?: string | null
           test_description?: string | null
@@ -1286,6 +1295,42 @@ export type Database = {
           state?: string | null
           tier?: string
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      record_revisions: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          field_name: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          organization_id: string
+          record_id: string
+          record_type: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          field_name: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          organization_id: string
+          record_id: string
+          record_type: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          field_name?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          organization_id?: string
+          record_id?: string
+          record_type?: string
         }
         Relationships: []
       }
