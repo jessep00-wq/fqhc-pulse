@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { UDS_MEASURES } from "@/data/mockData";
-import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X } from "lucide-react";
+import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
@@ -26,6 +26,8 @@ import { computeCompleteness } from "@/lib/pdsaCompleteness";
 import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
+import CycleEvidenceDocDialog from "@/components/pdsa/CycleEvidenceDocDialog";
+
 
 interface DBCycle {
   id: string;
@@ -138,6 +140,8 @@ export default function PDSADetailDialog({
   const queryClient = useQueryClient();
   const [activeTab, setActiveTab] = useState("aim");
   const [newTaskTitle, setNewTaskTitle] = useState("");
+  const [evidenceDocOpen, setEvidenceDocOpen] = useState(false);
+
   const [newTaskRole, setNewTaskRole] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date>();
   const [actualOutcomeDraft, setActualOutcomeDraft] = useState<string>(cycle?.actual_outcome || "");
@@ -341,8 +345,14 @@ export default function PDSADetailDialog({
                     : null}
               </DialogDescription>
             </div>
-            <CompletenessRing score={score} />
+            <div className="flex items-center gap-3 shrink-0">
+              <Button size="sm" variant="outline" onClick={() => setEvidenceDocOpen(true)}>
+                <FileText className="h-4 w-4 mr-1" /> Evidence doc
+              </Button>
+              <CompletenessRing score={score} />
+            </div>
           </div>
+
         </DialogHeader>
 
         <WorkstreamRibbon facts={workstreamFacts} className="mb-2" />
@@ -727,9 +737,21 @@ export default function PDSADetailDialog({
           </TabsContent>
 
           {/* EVIDENCE TAB */}
-          <TabsContent value="evidence" className="mt-4">
+          <TabsContent value="evidence" className="mt-4 space-y-4">
+            <div className="flex items-center justify-between gap-3 rounded-lg border bg-muted/40 p-3">
+              <div className="min-w-0">
+                <p className="text-sm font-medium">Cycle evidence document</p>
+                <p className="text-xs text-muted-foreground">
+                  Branded, printable record of this cycle — available at any stage.
+                </p>
+              </div>
+              <Button size="sm" variant="outline" onClick={() => setEvidenceDocOpen(true)}>
+                <FileText className="h-4 w-4 mr-1" /> Generate
+              </Button>
+            </div>
             <EvidencePanel cycleId={cycle.id} organizationId={cycle.organization_id} />
           </TabsContent>
+
 
           {/* CHAIN TAB */}
           <TabsContent value="chain" className="mt-4">
@@ -741,8 +763,15 @@ export default function PDSADetailDialog({
             />
           </TabsContent>
         </Tabs>
+
+        <CycleEvidenceDocDialog
+          cycle={evidenceDocOpen ? cycle : null}
+          open={evidenceDocOpen}
+          onClose={() => setEvidenceDocOpen(false)}
+        />
       </DialogContent>
     </Dialog>
+
   );
 }
 
