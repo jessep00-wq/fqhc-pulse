@@ -677,17 +677,17 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
           </div>
         )}
 
-        {/* Step: Test Plan */}
+        {/* Step: Action */}
         {step === "test" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-base font-semibold">Describe your test — start small</Label>
+              <Label className="text-base font-semibold">Describe your action — start small</Label>
               <CoachingTip>
                 Test on a small scale first: one provider, one clinic day, or a handful of patients. You can always expand what works.
               </CoachingTip>
             </div>
             <div className="space-y-2">
-              <Label>Test Description</Label>
+              <Label>Action Description</Label>
               <Textarea
                 placeholder="Who is involved? What will they do differently? For how long? With how many patients?"
                 rows={4}
@@ -758,7 +758,7 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
                 <p className="text-sm">{data.measurementPlan || "—"}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Test</p>
+                <p className="text-xs text-muted-foreground">Action</p>
                 <p className="text-sm">{data.testDescription}</p>
               </div>
               <div>
@@ -1151,7 +1151,7 @@ export default function PDSALab() {
           <EmptyState
             icon={FlaskConical}
             title="No PDSA cycles yet"
-            description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
+            description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Action → Results → Decision."
             actionLabel="Create Your First PDSA Cycle"
             onAction={handleNewCycle}
           />

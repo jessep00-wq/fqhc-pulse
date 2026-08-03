@@ -397,7 +397,7 @@ export default function CycleEvidenceDocDialog({
               {/* 03 — Plan */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 03 — PLAN" title="Plan" />
+                <SectionHeading label="SECTION 03 — PLAN" title="Plan · Aim" />
                 <AsOf date={planAsOf ? fmtDate(planAsOf) : null} />
                 <Field label="Aim statement" value={cycle.aim_statement} emptyNote={emptyNote} editedOn={editedOn("aim_statement")} />
                 <Field label="Root cause" value={cycle.root_cause} emptyNote={emptyNote} editedOn={editedOn("root_cause")} />
@@ -411,14 +411,14 @@ export default function CycleEvidenceDocDialog({
               {/* 04 — Do */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 04 — DO" title="Do" />
+                <SectionHeading label="SECTION 04 — DO" title="Do · Action" />
                 {rank < 1 ? (
                   <PendingPanel stage="Do" />
                 ) : (
                   <>
                     <AsOf date={doAsOf ? fmtDate(doAsOf) : null} />
                     <Field label="Intervention description" value={cycle.intervention_description} emptyNote={emptyNote} editedOn={editedOn("intervention_description")} />
-                    <Field label="Test description" value={cycle.test_description} emptyNote={emptyNote} editedOn={editedOn("test_description")} />
+                    <Field label="Action description" value={cycle.test_description} emptyNote={emptyNote} editedOn={editedOn("test_description")} />
                     <Field label="Clinical workflow impact" value={cycle.clinical_workflow_impact} emptyNote={emptyNote} editedOn={editedOn("clinical_workflow_impact")} />
                   </>
                 )}
@@ -429,7 +429,7 @@ export default function CycleEvidenceDocDialog({
               {/* 05 — Study */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 05 — STUDY" title="Study" />
+                <SectionHeading label="SECTION 05 — STUDY" title="Study · Results" />
                 {rank < 2 ? (
                   <PendingPanel stage="Study" />
                 ) : (
@@ -449,7 +449,7 @@ export default function CycleEvidenceDocDialog({
               {/* 06 — Act */}
               <div style={pageStyle}>
                 <PageHeader orgName={orgName} docLabel={docLabel} />
-                <SectionHeading label="SECTION 06 — ACT" title="Act" />
+                <SectionHeading label="SECTION 06 — ACT" title="Act · Decision" />
                 {rank < 3 ? (
                   <PendingPanel stage="Act" />
                 ) : (
