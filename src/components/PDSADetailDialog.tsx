@@ -324,6 +324,15 @@ export default function PDSADetailDialog({
       toast.error("Pick a Next-Cycle Decision (Adopt, Adapt, or Abandon) before marking the cycle completed.");
       return;
     }
+    const outstanding = blockersForCompletion({
+      ...cycle,
+      actual_outcome: actual,
+      next_cycle_decision: decision,
+    });
+    if (outstanding.length > 0) {
+      toast.error(`Still missing before this cycle can be completed: ${outstanding.join(", ")}.`);
+      return;
+    }
     const decisionLabel = decision.charAt(0).toUpperCase() + decision.slice(1);
     try {
       await updateCycle.mutateAsync({
