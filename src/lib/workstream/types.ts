@@ -16,6 +16,7 @@ export type StageStatus =
   | "not_started"
   | "in_progress"
   | "blocked"
+  | "warning"
   | "ready"
   | "complete";
 
