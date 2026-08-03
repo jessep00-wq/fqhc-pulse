@@ -1039,6 +1039,28 @@ export default function PDSALab() {
           </div>
         </div>
 
+        {draft && !newOpen && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary shrink-0" />
+                  Unfinished PDSA cycle
+                </p>
+                <p className="text-sm text-muted-foreground truncate">
+                  {((draft.form_data as Partial<WizardData>)?.title as string) || "Untitled draft"}
+                  {draft.updated_at ? ` · saved ${format(new Date(draft.updated_at), "MMM d, h:mm a")}` : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={handleResumeDraft}>Resume draft</Button>
+                <Button size="sm" variant="outline" onClick={handleNewCycle}>Start new</Button>
+                <Button size="sm" variant="ghost" onClick={() => void discardDraft()}>Discard</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
           <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
         )}
