@@ -27,6 +27,8 @@ import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
 import CycleEvidenceDocDialog from "@/components/pdsa/CycleEvidenceDocDialog";
+import CycleHistoryTab from "@/components/pdsa/CycleHistoryTab";
+import { useRecordHistory } from "@/hooks/useRecordHistory";
 
 
 interface DBCycle {
@@ -63,6 +65,9 @@ interface DBCycle {
   next_cycle_id?: string | null;
   completeness_score?: number | null;
   focus_area?: string | null;
+  opened_at?: string | null;
+  target_end_date?: string | null;
+  doc_version?: number | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
@@ -76,7 +81,7 @@ interface DialogTask {
   acknowledged: boolean;
 }
 
-type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "focus_area" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
+type CycleStringField = "title" | "root_cause" | "target_goal" | "clinical_workflow_impact" | "study_results" | "what_worked" | "what_didnt_work" | "act_next_steps" | "uds_measure" | "focus_area" | "aim_statement" | "prediction" | "measurement_plan" | "test_description" | "analysis_summary" | "decision" | "owner_user_id" | "start_date" | "opened_at" | "target_end_date" | "predicted_outcome" | "intervention_description" | "actual_outcome" | "next_cycle_decision";
 type CycleNumberField = "improvement_pct" | "baseline_rate";
 
 const STAFF_ROLES = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
@@ -277,6 +282,19 @@ export default function PDSADetailDialog({
     },
   });
 
+  const { data: cycleRevisions = [], isLoading: revisionsLoading } = useRecordHistory(
+    "pdsa_cycle",
+    cycle?.id ? [cycle.id] : [],
+    organization?.id,
+    open,
+  );
+
+  const profileNames = Object.fromEntries(
+    orgProfiles.map((p) => [p.id, p.full_name || "Unnamed"]),
+  ) as Record<string, string>;
+
+
+
 
   if (!cycle) return null;
 
@@ -360,13 +378,14 @@ export default function PDSADetailDialog({
 
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="aim">Aim</TabsTrigger>
             <TabsTrigger value="test">Test</TabsTrigger>
             <TabsTrigger value="analyze">Analyze</TabsTrigger>
             <TabsTrigger value="decide">Decide</TabsTrigger>
             <TabsTrigger value="evidence">Evidence</TabsTrigger>
             <TabsTrigger value="chain">Chain</TabsTrigger>
+            <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
 
           {/* AIM & PLAN TAB */}
@@ -402,6 +421,33 @@ export default function PDSADetailDialog({
                   defaultValue={cycle.start_date || ""}
                   onBlur={(e) => handleBlurUpdate("start_date", e.target.value || null)}
                 />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <Label>Opened / Created Date</Label>
+                <Input
+                  type="date"
+                  defaultValue={(cycle.opened_at || cycle.created_at).slice(0, 10)}
+                  onBlur={(e) =>
+                    handleBlurUpdate(
+                      "opened_at",
+                      e.target.value ? new Date(`${e.target.value}T12:00:00`).toISOString() : null,
+                    )
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Adjust if the cycle actually began before it was entered in MeasureWise.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Target End Date</Label>
+                <Input
+                  type="date"
+                  defaultValue={cycle.target_end_date || ""}
+                  onBlur={(e) => handleBlurUpdate("target_end_date", e.target.value || null)}
+                />
+                <p className="text-xs text-muted-foreground">Used to show cycle pace on the evidence document.</p>
               </div>
             </div>
             <div className="space-y-2">
@@ -760,6 +806,15 @@ export default function PDSADetailDialog({
               udsMeasure={cycle.uds_measure}
               focusArea={cycle.focus_area ?? null}
               highlightCycleId={cycle.id}
+            />
+          </TabsContent>
+
+          {/* HISTORY TAB */}
+          <TabsContent value="history" className="mt-4">
+            <CycleHistoryTab
+              revisions={cycleRevisions}
+              loading={revisionsLoading}
+              names={profileNames}
             />
           </TabsContent>
         </Tabs>
