@@ -27,33 +27,37 @@ const DECISION_TONE: Record<string, string> = {
 export function CycleChain({
   organizationId,
   udsMeasure,
+  focusArea,
   highlightCycleId,
 }: {
   organizationId: string;
   udsMeasure: string | null;
+  focusArea?: string | null;
   highlightCycleId?: string;
 }) {
+  const topic = udsMeasure || focusArea || null;
   const { data: chain = [], isLoading } = useQuery({
-    queryKey: ["pdsa_chain", organizationId, udsMeasure],
+    queryKey: ["pdsa_chain", organizationId, udsMeasure, focusArea],
     queryFn: async () => {
-      if (!udsMeasure) return [];
-      const { data, error } = await supabase
+      if (!topic) return [];
+      let q = supabase
         .from("pdsa_cycles")
         .select("id,title,status,start_date,created_at,baseline_rate,actual_outcome,next_cycle_decision,completeness_score")
-        .eq("organization_id", organizationId)
-        .eq("uds_measure", udsMeasure)
+        .eq("organization_id", organizationId);
+      q = udsMeasure ? q.eq("uds_measure", udsMeasure) : q.eq("focus_area", topic);
+      const { data, error } = await q
         .order("start_date", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: true });
       if (error) throw error;
       return (data || []) as ChainCycle[];
     },
-    enabled: !!udsMeasure,
+    enabled: !!topic,
   });
 
-  if (!udsMeasure) {
+  if (!topic) {
     return (
       <div className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-        Link a UDS measure to this cycle to see its iteration chain.
+        Link a UDS measure or set a focus area on this cycle to see its iteration chain.
       </div>
     );
   }
@@ -74,7 +78,7 @@ export function CycleChain({
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
         <GitBranch className="h-4 w-4" />
-        Iteration chain for <span className="text-foreground">{udsMeasure}</span>
+        Iteration chain for <span className="text-foreground">{topic}</span>
       </div>
       <div className="flex items-stretch gap-2 overflow-x-auto pb-2">
         {chain.map((c, i) => (

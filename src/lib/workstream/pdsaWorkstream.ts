@@ -56,10 +56,10 @@ export function getPdsaWorkstream(
     key: "plan",
     label: STAGE_LABEL.plan,
     status: phaseIdx > 0 ? "complete" : phaseIdx === 0 ? "in_progress" : "not_started",
-    reason: cycle.uds_measure
+    reason: cycle.uds_measure || cycle.focus_area
       ? "Aim, measure, and baseline captured."
-      : "Aim statement and UDS measure not yet set.",
-    unlocks: "Define aim, predicted outcome, baseline rate, and UDS measure.",
+      : "Aim statement and measure or focus area not yet set.",
+    unlocks: "Define aim, predicted outcome, baseline rate, and a UDS measure or focus area.",
   });
 
   // Execute (Do)
@@ -156,8 +156,8 @@ export function getPdsaWorkstream(
 
   const requires: WorkstreamFacts["requires"] = [
     {
-      label: "UDS measure selected",
-      satisfied: !!cycle.uds_measure,
+      label: "UDS measure or focus area set",
+      satisfied: !!(cycle.uds_measure || cycle.focus_area),
     },
     {
       label: "All tasks closed",
