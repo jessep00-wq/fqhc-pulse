@@ -26,6 +26,8 @@ import { computeCompleteness } from "@/lib/pdsaCompleteness";
 import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
+import CycleEvidenceDocDialog from "@/components/pdsa/CycleEvidenceDocDialog";
+
 
 interface DBCycle {
   id: string;
