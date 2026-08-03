@@ -38,6 +38,7 @@ import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDr
 
 const WIZARD_OPEN_KEY = "mw_pdsa_wizard_open";
 
+import { blockersForCompletion } from "@/lib/pdsaProgress";
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
 interface DBCycle {
@@ -999,6 +1000,15 @@ export default function PDSALab() {
     if (!destination) return;
     const newStatus = destination.droppableId;
     const cycle = cycles.find((c) => c.id === draggableId);
+    if (newStatus === "completed" && cycle) {
+      const outstanding = blockersForCompletion(cycle);
+      if (outstanding.length > 0) {
+        toast.error(
+          `Can't complete this cycle yet — still missing: ${outstanding.join(", ")}.`,
+        );
+        return;
+      }
+    }
     updateStatus.mutate({ id: draggableId, status: newStatus, title: cycle?.title });
     toast.info(`Moved to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
   };

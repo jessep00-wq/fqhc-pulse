@@ -7,7 +7,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { useRecordHistory } from "@/hooks/useRecordHistory";
 import { confirmDemoExport } from "@/lib/demoExportGate";
-import { computeCompleteness, type PdsaCycleForScore } from "@/lib/pdsaCompleteness";
+import { getPdsaProgress, STAGE_FIELDS, type PdsaCycleFields as PdsaCycleForScore } from "@/lib/pdsaProgress";
 import { exportNodeToPdf, printNode, slugify } from "@/lib/evidencePdf";
 import {
   buildStageTimeline, cyclePace, docId, fieldLabel, fmtDate, fmtDateTime,
@@ -74,9 +74,7 @@ const STAGE_LABEL: Record<string, string> = {
 
 const STAGE_RANK: Record<string, number> = { plan: 0, do: 1, study: 2, act: 3, completed: 4 };
 
-function stageOf(status: string) {
-  return STAGE_LABEL[status] ?? status;
-}
+
 
 function humanSize(bytes: number | null) {
   if (!bytes) return "—";
@@ -146,12 +144,13 @@ export default function CycleEvidenceDocDialog({
 
   const orgName = organization.name || "Health Center";
   const isComplete = cycle?.status === "completed";
-  const { score, missing } = cycle
-    ? computeCompleteness(cycle, files.length)
-    : { score: 0, missing: [] as string[] };
+  const progress = cycle ? getPdsaProgress(cycle, { evidenceCount: files.length }) : null;
+  const score = progress?.completenessPct ?? 0;
+  const missing = progress?.missing ?? [];
+  const currentStageLabel = progress?.currentStageLabel ?? "Plan";
 
   const emptyNote = cycle
-    ? `Not yet documented — cycle currently in ${stageOf(cycle.status)}.`
+    ? `Not yet documented — cycle currently in ${currentStageLabel}.`
     : "Not yet documented.";
 
   const renderThen = useCallback(async (fn: () => void | Promise<void>) => {
@@ -252,7 +251,7 @@ export default function CycleEvidenceDocDialog({
             <p className="text-sm font-medium truncate">{cycle.title}</p>
             <p className="text-xs text-muted-foreground mt-0.5">{topic} · {reference}</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mt-4">
-              <div><p className="text-2xl font-bold text-primary">{stageOf(cycle.status)}</p><p className="text-xs text-muted-foreground">Stage</p></div>
+              <div><p className="text-2xl font-bold text-primary">{currentStageLabel}</p><p className="text-xs text-muted-foreground">Stage</p></div>
               <div><p className="text-2xl font-bold text-foreground">{score}%</p><p className="text-xs text-muted-foreground">Complete</p></div>
               <div><p className="text-2xl font-bold text-foreground">{tasks.length}</p><p className="text-xs text-muted-foreground">Linked tasks</p></div>
               <div><p className="text-2xl font-bold text-foreground">{revisions.length}</p><p className="text-xs text-muted-foreground">Logged changes</p></div>
@@ -297,7 +296,7 @@ export default function CycleEvidenceDocDialog({
                   <p style={{ fontSize: "20px", marginBottom: "20px", lineHeight: 1.4 }}>{cycle.title}</p>
                   <p style={{ fontSize: "13px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Health Center:</span> {orgName}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Measure / Focus Area:</span> {topic}</p>
-                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Current Stage:</span> {stageOf(cycle.status)}</p>
+                  <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Current Stage:</span> {currentStageLabel}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Cycle Pace:</span> {pace.label}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Opened:</span> {fmtDate(cycle.opened_at || cycle.created_at)}</p>
                   <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>Target End:</span> {fmtDate(cycle.target_end_date, "Not set")}</p>
@@ -342,7 +341,7 @@ export default function CycleEvidenceDocDialog({
                 <table style={tableStyle}>
                   <tbody>
                     {[
-                      ["Current stage", stageOf(cycle.status)],
+                      ["Current stage", currentStageLabel],
                       ["Pace", pace.label],
                       ["Opened", fmtDate(cycle.opened_at || cycle.created_at)],
                       ["Start date", fmtDate(cycle.start_date, "Not set")],
@@ -518,15 +517,11 @@ export default function CycleEvidenceDocDialog({
                   </thead>
                   <tbody>
                     {[
-                      "Cycle owner",
-                      "Start date",
-                      "Linked UDS measure or focus area",
-                      "Baseline rate",
-                      "Predicted outcome",
-                      "Intervention description",
-                      "Aim statement",
-                      "Measurement plan",
-                      ...(isComplete ? ["Actual outcome", "Next-cycle decision (Adapt/Adopt/Abandon)"] : []),
+                      ...STAGE_FIELDS.plan.map((f) => f.label),
+                      ...STAGE_FIELDS.do.map((f) => f.label),
+                      ...STAGE_FIELDS.study.map((f) => f.label),
+                      ...STAGE_FIELDS.act.map((f) => f.label),
+
                     ].map((item, i) => {
                       const present = !missing.includes(item);
                       return (
