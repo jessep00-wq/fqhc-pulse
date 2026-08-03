@@ -30,7 +30,7 @@ export const FIELD_LABEL: Record<string, string> = {
   predicted_outcome: "Predicted outcome",
   measurement_plan: "Measurement plan",
   baseline_rate: "Baseline rate",
-  test_description: "Test description",
+  test_description: "Action description",
   intervention_description: "Intervention description",
   study_results: "Study results",
   analysis_summary: "Analysis summary",
