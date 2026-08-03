@@ -101,7 +101,7 @@ const App = () => (
                 <Route path="/features/uds-tracking" element={<Navigate to="/features#uds-tracking" replace />} />
                 <Route path="/features/hrsa-audit-binder" element={<Navigate to="/features#audit-binder" replace />} />
                 <Route path="/features/spc-charts" element={<Navigate to="/features#spc-charts" replace />} />
-                <Route path="/features/pcmh-evidence" element={<Navigate to="/features#pcmh-evidence" replace />} />
+                <Route path="/features/pcmh-evidence" element={<Navigate to="/features" replace />} />
 
                 {/* Store */}
                 <Route path="/store" element={<StoreIndex />} />

@@ -47,7 +47,7 @@ const sections: FeatureSection[] = [
     cards: [
       { icon: FlaskConical, title: "Guided 4-Phase Workflow", description: "A creation wizard walks your team through Plan → Do → Study → Act with prompts, prediction fields, and structured fields at each phase." },
       { icon: Target, title: "Linked to UDS Measures", description: "Each cycle is tied to one of the 7 core UDS clinical quality measures, with a baseline and target recorded on the cycle." },
-      { icon: ClipboardList, title: "20 Pre-Built FQHC Templates", description: "Start from templates covering diabetes control, hypertension, cervical and colorectal cancer screening, depression screening, tobacco use, and more — searchable in the wizard." },
+      { icon: ClipboardList, title: "19 Pre-Built FQHC Templates", description: "Start from templates covering diabetes control, hypertension, cervical and colorectal cancer screening, depression screening, tobacco use, and more — searchable in the wizard." },
       { icon: Users, title: "Team Task Assignment", description: "Assign cycle tasks to staff with owners and due dates, tracked on the Staff Tasks page." },
       { icon: Save, title: "Auto-Saved Drafts", description: "Progress saves as you type. Leave mid-cycle and resume from the step you left off, on desktop or mobile." },
       { icon: ClipboardCheck, title: "Completeness Tracking", description: "A completeness indicator on every card shows which phase fields are still missing before the cycle is documentation-ready." },
