@@ -27,6 +27,8 @@ import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
 import CycleEvidenceDocDialog from "@/components/pdsa/CycleEvidenceDocDialog";
+import CycleHistoryTab from "@/components/pdsa/CycleHistoryTab";
+import { useRecordHistory } from "@/hooks/useRecordHistory";
 
 
 interface DBCycle {
