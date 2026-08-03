@@ -51,7 +51,7 @@ const STATUS_STYLES: Record<
 
 function StageIcon({ status }: { status: StageStatus }) {
   if (status === "complete") return <Check className="h-3.5 w-3.5" />;
-  if (status === "blocked") return <AlertTriangle className="h-3.5 w-3.5" />;
+  if (status === "blocked" || status === "warning") return <AlertTriangle className="h-3.5 w-3.5" />;
   if (status === "in_progress") return <Clock className="h-3.5 w-3.5" />;
   if (status === "ready") return <Sparkles className="h-3.5 w-3.5" />;
   return <Circle className="h-3.5 w-3.5" />;
