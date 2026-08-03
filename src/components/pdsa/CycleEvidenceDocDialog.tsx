@@ -417,8 +417,7 @@ export default function CycleEvidenceDocDialog({
                 ) : (
                   <>
                     <AsOf date={doAsOf ? fmtDate(doAsOf) : null} />
-                    <Field label="Intervention description" value={cycle.intervention_description} emptyNote={emptyNote} editedOn={editedOn("intervention_description")} />
-                    <Field label="Action description" value={cycle.test_description} emptyNote={emptyNote} editedOn={editedOn("test_description")} />
+                    <Field label="Action description" value={cycle.intervention_description || cycle.test_description} emptyNote={emptyNote} editedOn={editedOn("intervention_description") || editedOn("test_description")} />
                     <Field label="Clinical workflow impact" value={cycle.clinical_workflow_impact} emptyNote={emptyNote} editedOn={editedOn("clinical_workflow_impact")} />
                   </>
                 )}
