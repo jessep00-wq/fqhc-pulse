@@ -282,6 +282,19 @@ export default function PDSADetailDialog({
     },
   });
 
+  const { data: cycleRevisions = [], isLoading: revisionsLoading } = useRecordHistory(
+    "pdsa_cycle",
+    cycle?.id ? [cycle.id] : [],
+    organization?.id,
+    open,
+  );
+
+  const profileNames = Object.fromEntries(
+    orgProfiles.map((p) => [p.id, p.full_name || "Unnamed"]),
+  ) as Record<string, string>;
+
+
+
 
   if (!cycle) return null;
 
