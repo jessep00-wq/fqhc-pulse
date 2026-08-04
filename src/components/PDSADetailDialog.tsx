@@ -470,11 +470,11 @@ export default function PDSADetailDialog({
                 { value: "analyze", label: "Study", sub: "Results" },
                 { value: "decide", label: "Act", sub: "Decision" },
               ].map((t) => {
-                const st = progress.stages.find((s) =>
-                  ({ aim: "plan", test: "do", analyze: "study", decide: "act" } as const)[
-                    t.value as "aim" | "test" | "analyze" | "decide"
-                  ] === s.key,
-                );
+                const stageKey = ({ aim: "plan", test: "do", analyze: "study", decide: "act" } as const)[
+                  t.value as "aim" | "test" | "analyze" | "decide"
+                ] as PdsaWorkStage;
+                const st = progress.stages.find((s) => s.key === stageKey);
+                const revised = editActivity.byStage[stageKey]?.postCompletion;
                 return (
                   <TabsTrigger
                     key={t.value}
@@ -487,7 +487,14 @@ export default function PDSADetailDialog({
                       {st?.state === "out_of_sequence" && (
                         <AlertTriangle className="h-3 w-3 shrink-0 text-warning" />
                       )}
+                      {revised && (
+                        <Pencil
+                          className="h-3 w-3 shrink-0 text-muted-foreground"
+                          aria-label="Revised after this stage was documented"
+                        />
+                      )}
                     </span>
+
                     <span className="text-[10px] font-normal leading-tight text-muted-foreground">
                       {t.sub}
                     </span>
