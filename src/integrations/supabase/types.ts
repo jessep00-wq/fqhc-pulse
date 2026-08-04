@@ -720,6 +720,8 @@ export type Database = {
           completeness_score: number
           created_at: string
           decision: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           doc_version: number
           focus_area: string | null
           id: string
@@ -745,6 +747,7 @@ export type Database = {
           test_description: string | null
           title: string
           uds_measure: string | null
+          updated_at: string
           what_didnt_work: string | null
           what_worked: string | null
         }
@@ -759,6 +762,8 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           doc_version?: number
           focus_area?: string | null
           id?: string
@@ -784,6 +789,7 @@ export type Database = {
           test_description?: string | null
           title: string
           uds_measure?: string | null
+          updated_at?: string
           what_didnt_work?: string | null
           what_worked?: string | null
         }
@@ -798,6 +804,8 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           doc_version?: number
           focus_area?: string | null
           id?: string
@@ -823,6 +831,7 @@ export type Database = {
           test_description?: string | null
           title?: string
           uds_measure?: string | null
+          updated_at?: string
           what_didnt_work?: string | null
           what_worked?: string | null
         }
