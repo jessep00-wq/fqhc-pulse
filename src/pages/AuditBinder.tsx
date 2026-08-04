@@ -238,7 +238,7 @@ function GenerateDialog({
         sb.from("qi_meetings").select("*").eq("organization_id", orgId)
           .gte("meeting_date", start).lte("meeting_date", end)
           .order("meeting_date", { ascending: false }),
-        sb.from("pdsa_cycles").select("*").eq("organization_id", orgId)
+        sb.from("pdsa_cycles").select("*").eq("organization_id", orgId).is("deleted_at", null)
           .gte("created_at", start).lte("created_at", `${end}T23:59:59`),
         sb.from("uds_trends").select("*").eq("organization_id", orgId)
           .gte("month", start.slice(0, 7)).lte("month", end.slice(0, 7)),

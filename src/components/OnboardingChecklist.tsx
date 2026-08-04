@@ -66,7 +66,7 @@ export function OnboardingChecklist() {
     queryKey: ["onboarding_checklist", orgId],
     queryFn: async () => {
       const [cycles, tasks, trends] = await Promise.all([
-        supabase.from("pdsa_cycles").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
+        supabase.from("pdsa_cycles").select("id", { count: "exact", head: true }).eq("organization_id", orgId).is("deleted_at", null),
         supabase.from("tasks").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
         supabase.from("uds_trends").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
       ]);

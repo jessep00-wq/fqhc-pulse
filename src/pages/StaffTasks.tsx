@@ -316,7 +316,7 @@ export default function StaffTasks() {
   const { data: cycles = [] } = useQuery({
     queryKey: ["pdsa_cycles_active", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").eq("organization_id", organization.id).neq("status", "completed");
+      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").eq("organization_id", organization.id).is("deleted_at", null).neq("status", "completed");
       return data || [];
     },
     enabled: !!organization.id,
