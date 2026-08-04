@@ -162,6 +162,8 @@ export default function PDSADetailDialog({
   const [activeTab, setActiveTab] = useState("aim");
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [evidenceDocOpen, setEvidenceDocOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
 
   const [newTaskRole, setNewTaskRole] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date>();
