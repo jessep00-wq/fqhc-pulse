@@ -470,7 +470,7 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
       prediction: t.prediction,
       measurementPlan: t.measurementPlan,
       udsMeasure: t.udsMeasure,
-      focusArea: "",
+      focusArea: t.focusArea ?? "",
       testDescription: t.testDescription,
       assignedStaff: t.assignedStaff,
       rootCause: t.rootCause,
