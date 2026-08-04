@@ -108,10 +108,35 @@ export default function QIReportDetail() {
     return STAFF_ROLE_TO_APPROVAL[staff] ?? null;
   }, [profileQuery.data]);
 
-  if (reportQuery.isLoading || !report || !committee) {
+  if (reportQuery.isLoading) {
     return (
-      <div className="p-10 text-center">
-        <Loader2 className="h-6 w-6 animate-spin mx-auto text-muted-foreground" />
+      <div className="space-y-4 p-1">
+        <Skeleton className="h-6 w-40" />
+        <Skeleton className="h-10 w-2/3" />
+        <Skeleton className="h-32 w-full" />
+        <Skeleton className="h-32 w-full" />
+      </div>
+    );
+  }
+
+  if (reportQuery.isError || !report || !committee) {
+    return (
+      <div className="mx-auto max-w-md p-10 text-center">
+        <div className="space-y-4 rounded-lg border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-semibold">We couldn't load this report</h2>
+          <p className="text-sm text-muted-foreground">
+            {reportQuery.isError
+              ? "Something went wrong fetching the report. It may have been deleted, or you may not have access to it."
+              : "This report exists but has no saved content yet."}
+          </p>
+          <div className="flex justify-center gap-2">
+            <Button variant="outline" onClick={() => navigate("/dashboard/qi-reports")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to reports
+            </Button>
+            <Button onClick={() => reportQuery.refetch()}>Retry</Button>
+          </div>
+        </div>
       </div>
     );
   }
