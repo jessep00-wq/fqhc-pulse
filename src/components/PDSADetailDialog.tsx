@@ -366,6 +366,9 @@ export default function PDSADetailDialog({
 
   const progress = getPdsaProgress(cycle, { evidenceCount: cycleEvidence.length });
   const score = progress.completenessPct;
+  const editActivity = getEditActivity(cycleRevisions);
+  const lastUpdatedAt = cycle.updated_at || editActivity.lastUpdatedAt || cycle.created_at;
+  const inChain = !!(cycle.previous_cycle_id || cycle.next_cycle_id);
 
   const workstreamFacts = getPdsaWorkstream(
     cycle,
@@ -388,16 +391,31 @@ export default function PDSADetailDialog({
                     ? <Badge variant="secondary">{cycle.focus_area}</Badge>
                     : null}
               </DialogDescription>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Started: {cycle.start_date ? format(new Date(`${cycle.start_date}T12:00:00`), "MMM d, yyyy") : format(new Date(cycle.opened_at || cycle.created_at), "MMM d, yyyy")}
+                {" · "}
+                Last updated: {fmtDateTime(lastUpdatedAt)}
+              </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <Button size="sm" variant="outline" onClick={() => setEvidenceDocOpen(true)}>
                 <FileText className="h-4 w-4 mr-1" /> Evidence doc
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setDeleteOpen(true)}
+                aria-label="Delete cycle"
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
               <CompletenessRing score={score} />
             </div>
           </div>
 
         </DialogHeader>
+
 
         <WorkstreamRibbon facts={workstreamFacts} className="mb-2" />
         <DownstreamImpactPanel facts={workstreamFacts} />
