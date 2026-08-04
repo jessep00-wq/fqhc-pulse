@@ -19,7 +19,7 @@ import { Loader2, Send, CheckCircle } from "lucide-react";
 
 const ROLES = [
   "Quality Director / Manager",
-  "PCMH Coordinator",
+  "Compliance / Survey Lead",
   "COO / Operations",
   "CMO / Medical Director",
   "CFO / Finance",
@@ -50,7 +50,7 @@ const EMRS = [
 
 const INTERESTS = [
   "UDS measure tracking",
-  "PCMH evidence",
+  "QI board reporting",
   "HRSA Audit Binder",
   "PDSA cycles",
   "SPC charts",

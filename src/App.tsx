@@ -93,7 +93,7 @@ const App = () => (
                 <Route path="/onboarding" element={<Onboarding />} />
                 {/* Persona pages consolidated into homepage anchors */}
                 <Route path="/for/qi-directors" element={<Navigate to="/#for-qi-directors" replace />} />
-                <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-pcmh-coordinators" replace />} />
+                <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-compliance-leads" replace />} />
                 <Route path="/for/operations-managers" element={<Navigate to="/#for-operations-managers" replace />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/how-it-works" element={<Navigate to="/#how-it-works" replace />} />

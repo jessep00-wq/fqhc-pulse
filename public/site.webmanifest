@@ -1,7 +1,7 @@
 {
   "name": "MeasureWise",
   "short_name": "MeasureWise",
-  "description": "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, HRSA audit binders.",
+  "description": "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, HRSA Audit Binder exports.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

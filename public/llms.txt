@@ -1,8 +1,8 @@
 # MeasureWise
 
-> Quality operations platform for Federally Qualified Health Centers (FQHCs). Plan PDSA cycles, track UDS measures on SPC charts, and export HRSA-ready audit binders.
+> Quality operations platform for Federally Qualified Health Centers (FQHCs). Plan PDSA cycles, track UDS measures on SPC charts, and export the HRSA Audit Binder.
 
-MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH recognition. Built by Jessica R. Smith, BSN — an FQHC Quality Director.
+MeasureWise links quality improvement work to UDS scores and HRSA OSV readiness. Built by Jessica R. Smith, BSN — an FQHC Quality Director.
 
 ## Pages
 
@@ -17,13 +17,13 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 
 ## Features
 
-- [Features](/features): One page covering PDSA cycles, UDS tracking, SPC charts, HRSA audit binder export, and PCMH Q-PASS evidence collection.
+- [Features](/features): One page covering PDSA cycles, UDS tracking, SPC charts, HRSA Audit Binder export, and QI/QA board reports.
 
 ## Roles served
 
 The homepage has anchor sections for each role we serve:
 - QI Directors (/#for-qi-directors)
-- PCMH Coordinators (/#for-pcmh-coordinators)
+- Compliance & Survey Leads (/#for-compliance-leads)
 - CHC Operations Managers (/#for-operations-managers)
 
 
