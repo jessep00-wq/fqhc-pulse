@@ -16,19 +16,31 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { UDS_MEASURES } from "@/data/mockData";
-import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText, AlertTriangle } from "lucide-react";
+import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText, AlertTriangle, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
 import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
 import { CycleChain } from "@/components/pdsa/CycleChain";
-import { getPdsaProgress, blockersForCompletion } from "@/lib/pdsaProgress";
+import { getPdsaProgress, blockersForCompletion, getEditActivity, type PdsaWorkStage } from "@/lib/pdsaProgress";
 import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
 import CycleEvidenceDocDialog from "@/components/pdsa/CycleEvidenceDocDialog";
 import CycleHistoryTab from "@/components/pdsa/CycleHistoryTab";
 import { useRecordHistory } from "@/hooks/useRecordHistory";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { fmtDateTime } from "@/lib/cycleHistory";
+
 
 
 interface DBCycle {
