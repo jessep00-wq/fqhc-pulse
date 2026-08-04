@@ -187,15 +187,27 @@ export default function QIReportWizard() {
       </div>
 
       {!organization?.id ? (
-        <Card className="p-5 border-amber-300 bg-amber-50">
-          <h3 className="font-semibold text-amber-900 mb-1">No organization selected</h3>
-          <p className="text-sm text-amber-900/90 mb-4">
-            Open the Admin Console and pick a clinic from the "Acting as" dropdown, then return here to generate a quarterly report.
-          </p>
-          <Button variant="outline" onClick={() => navigate("/admin")}>
-            Open Admin Console
-          </Button>
-        </Card>
+        isAdmin ? (
+          <Card className="p-5 border-amber-300 bg-amber-50">
+            <h3 className="font-semibold text-amber-900 mb-1">No health center selected</h3>
+            <p className="text-sm text-amber-900/90 mb-4">
+              Open the Admin Console and pick a health center from the "Acting as" dropdown, then return here to generate a quarterly report.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/admin")}>
+              Open Admin Console
+            </Button>
+          </Card>
+        ) : (
+          <Card className="p-5 border-amber-300 bg-amber-50">
+            <h3 className="font-semibold text-amber-900 mb-1">Finish setting up your health center</h3>
+            <p className="text-sm text-amber-900/90 mb-4">
+              We need your health center details before we can pull a quarterly snapshot.
+            </p>
+            <Button variant="outline" onClick={() => navigate("/dashboard/settings")}>
+              Go to Settings
+            </Button>
+          </Card>
+        )
       ) : (
       <>
       <Card className="p-5">
