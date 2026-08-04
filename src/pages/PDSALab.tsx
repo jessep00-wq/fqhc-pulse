@@ -122,7 +122,6 @@ function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCy
   return (
     <Card
       className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
-      onClick={onClick}
     >
       <CardContent className="p-4 space-y-2.5">
         {/* Phase + stalled badge */}
