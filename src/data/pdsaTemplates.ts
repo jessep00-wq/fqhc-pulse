@@ -6,6 +6,8 @@ export interface PDSATemplate {
   description: string;
   icon: string; // emoji
   udsMeasure: string;
+  /** Free-text topic used when the workflow does not map to a UDS measure */
+  focusArea?: string;
   aim: string;
   prediction: string;
   measurementPlan: string;
@@ -55,7 +57,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "No-Show Appointments",
     icon: "📅",
     description: "Reduce patient no-show rates to improve access and continuity.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "No-show rate",
     title: "Reduce Patient No-Show Rate",
     aim: "Reduce the overall no-show rate from the current baseline by 25% to improve access to care and continuity of chronic disease management.",
     prediction: "Implementing 48-hour and same-day reminder calls plus a patient engagement script will reduce no-shows by at least 15% in the first month.",
@@ -71,7 +74,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "Medication Reconciliation",
     icon: "💊",
     description: "Improve medication reconciliation at every visit.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "Medication reconciliation",
     title: "Improve Medication Reconciliation Compliance",
     aim: "Achieve 95%+ medication reconciliation documentation rate at all clinical encounters.",
     prediction: "Adding a medication review prompt to the MA intake template and provider sign-off will increase reconciliation rates by 20%.",
@@ -119,7 +123,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "Active Patient, No Visit This Year",
     icon: "🗓️",
     description: "Re-engage active patients with no visit in the current calendar year.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "Active patient engagement / annual visit",
     title: "Re-Engage Active Patients With No Visit This Calendar Year",
     aim: "Reduce the number of active patients with no completed visit in the current calendar year by 30% within 4 months, protecting UDS denominators and continuity of care.",
     prediction: "We predict that a targeted recall campaign (text, then call, then letter) for patients with no visit this year will convert at least 20% of contacted patients into a scheduled visit within 30 days.",
@@ -151,7 +156,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "Referral Loop Closure",
     icon: "🔁",
     description: "Track referrals to completion and close the loop with documentation.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "Referral loop closure",
     title: "Close the Loop on Outbound Referrals",
     aim: "Increase the percentage of outbound referrals with documented consult notes returned and reviewed within 30 days to 80% in 3 months.",
     prediction: "Assigning a referral coordinator to work an aging referral report weekly will raise loop-closure documentation by 30 percentage points.",
@@ -167,7 +173,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "Transition of Care (Post-ED/Hospital)",
     icon: "🏥",
     description: "Timely follow-up after emergency department or hospital discharge.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "Transition of care follow-up",
     title: "Improve Post-Discharge Transition of Care Follow-Up",
     aim: "Ensure 75% of patients discharged from an ED or inpatient stay receive a follow-up call within 2 business days and a visit within 7 days.",
     prediction: "A daily ADT notification huddle plus scheduled transition-of-care visits will reduce 30-day readmissions and increase 7-day follow-up rates by 40%.",
@@ -279,7 +286,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "CHW High-Risk Outreach",
     icon: "🤝",
     description: "Structured community health worker outreach to high-risk patients.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "High-risk patient outreach",
     title: "Structured CHW Outreach for High-Risk Patients",
     aim: "Contact 80% of patients on the high-risk registry at least monthly and document the outreach outcome for 3 consecutive months.",
     prediction: "Giving CHWs a defined panel and a weekly outreach target will increase documented contacts and reduce missed appointments among high-risk patients.",
@@ -295,7 +303,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "Labs/Imaging Ordered, Not Resulted",
     icon: "🧪",
     description: "Track ordered diagnostics through to result and provider review.",
-    udsMeasure: "CMS130: Colorectal Cancer Screening",
+    udsMeasure: "",
+    focusArea: "Lab & imaging result follow-up",
     title: "Resolve Ordered Labs and Imaging With No Result",
     aim: "Reduce the number of labs and imaging studies ordered but not resulted after 14 days by 50% within 3 months.",
     prediction: "A weekly outstanding-orders report worked by a designated staff member will cut unresolved orders in half and prevent missed diagnoses.",
@@ -311,7 +320,8 @@ export const PDSA_TEMPLATES: PDSATemplate[] = [
     name: "Specialist Referral No-Show Follow-Up",
     icon: "📞",
     description: "Re-engage patients who miss their specialist appointments.",
-    udsMeasure: "CMS165: Blood Pressure Control",
+    udsMeasure: "",
+    focusArea: "Specialist referral no-show",
     title: "Follow Up on Specialist Referral No-Shows",
     aim: "Re-book 50% of patients who no-show a specialist referral appointment within 30 days of the missed visit.",
     prediction: "Calling within 3 business days of a reported specialist no-show and addressing barriers directly will re-book at least half of those patients.",
