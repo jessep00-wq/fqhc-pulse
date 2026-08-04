@@ -34,6 +34,7 @@ export default function AIAssistant() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSend = async (text?: string) => {
     const msg = text || input;
