@@ -967,6 +967,46 @@ export default function PDSADetailDialog({
           open={evidenceDocOpen}
           onClose={() => setEvidenceDocOpen(false)}
         />
+
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this PDSA cycle?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    This will permanently remove “{cycle.title}” and its linked tasks, evidence
+                    files, and history from all views. This cannot be undone.
+                  </p>
+                  {inChain && (
+                    <p className="rounded-md border border-warning/30 bg-warning/5 p-2 text-warning-foreground">
+                      This cycle is part of a chain. Deleting it breaks that link — the prior and
+                      follow-on cycles will be reconnected to each other.
+                    </p>
+                  )}
+                  <p className="text-xs">
+                    The underlying record and its audit trail are retained internally so previously
+                    exported documents remain traceable.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={(e) => {
+                  e.preventDefault();
+                  deleteCycle.mutate();
+                }}
+                disabled={deleteCycle.isPending}
+              >
+                {deleteCycle.isPending ? "Deleting…" : "Delete cycle"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </DialogContent>
     </Dialog>
 
