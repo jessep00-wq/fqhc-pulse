@@ -109,7 +109,7 @@ interface DBTask {
   due_date?: string | null;
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
+function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; borderColor: string }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
@@ -1094,7 +1094,7 @@ export default function PDSALab() {
                       dragStartPos.current = null;
                     }}
                   >
-                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                   </div>
                 )}
               </Draggable>
@@ -1198,7 +1198,7 @@ export default function PDSALab() {
                       ) : (
                         colCycles.map((cycle) => (
                           <div key={cycle.id} onClick={() => setSelectedCycle(cycle)}>
-                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                           </div>
                         ))
                       )}
