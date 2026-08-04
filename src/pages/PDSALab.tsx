@@ -109,7 +109,7 @@ interface DBTask {
   due_date?: string | null;
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
+function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; borderColor: string }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
@@ -122,7 +122,6 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
   return (
     <Card
       className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
-      onClick={onClick}
     >
       <CardContent className="p-4 space-y-2.5">
         {/* Phase + stalled badge */}
@@ -216,7 +215,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
         )}
         {cycle.status === "completed" && (
           <Button size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
-            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate OSV Binder
+            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate HRSA Audit Binder
           </Button>
         )}
       </CardContent>
@@ -1094,7 +1093,7 @@ export default function PDSALab() {
                       dragStartPos.current = null;
                     }}
                   >
-                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                   </div>
                 )}
               </Draggable>
@@ -1198,7 +1197,7 @@ export default function PDSALab() {
                       ) : (
                         colCycles.map((cycle) => (
                           <div key={cycle.id} onClick={() => setSelectedCycle(cycle)}>
-                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                           </div>
                         ))
                       )}

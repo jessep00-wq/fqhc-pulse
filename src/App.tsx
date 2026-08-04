@@ -46,7 +46,6 @@ const AdminRoute = lazy(() => import("./components/AdminRoute").then(m => ({ def
 const AdminLayout = lazy(() => import("./components/AdminLayout").then(m => ({ default: m.AdminLayout })));
 const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
 const AdminUsers = lazy(() => import("./pages/admin/AdminUsers"));
-const AdminPipeline = lazy(() => import("./pages/admin/AdminPipeline"));
 const AdminBilling = lazy(() => import("./pages/admin/AdminBilling"));
 const AdminAdoption = lazy(() => import("./pages/admin/AdminAdoption"));
 const AdminAccountDetail = lazy(() => import("./pages/admin/AdminAccountDetail"));
@@ -94,7 +93,7 @@ const App = () => (
                 <Route path="/onboarding" element={<Onboarding />} />
                 {/* Persona pages consolidated into homepage anchors */}
                 <Route path="/for/qi-directors" element={<Navigate to="/#for-qi-directors" replace />} />
-                <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-pcmh-coordinators" replace />} />
+                <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-compliance-leads" replace />} />
                 <Route path="/for/operations-managers" element={<Navigate to="/#for-operations-managers" replace />} />
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/how-it-works" element={<Navigate to="/#how-it-works" replace />} />
@@ -137,7 +136,6 @@ const App = () => (
                             <Routes>
                               <Route index element={<AdminOverview />} />
                               <Route path="users" element={<AdminUsers />} />
-                              <Route path="pipeline" element={<AdminPipeline />} />
                               <Route path="billing" element={<AdminBilling />} />
                               <Route path="adoption" element={<AdminAdoption />} />
                               <Route path="store" element={<AdminStore />} />

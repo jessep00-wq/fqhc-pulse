@@ -69,7 +69,7 @@ export function getPdsaWorkstream(
     reason: progress.allStagesComplete
       ? "Plan, Do, Study, and Act are all documented."
       : "All four PDSA stages must be documented first.",
-    unlocks: "Close the cycle and include it in the OSV export packet.",
+    unlocks: "Close the cycle and include it in the HRSA Audit Binder.",
   });
 
   const currentStageKey =
@@ -85,7 +85,7 @@ export function getPdsaWorkstream(
       href: "/dashboard/qi-reports",
     },
     {
-      label: "HRSA OSV export packet",
+      label: "HRSA Audit Binder",
       readiness:
         evidenceCount === 0
           ? "No artifacts"

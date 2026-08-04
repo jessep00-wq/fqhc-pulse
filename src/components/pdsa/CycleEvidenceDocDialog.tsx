@@ -291,7 +291,7 @@ export default function CycleEvidenceDocDialog({
               <div style={{ width: "800px", minHeight: "1050px", background: "#1a2e3b", color: "#fff", display: "flex", flexDirection: "column" }}>
                 <div style={{ padding: "28px 48px 16px", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
                   <p style={{ fontSize: "20px", fontWeight: 700 }}>MeasureWise</p>
-                  <p style={{ fontSize: "12px", color: "#5eead4", marginTop: "2px" }}>HRSA • PCMH • UDS Quality Intelligence</p>
+                  <p style={{ fontSize: "12px", color: "#5eead4", marginTop: "2px" }}>HRSA • UDS Quality Intelligence</p>
                 </div>
                 <div style={{ flex: 1, padding: "0 48px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
                   <p style={{ fontSize: "16px", color: "#94a3b8", marginBottom: "4px" }}>QUALITY IMPROVEMENT</p>

@@ -7,7 +7,7 @@ const PHASE_HINTS: Record<string, { text: string; cta?: string }> = {
   study: { text: "Drop a Do card here once data is in." },
   act: { text: "Decide: adopt, adapt, or abandon." },
   completed: {
-    text: "Finish strong — completed cycles unlock the OSV Binder.",
+    text: "Finish strong — completed cycles unlock the HRSA Audit Binder.",
   },
 };
 

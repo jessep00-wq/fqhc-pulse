@@ -183,7 +183,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
   const openTasks = allTasks.filter((t) => t.status !== "completed");
 
   const handleGenerate = useCallback(async () => {
-    if (!confirmDemoExport(isDemo, "The PCMH evidence packet")) return;
+    if (!confirmDemoExport(isDemo, "The HRSA Audit Binder")) return;
     setShowPreview(true);
     await new Promise((r) => setTimeout(r, 600));
     if (!printRef.current) return;
@@ -229,7 +229,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
 
       const dateStr = format(new Date(), "yyyy-MM-dd");
       pdf.save(`HRSA_Audit_Binder_${dateStr}.pdf`);
-      toast.success(`Audit binder exported (${pageIndex} pages)`);
+      toast.success(`HRSA Audit Binder exported (${pageIndex} pages)`);
     } catch (err) {
       console.error("PDF export failed:", err);
       toast.error("Failed to export PDF");
@@ -257,7 +257,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-accent" />
-            HRSA / PCMH Audit Binder
+            HRSA Audit Binder
           </DialogTitle>
           <DialogDescription>
             Generate a comprehensive audit-ready binder for all QI activity within a date range.
@@ -316,10 +316,10 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
               <div style={{ width: "800px", minHeight: "1050px", padding: "0", background: "#1a2e3b", color: "#fff", display: "flex", flexDirection: "column" }}>
                 <div style={{ padding: "28px 48px 16px", borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
                   <p style={{ fontSize: "20px", fontWeight: 700 }}>MeasureWise</p>
-                  <p style={{ fontSize: "12px", color: "#5eead4", marginTop: "2px" }}>HRSA • PCMH • UDS Quality Intelligence</p>
+                  <p style={{ fontSize: "12px", color: "#5eead4", marginTop: "2px" }}>HRSA • UDS Quality Intelligence</p>
                 </div>
                 <div style={{ flex: 1, padding: "0 48px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-                  <p style={{ fontSize: "16px", color: "#94a3b8", marginBottom: "4px" }}>HRSA / PCMH</p>
+                  <p style={{ fontSize: "16px", color: "#94a3b8", marginBottom: "4px" }}>HRSA</p>
                   <h1 style={{ fontSize: "42px", fontWeight: 700, marginBottom: "8px" }}>Audit Binder</h1>
                   <div style={{ width: "80px", height: "4px", backgroundColor: TEAL, marginBottom: "28px" }} />
                   <p style={{ fontSize: "18px", marginBottom: "24px" }}>{orgName}</p>
@@ -329,7 +329,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
                   {organization.npi && <p style={{ fontSize: "13px", marginTop: "4px" }}><span style={{ color: "#5eead4", fontWeight: 600 }}>NPI:</span> {organization.npi}</p>}
 
                   <div style={{ display: "flex", gap: "1px", marginTop: "40px", border: `1px solid rgba(255,255,255,0.2)`, borderRadius: "6px", overflow: "hidden" }}>
-                    {["HRSA Chapter 10 Aligned", "NCQA PCMH Q-PASS Ready", "UDS-Friendly Reporting"].map((badge) => (
+                    {["HRSA Chapter 10 Aligned", "OSV Survey Ready", "UDS-Friendly Reporting"].map((badge) => (
                       <div key={badge} style={{ flex: 1, padding: "12px 16px", fontSize: "12px", color: "#94a3b8", textAlign: "center", backgroundColor: "rgba(255,255,255,0.05)" }}>{badge}</div>
                     ))}
                   </div>
@@ -412,9 +412,9 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
                   <tbody>
                     {[
                       ["Quality program oversight", "Director of Quality Improvement", "Monthly", "QI Committee folder"],
-                      ["PDSA cycle coordination", "PCMH Coordinator", "Biweekly", "MeasureWise project workspace"],
+                      ["PDSA cycle coordination", "QI Coordinator", "Biweekly", "MeasureWise project workspace"],
                       ["Measure review", "Clinical Operations Manager", "Monthly", "UDS dashboard export"],
-                      ["Evidence collection", "Compliance and Accreditation Lead", "Ongoing", "Q-PASS evidence library"],
+                      ["Evidence collection", "Compliance and Accreditation Lead", "Ongoing", "MeasureWise cycle attachments"],
                     ].map((row, i) => (
                       <tr key={i}>
                         {row.map((cell, j) => <td key={j} style={{ ...tdStyle, backgroundColor: i % 2 === 0 ? "#fff" : "#f9fafb" }}>{cell}</td>)}

@@ -24,7 +24,7 @@ export function TrialGuard({ children }: TrialGuardProps) {
         </div>
         <h1 className="text-2xl font-bold text-foreground">Your free trial has ended</h1>
         <p className="text-muted-foreground">
-          Choose a plan to keep your PDSA cycles, UDS dashboards, and audit binders. Your data is safe — it
+          Choose a plan to keep your PDSA cycles, UDS dashboards, and HRSA Audit Binders. Your data is safe — it
           unlocks instantly when you subscribe.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">

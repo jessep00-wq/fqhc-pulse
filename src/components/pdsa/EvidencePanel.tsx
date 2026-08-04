@@ -139,7 +139,7 @@ export function EvidencePanel({
         <Paperclip className="h-4 w-4 text-primary mt-0.5 shrink-0" />
         <span>
           Attach meeting notes, run charts, screenshots, or any document that proves this cycle happened.
-          Files stay private to your organization and are included in audit binder exports.
+          Files stay private to your organization and are included in HRSA Audit Binder exports.
         </span>
       </div>
 

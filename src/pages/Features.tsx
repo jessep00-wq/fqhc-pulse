@@ -16,7 +16,7 @@ const jsonLd = {
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description:
-    "Quality operations platform for FQHCs — PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA OSV Export Packet.",
+    "Quality operations platform for FQHCs — PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA Audit Binder.",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "14-day free trial" },
 };
 
@@ -57,7 +57,7 @@ const sections: FeatureSection[] = [
         heading: "How PDSA cycles work in MeasureWise",
         paragraphs: [
           "When you create a cycle you pick a UDS measure — for example, Cervical Cancer Screening (CMS124) — then record your aim, baseline, and prediction.",
-          "The Plan phase defines the intervention, test population, and assigned tasks. The Do phase captures what actually happened. The Study phase records results against your prediction. The Act phase asks you to Adopt, Adapt, or Abandon. Everything you enter flows into the OSV Export Packet.",
+          "The Plan phase defines the intervention, test population, and assigned tasks. The Do phase captures what actually happened. The Study phase records results against your prediction. The Act phase asks you to Adopt, Adapt, or Abandon. Everything you enter flows into the HRSA Audit Binder.",
         ],
       },
     ],
@@ -77,7 +77,7 @@ const sections: FeatureSection[] = [
       { icon: Target, title: "Gap-to-Target Tracking", description: "Set a target per measure and see at a glance which measures sit below goal." },
       { icon: LineChart, title: "SPC Chart on Your Data", description: "The dashboard SPC chart is built from the same monthly measure data — no separate entry." },
       { icon: Bell, title: "In-App Notifications & Task Emails", description: "A notification feed in the app plus automated email reminders when assigned tasks approach their due date." },
-      { icon: FileCheck, title: "Measures in Your Exports", description: "Current measure performance is included in the OSV Export Packet and QI/QA board reports." },
+      { icon: FileCheck, title: "Measures in Your Exports", description: "Current measure performance is included in the HRSA Audit Binder and QI/QA board reports." },
     ],
     narrative: [
       {
@@ -116,7 +116,7 @@ const sections: FeatureSection[] = [
   },
   {
     id: "audit-binder",
-    eyebrow: "OSV Export Packet",
+    eyebrow: "HRSA Audit Binder",
     eyebrowIcon: FileCheck,
     title: "HRSA OSV packet generated from",
     titleAccent: "the work you already logged",
@@ -191,7 +191,7 @@ export default function Features() {
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
         title="Features — PDSA, UDS Tracking, SPC & HRSA OSV Packets"
-        description="Everything MeasureWise does today: guided PDSA cycles, 7-measure UDS tracking, an SPC control chart, QI/QA board reports, and the HRSA OSV Export Packet."
+        description="Everything MeasureWise does today: guided PDSA cycles, 7-measure UDS tracking, an SPC control chart, QI/QA board reports, and the HRSA Audit Binder."
         canonical="https://measurewise.org/features"
         jsonLd={jsonLd}
       />

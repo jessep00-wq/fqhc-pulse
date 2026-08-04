@@ -414,7 +414,7 @@ function GenerateDialog({
       });
     },
     onSuccess: () => {
-      toast.success("Audit binder generated");
+      toast.success("HRSA Audit Binder generated");
       qc.invalidateQueries({ queryKey: ["audit_binder_exports"] });
       onOpenChange(false);
     },
@@ -590,14 +590,14 @@ export default function AuditBinder() {
   return (
     <div className="space-y-6 p-6">
       <Helmet>
-        <title>OSV Export Packet — MeasureWise</title>
+        <title>HRSA Audit Binder — MeasureWise</title>
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">OSV Export Packet</h1>
-          <p className="text-muted-foreground text-sm">
-            Composite, audit-ready PDF that pulls in QI oversight, committee meetings, UDS measures, and PDSA logs.
+          <h1 className="text-2xl font-bold tracking-tight">HRSA Audit Binder</h1>
+          <p className="text-muted-foreground text-sm max-w-2xl">
+            Composite, audit-ready PDF that pulls in QI oversight, committee meetings, UDS measures, and PDSA logs — the documentation HRSA reviewers ask for during an Operational Site Visit (OSV).
           </p>
         </div>
         <Button onClick={() => setGenerateOpen(true)}>

@@ -56,7 +56,7 @@ export default function StoreIndex() {
     <PublicPageLayout>
       <SEO
         title="UDS Templates and FQHC Audit Tools"
-        description="HRSA audit binder templates, FQHC PDSA cycle templates, QI committee packets, and board quality report templates — instant download, built by an FQHC Quality Director."
+        description="HRSA Audit Binder templates, FQHC PDSA cycle templates, QI committee packets, and board quality report templates — instant download, built by an FQHC Quality Director."
         canonical="https://measurewise.org/store"
       />
 
@@ -68,7 +68,7 @@ export default function StoreIndex() {
             UDS templates and audit tools for FQHC quality teams
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Implementation-ready PDSA, UDS, HRSA audit binder, QI committee, and board reporting templates. Authored by a working FQHC Quality Director and used inside real OSVs and quality committees — not generic forms.
+            Implementation-ready PDSA, UDS, HRSA Audit Binder, QI committee, and board reporting templates. Authored by a working FQHC Quality Director and used inside real OSVs and quality committees — not generic forms.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4 text-sm text-muted-foreground pt-2">

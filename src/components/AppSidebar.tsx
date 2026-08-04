@@ -64,7 +64,7 @@ const navGroups: {
   {
     label: "Compliance & Reporting",
     items: [
-      { title: "OSV Export Packet", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
+      { title: "HRSA Audit Binder", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
       { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
     ],
   },

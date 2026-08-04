@@ -52,7 +52,7 @@ export function SampleExportButtons() {
             <DialogHeader className="px-6 py-4 border-b">
               <DialogTitle>Sample HRSA Audit Binder</DialogTitle>
               <DialogDescription className="sr-only">
-                Inline PDF preview of the MeasureWise sample HRSA audit binder.
+                Inline PDF preview of the MeasureWise sample HRSA Audit Binder.
               </DialogDescription>
             </DialogHeader>
             <div className="flex-1 relative bg-muted/30">
@@ -66,7 +66,7 @@ export function SampleExportButtons() {
               )}
               <iframe
                 src={`${PDF_URL}#view=FitH`}
-                title="MeasureWise sample audit binder PDF"
+                title="MeasureWise sample HRSA Audit Binder PDF"
                 className="w-full h-full"
                 onLoad={() => setIframeLoaded(true)}
               />
