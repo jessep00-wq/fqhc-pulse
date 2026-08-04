@@ -152,6 +152,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
         .from("pdsa_cycles")
         .select("*")
         .eq("organization_id", organization.id)
+        .is("deleted_at", null)
         .order("created_at");
       return (data || []) as EvidenceCycle[];
     },

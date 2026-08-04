@@ -32,6 +32,7 @@ export default defineTool({
       .select(
         "id, aim_statement, phase, completeness_score, improvement_pct, baseline_rate, created_at, updated_at",
       )
+      .is("deleted_at", null)
       .order("updated_at", { ascending: false })
       .limit(limit);
     if (phase) query = query.eq("phase", phase);

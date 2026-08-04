@@ -38,6 +38,7 @@ export function useTierLimits() {
         .from("pdsa_cycles")
         .select("id", { count: "exact", head: true })
         .eq("organization_id", orgId)
+        .is("deleted_at", null)
         .neq("status", "completed");
       return count ?? 0;
     },

@@ -13,7 +13,7 @@ export interface PdsaFilterState {
   measure: string;
   role: string;
   stalledOnly: boolean;
-  sort: "newest" | "oldest" | "due";
+  sort: "newest" | "oldest" | "due" | "updated" | "stale";
 }
 
 interface Props {
@@ -85,6 +85,8 @@ export function PDSAFilters({ measures, roles, value, onChange, onClear }: Props
           <SelectItem value="newest">Newest first</SelectItem>
           <SelectItem value="oldest">Oldest first</SelectItem>
           <SelectItem value="due">Due soonest</SelectItem>
+          <SelectItem value="updated">Recently updated</SelectItem>
+          <SelectItem value="stale">Least recently updated</SelectItem>
         </SelectContent>
       </Select>
 

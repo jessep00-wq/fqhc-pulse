@@ -142,6 +142,12 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
 
         <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
 
+        <p className="text-[10px] text-muted-foreground">
+          Started {format(new Date((cycle as { start_date?: string | null }).start_date ? `${(cycle as { start_date?: string | null }).start_date}T12:00:00` : cycle.created_at), "MMM d, yyyy")}
+          {" · Last updated "}
+          {format(new Date((cycle as { updated_at?: string | null }).updated_at || cycle.created_at), "MMM d, yyyy")}
+        </p>
+
         <div className="flex flex-wrap items-center gap-1.5">
           {(cycle.uds_measure || cycle.focus_area) && (
             <Tooltip>
@@ -897,7 +903,7 @@ export default function PDSALab() {
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).order("created_at");
+      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).is("deleted_at", null).order("created_at");
       return (data || []) as DBCycle[];
     },
     enabled: !!organization.id,
@@ -1040,6 +1046,10 @@ export default function PDSALab() {
     }
     if (filters.sort === "oldest") {
       out.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+    } else if (filters.sort === "updated" || filters.sort === "stale") {
+      const stamp = (c: DBCycle) =>
+        +new Date((c as { updated_at?: string | null }).updated_at || c.created_at);
+      out.sort((a, b) => (filters.sort === "updated" ? stamp(b) - stamp(a) : stamp(a) - stamp(b)));
     } else if (filters.sort === "due") {
       out.sort((a, b) => {
         const da = getEarliestOpenDue(a.id, tasks)?.getTime() ?? Infinity;

@@ -16,19 +16,31 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { UDS_MEASURES } from "@/data/mockData";
-import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText, AlertTriangle } from "lucide-react";
+import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText, AlertTriangle, Pencil, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { CompletenessRing } from "@/components/pdsa/CompletenessRing";
 import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
 import { CycleChain } from "@/components/pdsa/CycleChain";
-import { getPdsaProgress, blockersForCompletion } from "@/lib/pdsaProgress";
+import { getPdsaProgress, blockersForCompletion, getEditActivity, type PdsaWorkStage } from "@/lib/pdsaProgress";
 import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
 import CycleEvidenceDocDialog from "@/components/pdsa/CycleEvidenceDocDialog";
 import CycleHistoryTab from "@/components/pdsa/CycleHistoryTab";
 import { useRecordHistory } from "@/hooks/useRecordHistory";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { fmtDateTime } from "@/lib/cycleHistory";
+
 
 
 interface DBCycle {
@@ -68,6 +80,10 @@ interface DBCycle {
   opened_at?: string | null;
   target_end_date?: string | null;
   doc_version?: number | null;
+  updated_at?: string | null;
+  deleted_at?: string | null;
+  
+
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
@@ -132,6 +148,17 @@ const DECISION_OPTIONS = [
   },
 ];
 
+
+function RevisedNotice({ info }: { info?: { edited: boolean; postCompletion: boolean; lastAt: string | null } }) {
+  if (!info?.postCompletion) return null;
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-muted-foreground">
+      <Pencil className="h-3 w-3 text-warning shrink-0" />
+      <span>Revised after this stage was first documented — last edit {fmtDateTime(info.lastAt)}.</span>
+    </div>
+  );
+}
+
 export default function PDSADetailDialog({
   cycle,
   open,
@@ -146,6 +173,8 @@ export default function PDSADetailDialog({
   const [activeTab, setActiveTab] = useState("aim");
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [evidenceDocOpen, setEvidenceDocOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
 
   const [newTaskRole, setNewTaskRole] = useState("");
   const [newTaskDate, setNewTaskDate] = useState<Date>();
@@ -257,6 +286,44 @@ export default function PDSADetailDialog({
     onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to clone cycle")),
   });
 
+  // Soft delete: the record and its revision log are retained for audit, but
+  // the cycle disappears from every normal view. Chain links are rewired so
+  // adjacent cycles point at each other instead of a hidden record.
+  const deleteCycle = useMutation({
+    mutationFn: async () => {
+      const prev = cycle!.previous_cycle_id ?? null;
+      const next = cycle!.next_cycle_id ?? null;
+      const { data: auth } = await supabase.auth.getUser();
+      const { error } = await supabase
+        .from("pdsa_cycles")
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: auth?.user?.id ?? null,
+          previous_cycle_id: null,
+          next_cycle_id: null,
+        })
+        .eq("id", cycle!.id);
+      if (error) throw error;
+
+      if (prev) {
+        await supabase.from("pdsa_cycles").update({ next_cycle_id: next }).eq("id", prev);
+      }
+      if (next) {
+        await supabase.from("pdsa_cycles").update({ previous_cycle_id: prev }).eq("id", next);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Cycle deleted. Its audit history is retained.");
+      setDeleteOpen(false);
+      onClose();
+    },
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to delete cycle")),
+  });
+
+
+
   const { data: orgProfiles = [] } = useQuery({
     queryKey: ["org_profiles", organization?.id],
     queryFn: async () => {
@@ -350,6 +417,9 @@ export default function PDSADetailDialog({
 
   const progress = getPdsaProgress(cycle, { evidenceCount: cycleEvidence.length });
   const score = progress.completenessPct;
+  const editActivity = getEditActivity(cycleRevisions);
+  const lastUpdatedAt = cycle.updated_at || editActivity.lastUpdatedAt || cycle.created_at;
+  const inChain = !!(cycle.previous_cycle_id || cycle.next_cycle_id);
 
   const workstreamFacts = getPdsaWorkstream(
     cycle,
@@ -372,16 +442,31 @@ export default function PDSADetailDialog({
                     ? <Badge variant="secondary">{cycle.focus_area}</Badge>
                     : null}
               </DialogDescription>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Started: {cycle.start_date ? format(new Date(`${cycle.start_date}T12:00:00`), "MMM d, yyyy") : format(new Date(cycle.opened_at || cycle.created_at), "MMM d, yyyy")}
+                {" · "}
+                Last updated: {fmtDateTime(lastUpdatedAt)}
+              </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
               <Button size="sm" variant="outline" onClick={() => setEvidenceDocOpen(true)}>
                 <FileText className="h-4 w-4 mr-1" /> Evidence doc
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-destructive hover:text-destructive"
+                onClick={() => setDeleteOpen(true)}
+                aria-label="Delete cycle"
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
               <CompletenessRing score={score} />
             </div>
           </div>
 
         </DialogHeader>
+
 
         <WorkstreamRibbon facts={workstreamFacts} className="mb-2" />
         <DownstreamImpactPanel facts={workstreamFacts} />
@@ -396,11 +481,11 @@ export default function PDSADetailDialog({
                 { value: "analyze", label: "Study", sub: "Results" },
                 { value: "decide", label: "Act", sub: "Decision" },
               ].map((t) => {
-                const st = progress.stages.find((s) =>
-                  ({ aim: "plan", test: "do", analyze: "study", decide: "act" } as const)[
-                    t.value as "aim" | "test" | "analyze" | "decide"
-                  ] === s.key,
-                );
+                const stageKey = ({ aim: "plan", test: "do", analyze: "study", decide: "act" } as const)[
+                  t.value as "aim" | "test" | "analyze" | "decide"
+                ] as PdsaWorkStage;
+                const st = progress.stages.find((s) => s.key === stageKey);
+                const revised = editActivity.byStage[stageKey]?.postCompletion;
                 return (
                   <TabsTrigger
                     key={t.value}
@@ -413,7 +498,14 @@ export default function PDSADetailDialog({
                       {st?.state === "out_of_sequence" && (
                         <AlertTriangle className="h-3 w-3 shrink-0 text-warning" />
                       )}
+                      {revised && (
+                        <Pencil
+                          className="h-3 w-3 shrink-0 text-muted-foreground"
+                          aria-label="Revised after this stage was documented"
+                        />
+                      )}
                     </span>
+
                     <span className="text-[10px] font-normal leading-tight text-muted-foreground">
                       {t.sub}
                     </span>
@@ -437,6 +529,7 @@ export default function PDSADetailDialog({
 
           {/* AIM & PLAN TAB */}
           <TabsContent value="aim" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.plan} />
             <div className="space-y-2">
               <Label>Title</Label>
               <Input
@@ -607,6 +700,7 @@ export default function PDSADetailDialog({
 
           {/* TEST TAB */}
           <TabsContent value="test" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.do} />
             <CoachingTip>Start small — test with one provider, one clinic day, or a handful of patients. You can always scale what works.</CoachingTip>
             <div className="space-y-2">
               <Label>Action Description *</Label>
@@ -716,6 +810,7 @@ export default function PDSADetailDialog({
 
           {/* ANALYZE TAB */}
           <TabsContent value="analyze" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.study} />
             <CoachingTip>Did the results match your prediction? What surprised you? Even "failed" tests generate valuable learning.</CoachingTip>
             <div className="space-y-2">
               <Label>Actual Outcome *</Label>
@@ -778,6 +873,7 @@ export default function PDSADetailDialog({
 
           {/* DECIDE TAB */}
           <TabsContent value="decide" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.act} />
             <CoachingTip>Based on your analysis, choose one: Adopt the change, Adapt it for another cycle, or Abandon and try something different.</CoachingTip>
             <div className="space-y-2">
               <Label className="text-sm font-semibold">Next-Cycle Decision *</Label>
@@ -871,6 +967,46 @@ export default function PDSADetailDialog({
           open={evidenceDocOpen}
           onClose={() => setEvidenceDocOpen(false)}
         />
+
+        <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete this PDSA cycle?</AlertDialogTitle>
+              <AlertDialogDescription asChild>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    This will permanently remove “{cycle.title}” and its linked tasks, evidence
+                    files, and history from all views. This cannot be undone.
+                  </p>
+                  {inChain && (
+                    <p className="rounded-md border border-warning/30 bg-warning/5 p-2 text-warning-foreground">
+                      This cycle is part of a chain. Deleting it breaks that link — the prior and
+                      follow-on cycles will be reconnected to each other.
+                    </p>
+                  )}
+                  <p className="text-xs">
+                    The underlying record and its audit trail are retained internally so previously
+                    exported documents remain traceable.
+                  </p>
+                </div>
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                onClick={(e) => {
+                  e.preventDefault();
+                  deleteCycle.mutate();
+                }}
+                disabled={deleteCycle.isPending}
+              >
+                {deleteCycle.isPending ? "Deleting…" : "Delete cycle"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
       </DialogContent>
     </Dialog>
 

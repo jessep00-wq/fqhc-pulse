@@ -43,7 +43,8 @@ export function CycleChain({
       let q = supabase
         .from("pdsa_cycles")
         .select("id,title,status,start_date,created_at,baseline_rate,actual_outcome,next_cycle_decision,completeness_score")
-        .eq("organization_id", organizationId);
+        .eq("organization_id", organizationId)
+        .is("deleted_at", null);
       q = udsMeasure ? q.eq("uds_measure", udsMeasure) : q.eq("focus_area", topic);
       const { data, error } = await q
         .order("start_date", { ascending: true, nullsFirst: false })
