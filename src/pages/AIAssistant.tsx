@@ -104,10 +104,18 @@ export default function AIAssistant() {
                   <Bot className="h-4 w-4 text-primary" />
                 </div>
               )}
-              <div className={`rounded-lg p-3 max-w-[80%] text-sm whitespace-pre-wrap ${
-                msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-              }`}>
-                {msg.content}
+              <div className="max-w-[80%] space-y-2">
+                <div className={`rounded-lg p-3 text-sm whitespace-pre-wrap ${
+                  msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                }`}>
+                  {msg.content}
+                </div>
+                {msg.role === "assistant" && msg.id !== "welcome" && (
+                  <Button variant="outline" size="sm" onClick={() => handleStartPdsa(msg.content)}>
+                    <FlaskConical className="mr-2 h-4 w-4" />
+                    Start a PDSA cycle from this
+                  </Button>
+                )}
               </div>
               {msg.role === "user" && (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">
