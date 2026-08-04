@@ -5,7 +5,7 @@ import { PlaybookLeadForm } from "./PlaybookLeadForm";
 const bullets = [
   "AthenaOne workflow optimizations for UDS measures",
   "Risk and audit-readiness checklists",
-  "Templates aligned with HRSA Chapter 10 and PCMH",
+  "Templates aligned with HRSA Chapter 10",
 ];
 
 export function PlaybookLeadMagnetSection() {

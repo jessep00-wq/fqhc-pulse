@@ -19,7 +19,7 @@ import { cn } from "@/lib/utils";
 
 const ROLE_OPTIONS = [
   "QI Director",
-  "PCMH Coordinator",
+  "Compliance / Survey Lead",
   "Operations Manager",
   "Provider",
   "Other",
