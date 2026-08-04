@@ -186,3 +186,113 @@ export function getPdsaProgress(
 export function blockersForCompletion(cycle: PdsaCycleFields): string[] {
   return getPdsaProgress(cycle, { requireEvidence: false }).missing;
 }
+
+// ---------------------------------------------------------------------------
+// Edit activity — derived from the same field/stage map as the progress above,
+// so "edited after completion" indicators can never disagree with stage state.
+// ---------------------------------------------------------------------------
+
+export type PdsaWorkStage = Exclude<PdsaStageKey, "complete">;
+
+/** field name -> owning PDSA stage (built from STAGE_FIELDS, incl. alt keys). */
+export const STAGE_FOR_FIELD: Record<string, PdsaWorkStage> = (() => {
+  const map: Record<string, PdsaWorkStage> = {};
+  (Object.keys(STAGE_FIELDS) as PdsaWorkStage[]).forEach((stage) => {
+    STAGE_FIELDS[stage].forEach((spec) => {
+      map[spec.key as string] = stage;
+      (spec.altKeys ?? []).forEach((k) => {
+        map[k as string] = stage;
+      });
+    });
+  });
+  return map;
+})();
+
+export interface FieldEdit {
+  field: string;
+  at: string;
+  by: string | null;
+  /** True when the edit overwrote existing content or came after the stage advanced. */
+  postCompletion: boolean;
+}
+
+export interface StageEditInfo {
+  edited: boolean;
+  postCompletion: boolean;
+  lastAt: string | null;
+}
+
+export interface EditActivity {
+  byField: Record<string, FieldEdit>;
+  byStage: Record<PdsaWorkStage, StageEditInfo>;
+  /** Newest revision timestamp of any kind. */
+  lastUpdatedAt: string | null;
+}
+
+interface RevisionLike {
+  field_name: string;
+  old_value: string | null;
+  new_value?: string | null;
+  changed_by: string | null;
+  created_at: string;
+}
+
+const STATUS_ORDER = ["plan", "do", "study", "act", "completed"];
+
+/**
+ * Reduces the immutable revision log into per-field / per-stage edit facts.
+ * An edit is "post completion" when it replaced non-empty content, or when it
+ * landed after the cycle's status had already advanced past that stage.
+ */
+export function getEditActivity(revisions: RevisionLike[]): EditActivity {
+  const byField: Record<string, FieldEdit> = {};
+  const byStage = {
+    plan: { edited: false, postCompletion: false, lastAt: null },
+    do: { edited: false, postCompletion: false, lastAt: null },
+    study: { edited: false, postCompletion: false, lastAt: null },
+    act: { edited: false, postCompletion: false, lastAt: null },
+  } as Record<PdsaWorkStage, StageEditInfo>;
+
+  let lastUpdatedAt: string | null = null;
+
+  // When the cycle first moved past each stage, from logged status changes.
+  const advancedPast: Partial<Record<PdsaWorkStage, string>> = {};
+  const statusChanges = revisions
+    .filter((r) => r.field_name === "status" && r.new_value)
+    .sort((a, b) => a.created_at.localeCompare(b.created_at));
+  for (const r of statusChanges) {
+    const idx = STATUS_ORDER.indexOf((r.new_value || "").toLowerCase());
+    if (idx < 0) continue;
+    (["plan", "do", "study", "act"] as PdsaWorkStage[]).forEach((stage, sIdx) => {
+      if (idx > sIdx && !advancedPast[stage]) advancedPast[stage] = r.created_at;
+    });
+  }
+
+  for (const r of revisions) {
+    if (!lastUpdatedAt || r.created_at > lastUpdatedAt) lastUpdatedAt = r.created_at;
+    const stage = STAGE_FOR_FIELD[r.field_name];
+    if (!stage) continue;
+
+    const overwrote = !!(r.old_value && r.old_value.trim() !== "");
+    const past = advancedPast[stage];
+    const afterAdvance = !!past && r.created_at > past;
+    const postCompletion = overwrote || afterAdvance;
+
+    const existing = byField[r.field_name];
+    if (!existing || r.created_at > existing.at) {
+      byField[r.field_name] = {
+        field: r.field_name,
+        at: r.created_at,
+        by: r.changed_by,
+        postCompletion,
+      };
+    }
+
+    const s = byStage[stage];
+    s.edited = true;
+    if (postCompletion) s.postCompletion = true;
+    if (!s.lastAt || r.created_at > s.lastAt) s.lastAt = r.created_at;
+  }
+
+  return { byField, byStage, lastUpdatedAt };
+}
