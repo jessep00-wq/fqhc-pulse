@@ -80,6 +80,10 @@ interface DBCycle {
   opened_at?: string | null;
   target_end_date?: string | null;
   doc_version?: number | null;
+  updated_at?: string | null;
+  deleted_at?: string | null;
+  previous_cycle_title?: string | null;
+
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
