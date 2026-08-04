@@ -148,6 +148,17 @@ const DECISION_OPTIONS = [
   },
 ];
 
+
+function RevisedNotice({ info }: { info?: { edited: boolean; postCompletion: boolean; lastAt: string | null } }) {
+  if (!info?.postCompletion) return null;
+  return (
+    <div className="flex items-center gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-xs text-muted-foreground">
+      <Pencil className="h-3 w-3 text-warning shrink-0" />
+      <span>Revised after this stage was first documented — last edit {fmtDateTime(info.lastAt)}.</span>
+    </div>
+  );
+}
+
 export default function PDSADetailDialog({
   cycle,
   open,
@@ -518,6 +529,7 @@ export default function PDSADetailDialog({
 
           {/* AIM & PLAN TAB */}
           <TabsContent value="aim" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.plan} />
             <div className="space-y-2">
               <Label>Title</Label>
               <Input
@@ -688,6 +700,7 @@ export default function PDSADetailDialog({
 
           {/* TEST TAB */}
           <TabsContent value="test" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.do} />
             <CoachingTip>Start small — test with one provider, one clinic day, or a handful of patients. You can always scale what works.</CoachingTip>
             <div className="space-y-2">
               <Label>Action Description *</Label>
@@ -797,6 +810,7 @@ export default function PDSADetailDialog({
 
           {/* ANALYZE TAB */}
           <TabsContent value="analyze" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.study} />
             <CoachingTip>Did the results match your prediction? What surprised you? Even "failed" tests generate valuable learning.</CoachingTip>
             <div className="space-y-2">
               <Label>Actual Outcome *</Label>
@@ -859,6 +873,7 @@ export default function PDSADetailDialog({
 
           {/* DECIDE TAB */}
           <TabsContent value="decide" className="space-y-4 mt-4">
+            <RevisedNotice info={editActivity.byStage.act} />
             <CoachingTip>Based on your analysis, choose one: Adopt the change, Adapt it for another cycle, or Abandon and try something different.</CoachingTip>
             <div className="space-y-2">
               <Label className="text-sm font-semibold">Next-Cycle Decision *</Label>
