@@ -85,7 +85,7 @@ export function getPdsaWorkstream(
       href: "/dashboard/qi-reports",
     },
     {
-      label: "HRSA HRSA Audit Binder",
+      label: "HRSA Audit Binder",
       readiness:
         evidenceCount === 0
           ? "No artifacts"

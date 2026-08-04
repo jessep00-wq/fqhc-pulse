@@ -344,7 +344,7 @@ export default function Landing() {
     <PublicPageLayout>
       <SEO
         title={`${BRAND.nameTm} — ${BRAND.tagline}`}
-        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready HRSA Audit Binders — built for FQHC quality teams."
+        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA Audit Binders — built for FQHC quality teams."
         canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
 
@@ -367,7 +367,7 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground leading-relaxed">
               MeasureWise gives FQHC quality directors one defensible workflow for every
               PDSA cycle: guided templates, real-time SPC charts, and a one-click
-              Chapter-10 HRSA Audit Binder. Replace 4–6 spreadsheets with the system your
+              HRSA Chapter-10 Audit Binder. Replace 4–6 spreadsheets with the system your
               surveyors expect to see.
             </p>
 

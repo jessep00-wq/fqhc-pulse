@@ -30,7 +30,7 @@ const pricingJsonLd = {
   name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
-  description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA-ready HRSA Audit Binders.",
+  description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA Audit Binders.",
   offers: [
     { "@type": "Offer", name: "Solo Clinic", price: "149", priceCurrency: "USD" },
     { "@type": "Offer", name: "Multi-Site", price: "349", priceCurrency: "USD" },

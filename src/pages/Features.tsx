@@ -16,7 +16,7 @@ const jsonLd = {
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description:
-    "Quality operations platform for FQHCs — PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA HRSA Audit Binder.",
+    "Quality operations platform for FQHCs — PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA Audit Binder.",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "14-day free trial" },
 };
 
@@ -191,7 +191,7 @@ export default function Features() {
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
         title="Features — PDSA, UDS Tracking, SPC & HRSA OSV Packets"
-        description="Everything MeasureWise does today: guided PDSA cycles, 7-measure UDS tracking, an SPC control chart, QI/QA board reports, and the HRSA HRSA Audit Binder."
+        description="Everything MeasureWise does today: guided PDSA cycles, 7-measure UDS tracking, an SPC control chart, QI/QA board reports, and the HRSA Audit Binder."
         canonical="https://measurewise.org/features"
         jsonLd={jsonLd}
       />
