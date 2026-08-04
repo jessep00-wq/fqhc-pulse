@@ -19,6 +19,7 @@ import type { CommitteeSections, QIReport } from "@/types/qiReport";
 
 export default function QIReportWizard() {
   const { organization } = useOrg();
+  const { isAdmin } = useUserRole();
   const { user } = useAuth();
   const navigate = useNavigate();
   const cq = useMemo(() => currentQuarter(), []);
