@@ -82,7 +82,7 @@ interface DBCycle {
   doc_version?: number | null;
   updated_at?: string | null;
   deleted_at?: string | null;
-  previous_cycle_title?: string | null;
+  
 
 }
 
