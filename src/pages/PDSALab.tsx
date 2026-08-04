@@ -142,6 +142,12 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
 
         <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
 
+        <p className="text-[10px] text-muted-foreground">
+          Started {format(new Date(cycle.start_date ? `${cycle.start_date}T12:00:00` : cycle.created_at), "MMM d, yyyy")}
+          {" · Last updated "}
+          {format(new Date((cycle as { updated_at?: string | null }).updated_at || cycle.created_at), "MMM d, yyyy")}
+        </p>
+
         <div className="flex flex-wrap items-center gap-1.5">
           {(cycle.uds_measure || cycle.focus_area) && (
             <Tooltip>
