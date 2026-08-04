@@ -80,6 +80,12 @@ export default function AIAssistant() {
       setLoading(false);
     }
   };
+  const handleStartPdsa = (content: string) => {
+    savePdsaSeed(derivePdsaSeedFromAi(content));
+    toast.success("Starting a PDSA cycle from this analysis");
+    navigate("/dashboard/pdsa-lab");
+  };
+
 
   return (
     <div className="p-6 h-[calc(100vh-3.5rem)] flex flex-col">
