@@ -295,13 +295,13 @@ function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle:
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-accent" />HRSA OSV Audit Binder</DialogTitle>
+          <DialogTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-accent" />HRSA Audit Binder</DialogTitle>
           <DialogDescription>Compiled compliance report for federal audit readiness</DialogDescription>
         </DialogHeader>
         <div ref={printRef} className="space-y-6 bg-white text-black p-4">
           <div className="text-center border-b pb-4">
             <h2 className="text-lg font-bold">{organization.name}</h2>
-            <p className="text-xs text-gray-500">NPI: {organization.npi} | HRSA OSV Audit Binder</p>
+            <p className="text-xs text-gray-500">NPI: {organization.npi} | HRSA Audit Binder</p>
             <p className="text-xs text-gray-500">Generated: {new Date().toLocaleDateString()}</p>
           </div>
           <section className="rounded-lg border p-4 space-y-2">

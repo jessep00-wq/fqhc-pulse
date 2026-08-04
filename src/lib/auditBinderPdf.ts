@@ -211,12 +211,12 @@ export function generateAuditBinderPdf(input: AuditBinderPdfInput): jsPDF {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(10);
   doc.setTextColor(100);
-  doc.text("MEASUREWISE AUDIT BINDER", MARGIN, y);
+  doc.text("MEASUREWISE HRSA AUDIT BINDER", MARGIN, y);
   y += 30;
 
   doc.setFontSize(26);
   doc.setTextColor(20);
-  doc.text("MeasureWise Audit Binder", MARGIN, y);
+  doc.text("MeasureWise HRSA Audit Binder", MARGIN, y);
   y += 32;
 
   doc.setFont("helvetica", "normal");
