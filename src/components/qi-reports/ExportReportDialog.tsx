@@ -102,7 +102,7 @@ export function ExportReportDialog({
                 Both PDFs
               </Label>
               <p className="text-xs text-muted-foreground mt-1">
-                Recommended for the OSV export packet.
+                Recommended for the HRSA Audit Binder.
               </p>
             </div>
           </div>

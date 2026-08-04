@@ -229,7 +229,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
 
       const dateStr = format(new Date(), "yyyy-MM-dd");
       pdf.save(`HRSA_Audit_Binder_${dateStr}.pdf`);
-      toast.success(`Audit binder exported (${pageIndex} pages)`);
+      toast.success(`HRSA Audit Binder exported (${pageIndex} pages)`);
     } catch (err) {
       console.error("PDF export failed:", err);
       toast.error("Failed to export PDF");
@@ -257,7 +257,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-accent" />
-            HRSA / PCMH Audit Binder
+            HRSA Audit Binder
           </DialogTitle>
           <DialogDescription>
             Generate a comprehensive audit-ready binder for all QI activity within a date range.

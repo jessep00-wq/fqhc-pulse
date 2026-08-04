@@ -8,7 +8,7 @@ interface ExportOptions {
 
 /**
  * Renders an off-screen DOM node to a paginated US-Letter PDF.
- * Shared by the org-wide audit binder and the per-cycle PDSA evidence document
+ * Shared by the org-wide HRSA Audit Binder and the per-cycle PDSA evidence document
  * so pagination and margins stay identical between the two.
  * Returns the number of pages written.
  */

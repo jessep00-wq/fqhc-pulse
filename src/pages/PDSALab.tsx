@@ -215,7 +215,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCy
         )}
         {cycle.status === "completed" && (
           <Button size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
-            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate OSV Binder
+            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate HRSA Audit Binder
           </Button>
         )}
       </CardContent>

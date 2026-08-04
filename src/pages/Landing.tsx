@@ -49,7 +49,7 @@ const features = [
     title: "One-Click HRSA / NCQA Evidence Packet",
     painPoint: "Tired of assembling audit evidence manually?",
     description:
-      "Generate a print-ready audit binder: cycle log, task evidence, baseline-to-result deltas, and next-cycle linkages. Two weeks of prep, done in seconds. Every PDSA cycle automatically builds the documentation your surveyors ask for.",
+      "Generate a print-ready HRSA Audit Binder: cycle log, task evidence, baseline-to-result deltas, and next-cycle linkages. Two weeks of prep, done in seconds. Every PDSA cycle automatically builds the documentation your surveyors ask for.",
   },
   {
     icon: FlaskConical,
@@ -144,7 +144,7 @@ const personaDeepSections: PersonaDeep[] = [
     pain: "Your health center deserves real QI tools — not another spreadsheet workaround or a six-figure enterprise contract you can't justify.",
     capabilities: [
       "Staff task management so improvement cycles keep moving between committee meetings",
-      "OSV Export Packet that keeps every cycle log, task, and attachment survey-ready",
+      "HRSA Audit Binder that keeps every cycle log, task, and attachment survey-ready",
       "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
     ],
     quote: "\"Same evidence trail our old enterprise vendor produced, at a fraction of the cost.\"",
@@ -165,7 +165,7 @@ const comparisonRows = [
   { feature: "PDSA cycle management", measurewise: true, spreadsheet: "Manual", generic: "Partial" },
   { feature: "UDS measure tracking (7 core measures)", measurewise: true, spreadsheet: "Manual", generic: false },
   { feature: "SPC charts with control limits", measurewise: true, spreadsheet: false, generic: "Add-on" },
-  { feature: "HRSA audit binder export", measurewise: true, spreadsheet: false, generic: false },
+  { feature: "HRSA Audit Binder export", measurewise: true, spreadsheet: false, generic: false },
   { feature: "NCQA Q-PASS evidence mapping", measurewise: true, spreadsheet: false, generic: false },
   { feature: "Built specifically for FQHCs", measurewise: true, spreadsheet: false, generic: false },
   { feature: "No per-seat licensing fees", measurewise: true, spreadsheet: true, generic: false },
@@ -210,7 +210,7 @@ const howItWorksSteps = [
     icon: FileCheck,
     number: "04",
     title: "Generate audit-ready documentation",
-    description: "One click produces a complete OSV Export Packet — cycle logs, task evidence, baseline-to-result deltas, and next-cycle linkages included.",
+    description: "One click produces a complete HRSA Audit Binder — cycle logs, task evidence, baseline-to-result deltas, and next-cycle linkages included.",
   },
 ];
 
@@ -284,7 +284,7 @@ const faqItems = [
   },
   {
     q: "How is MeasureWise different from spreadsheets?",
-    a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, or assemble an OSV export packet from linked evidence. MeasureWise does all of this in one purpose-built tool.",
+    a: "Spreadsheets can track data but they can't guide a PDSA cycle, calculate SPC control limits, or assemble an HRSA Audit Binder from linked evidence. MeasureWise does all of this in one purpose-built tool.",
   },
   {
     q: "Is there a free trial?",
@@ -344,7 +344,7 @@ export default function Landing() {
     <PublicPageLayout>
       <SEO
         title={`${BRAND.nameTm} — ${BRAND.tagline}`}
-        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready audit binders — built for FQHC quality teams."
+        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA-ready HRSA Audit Binders — built for FQHC quality teams."
         canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
 
@@ -367,7 +367,7 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground leading-relaxed">
               MeasureWise gives FQHC quality directors one defensible workflow for every
               PDSA cycle: guided templates, real-time SPC charts, and a one-click
-              Chapter-10 audit binder. Replace 4–6 spreadsheets with the system your
+              Chapter-10 HRSA Audit Binder. Replace 4–6 spreadsheets with the system your
               surveyors expect to see.
             </p>
 
@@ -434,7 +434,7 @@ export default function Landing() {
           </h2>
           <p className="text-muted-foreground text-lg leading-relaxed">
             MeasureWise sits on top of your EHR and Azara. It structures every PDSA cycle,
-            links it to the UDS measure it should move, and builds your HRSA audit binder
+            links it to the UDS measure it should move, and builds your HRSA Audit Binder
             as you work — so quality improvement actually shows up in your numbers and in
             your site-visit binder.
           </p>
@@ -463,7 +463,7 @@ export default function Landing() {
               How it works — in four steps
             </h2>
             <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              From measure selection to OSV Export Packet, MeasureWise guides your team through
+              From measure selection to HRSA Audit Binder, MeasureWise guides your team through
               the entire quality improvement workflow.
             </p>
           </div>
@@ -769,7 +769,7 @@ export default function Landing() {
               See what MeasureWise produces
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Download a sample HRSA audit binder — the same format your health center
+              Download a sample HRSA Audit Binder — the same format your health center
               will generate in one click after completing a PDSA cycle.
             </p>
           </div>
