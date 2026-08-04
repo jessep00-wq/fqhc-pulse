@@ -46,7 +46,7 @@ import {
 const features = [
   {
     icon: FileCheck,
-    title: "One-Click HRSA / NCQA Evidence Packet",
+    title: "One-Click HRSA Audit Binder",
     painPoint: "Tired of assembling audit evidence manually?",
     description:
       "Generate a print-ready HRSA Audit Binder: cycle log, task evidence, baseline-to-result deltas, and next-cycle linkages. Two weeks of prep, done in seconds. Every PDSA cycle automatically builds the documentation your surveyors ask for.",
@@ -65,13 +65,12 @@ const features = [
     description:
       "Track the 7 core UDS clinical quality measures with live trend updates as your team completes cycles — so you know whether to scale an intervention or pivot before HRSA reporting.",
   },
-
   {
     icon: ClipboardCheck,
-    title: "NCQA Q-PASS Evidence Collection",
-    painPoint: "Scrambling to organize Q-PASS evidence before submission?",
+    title: "QI/QA Board Reports",
+    painPoint: "Rebuilding the same board report every quarter?",
     description:
-      "Captures and organizes the evidence NCQA requires for PCMH recognition, mapped directly to Q-PASS standards. Year-round evidence collection replaces last-minute document hunts.",
+      "Turn your active cycles, measure trends, and completed work into a quarterly QI committee and board report you can review, approve, and export — without re-typing anything.",
   },
 ];
 
@@ -85,10 +84,10 @@ const personas = [
   },
   {
     icon: ClipboardCheck,
-    title: "PCMH Coordinators",
+    title: "Compliance & Survey Leads",
     description:
-      "Federally qualified health center solutions for Q-PASS evidence, documentation workflows, and year-round audit readiness.",
-    link: "#for-pcmh-coordinators",
+      "Keep OSV evidence organized year-round — cycle logs, task records, and attachments assembled into an HRSA Audit Binder on demand.",
+    link: "#for-compliance-leads",
   },
   {
     icon: DollarSign,
@@ -124,17 +123,17 @@ const personaDeepSections: PersonaDeep[] = [
     quote: "\"We stopped emailing UDS spreadsheets around and started running PDSA cycles that actually move the number.\"",
   },
   {
-    id: "for-pcmh-coordinators",
+    id: "for-compliance-leads",
     icon: ClipboardCheck,
-    eyebrow: "For PCMH Coordinators",
-    headline: "Stay PCMH audit-ready every single day",
-    pain: "Stop scrambling before recertification. MeasureWise maps your QI activities directly to NCQA Q-PASS evidence requirements so you're always prepared.",
+    eyebrow: "For Compliance & Survey Leads",
+    headline: "Stay OSV-ready every single day",
+    pain: "Stop scrambling before an operational site visit. Every cycle, task, and attachment is captured as you work, so the evidence is already there when HRSA asks.",
     capabilities: [
-      "Q-PASS standards mapping for every PDSA cycle and quality activity",
-      "Year-round readiness dashboard — see gaps before recertification hits",
-      "One-click NCQA recertification binder export, organized by standard",
+      "Cycle logs, tasks, and attachments captured in the moment, not reconstructed later",
+      "Readiness view that shows which cycles are missing documentation",
+      "One-click HRSA Audit Binder export, organized for survey review",
     ],
-    quote: "\"Q-PASS submission used to eat two months. Now the evidence is already there when we need it.\"",
+    quote: "\"OSV prep used to eat two months. Now the evidence is already there when we need it.\"",
   },
   {
     id: "for-operations-managers",
@@ -166,7 +165,6 @@ const comparisonRows = [
   { feature: "UDS measure tracking (7 core measures)", measurewise: true, spreadsheet: "Manual", generic: false },
   { feature: "SPC charts with control limits", measurewise: true, spreadsheet: false, generic: "Add-on" },
   { feature: "HRSA Audit Binder export", measurewise: true, spreadsheet: false, generic: false },
-  { feature: "NCQA Q-PASS evidence mapping", measurewise: true, spreadsheet: false, generic: false },
   { feature: "Built specifically for FQHCs", measurewise: true, spreadsheet: false, generic: false },
   { feature: "No per-seat licensing fees", measurewise: true, spreadsheet: true, generic: false },
   { feature: "Board-ready report export", measurewise: true, spreadsheet: "Manual", generic: "Add-on" },
@@ -788,7 +786,7 @@ export default function Landing() {
               Who MeasureWise is for
             </h2>
             <p className="text-muted-foreground mt-3 text-lg">
-              Whether you lead QI, coordinate PCMH, or manage operations — MeasureWise speaks your language.
+              Whether you lead QI, own compliance, or manage operations — MeasureWise speaks your language.
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
