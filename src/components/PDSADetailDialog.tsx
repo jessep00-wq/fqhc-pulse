@@ -275,6 +275,44 @@ export default function PDSADetailDialog({
     onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to clone cycle")),
   });
 
+  // Soft delete: the record and its revision log are retained for audit, but
+  // the cycle disappears from every normal view. Chain links are rewired so
+  // adjacent cycles point at each other instead of a hidden record.
+  const deleteCycle = useMutation({
+    mutationFn: async () => {
+      const prev = cycle!.previous_cycle_id ?? null;
+      const next = cycle!.next_cycle_id ?? null;
+      const { data: auth } = await supabase.auth.getUser();
+      const { error } = await supabase
+        .from("pdsa_cycles")
+        .update({
+          deleted_at: new Date().toISOString(),
+          deleted_by: auth?.user?.id ?? null,
+          previous_cycle_id: null,
+          next_cycle_id: null,
+        })
+        .eq("id", cycle!.id);
+      if (error) throw error;
+
+      if (prev) {
+        await supabase.from("pdsa_cycles").update({ next_cycle_id: next }).eq("id", prev);
+      }
+      if (next) {
+        await supabase.from("pdsa_cycles").update({ previous_cycle_id: prev }).eq("id", next);
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast.success("Cycle deleted. Its audit history is retained.");
+      setDeleteOpen(false);
+      onClose();
+    },
+    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to delete cycle")),
+  });
+
+
+
   const { data: orgProfiles = [] } = useQuery({
     queryKey: ["org_profiles", organization?.id],
     queryFn: async () => {
