@@ -897,7 +897,7 @@ export default function PDSALab() {
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).order("created_at");
+      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).is("deleted_at", null).order("created_at");
       return (data || []) as DBCycle[];
     },
     enabled: !!organization.id,
@@ -1040,6 +1040,10 @@ export default function PDSALab() {
     }
     if (filters.sort === "oldest") {
       out.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+    } else if (filters.sort === "updated" || filters.sort === "stale") {
+      const stamp = (c: DBCycle) =>
+        +new Date((c as { updated_at?: string | null }).updated_at || c.created_at);
+      out.sort((a, b) => (filters.sort === "updated" ? stamp(b) - stamp(a) : stamp(a) - stamp(b)));
     } else if (filters.sort === "due") {
       out.sort((a, b) => {
         const da = getEarliestOpenDue(a.id, tasks)?.getTime() ?? Infinity;
