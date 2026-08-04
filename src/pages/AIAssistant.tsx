@@ -84,7 +84,7 @@ export default function AIAssistant() {
   const handleStartPdsa = (content: string) => {
     savePdsaSeed(derivePdsaSeedFromAi(content));
     toast.success("Starting a PDSA cycle from this analysis");
-    navigate("/dashboard/pdsa-lab");
+    navigate("/dashboard/pdsa-lab?from=ai");
   };
 
 
