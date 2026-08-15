@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.seed_demo_data(uuid) TO authenticated;
