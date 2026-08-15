@@ -119,11 +119,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       }
 
       let targetOrgId = profile?.organization_id ?? null;
+      let acting = false;
 
-      // Founder-admin "acting as org" override: if the admin has no org of
-      // their own (or wants to act inside another tenant), they can set
-      // `mw_admin_active_org` in localStorage via the admin org switcher.
-      if (!targetOrgId && typeof window !== "undefined") {
+      // Founder/support "acting as org" override. This wins over the admin's
+      // own workspace so the switcher is never a no-op.
+      const actingId =
+        typeof window !== "undefined" ? window.localStorage.getItem(ACTING_ORG_KEY) : null;
+      if (actingId) {
         const { data: roleRow } = await supabase
           .from("user_roles")
           .select("role")
@@ -131,10 +133,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
           .in("role", ["founder_admin", "internal_support"])
           .maybeSingle();
         if (roleRow) {
-          const acting = window.localStorage.getItem("mw_admin_active_org");
-          if (acting) targetOrgId = acting;
+          acting = actingId !== targetOrgId;
+          targetOrgId = actingId;
         }
       }
+      setIsActingAs(acting);
 
       if (!targetOrgId) {
         // Authoritative "no org" — safe to send to onboarding.
