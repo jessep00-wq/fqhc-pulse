@@ -40,3 +40,5 @@ project_id = "eeyigxcwewdqfeidqbxk"
   [functions.send-readiness-report]
     verify_jwt = false
 
+  [functions.team-invite]
+    verify_jwt = false
