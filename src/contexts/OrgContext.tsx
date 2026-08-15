@@ -195,7 +195,9 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const isDemo = hasOrg && organization.dataMode === "demo";
 
   return (
-    <OrgContext.Provider value={{ organization, loading, hasOrg, isDemo, error, refetchOrg }}>
+    <OrgContext.Provider
+      value={{ organization, loading, hasOrg, isDemo, error, refetchOrg, isActingAs, exitActingAs }}
+    >
       {children}
     </OrgContext.Provider>
   );
