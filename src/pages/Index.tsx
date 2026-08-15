@@ -131,6 +131,7 @@ import {
 export default function Dashboard() {
   const { organization } = useOrg();
   const { user } = useAuth();
+  const { firstName } = useProfile();
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
   const orgId = organization.id;
