@@ -54,16 +54,40 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   // bounce the user back to /onboarding.
   const confirmedOrgRef = useRef(false);
   const [hasOrgState, setHasOrgState] = useState(false);
+  const [isActingAs, setIsActingAs] = useState(false);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
   const refetchOrg = () => setRefreshKey((k) => k + 1);
+
+  const exitActingAs = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(ACTING_ORG_KEY);
+      window.dispatchEvent(new Event(ACTING_ORG_EVENT));
+    }
+    setRefreshKey((k) => k + 1);
+  };
+
+  // Re-resolve whenever the admin org switcher changes (this tab or another).
+  useEffect(() => {
+    const onChange = () => setRefreshKey((k) => k + 1);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === ACTING_ORG_KEY) onChange();
+    };
+    window.addEventListener(ACTING_ORG_EVENT, onChange);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(ACTING_ORG_EVENT, onChange);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   useEffect(() => {
     if (authLoading) {
       if (!confirmedOrgRef.current) setLoading(true);
       return;
     }
+
 
     if (!userId) {
       setOrganization(fallbackOrg);
