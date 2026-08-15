@@ -27,6 +27,8 @@ export function useUserRole() {
     isFounderAdmin: roles.includes("founder_admin"),
     isInternalSupport: roles.includes("internal_support"),
     isAdmin: roles.includes("founder_admin") || roles.includes("internal_support"),
+    /** Workspace owner/administrator on the customer side. */
+    isOrgAdmin: roles.includes("org_admin") || roles.includes("founder_admin"),
     loading: isLoading,
   };
 }

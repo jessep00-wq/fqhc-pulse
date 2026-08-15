@@ -1696,28 +1696,43 @@ export type Database = {
       }
       team_invitations: {
         Row: {
+          accepted_at: string | null
+          accepted_by: string | null
           created_at: string
           email: string
+          email_sent_at: string | null
+          expires_at: string
           id: string
           invited_by: string | null
           organization_id: string
           status: string
+          token: string
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string
           email: string
+          email_sent_at?: string | null
+          expires_at?: string
           id?: string
           invited_by?: string | null
           organization_id: string
           status?: string
+          token?: string
         }
         Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string
           email?: string
+          email_sent_at?: string | null
+          expires_at?: string
           id?: string
           invited_by?: string | null
           organization_id?: string
           status?: string
+          token?: string
         }
         Relationships: [
           {
@@ -1890,6 +1905,7 @@ export type Database = {
         Returns: boolean
       }
       is_founder_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_org_admin: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string

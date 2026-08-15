@@ -36,6 +36,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
 const PublicDemo = lazy(() => import("./pages/PublicDemo"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Status = lazy(() => import("./pages/Status"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -92,6 +93,7 @@ const App = () => (
                 <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="/onboarding" element={<Onboarding />} />
+                <Route path="/invite/:token" element={<AcceptInvite />} />
                 {/* Persona pages consolidated into homepage anchors */}
                 <Route path="/for/qi-directors" element={<Navigate to="/#for-qi-directors" replace />} />
                 <Route path="/for/pcmh-coordinators" element={<Navigate to="/#for-compliance-leads" replace />} />

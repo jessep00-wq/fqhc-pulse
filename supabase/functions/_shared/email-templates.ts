@@ -192,3 +192,27 @@ export function weeklyDigestEmail(
     `),
   };
 }
+
+export function teamInviteEmail(
+  orgName: string,
+  inviterName: string,
+  acceptUrl: string,
+): { subject: string; html: string } {
+  return {
+    subject: `You've been invited to join ${orgName} on ${BRAND.name}`,
+    html: layout(`Join ${esc(orgName)} on ${BRAND.name}`, `
+      <h2 style="margin:0 0 16px;color:#111827;font-size:20px;">You're invited to join ${esc(orgName)}</h2>
+      <p style="color:#374151;line-height:1.6;margin:0 0 16px;">
+        ${esc(inviterName) || "A colleague"} invited you to their ${BRAND.name} workspace — where their team
+        runs PDSA cycles, tracks UDS measures, and builds the HRSA Audit Binder.
+      </p>
+      <p style="color:#374151;line-height:1.6;margin:0 0 24px;">
+        Click below to accept. You'll be asked to sign in or create an account with this email address.
+      </p>
+      <a href="${acceptUrl}" style="display:inline-block;background:${BRAND_COLOR};color:#ffffff;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:600;">Accept invitation</a>
+      <p style="color:#6b7280;font-size:13px;margin:24px 0 0;">
+        This invitation expires in 7 days. If you weren't expecting it, you can ignore this email.
+      </p>
+    `),
+  };
+}

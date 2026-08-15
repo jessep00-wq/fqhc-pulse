@@ -21,7 +21,14 @@ interface OrgContextType {
   isDemo: boolean;
   error: string | null;
   refetchOrg: () => void;
+  /** True when a founder/support admin is viewing another tenant's workspace. */
+  isActingAs: boolean;
+  /** Clears the admin "acting as" override and re-resolves the real workspace. */
+  exitActingAs: () => void;
 }
+
+export const ACTING_ORG_KEY = "mw_admin_active_org";
+export const ACTING_ORG_EVENT = "mw-acting-org-changed";
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
@@ -47,16 +54,40 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   // bounce the user back to /onboarding.
   const confirmedOrgRef = useRef(false);
   const [hasOrgState, setHasOrgState] = useState(false);
+  const [isActingAs, setIsActingAs] = useState(false);
 
   const [refreshKey, setRefreshKey] = useState(0);
 
   const refetchOrg = () => setRefreshKey((k) => k + 1);
+
+  const exitActingAs = () => {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(ACTING_ORG_KEY);
+      window.dispatchEvent(new Event(ACTING_ORG_EVENT));
+    }
+    setRefreshKey((k) => k + 1);
+  };
+
+  // Re-resolve whenever the admin org switcher changes (this tab or another).
+  useEffect(() => {
+    const onChange = () => setRefreshKey((k) => k + 1);
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === ACTING_ORG_KEY) onChange();
+    };
+    window.addEventListener(ACTING_ORG_EVENT, onChange);
+    window.addEventListener("storage", onStorage);
+    return () => {
+      window.removeEventListener(ACTING_ORG_EVENT, onChange);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, []);
 
   useEffect(() => {
     if (authLoading) {
       if (!confirmedOrgRef.current) setLoading(true);
       return;
     }
+
 
     if (!userId) {
       setOrganization(fallbackOrg);
@@ -88,11 +119,13 @@ export function OrgProvider({ children }: { children: ReactNode }) {
       }
 
       let targetOrgId = profile?.organization_id ?? null;
+      let acting = false;
 
-      // Founder-admin "acting as org" override: if the admin has no org of
-      // their own (or wants to act inside another tenant), they can set
-      // `mw_admin_active_org` in localStorage via the admin org switcher.
-      if (!targetOrgId && typeof window !== "undefined") {
+      // Founder/support "acting as org" override. This wins over the admin's
+      // own workspace so the switcher is never a no-op.
+      const actingId =
+        typeof window !== "undefined" ? window.localStorage.getItem(ACTING_ORG_KEY) : null;
+      if (actingId) {
         const { data: roleRow } = await supabase
           .from("user_roles")
           .select("role")
@@ -100,10 +133,11 @@ export function OrgProvider({ children }: { children: ReactNode }) {
           .in("role", ["founder_admin", "internal_support"])
           .maybeSingle();
         if (roleRow) {
-          const acting = window.localStorage.getItem("mw_admin_active_org");
-          if (acting) targetOrgId = acting;
+          acting = actingId !== targetOrgId;
+          targetOrgId = actingId;
         }
       }
+      setIsActingAs(acting);
 
       if (!targetOrgId) {
         // Authoritative "no org" — safe to send to onboarding.
@@ -161,7 +195,9 @@ export function OrgProvider({ children }: { children: ReactNode }) {
   const isDemo = hasOrg && organization.dataMode === "demo";
 
   return (
-    <OrgContext.Provider value={{ organization, loading, hasOrg, isDemo, error, refetchOrg }}>
+    <OrgContext.Provider
+      value={{ organization, loading, hasOrg, isDemo, error, refetchOrg, isActingAs, exitActingAs }}
+    >
       {children}
     </OrgContext.Provider>
   );
