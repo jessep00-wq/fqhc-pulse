@@ -200,6 +200,12 @@ export default function Pricing() {
             Three flat per-site monthly plans built for how Federally Qualified Health Centers actually budget for quality software. Unlimited users, unlimited PDSA cycles, and no "contact sales" wall — a QI Director can sign up without procurement approval.
           </p>
 
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+            For context: enterprise QI and population health analytics contracts typically run
+            five or six figures a year, priced per seat and gated behind procurement. This is a
+            flat monthly number a quality director can approve.
+          </p>
+
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
             14 days free, no card to start
           </div>

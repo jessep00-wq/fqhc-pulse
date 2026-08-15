@@ -102,7 +102,7 @@ const personaDeepSections: PersonaDeep[] = [
     id: "for-qi-directors",
     icon: LineChart,
     eyebrow: "For QI Directors",
-    headline: "Your UDS measures, PDSA cycles, and Quality Award tracking — unified",
+    headline: "Your UDS measures, PDSA cycles, and audit evidence — unified",
     pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and every piece of audit evidence in one view.",
     capabilities: [
       "UDS dashboards for the 7 core measures, with targets and gap-to-goal tracking",
@@ -241,6 +241,14 @@ const faqItems = [
     a: "Yes. Every plan starts with a 14-day free trial — no credit card required to begin. You get full access during the trial. Add a card before day 14 to keep your workspace; otherwise it locks until you subscribe.",
   },
   {
+    q: "What happens to my data if I don't subscribe?",
+    a: "Nothing is deleted. After day 14 the workspace locks and your cycles, measures, and documentation sit exactly as you left them. Subscribe at any time and everything is there — your trial work is never thrown away.",
+  },
+  {
+    q: "How does this compare to what an enterprise QI platform costs?",
+    a: "Enterprise QI and population health analytics contracts typically run into five or six figures a year, with per-seat licensing and a procurement cycle. MeasureWise is $149–$699 per month, flat, per site, with unlimited users — small enough for a quality director to approve without going to the board.",
+  },
+  {
     q: "Does MeasureWise store PHI?",
     a: "No. MeasureWise stores only aggregate quality improvement metrics — screening rates, cycle documentation, and task status. No patient-level data enters the system.",
   },
@@ -343,13 +351,15 @@ export default function Landing() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-base px-8 w-full sm:w-auto">
-                <Link to="/contact">Talk to the founder</Link>
+                <Link to="/demo">See a real cycle — no signup</Link>
               </Button>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              {TRIAL_TERMS}
+              {TRIAL_TERMS}{" "}
+              <Link to="/contact" className="text-primary hover:underline">Talk to the founder</Link>
             </p>
+
 
           </div>
 
@@ -432,8 +442,37 @@ export default function Landing() {
               </div>
             ))}
           </div>
+          <div className="mt-14 rounded-xl border border-border bg-card p-6 md:p-8">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
+              Your first 10 minutes
+            </p>
+            <ol className="mt-4 grid gap-4 md:grid-cols-4">
+              {[
+                "Pick the measure you're already working on",
+                "Start a cycle from a template",
+                "Enter your baseline rate",
+                "Your binder starts building from that moment",
+              ].map((s, i) => (
+                <li key={s} className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm leading-relaxed text-foreground">{s}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-5 text-sm text-muted-foreground">
+              No implementation project, no IT ticket.{" "}
+              <Link to="/demo" className="text-primary hover:underline">
+                See a finished cycle first
+              </Link>
+              .
+            </p>
+          </div>
         </div>
       </section>
+
+
 
       {/* SPC Chart Hero Section */}
       <section className="py-20 px-6">
@@ -591,7 +630,8 @@ export default function Landing() {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            {TRIAL_TERMS} No per-seat licensing.
+            {TRIAL_TERMS} No per-seat licensing, no procurement cycle — flat per-site pricing
+            instead of a five- or six-figure enterprise QI contract.
           </p>
           <Button variant="outline" asChild>
             <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -660,9 +700,6 @@ export default function Landing() {
       </section>
 
 
-      {/* AthenaOne Playbook Lead Magnet */}
-      <PlaybookLeadMagnetSection />
-
       {/* Sample Export Preview */}
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -672,7 +709,11 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Download a sample HRSA Audit Binder — the same format your health center
-              will generate in one click after completing a PDSA cycle.
+              will generate in one click after completing a PDSA cycle. Or{" "}
+              <Link to="/demo" className="text-primary hover:underline">
+                walk through the cycle that produced it
+              </Link>
+              .
             </p>
           </div>
           <SampleExportButtons />
@@ -682,15 +723,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Who it's for — intro to the three role sections below */}
-      <section className="pt-24 px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-3">
-          <h2 className="text-3xl font-bold text-foreground">Who MeasureWise is for</h2>
-          <p className="text-muted-foreground text-lg">
-            Whether you lead QI, own compliance, or manage operations — here's what the platform does for your role.
-          </p>
-        </div>
-      </section>
 
 
       {/* Per-role deep sections (were separate /for/* pages) */}
@@ -829,6 +861,11 @@ export default function Landing() {
           </div>
         </div>
       </section>
+
+      {/* AthenaOne Playbook Lead Magnet — placed after the FAQ so it catches
+          bounce traffic instead of intercepting trial intent mid-page. */}
+      <PlaybookLeadMagnetSection />
+
 
       {/* Contact Form */}
       <section id="contact" className="py-20 px-6 bg-background">

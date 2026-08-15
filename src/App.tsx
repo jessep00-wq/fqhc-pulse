@@ -34,6 +34,7 @@ const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const Security = lazy(() => import("./pages/Security"));
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
+const PublicDemo = lazy(() => import("./pages/PublicDemo"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Status = lazy(() => import("./pages/Status"));
@@ -104,6 +105,7 @@ const App = () => (
                 <Route path="/security" element={<Security />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/demo" element={<PublicDemo />} />
 
                 {/* Features (single page with hash anchors; old slugs redirect for SEO) */}
                 <Route path="/features" element={<Features />} />
