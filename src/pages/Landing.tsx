@@ -29,8 +29,6 @@ import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
-import dashboardPreview from "@/assets/dashboard-preview.jpg";
-import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -64,7 +62,8 @@ const features = [
     description:
       "Walk your team through Aim → Prediction → Measurement → Test → Analysis → Decision with coaching prompts, pre-built templates, and automatic linkage to the UDS measure you're trying to move. No more cycles that end in a binder and never get reviewed.",
     outcome:
-      "Teams report cutting PDSA documentation time by 60–80% — time that goes back to patient care.",
+      "Cycle documentation is captured as you work, not rebuilt before a review.",
+
   },
   {
     icon: BarChart3,
@@ -94,7 +93,6 @@ type PersonaDeep = {
   headline: string;
   pain: string;
   capabilities: string[];
-  quote: string;
 };
 
 const personaDeepSections: PersonaDeep[] = [
@@ -109,7 +107,6 @@ const personaDeepSections: PersonaDeep[] = [
       "Guided PDSA cycles linked to the exact UDS measure they're meant to move",
       "SPC charts with control limits so you know when a change is real, not noise",
     ],
-    quote: "\"We stopped emailing UDS spreadsheets around and started running PDSA cycles that actually move the number.\"",
   },
   {
     id: "for-compliance-leads",
@@ -122,7 +119,6 @@ const personaDeepSections: PersonaDeep[] = [
       "Readiness view that shows which cycles are missing documentation",
       "One-click HRSA Audit Binder export, organized for survey review",
     ],
-    quote: "\"OSV prep used to eat two months. Now the evidence is already there when we need it.\"",
   },
   {
     id: "for-operations-managers",
@@ -135,7 +131,6 @@ const personaDeepSections: PersonaDeep[] = [
       "HRSA Audit Binder that keeps every cycle log, task, and attachment survey-ready",
       "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
     ],
-    quote: "\"Same evidence trail our old enterprise vendor produced, at a fraction of the cost.\"",
   },
 ];
 
@@ -301,12 +296,13 @@ export default function Landing() {
   return (
     <PublicPageLayout>
       <SEO
-        title={`${BRAND.nameTm} — ${BRAND.tagline}`}
-        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA Audit Binders — built for FQHC quality teams."
+        title="MeasureWise — PDSA & UDS Quality Software for FQHCs"
+        description="Link every PDSA cycle to a UDS measure, track impact with SPC charts, and export an HRSA Audit Binder. Built for FQHC quality teams."
         canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
 
       />
+
 
 
       {/* Hero — audience → outcome → proof */}
@@ -325,9 +321,10 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground leading-relaxed">
               MeasureWise gives FQHC quality directors one defensible workflow for every
               PDSA cycle: guided templates, real-time SPC charts, and a one-click
-              HRSA Chapter-10 Audit Binder. Replace 4–6 spreadsheets with the system your
+              HRSA Audit Binder. Replace 4–6 spreadsheets with the system your
               surveyors expect to see.
             </p>
+
 
             <ul className="grid sm:grid-cols-3 gap-3 text-left max-w-xl mx-auto lg:mx-0">
               <li className="rounded-lg border border-border bg-card px-3 py-2.5">
@@ -368,9 +365,9 @@ export default function Landing() {
             <div className="absolute -inset-6 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
             <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
               <picture>
-                <source srcSet={dashboardPreviewWebp} type="image/webp" />
+                <source srcSet="/dashboard-preview.webp" type="image/webp" />
                 <img
-                  src={dashboardPreview}
+                  src="/dashboard-preview.jpg"
                   alt={`${BRAND.name} dashboard showing active PDSA cycles, UDS measures at risk, tasks due this week, and an SPC control chart`}
                   className="w-full h-auto"
                   width={1503}
@@ -379,6 +376,7 @@ export default function Landing() {
                   decoding="async"
                 />
               </picture>
+
             </div>
           </div>
         </div>
@@ -388,33 +386,8 @@ export default function Landing() {
       <TrustStrip />
 
 
-      <section className="py-20 md:py-24 px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-            The quality system FQHCs were never given
-          </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            MeasureWise sits on top of your EHR and Azara. It structures every PDSA cycle,
-            links it to the UDS measure it should move, and builds your HRSA Audit Binder
-            as you work — so quality improvement actually shows up in your numbers and in
-            your site-visit binder.
-          </p>
-          <p className="text-muted-foreground text-base leading-relaxed">
-            Dashboards show you where your rates <em>are</em>. MeasureWise helps you
-            change them — and proves you did.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">
-                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <a href="#how-it-works">See the full workflow</a>
-            </Button>
-          </div>
-        </div>
-      </section>
+
+
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 px-6 bg-muted/30 scroll-mt-24">
@@ -669,9 +642,11 @@ export default function Landing() {
               Why FQHCs choose MeasureWise over spreadsheets
             </h2>
             <p className="text-muted-foreground mt-3 text-lg">
-              Side-by-side: purpose-built QI software vs. what you're probably using now.
+              Dashboards show you where your rates <em>are</em>. MeasureWise helps you change
+              them — and proves you did.
             </p>
           </div>
+
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -725,52 +700,44 @@ export default function Landing() {
 
 
 
-      {/* Per-role deep sections (were separate /for/* pages) */}
-      {personaDeepSections.map((p, idx) => {
-        const Icon = p.icon;
-        const alt = idx % 2 === 0;
-        return (
-          <section
-            key={p.id}
-            id={p.id}
-            className={`py-20 px-6 scroll-mt-24 ${alt ? "bg-background" : "bg-muted/30"}`}
-          >
-            <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-start">
-              <div className="space-y-5">
-                <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-1.5 text-sm text-muted-foreground">
-                  <Icon className="h-4 w-4 text-primary" />
-                  {p.eyebrow}
+      {/* Per-role sections (were separate /for/* pages) */}
+      <section className="py-20 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+              Built for every role on your quality team
+            </h2>
+          </div>
+          <div className="grid gap-6 md:grid-cols-3">
+            {personaDeepSections.map((p) => {
+              const Icon = p.icon;
+              return (
+                <div
+                  key={p.id}
+                  id={p.id}
+                  className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 space-y-4"
+                >
+                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
+                    <Icon className="h-4 w-4 text-primary" />
+                    {p.eyebrow}
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground leading-snug">{p.headline}</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{p.pain}</p>
+                  <ul className="space-y-3">
+                    {p.capabilities.map((cap) => (
+                      <li key={cap} className="flex items-start gap-2.5">
+                        <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                        <span className="text-sm text-muted-foreground leading-relaxed">{cap}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-                  {p.headline}
-                </h2>
-                <p className="text-muted-foreground text-lg leading-relaxed">{p.pain}</p>
-                <blockquote className="border-l-2 border-primary/40 pl-4 text-sm italic text-muted-foreground">
-                  {p.quote}
-                </blockquote>
-                <div className="flex flex-wrap gap-3 pt-2">
-                  <Button asChild>
-                    <Link to="/pricing">
-                      Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" asChild>
-                    <a href="#how-it-works">See how it works</a>
-                  </Button>
-                </div>
-              </div>
-              <ul className="space-y-4">
-                {p.capabilities.map((cap) => (
-                  <li key={cap} className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
-                    <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                    <span className="text-sm text-foreground leading-relaxed">{cap}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        );
-      })}
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
 
 
 
