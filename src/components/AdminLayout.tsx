@@ -7,7 +7,7 @@ import { useAdminOrgs } from "@/hooks/useAdminOrgs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useEffect, useState } from "react";
 
-const ACTING_KEY = "mw_admin_active_org";
+const ACTING_KEY = ACTING_ORG_KEY;
 
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const { signOut } = useAuth();
@@ -33,8 +33,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       window.localStorage.setItem(ACTING_KEY, val);
       setActing(val);
     }
-    // Force OrgContext to re-resolve target org.
-    window.location.reload();
+    // Let OrgContext re-resolve in place — no full page reload.
+    window.dispatchEvent(new Event(ACTING_ORG_EVENT));
   };
 
   return (
