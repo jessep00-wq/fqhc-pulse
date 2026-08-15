@@ -48,17 +48,17 @@ export function TeamInviteSection() {
 
   const inviteMutation = useMutation({
     mutationFn: async (inviteEmail: string) => {
-      const { error } = await supabase.from("team_invitations").insert({
-        organization_id: organization.id,
-        email: inviteEmail.trim().toLowerCase(),
-        invited_by: user!.id,
+      const { data, error } = await supabase.functions.invoke("team-invite", {
+        body: { action: "send", email: inviteEmail.trim().toLowerCase() },
       });
-      if (error) throw error;
+      const errText = (data as { error?: string } | null)?.error;
+      if (errText) throw new Error(errText);
+      if (error) throw new Error("We couldn't send that invitation. Please try again.");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["team-invitations"] });
       setEmail("");
-      toast.success("Invitation sent!");
+      toast.success("Invitation email sent — the link is valid for 7 days.");
     },
     onError: (err: Error) => toast.error(err.message),
   });
