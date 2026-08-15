@@ -433,6 +433,45 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* SITE-VISIT READINESS */}
+        <SectionCard
+          title="Site-visit readiness"
+          description="How many cycles are fully documented to HRSA evidence standards"
+          action={
+            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              Open PDSA Lab
+            </Button>
+          }
+        >
+          {readiness.total === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No PDSA cycles yet. Your readiness score appears once you start your first cycle.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-end gap-3">
+                <span className="text-3xl font-bold tabular-nums">{readiness.pct}%</span>
+                <span className="pb-1 text-sm text-muted-foreground">
+                  {readiness.ready} of {readiness.total} cycles fully documented
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${readiness.pct}%` }}
+                />
+              </div>
+              {readiness.blockers.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Most common gaps:{" "}
+                  {readiness.blockers.map((b) => `${b.label} (${b.count})`).join(" · ")}
+                </p>
+              )}
+            </div>
+          )}
+        </SectionCard>
+
+
 
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
       <BoardReportDialog
