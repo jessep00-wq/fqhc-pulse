@@ -29,8 +29,6 @@ import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
-import dashboardPreview from "@/assets/dashboard-preview.jpg";
-import dashboardPreviewWebp from "@/assets/dashboard-preview.webp";
 import {
   LineChart as RechartsLineChart,
   Line,
@@ -95,7 +93,6 @@ type PersonaDeep = {
   headline: string;
   pain: string;
   capabilities: string[];
-  quote: string;
 };
 
 const personaDeepSections: PersonaDeep[] = [
@@ -110,7 +107,6 @@ const personaDeepSections: PersonaDeep[] = [
       "Guided PDSA cycles linked to the exact UDS measure they're meant to move",
       "SPC charts with control limits so you know when a change is real, not noise",
     ],
-    quote: "\"We stopped emailing UDS spreadsheets around and started running PDSA cycles that actually move the number.\"",
   },
   {
     id: "for-compliance-leads",
@@ -123,7 +119,6 @@ const personaDeepSections: PersonaDeep[] = [
       "Readiness view that shows which cycles are missing documentation",
       "One-click HRSA Audit Binder export, organized for survey review",
     ],
-    quote: "\"OSV prep used to eat two months. Now the evidence is already there when we need it.\"",
   },
   {
     id: "for-operations-managers",
@@ -136,7 +131,6 @@ const personaDeepSections: PersonaDeep[] = [
       "HRSA Audit Binder that keeps every cycle log, task, and attachment survey-ready",
       "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
     ],
-    quote: "\"Same evidence trail our old enterprise vendor produced, at a fraction of the cost.\"",
   },
 ];
 
