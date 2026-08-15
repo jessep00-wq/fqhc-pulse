@@ -342,7 +342,7 @@ export default function Dashboard() {
         canonical="https://measurewise.org/dashboard"
       />
       {/* Slim sticky sample-data strip */}
-      {hasTrends && hasCycles && !sampleBannerDismissed && (
+      {hasTrends && hasCycles && !isDemo && !sampleBannerDismissed && (
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
           <Info className="h-3.5 w-3.5 text-primary shrink-0" />
           <p className="text-xs text-muted-foreground flex-1 truncate">
