@@ -10,6 +10,7 @@ import { TrialBanner } from "@/components/TrialBanner";
 import { TrialGuard } from "@/components/TrialGuard";
 import { DemoWatermark } from "@/components/DemoWatermark";
 import { DemoModeBanner } from "@/components/DemoModeBanner";
+import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   DropdownMenu,
