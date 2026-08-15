@@ -1117,12 +1117,12 @@ export default function PDSALab() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & Evidence Packet</h1>
+            <h1 className="text-2xl font-bold tracking-tight">PDSA Lab</h1>
             <p className="text-muted-foreground">Guided quality improvement cycles — walk into your next site visit ready</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
-              <Download className="h-4 w-4 mr-1" /> Evidence Packet
+              <Download className="h-4 w-4 mr-1" /> HRSA Audit Binder
             </Button>
             <Button onClick={handleNewCycle} aria-label="New PDSA Cycle">
               <Plus className="h-4 w-4 mr-1" /> New PDSA Cycle

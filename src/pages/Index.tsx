@@ -31,6 +31,8 @@ import { BoardReportDialog } from "@/components/BoardReportDialog";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
+import { useProfile } from "@/hooks/useProfile";
+import { blockersForCompletion, type PdsaCycleFields } from "@/lib/pdsaProgress";
 
 import { UDS_MEASURE_LABELS, UDS_MEASURE_LIST } from "@/data/udsMeasures";
 
@@ -127,8 +129,9 @@ import {
 } from "@/components/dashboard";
 
 export default function Dashboard() {
-  const { organization } = useOrg();
+  const { organization, isDemo } = useOrg();
   const { user } = useAuth();
+  const { firstName } = useProfile();
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
   const orgId = organization.id;
@@ -280,8 +283,28 @@ export default function Dashboard() {
 
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
   const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
+  // Site-visit readiness — same completeness rules the cycle detail enforces,
+  // so the dashboard can never disagree with the cycle it links to.
+  const readiness = (() => {
+    const list = cycles ?? [];
+    if (list.length === 0) {
+      return { total: 0, ready: 0, pct: 0, blockers: [] as { label: string; count: number }[] };
+    }
+    const blockerCounts = new Map<string, number>();
+    let ready = 0;
+    for (const c of list) {
+      const missing = blockersForCompletion(c as PdsaCycleFields);
+      if (missing.length === 0) ready += 1;
+      for (const m of missing) blockerCounts.set(m, (blockerCounts.get(m) ?? 0) + 1);
+    }
+    const blockers = [...blockerCounts.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    return { total: list.length, ready, pct: Math.round((ready / list.length) * 100), blockers };
+  })();
 
   // Attention strip now only carries items without a natural KPI home.
   const attentionItems: AttentionItem[] = [];
@@ -319,7 +342,7 @@ export default function Dashboard() {
         canonical="https://measurewise.org/dashboard"
       />
       {/* Slim sticky sample-data strip */}
-      {hasTrends && hasCycles && !sampleBannerDismissed && (
+      {hasTrends && hasCycles && !isDemo && !sampleBannerDismissed && (
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
           <Info className="h-3.5 w-3.5 text-primary shrink-0" />
           <p className="text-xs text-muted-foreground flex-1 truncate">
@@ -410,6 +433,45 @@ export default function Dashboard() {
           />
         </div>
 
+        {/* SITE-VISIT READINESS */}
+        <SectionCard
+          title="Site-visit readiness"
+          description="How many cycles are fully documented to HRSA evidence standards"
+          action={
+            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              Open PDSA Lab
+            </Button>
+          }
+        >
+          {readiness.total === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No PDSA cycles yet. Your readiness score appears once you start your first cycle.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex items-end gap-3">
+                <span className="text-3xl font-bold tabular-nums">{readiness.pct}%</span>
+                <span className="pb-1 text-sm text-muted-foreground">
+                  {readiness.ready} of {readiness.total} cycles fully documented
+                </span>
+              </div>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${readiness.pct}%` }}
+                />
+              </div>
+              {readiness.blockers.length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  Most common gaps:{" "}
+                  {readiness.blockers.map((b) => `${b.label} (${b.count})`).join(" · ")}
+                </p>
+              )}
+            </div>
+          )}
+        </SectionCard>
+
+
 
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
       <BoardReportDialog
@@ -496,11 +558,17 @@ export default function Dashboard() {
               <FlaskConical className="h-5 w-5 text-primary" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium">No activity yet</p>
-              <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
+              <p className="text-sm font-medium">
+                {hasCycles ? "No recent changes logged" : "No activity yet"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {hasCycles
+                  ? "You have PDSA cycles, but nothing has been edited recently. Updates you make from here on will appear in this feed."
+                  : "Activity appears as you run PDSA cycles, complete tasks, and update measures."}
+              </p>
             </div>
             <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
-              Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
+              {hasCycles ? "Open PDSA Lab" : "Start your first PDSA"} <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
         ) : (
