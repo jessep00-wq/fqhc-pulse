@@ -124,7 +124,16 @@ export default function Onboarding() {
       }
 
       if (dataMode === "demo") {
-        await supabase.rpc("seed_demo_data", { org_id: orgId });
+        // Never fail workspace creation on seeding, but don't fail silently
+        // either — an empty "demo" workspace looks like a broken product.
+        const { error: seedError } = await supabase.rpc("seed_demo_data", { org_id: orgId });
+        if (seedError) {
+          toast({
+            title: "Workspace created, but demo data didn't load",
+            description: "You can seed sample data later from Settings → Facility.",
+            variant: "destructive",
+          });
+        }
       }
 
       const intent = readPlanIntent();
