@@ -105,6 +105,7 @@ const App = () => (
                 <Route path="/security" element={<Security />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/about" element={<About />} />
+                <Route path="/demo" element={<PublicDemo />} />
 
                 {/* Features (single page with hash anchors; old slugs redirect for SEO) */}
                 <Route path="/features" element={<Features />} />

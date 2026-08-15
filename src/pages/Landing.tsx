@@ -343,13 +343,15 @@ export default function Landing() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-base px-8 w-full sm:w-auto">
-                <Link to="/contact">Talk to the founder</Link>
+                <Link to="/demo">See a real cycle — no signup</Link>
               </Button>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              {TRIAL_TERMS}
+              {TRIAL_TERMS}{" "}
+              <Link to="/contact" className="text-primary hover:underline">Talk to the founder</Link>
             </p>
+
 
           </div>
 
