@@ -20,6 +20,7 @@ export function TeamInviteSection() {
   const [email, setEmail] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { canInviteUser } = useTierLimits();
+  const { isOrgAdmin } = useUserRole();
 
   const { data: invitations = [] } = useQuery({
     queryKey: ["team-invitations", organization.id],
