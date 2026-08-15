@@ -22,7 +22,7 @@ export default function AcceptInvite() {
     if (!user) {
       // Remember the invite so Auth can bounce back here after sign-in.
       window.sessionStorage.setItem("mw_pending_invite", token);
-      navigate(`/auth?redirect=${encodeURIComponent(`/invite/${token}`)}`, { replace: true });
+      navigate(`/auth?next=${encodeURIComponent(`/invite/${token}`)}`, { replace: true });
       return;
     }
 
