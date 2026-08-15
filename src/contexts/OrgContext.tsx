@@ -21,7 +21,14 @@ interface OrgContextType {
   isDemo: boolean;
   error: string | null;
   refetchOrg: () => void;
+  /** True when a founder/support admin is viewing another tenant's workspace. */
+  isActingAs: boolean;
+  /** Clears the admin "acting as" override and re-resolves the real workspace. */
+  exitActingAs: () => void;
 }
+
+export const ACTING_ORG_KEY = "mw_admin_active_org";
+export const ACTING_ORG_EVENT = "mw-acting-org-changed";
 
 const OrgContext = createContext<OrgContextType | undefined>(undefined);
 
