@@ -435,7 +435,37 @@ export default function Landing() {
             ))}
           </div>
         </div>
+          <div className="mt-14 rounded-xl border border-border bg-card p-6 md:p-8">
+            <p className="text-xs font-bold uppercase tracking-wider text-primary">
+              Your first 10 minutes
+            </p>
+            <ol className="mt-4 grid gap-4 md:grid-cols-4">
+              {[
+                "Pick the measure you're already working on",
+                "Start a cycle from a template",
+                "Enter your baseline rate",
+                "Your binder starts building from that moment",
+              ].map((s, i) => (
+                <li key={s} className="flex items-start gap-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm leading-relaxed text-foreground">{s}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-5 text-sm text-muted-foreground">
+              No implementation project, no IT ticket.{" "}
+              <Link to="/demo" className="text-primary hover:underline">
+                See a finished cycle first
+              </Link>
+              .
+            </p>
+          </div>
+        </div>
       </section>
+
+
 
       {/* SPC Chart Hero Section */}
       <section className="py-20 px-6">
