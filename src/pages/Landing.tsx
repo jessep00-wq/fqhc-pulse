@@ -102,7 +102,7 @@ const personaDeepSections: PersonaDeep[] = [
     id: "for-qi-directors",
     icon: LineChart,
     eyebrow: "For QI Directors",
-    headline: "Your UDS measures, PDSA cycles, and Quality Award tracking — unified",
+    headline: "Your UDS measures, PDSA cycles, and audit evidence — unified",
     pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and every piece of audit evidence in one view.",
     capabilities: [
       "UDS dashboards for the 7 core measures, with targets and gap-to-goal tracking",

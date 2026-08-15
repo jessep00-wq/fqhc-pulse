@@ -83,7 +83,7 @@ const sections: FeatureSection[] = [
       {
         heading: "Why UDS tracking matters for FQHCs",
         paragraphs: [
-          "The Uniform Data System (UDS) is the primary reporting mechanism for HRSA-funded health centers. Strong UDS performance leads to better site-visit outcomes and Quality Award eligibility.",
+          "The Uniform Data System (UDS) is the primary reporting mechanism for HRSA-funded health centers. Strong UDS performance supports better site-visit outcomes.",
           "MeasureWise keeps measure performance next to the PDSA cycles working on it, so the connection between the work and the number is documented rather than remembered.",
         ],
       },

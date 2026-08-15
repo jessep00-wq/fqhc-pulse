@@ -34,6 +34,7 @@ const RefundPolicy = lazy(() => import("./pages/RefundPolicy"));
 const Security = lazy(() => import("./pages/Security"));
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
+const PublicDemo = lazy(() => import("./pages/PublicDemo"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Status = lazy(() => import("./pages/Status"));
