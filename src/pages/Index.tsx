@@ -558,11 +558,17 @@ export default function Dashboard() {
               <FlaskConical className="h-5 w-5 text-primary" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium">No activity yet</p>
-              <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
+              <p className="text-sm font-medium">
+                {hasCycles ? "No recent changes logged" : "No activity yet"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {hasCycles
+                  ? "You have PDSA cycles, but nothing has been edited recently. Updates you make from here on will appear in this feed."
+                  : "Activity appears as you run PDSA cycles, complete tasks, and update measures."}
+              </p>
             </div>
             <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
-              Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
+              {hasCycles ? "Open PDSA Lab" : "Start your first PDSA"} <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
         ) : (
