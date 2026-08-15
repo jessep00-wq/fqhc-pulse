@@ -361,10 +361,10 @@ export default function Landing() {
                 <source srcSet={dashboardPreviewWebp} type="image/webp" />
                 <img
                   src={dashboardPreview}
-                  alt={`${BRAND.name} dashboard showing PDSA cycles, UDS measure trends, and audit evidence`}
+                  alt={`${BRAND.name} dashboard showing active PDSA cycles, UDS measures at risk, tasks due this week, and an SPC control chart`}
                   className="w-full h-auto"
-                  width={1280}
-                  height={720}
+                  width={1503}
+                  height={790}
                   {...({ fetchpriority: "high" } as any)}
                   decoding="async"
                 />
