@@ -12,6 +12,7 @@ import { Loader2, UserPlus, Mail } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export function TeamInviteSection() {
   const { user } = useAuth();
