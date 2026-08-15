@@ -241,6 +241,14 @@ const faqItems = [
     a: "Yes. Every plan starts with a 14-day free trial — no credit card required to begin. You get full access during the trial. Add a card before day 14 to keep your workspace; otherwise it locks until you subscribe.",
   },
   {
+    q: "What happens to my data if I don't subscribe?",
+    a: "Nothing is deleted. After day 14 the workspace locks and your cycles, measures, and documentation sit exactly as you left them. Subscribe at any time and everything is there — your trial work is never thrown away.",
+  },
+  {
+    q: "How does this compare to what an enterprise QI platform costs?",
+    a: "Enterprise QI and population health analytics contracts typically run into five or six figures a year, with per-seat licensing and a procurement cycle. MeasureWise is $149–$699 per month, flat, per site, with unlimited users — small enough for a quality director to approve without going to the board.",
+  },
+  {
     q: "Does MeasureWise store PHI?",
     a: "No. MeasureWise stores only aggregate quality improvement metrics — screening rates, cycle documentation, and task status. No patient-level data enters the system.",
   },
@@ -622,7 +630,8 @@ export default function Landing() {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            {TRIAL_TERMS} No per-seat licensing.
+            {TRIAL_TERMS} No per-seat licensing, no procurement cycle — flat per-site pricing
+            instead of a five- or six-figure enterprise QI contract.
           </p>
           <Button variant="outline" asChild>
             <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
