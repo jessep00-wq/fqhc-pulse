@@ -64,7 +64,8 @@ const features = [
     description:
       "Walk your team through Aim → Prediction → Measurement → Test → Analysis → Decision with coaching prompts, pre-built templates, and automatic linkage to the UDS measure you're trying to move. No more cycles that end in a binder and never get reviewed.",
     outcome:
-      "Teams report cutting PDSA documentation time by 60–80% — time that goes back to patient care.",
+      "Cycle documentation is captured as you work, not rebuilt before a review.",
+
   },
   {
     icon: BarChart3,
@@ -301,12 +302,13 @@ export default function Landing() {
   return (
     <PublicPageLayout>
       <SEO
-        title={`${BRAND.nameTm} — ${BRAND.tagline}`}
-        description="Link every PDSA cycle to a UDS measure, track impact in real time, and export HRSA Audit Binders — built for FQHC quality teams."
+        title="MeasureWise — PDSA & UDS Quality Software for FQHCs"
+        description="Link every PDSA cycle to a UDS measure, track impact with SPC charts, and export an HRSA Audit Binder. Built for FQHC quality teams."
         canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
 
       />
+
 
 
       {/* Hero — audience → outcome → proof */}
@@ -325,9 +327,10 @@ export default function Landing() {
             <p className="text-lg text-muted-foreground leading-relaxed">
               MeasureWise gives FQHC quality directors one defensible workflow for every
               PDSA cycle: guided templates, real-time SPC charts, and a one-click
-              HRSA Chapter-10 Audit Binder. Replace 4–6 spreadsheets with the system your
+              HRSA Audit Binder. Replace 4–6 spreadsheets with the system your
               surveyors expect to see.
             </p>
+
 
             <ul className="grid sm:grid-cols-3 gap-3 text-left max-w-xl mx-auto lg:mx-0">
               <li className="rounded-lg border border-border bg-card px-3 py-2.5">
@@ -368,9 +371,9 @@ export default function Landing() {
             <div className="absolute -inset-6 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
             <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
               <picture>
-                <source srcSet={dashboardPreviewWebp} type="image/webp" />
+                <source srcSet="/dashboard-preview.webp" type="image/webp" />
                 <img
-                  src={dashboardPreview}
+                  src="/dashboard-preview.jpg"
                   alt={`${BRAND.name} dashboard showing active PDSA cycles, UDS measures at risk, tasks due this week, and an SPC control chart`}
                   className="w-full h-auto"
                   width={1503}
@@ -379,6 +382,7 @@ export default function Landing() {
                   decoding="async"
                 />
               </picture>
+
             </div>
           </div>
         </div>
@@ -388,33 +392,8 @@ export default function Landing() {
       <TrustStrip />
 
 
-      <section className="py-20 md:py-24 px-6">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
-            The quality system FQHCs were never given
-          </h2>
-          <p className="text-muted-foreground text-lg leading-relaxed">
-            MeasureWise sits on top of your EHR and Azara. It structures every PDSA cycle,
-            links it to the UDS measure it should move, and builds your HRSA Audit Binder
-            as you work — so quality improvement actually shows up in your numbers and in
-            your site-visit binder.
-          </p>
-          <p className="text-muted-foreground text-base leading-relaxed">
-            Dashboards show you where your rates <em>are</em>. MeasureWise helps you
-            change them — and proves you did.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">
-                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <a href="#how-it-works">See the full workflow</a>
-            </Button>
-          </div>
-        </div>
-      </section>
+
+
 
       {/* How It Works */}
       <section id="how-it-works" className="py-20 px-6 bg-muted/30 scroll-mt-24">
@@ -669,9 +648,11 @@ export default function Landing() {
               Why FQHCs choose MeasureWise over spreadsheets
             </h2>
             <p className="text-muted-foreground mt-3 text-lg">
-              Side-by-side: purpose-built QI software vs. what you're probably using now.
+              Dashboards show you where your rates <em>are</em>. MeasureWise helps you change
+              them — and proves you did.
             </p>
           </div>
+
           <div className="rounded-xl border border-border bg-card overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
