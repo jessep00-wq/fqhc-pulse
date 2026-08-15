@@ -691,9 +691,6 @@ export default function Landing() {
       </section>
 
 
-      {/* AthenaOne Playbook Lead Magnet */}
-      <PlaybookLeadMagnetSection />
-
       {/* Sample Export Preview */}
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-4xl mx-auto text-center space-y-8">
@@ -703,7 +700,11 @@ export default function Landing() {
             </h2>
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Download a sample HRSA Audit Binder — the same format your health center
-              will generate in one click after completing a PDSA cycle.
+              will generate in one click after completing a PDSA cycle. Or{" "}
+              <Link to="/demo" className="text-primary hover:underline">
+                walk through the cycle that produced it
+              </Link>
+              .
             </p>
           </div>
           <SampleExportButtons />
@@ -713,15 +714,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Who it's for — intro to the three role sections below */}
-      <section className="pt-24 px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-3">
-          <h2 className="text-3xl font-bold text-foreground">Who MeasureWise is for</h2>
-          <p className="text-muted-foreground text-lg">
-            Whether you lead QI, own compliance, or manage operations — here's what the platform does for your role.
-          </p>
-        </div>
-      </section>
 
 
       {/* Per-role deep sections (were separate /for/* pages) */}
