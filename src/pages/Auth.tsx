@@ -206,12 +206,19 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Logo size="md" className="justify-center" />
+            <Link to="/" aria-label="Back to MeasureWise home" className="inline-flex">
+              <Logo size="md" className="justify-center" />
+            </Link>
           </div>
           <CardTitle className="text-xl">{BRAND.name}</CardTitle>
           <CardDescription>
             {showForgot ? "Reset your password" : "Quality operations, simplified for FQHCs"}
           </CardDescription>
+          {!showForgot && !isLogin && (
+            <p className="pt-2 text-sm font-medium text-primary">
+              14 days free, no card to start.
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {showVerifyEmail ? (
