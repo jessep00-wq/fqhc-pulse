@@ -129,7 +129,7 @@ import {
 } from "@/components/dashboard";
 
 export default function Dashboard() {
-  const { organization } = useOrg();
+  const { organization, isDemo } = useOrg();
   const { user } = useAuth();
   const { firstName } = useProfile();
   const navigate = useNavigate();
