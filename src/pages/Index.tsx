@@ -31,6 +31,8 @@ import { BoardReportDialog } from "@/components/BoardReportDialog";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
+import { useProfile } from "@/hooks/useProfile";
+import { blockersForCompletion, type PdsaCycleFields } from "@/lib/pdsaProgress";
 
 import { UDS_MEASURE_LABELS, UDS_MEASURE_LIST } from "@/data/udsMeasures";
 
