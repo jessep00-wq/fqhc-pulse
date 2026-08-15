@@ -37,6 +37,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 min-w-0 flex flex-col">
+          <ImpersonationBanner />
           {isDemo && <DemoModeBanner />}
           <TrialBanner />
           <header className="h-14 flex items-center justify-between border-b bg-card px-4 gap-3">
