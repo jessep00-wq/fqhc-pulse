@@ -36,6 +36,7 @@ const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
 const PublicDemo = lazy(() => import("./pages/PublicDemo"));
 const Onboarding = lazy(() => import("./pages/Onboarding"));
+const AcceptInvite = lazy(() => import("./pages/AcceptInvite"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const Status = lazy(() => import("./pages/Status"));
 const NotFound = lazy(() => import("./pages/NotFound"));
