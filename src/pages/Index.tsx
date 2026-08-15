@@ -280,8 +280,28 @@ export default function Dashboard() {
 
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
   const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
+  // Site-visit readiness — same completeness rules the cycle detail enforces,
+  // so the dashboard can never disagree with the cycle it links to.
+  const readiness = (() => {
+    const list = cycles ?? [];
+    if (list.length === 0) {
+      return { total: 0, ready: 0, pct: 0, blockers: [] as { label: string; count: number }[] };
+    }
+    const blockerCounts = new Map<string, number>();
+    let ready = 0;
+    for (const c of list) {
+      const missing = blockersForCompletion(c as PdsaCycleFields);
+      if (missing.length === 0) ready += 1;
+      for (const m of missing) blockerCounts.set(m, (blockerCounts.get(m) ?? 0) + 1);
+    }
+    const blockers = [...blockerCounts.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    return { total: list.length, ready, pct: Math.round((ready / list.length) * 100), blockers };
+  })();
 
   // Attention strip now only carries items without a natural KPI home.
   const attentionItems: AttentionItem[] = [];
