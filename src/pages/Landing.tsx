@@ -434,7 +434,6 @@ export default function Landing() {
               </div>
             ))}
           </div>
-        </div>
           <div className="mt-14 rounded-xl border border-border bg-card p-6 md:p-8">
             <p className="text-xs font-bold uppercase tracking-wider text-primary">
               Your first 10 minutes
