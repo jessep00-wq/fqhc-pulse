@@ -853,6 +853,11 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* AthenaOne Playbook Lead Magnet — placed after the FAQ so it catches
+          bounce traffic instead of intercepting trial intent mid-page. */}
+      <PlaybookLeadMagnetSection />
+
+
       {/* Contact Form */}
       <section id="contact" className="py-20 px-6 bg-background">
         <div className="max-w-2xl mx-auto space-y-6">
