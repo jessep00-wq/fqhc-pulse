@@ -23,7 +23,7 @@ import {
   
   TrendingUp,
   Target,
-  Clock,
+  
 } from "lucide-react";
 import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
@@ -43,6 +43,10 @@ import {
 } from "recharts";
 
 
+/** Canonical trial terms — reuse verbatim everywhere trial terms appear. */
+const TRIAL_TERMS =
+  "14 days free, no card to start. Add a card before day 14 to keep your workspace.";
+
 const features = [
   {
     icon: FileCheck,
@@ -50,6 +54,8 @@ const features = [
     painPoint: "Tired of assembling audit evidence manually?",
     description:
       "Generate a print-ready HRSA Audit Binder: cycle log, task evidence, baseline-to-result deltas, and next-cycle linkages. Two weeks of prep, done in seconds. Every PDSA cycle automatically builds the documentation your surveyors ask for.",
+    outcome:
+      "Walk into your Operational Site Visit with documentation already assembled — not reconstructed the week before.",
   },
   {
     icon: FlaskConical,
@@ -57,6 +63,8 @@ const features = [
     painPoint: "Your team knows PDSA but struggles with consistency?",
     description:
       "Walk your team through Aim → Prediction → Measurement → Test → Analysis → Decision with coaching prompts, pre-built templates, and automatic linkage to the UDS measure you're trying to move. No more cycles that end in a binder and never get reviewed.",
+    outcome:
+      "Teams report cutting PDSA documentation time by 60–80% — time that goes back to patient care.",
   },
   {
     icon: BarChart3,
@@ -64,6 +72,8 @@ const features = [
     painPoint: "Waiting until year-end to see if your QI work moved the needle?",
     description:
       "Track the 7 core UDS clinical quality measures with live trend updates as your team completes cycles — so you know whether to scale an intervention or pivot before HRSA reporting.",
+    outcome:
+      "Year-over-year movement on the specific clinical measures you targeted — not just more reports.",
   },
   {
     icon: ClipboardCheck,
@@ -71,32 +81,11 @@ const features = [
     painPoint: "Rebuilding the same board report every quarter?",
     description:
       "Turn your active cycles, measure trends, and completed work into a quarterly QI committee and board report you can review, approve, and export — without re-typing anything.",
+    outcome:
+      "Your board and HRSA reviewers see exactly what changed, when, and what evidence backs it.",
   },
 ];
 
-const personas = [
-  {
-    icon: LineChart,
-    title: "QI Directors",
-    description:
-      "Clinical quality management made simple — track UDS measures, run PDSA cycles, and quantify HRSA Quality Award impact with AI for clinical improvement.",
-    link: "#for-qi-directors",
-  },
-  {
-    icon: ClipboardCheck,
-    title: "Compliance & Survey Leads",
-    description:
-      "Keep OSV evidence organized year-round — cycle logs, task records, and attachments assembled into an HRSA Audit Binder on demand.",
-    link: "#for-compliance-leads",
-  },
-  {
-    icon: DollarSign,
-    title: "CHC Operations Managers",
-    description:
-      "Replace expensive tools with clinical operations software that tracks improvement work, staff tasks, and audit evidence.",
-    link: "#for-operations-managers",
-  },
-];
 
 type PersonaDeep = {
   id: string;
@@ -212,43 +201,6 @@ const howItWorksSteps = [
   },
 ];
 
-const outcomes = [
-  {
-    icon: BarChart3,
-    title: "Measurable UDS movement",
-    description: "Year-over-year gains on the specific clinical measures you targeted — not just more reports.",
-  },
-  {
-    icon: Shield,
-    title: "Binder built before OSV",
-    description: "Walk into your Operational Site Visit with documentation already assembled — not reconstructed the week before.",
-  },
-  {
-    icon: Clock,
-    title: "Hours saved per cycle",
-    description: "Teams report cutting PDSA documentation time by 60–80%. The time you save goes back to patient care.",
-  },
-  {
-    icon: DollarSign,
-    title: "Evidence your board can read",
-    description: "Show your board and HRSA reviewers exactly what changed, when, and what evidence backs it.",
-  },
-];
-
-const objectionItems = [
-  {
-    title: "Not another dashboard — PDSA-first",
-    description: "Azara and similar tools show you where your rates are. MeasureWise structures the change you're testing and ties it to the UDS line it should move.",
-  },
-  {
-    title: "Audit-ready without the year-end scramble",
-    description: "Instead of reconstructing months of work from spreadsheets before a site visit, surveyors see structured, linked evidence the moment they ask.",
-  },
-  {
-    title: "Built for CHC budgets",
-    description: "No per-seat licensing, no enterprise sales cycle, no six-month implementation.",
-  },
-];
 
 
 const faqItems = [
@@ -391,13 +343,14 @@ export default function Landing() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-base px-8 w-full sm:w-auto">
-                <Link to="/contact">Book a 20-min demo</Link>
+                <Link to="/contact">Talk to the founder</Link>
               </Button>
             </div>
 
             <p className="text-sm text-muted-foreground">
-              14-day free trial · No credit card · Cancel anytime
+              {TRIAL_TERMS}
             </p>
+
           </div>
 
           {/* Right: dashboard preview */}
@@ -590,6 +543,10 @@ export default function Landing() {
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {f.description}
                   </p>
+                  <p className="flex items-start gap-2 rounded-lg bg-primary/5 px-3 py-2 text-sm text-foreground">
+                    <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <span><span className="font-semibold">Outcome:</span> {f.outcome}</span>
+                  </p>
                 </CardContent>
               </Card>
             ))}
@@ -601,46 +558,14 @@ export default function Landing() {
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <Link to="/contact">Book a 20-min demo</Link>
+              <Link to="/contact">Talk to the founder</Link>
             </Button>
           </div>
+          <p className="mt-4 text-center text-sm text-muted-foreground">{TRIAL_TERMS}</p>
+
         </div>
       </section>
 
-      {/* Outcomes You Can Expect */}
-      <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Outcomes you can expect
-            </h2>
-            <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              MeasureWise doesn't just organize your QI work — it changes the results you report.
-            </p>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {outcomes.map((o) => (
-              <div key={o.title} className="text-center space-y-3 p-6">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary mx-auto">
-                  <o.icon className="h-6 w-6" />
-                </div>
-                <h3 className="font-semibold text-foreground">{o.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{o.description}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">
-                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <Link to="/contact">Book a 20-min demo</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
 
       {/* Pricing Teaser */}
       <section className="py-12 px-6 bg-primary/5 border-y border-primary/10">
@@ -666,7 +591,7 @@ export default function Landing() {
             </span>
           </div>
           <p className="text-sm text-muted-foreground">
-            14-day free trial on every plan. No credit card to start. No per-seat licensing.
+            {TRIAL_TERMS} No per-seat licensing.
           </p>
           <Button variant="outline" asChild>
             <Link to="/pricing">See full pricing <ArrowRight className="ml-2 h-4 w-4" /></Link>
@@ -734,27 +659,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Why This Instead of Spreadsheets and Azara? */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Why this instead of spreadsheets and Azara?
-            </h2>
-            <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              We hear these questions from every FQHC. Here's why teams make the switch.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-2 gap-6">
-            {objectionItems.map((item) => (
-              <div key={item.title} className="rounded-xl border border-border bg-card p-6 space-y-3">
-                <h3 className="font-semibold text-foreground text-lg">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* AthenaOne Playbook Lead Magnet */}
       <PlaybookLeadMagnetSection />
@@ -778,49 +682,16 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Persona section */}
-      <section className="py-24 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-foreground">
-              Who MeasureWise is for
-            </h2>
-            <p className="text-muted-foreground mt-3 text-lg">
-              Whether you lead QI, own compliance, or manage operations — MeasureWise speaks your language.
-            </p>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-            {personas.map((p) => (
-              <Link key={p.title} to={p.link} className="group">
-                <Card className="h-full border-border hover:border-primary/40 transition-colors group-hover:shadow-md">
-                  <CardContent className="p-6 space-y-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                      <p.icon className="h-5 w-5" />
-                    </div>
-                    <h3 className="font-semibold text-foreground text-lg">{p.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {p.description}
-                    </p>
-                    <span className="inline-flex items-center text-sm text-primary font-medium group-hover:underline">
-                      Learn more <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">
-                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8">
-              <Link to="/contact">Book a 20-min demo</Link>
-            </Button>
-          </div>
+      {/* Who it's for — intro to the three role sections below */}
+      <section className="pt-24 px-6">
+        <div className="max-w-5xl mx-auto text-center space-y-3">
+          <h2 className="text-3xl font-bold text-foreground">Who MeasureWise is for</h2>
+          <p className="text-muted-foreground text-lg">
+            Whether you lead QI, own compliance, or manage operations — here's what the platform does for your role.
+          </p>
         </div>
       </section>
+
 
       {/* Per-role deep sections (were separate /for/* pages) */}
       {personaDeepSections.map((p, idx) => {

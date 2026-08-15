@@ -49,6 +49,7 @@ const getTiers = (annual: boolean) => [
     name: "Solo Clinic",
     lookupKey: annual ? "solo_annual" : "solo_monthly",
     price: annual ? "$124" : "$149",
+    monthlyPrice: "$149",
     period: "/month",
     annualTotal: annual ? "$1,490/yr" : undefined,
     description: "One site, unlimited everything else.",
@@ -70,6 +71,7 @@ const getTiers = (annual: boolean) => [
     name: "Multi-Site",
     lookupKey: annual ? "multi_annual" : "multi_monthly",
     price: annual ? "$291" : "$349",
+    monthlyPrice: "$349",
     period: "/month",
     annualTotal: annual ? "$3,490/yr" : undefined,
     description: "For health centers with 2–5 locations.",
@@ -92,6 +94,7 @@ const getTiers = (annual: boolean) => [
     name: "Health Center Network",
     lookupKey: annual ? "network_annual" : "network_monthly",
     price: annual ? "$582" : "$699",
+    monthlyPrice: "$699",
     period: "/month",
     annualTotal: annual ? "$6,990/yr" : undefined,
     description: "For networks with 6+ sites or PCA/HCCN programs.",
@@ -198,16 +201,18 @@ export default function Pricing() {
           </p>
 
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
-            14-day free trial — no credit card required
+            14 days free, no card to start
           </div>
 
           {/* Billing toggle */}
-          <div className="flex items-center justify-center gap-3 pt-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
             <span className={`text-sm font-medium ${!annual ? "text-foreground" : "text-muted-foreground"}`}>
               Billed Monthly
             </span>
             <button
               onClick={() => setAnnual(!annual)}
+              role="switch"
+              aria-checked={annual}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                 annual ? "bg-primary" : "bg-muted-foreground/30"
               }`}
@@ -222,12 +227,11 @@ export default function Pricing() {
             <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
               Billed Annually
             </span>
-            {annual && (
-              <span className="rounded-full bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-0.5 text-xs font-semibold">
-                Save 2 months
-              </span>
-            )}
+            <span className="rounded-full bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-0.5 text-xs font-semibold">
+              Save 2 months
+            </span>
           </div>
+
         </div>
       </section>
 
@@ -251,7 +255,12 @@ export default function Pricing() {
               <CardHeader className={`text-center pb-4 ${tier.highlight ? "bg-gradient-to-b from-primary/5 to-transparent rounded-t-lg" : ""}`}>
                 <CardTitle className="text-xl">{tier.name}</CardTitle>
                 <CardDescription className="text-sm">{tier.description}</CardDescription>
-                <div className="pt-4">
+                <div className="pt-4 flex items-baseline justify-center gap-2">
+                  {annual && (
+                    <span className="text-lg font-semibold text-muted-foreground line-through">
+                      {tier.monthlyPrice}
+                    </span>
+                  )}
                   <span className="text-4xl font-extrabold text-foreground">{tier.price}</span>
                   {tier.period && <span className="text-muted-foreground text-sm">{tier.period}</span>}
                 </div>
