@@ -401,6 +401,7 @@ interface WizardData {
   measurementPlan: string;
   udsMeasure: string;
   focusArea: string;
+  siteId: string;
   testDescription: string;
   assignedStaff: StaffRole[];
   rootCause: string;
@@ -416,6 +417,7 @@ const emptyWizard: WizardData = {
   measurementPlan: "",
   udsMeasure: "",
   focusArea: "",
+  siteId: "",
   testDescription: "",
   assignedStaff: ["QI Manager"],
   rootCause: "",
@@ -649,6 +651,11 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
                 </SelectContent>
               </Select>
             </div>
+            <SiteSelect
+              value={data.siteId}
+              onChange={(v) => setData({ ...data, siteId: v === NO_SITE ? "" : v })}
+              helpText="Tag a site so this cycle rolls up in the network dashboard."
+            />
             {!data.udsMeasure && (
               <div className="space-y-2">
                 <Label>Focus area</Label>
@@ -987,6 +994,7 @@ export default function PDSALab() {
         measurement_plan: wizardData.measurementPlan || null,
         test_description: wizardData.testDescription || null,
         template_id: wizardData.template?.id || null,
+        site_id: wizardData.siteId || null,
       }).select("id").single();
       if (error) throw error;
       await markComplete(data?.id);
