@@ -238,7 +238,7 @@ export default function Onboarding() {
               className="space-y-4"
             >
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="org-name">Organization Name *</Label>
                   <Input
                     id="org-name"
@@ -246,54 +246,6 @@ export default function Onboarding() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="org-npi">NPI (optional)</Label>
-                  <Input
-                    id="org-npi"
-                    placeholder="10-digit NPI"
-                    value={npi}
-                    onChange={(e) => setNpi(e.target.value)}
-                    maxLength={10}
-                    inputMode="numeric"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Organization Type *</Label>
-                  <Select value={orgType} onValueChange={setOrgType}>
-                    <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                    <SelectContent>
-                      {ORG_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Reporting Period *</Label>
-                  <Select value={reportingPeriod} onValueChange={setReportingPeriod}>
-                    <SelectTrigger><SelectValue placeholder="Select reporting period" /></SelectTrigger>
-                    <SelectContent>
-                      {REPORTING_PERIODS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ql-name">Primary Quality Lead *</Label>
-                  <Input
-                    id="ql-name"
-                    placeholder="Full name"
-                    value={qualityLeadName}
-                    onChange={(e) => setQualityLeadName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ql-email">Quality Lead Email *</Label>
-                  <Input
-                    id="ql-email"
-                    type="email"
-                    placeholder="lead@yourchc.org"
-                    value={qualityLeadEmail}
-                    onChange={(e) => setQualityLeadEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
@@ -307,6 +259,11 @@ export default function Onboarding() {
                   <p className="text-xs text-muted-foreground">Detected: {detectedTz}</p>
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                NPI, organization type, reporting period, and quality lead can be added later in{" "}
+                <strong>Settings → Facility</strong>.
+              </p>
+
               <div className="flex justify-end pt-2">
                 <Button type="submit" disabled={!step1Valid}>
                   Continue <ArrowRight className="h-4 w-4 ml-1" />
