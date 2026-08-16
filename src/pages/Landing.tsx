@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import ContactForm from "@/components/ContactForm";
 import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,35 +9,21 @@ import jessicaPhoto from "@/assets/jessica-smith.jpg.asset.json";
 import {
   FlaskConical,
   BarChart3,
-  LineChart,
   FileCheck,
   ArrowRight,
   Shield,
   ClipboardCheck,
-  DollarSign,
   CheckCircle,
-  
   X,
   Lock,
-  
   TrendingUp,
   Target,
-  
 } from "lucide-react";
 import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
-import {
-  LineChart as RechartsLineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
+
 
 
 /** Canonical trial terms — reuse verbatim everywhere trial terms appear. */
