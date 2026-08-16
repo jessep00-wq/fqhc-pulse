@@ -154,20 +154,6 @@ const comparisonRows = [
   { feature: "Board-ready report export", measurewise: true, spreadsheet: "Manual", generic: "Add-on" },
 ];
 
-const spcDemoData = [
-  { month: "Jul", value: 52, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Aug", value: 50, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Sep", value: 54, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Oct", value: 57, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Nov", value: 53, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Dec", value: 58, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Jan", value: 61, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Feb", value: 63, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Mar", value: 66, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Apr", value: 69, ucl: 68, lcl: 42, mean: 55 },
-  { month: "May", value: 71, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Jun", value: 72, ucl: 68, lcl: 42, mean: 55 },
-];
 
 const howItWorksSteps = [
   {
