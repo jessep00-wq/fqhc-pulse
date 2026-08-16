@@ -86,53 +86,7 @@ const features = [
 ];
 
 
-type PersonaDeep = {
-  id: string;
-  icon: typeof LineChart;
-  eyebrow: string;
-  headline: string;
-  pain: string;
-  capabilities: string[];
-};
 
-const personaDeepSections: PersonaDeep[] = [
-  {
-    id: "for-qi-directors",
-    icon: LineChart,
-    eyebrow: "For QI Directors",
-    headline: "Your UDS measures, PDSA cycles, and audit evidence — unified",
-    pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and every piece of audit evidence in one view.",
-    capabilities: [
-      "UDS dashboards for the 7 core measures, with targets and gap-to-goal tracking",
-      "Guided PDSA cycles linked to the exact UDS measure they're meant to move",
-      "SPC charts with control limits so you know when a change is real, not noise",
-    ],
-  },
-  {
-    id: "for-compliance-leads",
-    icon: ClipboardCheck,
-    eyebrow: "For Compliance & Survey Leads",
-    headline: "Stay OSV-ready every single day",
-    pain: "Stop scrambling before an operational site visit. Every cycle, task, and attachment is captured as you work, so the evidence is already there when HRSA asks.",
-    capabilities: [
-      "Cycle logs, tasks, and attachments captured in the moment, not reconstructed later",
-      "Readiness view that shows which cycles are missing documentation",
-      "One-click HRSA Audit Binder export, organized for survey review",
-    ],
-  },
-  {
-    id: "for-operations-managers",
-    icon: DollarSign,
-    eyebrow: "For CHC Operations Managers",
-    headline: "Enterprise QI capability, community-health pricing",
-    pain: "Your health center deserves real QI tools — not another spreadsheet workaround or a six-figure enterprise contract you can't justify.",
-    capabilities: [
-      "Staff task management so improvement cycles keep moving between committee meetings",
-      "HRSA Audit Binder that keeps every cycle log, task, and attachment survey-ready",
-      "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
-    ],
-  },
-];
 
 
 const securityItems = [
