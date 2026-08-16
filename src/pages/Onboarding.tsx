@@ -82,13 +82,8 @@ export default function Onboarding() {
   if (isAdmin) return <Navigate to="/admin" replace />;
   if (hasOrg) return <Navigate to="/dashboard" replace />;
 
-  const step1Valid =
-    name.trim().length > 0 &&
-    orgType !== "" &&
-    reportingPeriod !== "" &&
-    qualityLeadName.trim().length > 0 &&
-    qualityLeadEmail.trim().length > 0 &&
-    timezone !== "";
+  const step1Valid = name.trim().length > 0 && timezone !== "";
+
 
   const step2Valid = acknowledged;
 
