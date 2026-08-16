@@ -700,43 +700,8 @@ export default function Landing() {
 
 
 
-      {/* Per-role sections (were separate /for/* pages) */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Built for every role on your quality team
-            </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {personaDeepSections.map((p) => {
-              const Icon = p.icon;
-              return (
-                <div
-                  key={p.id}
-                  id={p.id}
-                  className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 space-y-4"
-                >
-                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
-                    <Icon className="h-4 w-4 text-primary" />
-                    {p.eyebrow}
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground leading-snug">{p.headline}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{p.pain}</p>
-                  <ul className="space-y-3">
-                    {p.capabilities.map((cap) => (
-                      <li key={cap} className="flex items-start gap-2.5">
-                        <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-sm text-muted-foreground leading-relaxed">{cap}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+
+
 
 
 
