@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { RouteFallback } from "@/components/RouteFallback";
 
 // Landing stays eager — it's the LCP page and root entry
 import Landing from "./pages/Landing";
@@ -86,7 +87,7 @@ const App = () => (
             <Sonner />
             <ScrollToTop />
             <ErrorBoundary>
-              <Suspense fallback={null}>
+              <Suspense fallback={<RouteFallback />}>
                 <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/auth" element={<Auth />} />
@@ -136,7 +137,7 @@ const App = () => (
                     <AdminRoute>
                       <AdminLayout>
                         <ErrorBoundary>
-                          <Suspense fallback={null}>
+                          <Suspense fallback={<RouteFallback />}>
                             <Routes>
                               <Route index element={<AdminOverview />} />
                               <Route path="users" element={<AdminUsers />} />
@@ -160,7 +161,7 @@ const App = () => (
                     <ProtectedRoute>
                       <AppLayout>
                         <ErrorBoundary>
-                          <Suspense fallback={null}>
+                          <Suspense fallback={<RouteFallback />}>
                             <Routes>
                               <Route index element={<Index />} />
                               <Route path="pdsa-lab" element={<PDSALab />} />
