@@ -447,85 +447,8 @@ export default function Landing() {
 
 
 
-      {/* SPC Chart Hero Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-                <TrendingUp className="h-4 w-4" />
-                Professional-Grade Analytics
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-                SPC charts your FQHC actually needs — without the enterprise price tag
-              </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Did your PDSA cycle actually improve that screening rate, or was it random variation?
-                Statistical Process Control charts answer this with mathematical rigor — and MeasureWise
-                generates them automatically from your UDS data.
-              </p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">Auto-calculated UCL/LCL control limits using standard SPC formulas</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">Out-of-control signals highlighted — see special cause variation instantly</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">The evidence HRSA reviewers want to see during Operational Site Visits</span>
-                </li>
-              </ul>
-              <Button asChild className="mt-2">
-                <Link to="/features#spc-charts">
-                  Learn more about SPC <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-            <div className="rounded-xl border border-border bg-card p-4 shadow-lg">
-              <p className="text-xs font-medium text-muted-foreground mb-2 px-2">
-                Cervical Cancer Screening (CMS124) — SPC Chart
-              </p>
-              <ResponsiveContainer width="100%" height={280}>
-                <RechartsLineChart data={spcDemoData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="month" className="text-xs" tick={{ fontSize: 11 }} />
-                  <YAxis domain={[35, 80]} className="text-xs" tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)", fontSize: 12 }} />
-                  <ReferenceLine y={68} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "UCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
-                  <ReferenceLine y={42} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "LCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
-                  <ReferenceLine y={55} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" strokeOpacity={0.4} label={{ value: "Mean", position: "right", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
-                  <Line type="monotone" dataKey="value" stroke="hsl(192, 70%, 35%)" strokeWidth={2.5} dot={(props: any) => {
-                    const { cx, cy, payload } = props;
-                    const outOfControl = payload.value > payload.ucl;
-                    return (
-                      <circle
-                        key={`dot-${payload.month}`}
-                        cx={cx}
-                        cy={cy}
-                        r={outOfControl ? 5 : 3.5}
-                        fill={outOfControl ? "hsl(0, 72%, 51%)" : "hsl(192, 70%, 35%)"}
-                        stroke={outOfControl ? "hsl(0, 72%, 51%)" : "hsl(192, 70%, 35%)"}
-                        strokeWidth={outOfControl ? 2 : 0}
-                      />
-                    );
-                  }} name="Screening Rate" />
-                </RechartsLineChart>
-              </ResponsiveContainer>
-              <div className="flex items-center justify-center gap-4 mt-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary" /> Within limits
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-destructive" /> Out of control
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
+
 
       {/* Key Features — with pain-point openers */}
       <section className="py-24 px-6 bg-muted/30">
