@@ -834,22 +834,26 @@ export default function Landing() {
       <PlaybookLeadMagnetSection />
 
 
-      {/* Contact Form */}
-      <section id="contact" className="py-20 px-6 bg-background">
-        <div className="max-w-2xl mx-auto space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-foreground">
-              Questions? Let's Talk.
-            </h2>
-            <p className="text-muted-foreground">
-              Whether you're exploring QI tools for the first time or switching from spreadsheets, we're here to help.
-            </p>
+      {/* Closing CTA */}
+      <section className="py-16 px-6 bg-background">
+        <div className="max-w-2xl mx-auto text-center space-y-4">
+          <p className="text-lg text-foreground font-semibold">
+            Questions before you start? Talk to the founder directly.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/contact">Contact us</Link>
+            </Button>
           </div>
-          <Card className="p-6">
-            <ContactForm />
-          </Card>
+          <p className="text-sm text-muted-foreground">{TRIAL_TERMS}</p>
         </div>
       </section>
+
     </PublicPageLayout>
   );
 }
