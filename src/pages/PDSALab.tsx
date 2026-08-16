@@ -467,7 +467,9 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
 
   const applyTemplate = (t: PDSATemplate) => {
     setData({
+      siteId: data.siteId,
       template: t,
+
       title: t.title,
       aim: t.aim,
       prediction: t.prediction,
