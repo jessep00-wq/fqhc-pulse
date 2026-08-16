@@ -96,15 +96,16 @@ export default function Onboarding() {
       const { error: orgError } = await supabase.from("organizations").insert({
         id: orgId,
         name: name.trim(),
-        npi: npi.trim() || null,
+        npi: null,
         owner_id: user.id,
-        org_type: orgType,
-        reporting_period: reportingPeriod,
-        quality_lead_name: qualityLeadName.trim(),
-        quality_lead_email: qualityLeadEmail.trim(),
+        org_type: orgType || "FQHC",
+        reporting_period: reportingPeriod || "Calendar Year (Jan–Dec)",
+        quality_lead_name: qualityLeadName.trim() || null,
+        quality_lead_email: qualityLeadEmail.trim() || user.email || null,
         timezone,
         data_mode: dataMode,
       });
+
       if (orgError) throw orgError;
 
       const { error: profileError } = await supabase
