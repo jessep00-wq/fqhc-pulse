@@ -33,6 +33,8 @@ import { PhaseDots } from "@/components/pdsa/PhaseDots";
 import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
+import { SiteSelect, NO_SITE } from "@/components/SiteSelect";
+
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
 import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDraft";
 
@@ -401,6 +403,7 @@ interface WizardData {
   measurementPlan: string;
   udsMeasure: string;
   focusArea: string;
+  siteId: string;
   testDescription: string;
   assignedStaff: StaffRole[];
   rootCause: string;
@@ -416,6 +419,7 @@ const emptyWizard: WizardData = {
   measurementPlan: "",
   udsMeasure: "",
   focusArea: "",
+  siteId: "",
   testDescription: "",
   assignedStaff: ["QI Manager"],
   rootCause: "",
@@ -463,7 +467,9 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
 
   const applyTemplate = (t: PDSATemplate) => {
     setData({
+      siteId: data.siteId,
       template: t,
+
       title: t.title,
       aim: t.aim,
       prediction: t.prediction,
@@ -649,6 +655,11 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, o
                 </SelectContent>
               </Select>
             </div>
+            <SiteSelect
+              value={data.siteId}
+              onChange={(v) => setData({ ...data, siteId: v === NO_SITE ? "" : v })}
+              helpText="Tag a site so this cycle rolls up in the network dashboard."
+            />
             {!data.udsMeasure && (
               <div className="space-y-2">
                 <Label>Focus area</Label>
@@ -987,6 +998,7 @@ export default function PDSALab() {
         measurement_plan: wizardData.measurementPlan || null,
         test_description: wizardData.testDescription || null,
         template_id: wizardData.template?.id || null,
+        site_id: wizardData.siteId || null,
       }).select("id").single();
       if (error) throw error;
       await markComplete(data?.id);

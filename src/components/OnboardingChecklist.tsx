@@ -105,7 +105,7 @@ export function OnboardingChecklist() {
             <div>
               <p className="text-sm font-semibold text-foreground">Welcome to MeasureWise!</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Complete these 4 steps to set up your quality improvement workspace. Each step takes about 2 minutes.
+                Complete these 3 steps to set up your quality improvement workspace. Each step takes about 2 minutes.
               </p>
             </div>
           </div>
