@@ -772,18 +772,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Security & Compliance */}
-      <section className="py-20 px-6 border-y border-border">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground">
-              Your data security is non-negotiable
-            </h2>
-            <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              MeasureWise is built on enterprise-grade infrastructure designed for healthcare organizations.
-              We never store protected health information (PHI) — only aggregate quality improvement metrics.
-            </p>
-          </div>
+      {/* Security & Compliance — compact strip */}
+      <section className="py-12 px-6 border-y border-border">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
+            <span className="font-semibold text-foreground">Security:</span> enterprise-grade
+            infrastructure for healthcare. We never store protected health information (PHI) —
+            only aggregate quality improvement metrics.
+          </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {securityItems.map((item) => (
               <div
@@ -795,11 +791,9 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            Need a Business Associate Agreement (BAA)? <Link to="/auth?signup=true" className="text-primary hover:underline">Contact us</Link> after signing up and we'll have one ready within 48 hours.
-          </p>
         </div>
       </section>
+
 
       {/* FAQ Section */}
       <section className="py-20 px-6 bg-muted/30">
