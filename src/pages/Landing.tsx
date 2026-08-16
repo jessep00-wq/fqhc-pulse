@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import ContactForm from "@/components/ContactForm";
 import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,35 +9,21 @@ import jessicaPhoto from "@/assets/jessica-smith.jpg.asset.json";
 import {
   FlaskConical,
   BarChart3,
-  LineChart,
   FileCheck,
   ArrowRight,
   Shield,
   ClipboardCheck,
-  DollarSign,
   CheckCircle,
-  
   X,
   Lock,
-  
   TrendingUp,
   Target,
-  
 } from "lucide-react";
 import { useState } from "react";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
-import {
-  LineChart as RechartsLineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  ReferenceLine,
-} from "recharts";
+
 
 
 /** Canonical trial terms — reuse verbatim everywhere trial terms appear. */
@@ -86,53 +71,7 @@ const features = [
 ];
 
 
-type PersonaDeep = {
-  id: string;
-  icon: typeof LineChart;
-  eyebrow: string;
-  headline: string;
-  pain: string;
-  capabilities: string[];
-};
 
-const personaDeepSections: PersonaDeep[] = [
-  {
-    id: "for-qi-directors",
-    icon: LineChart,
-    eyebrow: "For QI Directors",
-    headline: "Your UDS measures, PDSA cycles, and audit evidence — unified",
-    pain: "Stop juggling spreadsheets and siloed tools. See every clinical quality measure, every improvement cycle, and every piece of audit evidence in one view.",
-    capabilities: [
-      "UDS dashboards for the 7 core measures, with targets and gap-to-goal tracking",
-      "Guided PDSA cycles linked to the exact UDS measure they're meant to move",
-      "SPC charts with control limits so you know when a change is real, not noise",
-    ],
-  },
-  {
-    id: "for-compliance-leads",
-    icon: ClipboardCheck,
-    eyebrow: "For Compliance & Survey Leads",
-    headline: "Stay OSV-ready every single day",
-    pain: "Stop scrambling before an operational site visit. Every cycle, task, and attachment is captured as you work, so the evidence is already there when HRSA asks.",
-    capabilities: [
-      "Cycle logs, tasks, and attachments captured in the moment, not reconstructed later",
-      "Readiness view that shows which cycles are missing documentation",
-      "One-click HRSA Audit Binder export, organized for survey review",
-    ],
-  },
-  {
-    id: "for-operations-managers",
-    icon: DollarSign,
-    eyebrow: "For CHC Operations Managers",
-    headline: "Enterprise QI capability, community-health pricing",
-    pain: "Your health center deserves real QI tools — not another spreadsheet workaround or a six-figure enterprise contract you can't justify.",
-    capabilities: [
-      "Staff task management so improvement cycles keep moving between committee meetings",
-      "HRSA Audit Binder that keeps every cycle log, task, and attachment survey-ready",
-      "Board-ready reports and HRSA-aligned compliance binders without manual assembly",
-    ],
-  },
-];
 
 
 const securityItems = [
@@ -154,20 +93,6 @@ const comparisonRows = [
   { feature: "Board-ready report export", measurewise: true, spreadsheet: "Manual", generic: "Add-on" },
 ];
 
-const spcDemoData = [
-  { month: "Jul", value: 52, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Aug", value: 50, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Sep", value: 54, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Oct", value: 57, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Nov", value: 53, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Dec", value: 58, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Jan", value: 61, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Feb", value: 63, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Mar", value: 66, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Apr", value: 69, ucl: 68, lcl: 42, mean: 55 },
-  { month: "May", value: 71, ucl: 68, lcl: 42, mean: 55 },
-  { month: "Jun", value: 72, ucl: 68, lcl: 42, mean: 55 },
-];
 
 const howItWorksSteps = [
   {
@@ -447,85 +372,8 @@ export default function Landing() {
 
 
 
-      {/* SPC Chart Hero Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-5xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary">
-                <TrendingUp className="h-4 w-4" />
-                Professional-Grade Analytics
-              </div>
-              <h2 className="text-3xl md:text-4xl font-bold text-foreground leading-tight">
-                SPC charts your FQHC actually needs — without the enterprise price tag
-              </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed">
-                Did your PDSA cycle actually improve that screening rate, or was it random variation?
-                Statistical Process Control charts answer this with mathematical rigor — and MeasureWise
-                generates them automatically from your UDS data.
-              </p>
-              <ul className="space-y-3">
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">Auto-calculated UCL/LCL control limits using standard SPC formulas</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">Out-of-control signals highlighted — see special cause variation instantly</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                  <span className="text-sm text-muted-foreground">The evidence HRSA reviewers want to see during Operational Site Visits</span>
-                </li>
-              </ul>
-              <Button asChild className="mt-2">
-                <Link to="/features#spc-charts">
-                  Learn more about SPC <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-            <div className="rounded-xl border border-border bg-card p-4 shadow-lg">
-              <p className="text-xs font-medium text-muted-foreground mb-2 px-2">
-                Cervical Cancer Screening (CMS124) — SPC Chart
-              </p>
-              <ResponsiveContainer width="100%" height={280}>
-                <RechartsLineChart data={spcDemoData} margin={{ top: 10, right: 10, left: -10, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="month" className="text-xs" tick={{ fontSize: 11 }} />
-                  <YAxis domain={[35, 80]} className="text-xs" tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)", fontSize: 12 }} />
-                  <ReferenceLine y={68} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "UCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
-                  <ReferenceLine y={42} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "LCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
-                  <ReferenceLine y={55} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" strokeOpacity={0.4} label={{ value: "Mean", position: "right", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
-                  <Line type="monotone" dataKey="value" stroke="hsl(192, 70%, 35%)" strokeWidth={2.5} dot={(props: any) => {
-                    const { cx, cy, payload } = props;
-                    const outOfControl = payload.value > payload.ucl;
-                    return (
-                      <circle
-                        key={`dot-${payload.month}`}
-                        cx={cx}
-                        cy={cy}
-                        r={outOfControl ? 5 : 3.5}
-                        fill={outOfControl ? "hsl(0, 72%, 51%)" : "hsl(192, 70%, 35%)"}
-                        stroke={outOfControl ? "hsl(0, 72%, 51%)" : "hsl(192, 70%, 35%)"}
-                        strokeWidth={outOfControl ? 2 : 0}
-                      />
-                    );
-                  }} name="Screening Rate" />
-                </RechartsLineChart>
-              </ResponsiveContainer>
-              <div className="flex items-center justify-center gap-4 mt-2 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-primary" /> Within limits
-                </span>
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-destructive" /> Out of control
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+
+
 
       {/* Key Features — with pain-point openers */}
       <section className="py-24 px-6 bg-muted/30">
@@ -700,43 +548,8 @@ export default function Landing() {
 
 
 
-      {/* Per-role sections (were separate /for/* pages) */}
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
-              Built for every role on your quality team
-            </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
-            {personaDeepSections.map((p) => {
-              const Icon = p.icon;
-              return (
-                <div
-                  key={p.id}
-                  id={p.id}
-                  className="scroll-mt-24 rounded-2xl border border-border bg-card p-6 space-y-4"
-                >
-                  <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-semibold text-muted-foreground">
-                    <Icon className="h-4 w-4 text-primary" />
-                    {p.eyebrow}
-                  </div>
-                  <h3 className="text-xl font-bold text-foreground leading-snug">{p.headline}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{p.pain}</p>
-                  <ul className="space-y-3">
-                    {p.capabilities.map((cap) => (
-                      <li key={cap} className="flex items-start gap-2.5">
-                        <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-sm text-muted-foreground leading-relaxed">{cap}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+
+
 
 
 
@@ -772,18 +585,14 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Security & Compliance */}
-      <section className="py-20 px-6 border-y border-border">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground">
-              Your data security is non-negotiable
-            </h2>
-            <p className="text-muted-foreground mt-3 text-lg max-w-2xl mx-auto">
-              MeasureWise is built on enterprise-grade infrastructure designed for healthcare organizations.
-              We never store protected health information (PHI) — only aggregate quality improvement metrics.
-            </p>
-          </div>
+      {/* Security & Compliance — compact strip */}
+      <section className="py-12 px-6 border-y border-border">
+        <div className="max-w-4xl mx-auto space-y-6">
+          <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
+            <span className="font-semibold text-foreground">Security:</span> enterprise-grade
+            infrastructure for healthcare. We never store protected health information (PHI) —
+            only aggregate quality improvement metrics.
+          </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {securityItems.map((item) => (
               <div
@@ -795,11 +604,9 @@ export default function Landing() {
               </div>
             ))}
           </div>
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            Need a Business Associate Agreement (BAA)? <Link to="/auth?signup=true" className="text-primary hover:underline">Contact us</Link> after signing up and we'll have one ready within 48 hours.
-          </p>
         </div>
       </section>
+
 
       {/* FAQ Section */}
       <section className="py-20 px-6 bg-muted/30">
@@ -834,22 +641,26 @@ export default function Landing() {
       <PlaybookLeadMagnetSection />
 
 
-      {/* Contact Form */}
-      <section id="contact" className="py-20 px-6 bg-background">
-        <div className="max-w-2xl mx-auto space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-3xl font-bold text-foreground">
-              Questions? Let's Talk.
-            </h2>
-            <p className="text-muted-foreground">
-              Whether you're exploring QI tools for the first time or switching from spreadsheets, we're here to help.
-            </p>
+      {/* Closing CTA */}
+      <section className="py-16 px-6 bg-background">
+        <div className="max-w-2xl mx-auto text-center space-y-4">
+          <p className="text-lg text-foreground font-semibold">
+            Questions before you start? Talk to the founder directly.
+          </p>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button size="lg" asChild className="text-base px-8">
+              <Link to="/auth?signup=true">
+                Start your 14-day free trial <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="text-base px-8">
+              <Link to="/contact">Contact us</Link>
+            </Button>
           </div>
-          <Card className="p-6">
-            <ContactForm />
-          </Card>
+          <p className="text-sm text-muted-foreground">{TRIAL_TERMS}</p>
         </div>
       </section>
+
     </PublicPageLayout>
   );
 }
