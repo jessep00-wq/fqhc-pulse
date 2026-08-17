@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +19,8 @@ import {
   TrendingUp,
   Target,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { parseAuthLink } from "@/lib/authLinkParams";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
