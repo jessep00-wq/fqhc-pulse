@@ -35,6 +35,10 @@ export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
         </Button>
         <FallbackLink url={confirmationUrl} />
         <Text style={styles.footerText}>
+          This link is single use and expires after a short time. If it says the
+          link is invalid or expired, just request a new one from MeasureWise.
+        </Text>
+        <Text style={styles.footerText}>
           If you didn't request a password reset, you can safely ignore this
           email — your password will not be changed.
         </Text>

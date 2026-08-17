@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, Circle } from "lucide-react";
+import { Loader2, Check, Circle, AlertTriangle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { BRAND } from "@/lib/brand";
 import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
 import { trackAnonEvent } from "@/lib/trackEvent";
+import { authErrorMessage } from "@/lib/authLinkParams";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +47,13 @@ export default function Auth() {
   const [showForgot, setShowForgot] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
+  // Populated when an auth email link failed (expired / already used) and the
+  // landing page forwarded the failure here.
+  const [linkError, setLinkError] = useState<{ code: string; description: string } | null>(() => {
+    const code = searchParams.get("authError");
+    if (!code) return null;
+    return { code, description: searchParams.get("authErrorDescription") ?? "" };
+  });
 
   const passwordValid = useMemo(
     () => passwordRules.every((r) => r.test(password)),
@@ -178,6 +186,26 @@ export default function Auth() {
     }
   };
 
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error("Enter your email above first, then resend.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}${withNext("/auth")}` },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("New confirmation link sent. It expires shortly — use it right away.");
+      setLinkError(null);
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     // Point OAuth back to /auth so the post-login redirect logic above
     // (founder_admin → /admin, otherwise → /dashboard) runs after the
@@ -221,7 +249,36 @@ export default function Auth() {
           )}
         </CardHeader>
         <CardContent className="space-y-4">
+          {linkError && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 space-y-3">
+              <div className="flex gap-2">
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-destructive" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-destructive">Link expired or already used</p>
+                  <p className="text-xs text-muted-foreground">
+                    {authErrorMessage(linkError.code, linkError.description)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={handleResendConfirmation} disabled={loading}>
+                  Resend confirmation email
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowForgot(true);
+                    setLinkError(null);
+                  }}
+                >
+                  Reset my password
+                </Button>
+              </div>
+            </div>
+          )}
           {showVerifyEmail ? (
+
             <div className="flex flex-col items-center text-center py-6 space-y-4">
               <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
                 <Check className="h-7 w-7 text-primary" />

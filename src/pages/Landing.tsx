@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { SampleExportButtons } from "@/components/SampleExportButtons";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -19,7 +19,8 @@ import {
   TrendingUp,
   Target,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { parseAuthLink } from "@/lib/authLinkParams";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
@@ -217,6 +218,29 @@ function ComparisonCell({ value }: { value: boolean | string }) {
 
 export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const navigate = useNavigate();
+
+  // Auth email links can land here: GoTrue redirects to the project Site URL
+  // ("/") when a one-time token is already used/expired, and some link types
+  // arrive with tokens in the fragment. Forward those to the right screen
+  // instead of silently showing the marketing page.
+  useEffect(() => {
+    const intent = parseAuthLink(window.location.href);
+    if (!intent) return;
+    const { hash, search } = window.location;
+    if (intent.kind === "error") {
+      navigate(
+        `/auth?authError=${encodeURIComponent(intent.code)}&authErrorDescription=${encodeURIComponent(intent.description)}`,
+        { replace: true },
+      );
+      return;
+    }
+    // Preserve the token payload verbatim so the destination page can
+    // complete the exchange.
+    const target = intent.kind === "recovery" ? "/reset-password" : "/auth";
+    navigate(`${target}${search}${hash}`, { replace: true });
+  }, [navigate]);
+
 
   return (
     <PublicPageLayout>
