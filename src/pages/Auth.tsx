@@ -9,11 +9,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, Circle } from "lucide-react";
+import { Loader2, Check, Circle, AlertTriangle } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { BRAND } from "@/lib/brand";
 import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
 import { trackAnonEvent } from "@/lib/trackEvent";
+import { authErrorMessage } from "@/lib/authLinkParams";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -46,6 +47,13 @@ export default function Auth() {
   const [showForgot, setShowForgot] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
+  // Populated when an auth email link failed (expired / already used) and the
+  // landing page forwarded the failure here.
+  const [linkError, setLinkError] = useState<{ code: string; description: string } | null>(() => {
+    const code = searchParams.get("authError");
+    if (!code) return null;
+    return { code, description: searchParams.get("authErrorDescription") ?? "" };
+  });
 
   const passwordValid = useMemo(
     () => passwordRules.every((r) => r.test(password)),
@@ -175,6 +183,26 @@ export default function Auth() {
     } else {
       toast.success("Password reset link sent to your email");
       setShowForgot(false);
+    }
+  };
+
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error("Enter your email above first, then resend.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}${withNext("/auth")}` },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("New confirmation link sent. It expires shortly — use it right away.");
+      setLinkError(null);
     }
   };
 
