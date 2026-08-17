@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "https-measurewise-org"
+const SITE_NAME = "MeasureWise"
 const SENDER_DOMAIN = "notify.measurewise.org"
 const ROOT_DOMAIN = "measurewise.org"
 const FROM_DOMAIN = "measurewise.org" // Domain shown in From address (may be root or sender subdomain)

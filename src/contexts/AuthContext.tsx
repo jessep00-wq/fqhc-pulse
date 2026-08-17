@@ -99,13 +99,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 () => {},
                 () => {},
               );
+          }, 0);
+        }
 
-            // Send welcome email exactly once per user.
-            // Source of truth is profiles.welcome_email_sent_at (set by the
-            // edge function); localStorage is only a quick local guard so we
-            // don't fire the call on every page reload.
-            const welcomeKey = `mw_welcome_sent_${userId}`;
-            if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+        // Welcome email: run on ANY authenticated session, not just the
+        // SIGNED_IN event. Returning users only ever get INITIAL_SESSION, so
+        // gating on SIGNED_IN meant the welcome email never fired for them.
+        // Source of truth for dedup is profiles.welcome_email_sent_at (set by
+        // the edge function); localStorage is a per-browser fast path.
+        if (session?.user) {
+          const userId = session.user.id;
+          const welcomeKey = `mw_welcome_sent_${userId}`;
+          if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+            setTimeout(() => {
               supabase
                 .from("profiles")
                 .select("welcome_email_sent_at")
@@ -119,18 +125,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   supabase.functions
                     .invoke("send-welcome-email", { body: { user_id: userId } })
                     .then(({ error }) => {
-                      if (!error) window.localStorage.setItem(welcomeKey, "1");
+                      if (error) {
+                        // Never swallow silently — this failure was invisible before.
+                        console.error("send-welcome-email failed:", error.message ?? error);
+                        return;
+                      }
+                      window.localStorage.setItem(welcomeKey, "1");
                     })
-                    .catch(() => {});
+                    .catch((e) => console.error("send-welcome-email threw:", e));
                 })
-                .then(undefined, () => {});
-            }
-          }, 0);
+                .then(undefined, (e) => console.error("welcome precheck failed:", e));
+            }, 0);
+          }
         }
+
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
           verifiedUserIdRef.current = null;
         }
+
       }
     );
 
