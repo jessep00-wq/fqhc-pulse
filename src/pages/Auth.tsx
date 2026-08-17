@@ -221,7 +221,36 @@ export default function Auth() {
           )}
         </CardHeader>
         <CardContent className="space-y-4">
+          {linkError && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 space-y-3">
+              <div className="flex gap-2">
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-destructive" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-destructive">Link expired or already used</p>
+                  <p className="text-xs text-muted-foreground">
+                    {authErrorMessage(linkError.code, linkError.description)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={handleResendConfirmation} disabled={loading}>
+                  Resend confirmation email
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowForgot(true);
+                    setLinkError(null);
+                  }}
+                >
+                  Reset my password
+                </Button>
+              </div>
+            </div>
+          )}
           {showVerifyEmail ? (
+
             <div className="flex flex-col items-center text-center py-6 space-y-4">
               <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
                 <Check className="h-7 w-7 text-primary" />
