@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { PostHogPageView } from "@/components/PostHogPageView";
 import { RouteFallback } from "@/components/RouteFallback";
 
 // Landing stays eager — it's the LCP page and root entry
@@ -86,6 +87,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <ScrollToTop />
+            <PostHogPageView />
             <ErrorBoundary>
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
