@@ -54,6 +54,7 @@ const AdminBilling = lazy(() => import("./pages/admin/AdminBilling"));
 const AdminAdoption = lazy(() => import("./pages/admin/AdminAdoption"));
 const AdminAccountDetail = lazy(() => import("./pages/admin/AdminAccountDetail"));
 const AdminReadinessLeads = lazy(() => import("./pages/admin/AdminReadinessLeads"));
+const AdminEmailHealth = lazy(() => import("./pages/admin/AdminEmailHealth"));
 
 const StoreIndex = lazy(() => import("./pages/store/StoreIndex"));
 const StoreProductDetail = lazy(() => import("./pages/store/StoreProductDetail"));
