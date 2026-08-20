@@ -38,6 +38,7 @@ const content = [
 
 const tools = [
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
+  { title: "Email Health", url: "/admin/email", icon: Mail },
 ];
 
 
