@@ -1,5 +1,6 @@
 // Re-issues signed download links by session_id and re-sends the delivery email.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { logEmailAttempt } from "../_shared/log-email-attempt.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
