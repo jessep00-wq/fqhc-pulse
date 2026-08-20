@@ -24,6 +24,12 @@ import { parseAuthLink } from "@/lib/authLinkParams";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { PlaybookLeadMagnetSection } from "@/components/lead-magnets/PlaybookLeadMagnetSection";
 import { TrustStrip } from "@/components/landing/TrustStrip";
+import { IndependentValidation } from "@/components/landing/IndependentValidation";
+import {
+  FOUNDER_EXPERIENCE_SENTENCE,
+  PHI_BOUNDARY_LONG,
+  SECURITY_BULLETS,
+} from "@/lib/siteContent";
 
 
 
@@ -75,14 +81,10 @@ const features = [
 
 
 
-const securityItems = [
-  { icon: Lock, label: "256-bit AES encryption at rest" },
-  { icon: Shield, label: "TLS 1.3 encryption in transit" },
-  { icon: Shield, label: "Built on SOC 2 Type II certified infrastructure" },
-  { icon: Lock, label: "HIPAA-ready architecture with BAA available" },
-  { icon: Shield, label: "Role-based access controls (RBAC)" },
-  { icon: Lock, label: "No PHI stored — only aggregate QI metrics" },
-];
+const securityItems = SECURITY_BULLETS.map((label, i) => ({
+  icon: i % 2 === 0 ? Lock : Shield,
+  label,
+}));
 
 const comparisonRows = [
   { feature: "PDSA cycle management", measurewise: true, spreadsheet: "Manual", generic: "Partial" },
@@ -171,7 +173,7 @@ const faqItems = [
   },
   {
     q: "Does MeasureWise store PHI?",
-    a: "No. MeasureWise stores only aggregate quality improvement metrics — screening rates, cycle documentation, and task status. No patient-level data enters the system.",
+    a: "No. MeasureWise is designed for quality-improvement workflows that do not require protected health information (PHI). It stores aggregate quality metrics, cycle documentation, and task status only. Do not enter patient-identifying information, and note that a Business Associate Agreement (BAA) is not offered or required.",
   },
 ];
 
@@ -211,8 +213,20 @@ const softwareJsonLd = {
 
 
 function ComparisonCell({ value }: { value: boolean | string }) {
-  if (value === true) return <CheckCircle className="h-5 w-5 text-primary mx-auto" />;
-  if (value === false) return <X className="h-5 w-5 text-muted-foreground mx-auto" aria-label="Not included" />;
+  if (value === true)
+    return (
+      <>
+        <CheckCircle className="h-5 w-5 text-primary mx-auto" aria-hidden="true" />
+        <span className="sr-only">Included</span>
+      </>
+    );
+  if (value === false)
+    return (
+      <>
+        <X className="h-5 w-5 text-muted-foreground mx-auto" aria-hidden="true" />
+        <span className="sr-only">Not included</span>
+      </>
+    );
   return <span className="text-sm text-muted-foreground">{value}</span>;
 }
 
@@ -245,7 +259,7 @@ export default function Landing() {
   return (
     <PublicPageLayout>
       <SEO
-        title="MeasureWise — PDSA & UDS Quality Software for FQHCs"
+        title="MeasureWise | PDSA & UDS Quality Software for FQHCs"
         description="Link every PDSA cycle to a UDS measure, track impact with SPC charts, and export an HRSA Audit Binder. Built for FQHC quality teams."
         canonical={`${BRAND.url}/`}
         jsonLd={[orgJsonLd, softwareJsonLd, faqJsonLd]}
@@ -301,10 +315,7 @@ export default function Landing() {
               </Button>
             </div>
 
-            <p className="text-sm text-muted-foreground">
-              {TRIAL_TERMS}{" "}
-              <Link to="/contact" className="text-primary hover:underline">Talk to the founder</Link>
-            </p>
+            <p className="text-sm text-muted-foreground">{TRIAL_TERMS}</p>
 
 
           </div>
@@ -484,25 +495,9 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Store Teaser */}
-      <section className="py-12 px-6 border-b border-border">
-        <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
-          <div className="space-y-2">
-            <p className="text-xs font-bold text-primary uppercase tracking-wider">MeasureWise Store</p>
-            <h3 className="text-2xl font-bold text-foreground">
-              Templates that move UDS measures and survive HRSA audits
-            </h3>
-            <p className="text-muted-foreground">
-              UDS, PDSA, QI committee, and board reporting templates. Buy once, no subscription.
-            </p>
-          </div>
-          <div className="shrink-0">
-            <Button asChild>
-              <Link to="/store">Browse the Store <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Store teaser moved below the FAQ into the Resources section so it
+          does not compete with trial intent mid-page. */}
+
 
 
 
@@ -520,20 +515,24 @@ export default function Landing() {
           </div>
 
           <div className="rounded-xl border border-border bg-card overflow-hidden">
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto" tabIndex={0} role="region" aria-label="Feature comparison table, scrollable horizontally">
               <table className="w-full text-sm">
+                <caption className="sr-only">
+                  Comparison of MeasureWise, spreadsheets, and generic QI tools across FQHC
+                  quality-management capabilities.
+                </caption>
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left font-semibold p-4 text-foreground">Feature</th>
-                    <th className="text-center font-semibold p-4 text-primary">MeasureWise</th>
-                    <th className="text-center font-semibold p-4 text-muted-foreground">Spreadsheets</th>
-                    <th className="text-center font-semibold p-4 text-muted-foreground">Generic QI Tools</th>
+                    <th scope="col" className="text-left font-semibold p-4 text-foreground">Feature</th>
+                    <th scope="col" className="text-center font-semibold p-4 text-primary">MeasureWise</th>
+                    <th scope="col" className="text-center font-semibold p-4 text-muted-foreground">Spreadsheets</th>
+                    <th scope="col" className="text-center font-semibold p-4 text-muted-foreground">Generic QI Tools</th>
                   </tr>
                 </thead>
                 <tbody>
                   {comparisonRows.map((row, i) => (
                     <tr key={row.feature} className={i % 2 === 0 ? "" : "bg-muted/20"}>
-                      <td className="p-4 font-medium text-foreground">{row.feature}</td>
+                      <th scope="row" className="p-4 font-medium text-foreground text-left">{row.feature}</th>
                       <td className="p-4 text-center"><ComparisonCell value={row.measurewise} /></td>
                       <td className="p-4 text-center"><ComparisonCell value={row.spreadsheet} /></td>
                       <td className="p-4 text-center"><ComparisonCell value={row.generic} /></td>
@@ -543,6 +542,7 @@ export default function Landing() {
               </table>
             </div>
           </div>
+
         </div>
       </section>
 
@@ -593,9 +593,10 @@ export default function Landing() {
             Built for FQHCs by an FQHC operator
           </h2>
           <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-            MeasureWise is built by a current FQHC quality and clinical operations leader with 12 years of experience who has
-            lived through UDS season, survived HRSA site visits, managed NCQA submissions, and
-            watched quality teams drown in spreadsheets that were never designed for PDSA tracking.
+            MeasureWise is built by a current FQHC quality and clinical operations leader with{" "}
+            {FOUNDER_EXPERIENCE_SENTENCE} who has lived through UDS season, survived HRSA site
+            visits, managed NCQA submissions, and watched quality teams drown in spreadsheets that
+            were never designed for PDSA tracking.
           </p>
           <p className="text-muted-foreground text-base leading-relaxed">
             I built MeasureWise because the enterprise QI tools on the market are overpriced,
@@ -609,27 +610,35 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Security & Compliance — compact strip */}
-      <section className="py-12 px-6 border-y border-border">
+      {/* Security & data handling — compact strip */}
+      <section className="py-12 px-6 border-y border-border" aria-labelledby="security-strip-heading">
         <div className="max-w-4xl mx-auto space-y-6">
+          <h2 id="security-strip-heading" className="text-center text-2xl font-bold text-foreground">
+            Security and data handling
+          </h2>
           <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
-            <span className="font-semibold text-foreground">Security:</span> enterprise-grade
-            infrastructure for healthcare. We never store protected health information (PHI) —
-            only aggregate quality improvement metrics.
+            {PHI_BOUNDARY_LONG}{" "}
+            <Link to="/security" className="text-primary hover:underline">
+              Read the full security overview
+            </Link>
+            .
           </p>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {securityItems.map((item) => (
-              <div
+              <li
                 key={item.label}
                 className="flex items-center gap-3 rounded-lg border border-border bg-card p-4"
               >
-                <item.icon className="h-5 w-5 text-primary shrink-0" />
+                <item.icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
                 <span className="text-sm text-foreground">{item.label}</span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </section>
+
+      <IndependentValidation />
+
 
 
       {/* FAQ Section */}
@@ -660,9 +669,41 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* Resources & templates — secondary offers live below the FAQ so they
+          never compete with trial intent higher on the page. */}
+      <section className="py-16 px-6 border-t border-border" aria-labelledby="resources-heading">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <div className="text-center space-y-2">
+            <h2 id="resources-heading" className="text-2xl md:text-3xl font-bold text-foreground">
+              Resources and templates
+            </h2>
+            <p className="text-muted-foreground">
+              Optional downloads and one-time purchases — separate from your MeasureWise subscription.
+            </p>
+          </div>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <div className="space-y-2">
+              <p className="text-xs font-bold text-primary uppercase tracking-wider">MeasureWise Store</p>
+              <h3 className="text-xl font-bold text-foreground">
+                Templates that move UDS measures and survive HRSA audits
+              </h3>
+              <p className="text-muted-foreground text-sm">
+                UDS, PDSA, QI committee, and board reporting templates. Buy once, no subscription.
+              </p>
+            </div>
+            <div className="shrink-0">
+              <Button variant="outline" asChild>
+                <Link to="/store">Browse the Store <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* AthenaOne Playbook Lead Magnet — placed after the FAQ so it catches
           bounce traffic instead of intercepting trial intent mid-page. */}
       <PlaybookLeadMagnetSection />
+
 
 
       {/* Closing CTA */}

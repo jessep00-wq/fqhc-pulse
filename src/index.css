@@ -13,14 +13,17 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 25% 10%;
 
-    --primary: 192 70% 35%;
+    /* Teal darkened from 35% -> 30% lightness so `text-primary` clears
+       WCAG AA (4.5:1) on white/muted surfaces while staying on-brand. */
+    --primary: 192 72% 30%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 210 30% 94%;
     --secondary-foreground: 220 25% 15%;
 
     --muted: 210 20% 95%;
-    --muted-foreground: 215 15% 47%;
+    /* Darkened from 47% -> 38% lightness for AA contrast on light surfaces. */
+    --muted-foreground: 215 18% 38%;
 
     --accent: 165 60% 40%;
     --accent-foreground: 0 0% 100%;
@@ -30,7 +33,7 @@
 
     --border: 214 25% 89%;
     --input: 214 25% 89%;
-    --ring: 192 70% 35%;
+    --ring: 192 72% 30%;
 
     --radius: 0.5rem;
 

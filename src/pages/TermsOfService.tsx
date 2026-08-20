@@ -39,7 +39,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold">3. Data Handling</h2>
             <p className="text-muted-foreground leading-relaxed">
-              MeasureWise is designed to handle aggregate quality improvement data, not individual Protected Health Information (PHI). Users must not enter individually identifiable patient data into the platform. If your organization requires handling of PHI-adjacent data, please contact us to discuss a Business Associate Agreement (BAA).
+              MeasureWise is designed for operational and quality-improvement workflows using aggregate, de-identified, or non-patient-identifying information. MeasureWise is not intended to collect, store, transmit, or process Protected Health Information (PHI), and a Business Associate Agreement (BAA) is not offered or required. Users must not enter patient-identifying information into the platform.
             </p>
           </section>
 
