@@ -174,9 +174,19 @@ Deno.serve(async (req) => {
       }),
     });
 
+    const rawBody = await resendRes.text();
+    await logEmailAttempt({
+      supabase,
+      messageId: `readiness-report-${sub.id}`,
+      templateName: "readiness-report",
+      recipient: sub.email,
+      resendResponse: resendRes,
+      resendBody: rawBody,
+      metadata: { submission_id: sub.id, score: sub.score },
+    });
+
     if (!resendRes.ok) {
-      const txt = await resendRes.text();
-      console.error("Resend send failed:", resendRes.status, txt);
+      console.error("Resend send failed:", resendRes.status, rawBody);
       return new Response(JSON.stringify({ error: "send_failed", status: resendRes.status }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
