@@ -115,8 +115,8 @@ export default function ManualThankYou() {
               </p>
               <p className="text-xs text-[#94A3B8]/70">
                 Didn't get it? Email{" "}
-                <a href="mailto:support@measurewise.org" className="text-[#9DD4D4]">
-                  support@measurewise.org
+                <a href="mailto:hello@measurewise.org" className="text-[#9DD4D4]">
+                  hello@measurewise.org
                 </a>
               </p>
             </>
@@ -142,8 +142,8 @@ export default function ManualThankYou() {
               </p>
               <p className="text-xs text-[#94A3B8]/70 mt-6">
                 A receipt has been emailed to you. Questions?{" "}
-                <a href="mailto:support@measurewise.org" className="text-[#9DD4D4]">
-                  support@measurewise.org
+                <a href="mailto:hello@measurewise.org" className="text-[#9DD4D4]">
+                  hello@measurewise.org
                 </a>
               </p>
             </>

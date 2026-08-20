@@ -52,8 +52,8 @@ export default function RefundPolicy() {
             <h2 className="text-xl font-semibold mb-2">How to request a refund</h2>
             <p className="text-muted-foreground leading-relaxed">
               Email{" "}
-              <a href="mailto:support@measurewise.org" className="text-primary hover:underline">
-                support@measurewise.org
+              <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+                hello@measurewise.org
               </a>{" "}
               with your account email and reason for the request. Eligible refunds are processed to
               the original payment method within 5–10 business days.

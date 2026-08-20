@@ -37,7 +37,7 @@ const sections = [
   {
     icon: AlertTriangle,
     title: "Incident reporting",
-    body: "If you believe you've found a security issue, email support@measurewise.org with the subject line \"Security\". We acknowledge security reports within 1 business day.",
+    body: "If you believe you've found a security issue, email hello@measurewise.org with the subject line \"Security\". We acknowledge security reports within 1 business day.",
   },
 ];
 
@@ -79,8 +79,8 @@ export default function Security() {
           <p className="font-semibold mb-1">Security questions or vendor-review questionnaires?</p>
           <p className="text-muted-foreground">
             Email{" "}
-            <a href="mailto:support@measurewise.org" className="text-primary hover:underline">
-              support@measurewise.org
+            <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+              hello@measurewise.org
             </a>{" "}
             and we'll respond within 1 business day.
           </p>

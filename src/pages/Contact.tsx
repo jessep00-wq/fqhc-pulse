@@ -9,7 +9,7 @@ export default function Contact() {
     <PublicPageLayout slimNav>
       <SEO
         title="Contact MeasureWise — Quality Improvement Software for FQHCs"
-        description="Get in touch with MeasureWise. Email support@measurewise.org or send a message. We reply within 1 business day."
+        description="Get in touch with MeasureWise. Email hello@measurewise.org or send a message. We reply within 1 business day."
         canonical="https://measurewise.org/contact"
       />
       <div className="max-w-5xl mx-auto px-6 py-16">
@@ -26,8 +26,8 @@ export default function Contact() {
               <Mail className="h-5 w-5 text-primary mt-1 shrink-0" />
               <div>
                 <p className="font-semibold text-foreground">Email</p>
-                <a href="mailto:support@measurewise.org" className="text-primary hover:underline">
-                  support@measurewise.org
+                <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+                  hello@measurewise.org
                 </a>
                 <p className="text-sm text-muted-foreground mt-1">
                   Sales, billing, support, and security inquiries.

@@ -135,8 +135,8 @@ export default function StoreSuccess() {
                 <p>
                   If you just completed checkout, the receipt and download links were emailed to the
                   address you used. Still nothing? Email{" "}
-                  <a href="mailto:support@measurewise.org" className="text-primary underline">
-                    support@measurewise.org
+                  <a href="mailto:hello@measurewise.org" className="text-primary underline">
+                    hello@measurewise.org
                   </a>{" "}
                   and we'll sort it out within one business day.
                 </p>

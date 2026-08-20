@@ -391,8 +391,8 @@ export default function ManualLanding() {
           </p>
           <p>
             Questions:{" "}
-            <a href="mailto:support@measurewise.org" className="text-[#9DD4D4]">
-              support@measurewise.org
+            <a href="mailto:hello@measurewise.org" className="text-[#9DD4D4]">
+              hello@measurewise.org
             </a>
           </p>
         </div>
