@@ -118,6 +118,12 @@ serve(async (req) => {
       );
     }
 
+    const messageId = `send-email-${crypto.randomUUID()}`;
+    const admin = createClient(
+      SUPABASE_URL,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
     const response = await fetch(`${GATEWAY_URL}/emails`, {
       method: "POST",
       headers: {
@@ -133,7 +139,19 @@ serve(async (req) => {
       }),
     });
 
-    const data = await response.json();
+    const rawBody = await response.text();
+    await logEmailAttempt({
+      supabase: admin,
+      messageId,
+      templateName: "transactional-send",
+      recipient: to,
+      resendResponse: response,
+      resendBody: rawBody,
+      metadata: { user_id: user.id, subject },
+    });
+
+    let data: unknown = null;
+    try { data = rawBody ? JSON.parse(rawBody) : null; } catch { data = rawBody; }
     if (!response.ok) {
       throw new Error(`Email API error [${response.status}]: ${JSON.stringify(data)}`);
     }
