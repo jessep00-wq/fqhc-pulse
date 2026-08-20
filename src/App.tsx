@@ -148,6 +148,7 @@ const App = () => (
                               <Route path="adoption" element={<AdminAdoption />} />
                               <Route path="store" element={<AdminStore />} />
                               <Route path="readiness" element={<AdminReadinessLeads />} />
+                              <Route path="email" element={<AdminEmailHealth />} />
                               <Route path="account/:orgId" element={<AdminAccountDetail />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
