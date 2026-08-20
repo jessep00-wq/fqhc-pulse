@@ -7,6 +7,7 @@ import {
   ArrowLeft,
   Shield,
   Sparkles,
+  Mail,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { Logo } from "@/components/Logo";
@@ -38,6 +39,7 @@ const content = [
 
 const tools = [
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
+  { title: "Email Health", url: "/admin/email", icon: Mail },
 ];
 
 
