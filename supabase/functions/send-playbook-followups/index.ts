@@ -2,6 +2,7 @@
 // hasn't been reminded yet, sends a soft "did you read it?" nurture email
 // and stamps `reminder_sent_at` to prevent duplicates.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { logEmailAttempt } from "../_shared/log-email-attempt.ts";
 import { verifyCronSecret } from "../_shared/verify-cron.ts";
 
 const corsHeaders = {
