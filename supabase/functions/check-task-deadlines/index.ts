@@ -98,8 +98,19 @@ serve(async (req) => {
           }),
         });
 
+        const rawBody = await response.text();
+        await logEmailAttempt({
+          supabase,
+          messageId: `task-deadline-${profile.id}-${today}`,
+          templateName: "task-deadline-reminder",
+          recipient: authUser.user.email,
+          resendResponse: response,
+          resendBody: rawBody,
+          metadata: { profile_id: profile.id, task_count: formattedTasks.length },
+        });
+
         if (response.ok) emailsSent++;
-        else console.error(`Failed to send deadline email:`, await response.text());
+        else console.error(`Failed to send deadline email:`, rawBody);
       }
     }
 
