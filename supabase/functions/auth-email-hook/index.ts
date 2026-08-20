@@ -37,9 +37,8 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "MeasureWise"
-const SENDER_DOMAIN = "notify.measurewise.org"
 const ROOT_DOMAIN = "measurewise.org"
-const FROM_DOMAIN = "measurewise.org" // Domain shown in From address (may be root or sender subdomain)
+const FROM_DOMAIN = "measurewise.org" // Domain shown in From address
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
