@@ -1870,6 +1870,44 @@ export type Database = {
         Args: { _org_id: string }
         Returns: undefined
       }
+      admin_email_health_log: {
+        Args: {
+          p_end: string
+          p_limit?: number
+          p_offset?: number
+          p_start: string
+          p_status?: string
+          p_templates?: string[]
+        }
+        Returns: {
+          created_at: string
+          error_message: string
+          id: string
+          message_id: string
+          recipient_email: string
+          status: string
+          template_name: string
+          total_count: number
+        }[]
+      }
+      admin_email_health_stats: {
+        Args: {
+          p_end: string
+          p_start: string
+          p_status?: string
+          p_templates?: string[]
+        }
+        Returns: {
+          cnt: number
+          status: string
+        }[]
+      }
+      admin_email_templates: {
+        Args: never
+        Returns: {
+          template_name: string
+        }[]
+      }
       admin_list_users: {
         Args: never
         Returns: {
