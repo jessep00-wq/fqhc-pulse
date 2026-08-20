@@ -108,6 +108,16 @@ Deno.serve(async (req) => {
           tags: [{ name: "category", value: "playbook_followup_3day" }],
         }),
       });
+      const rawBody = await resp.text();
+      await logEmailAttempt({
+        supabase,
+        messageId: `playbook-followup-${lead.id}`,
+        templateName: "playbook-followup-3day",
+        recipient: lead.work_email,
+        resendResponse: resp,
+        resendBody: rawBody,
+        metadata: { lead_id: lead.id },
+      });
       if (!resp.ok) {
         failed += 1;
         console.warn("resend failed for", lead.id, resp.status);
