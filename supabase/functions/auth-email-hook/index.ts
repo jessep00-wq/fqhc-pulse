@@ -37,9 +37,8 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 
 // Configuration
 const SITE_NAME = "MeasureWise"
-const SENDER_DOMAIN = "notify.measurewise.org"
 const ROOT_DOMAIN = "measurewise.org"
-const FROM_DOMAIN = "measurewise.org" // Domain shown in From address (may be root or sender subdomain)
+const FROM_DOMAIN = "measurewise.org" // Domain shown in From address
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
@@ -236,17 +235,10 @@ async function handleWebhook(req: Request): Promise<Response> {
     plainText: true,
   })
 
-  // Send directly through the Resend connector gateway.
-  //
-  // WHY NOT THE PLATFORM QUEUE: auth mail used to be enqueued with
-  // sender_domain = notify.measurewise.org. That subdomain is delegated to
-  // ns3/ns4.lovable.cloud but the zone is not provisioned there (lame
-  // delegation), so its DKIM key does not resolve and every signup /
-  // reset / invite risked spam placement or silent non-delivery.
-  // Root measurewise.org is fully verified on Resend (SPF + DKIM + DMARC all
-  // pass), and every app email already ships through it. The queue
-  // infrastructure is left untouched so this can be reverted if the
-  // notify zone ever finishes provisioning.
+  // Send directly through the Resend connector gateway on the root domain
+  // measurewise.org (SPF + DKIM + DMARC all verified). Lovable Emails and the
+  // notify.measurewise.org send path are retired; every auth and app email
+  // ships through Resend on the root domain.
   const supabase = createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
