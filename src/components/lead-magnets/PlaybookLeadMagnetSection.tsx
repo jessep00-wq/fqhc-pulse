@@ -1,5 +1,6 @@
 import { CheckCircle } from "lucide-react";
 import playbookCover from "@/assets/athenaone-playbook-cover.jpg";
+import { UDS_RESOURCE_2025 } from "@/lib/siteContent";
 import { PlaybookLeadForm } from "./PlaybookLeadForm";
 
 const bullets = [
@@ -32,16 +33,18 @@ export function PlaybookLeadMagnetSection() {
         <div className="space-y-6">
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-primary">
-              Free Resource · 2025 Edition
+              Free Resource · {UDS_RESOURCE_2025.eyebrow}
             </p>
             <h2 className="text-3xl md:text-4xl font-extrabold tracking-tight text-foreground">
-              Master Your 2025 UDS Reporting
+              {UDS_RESOURCE_2025.title}
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed">
-              Download the definitive technical guide to optimizing AthenaOne
-              workflows for FQHC quality, risk, and audit readiness.
+              Download the technical guide to optimizing AthenaOne workflows for FQHC quality,
+              risk, and audit readiness.
             </p>
+            <p className="text-sm text-muted-foreground">{UDS_RESOURCE_2025.note}</p>
           </div>
+
 
           <ul className="space-y-2">
             {bullets.map((b) => (

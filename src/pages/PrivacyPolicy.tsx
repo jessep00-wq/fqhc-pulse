@@ -45,7 +45,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-semibold">3. PHI Disclaimer</h2>
             <p className="text-muted-foreground leading-relaxed">
-              MeasureWise is not designed to store or process Protected Health Information (PHI) as defined by HIPAA. Users must not enter individually identifiable patient data. The platform handles aggregate quality metrics and organizational QI data only. If your workflow requires PHI handling, contact us to discuss appropriate safeguards and a Business Associate Agreement.
+              MeasureWise is designed for operational and quality-improvement workflows using aggregate, de-identified, or non-patient-identifying information. MeasureWise is not intended to collect, store, transmit, or process Protected Health Information (PHI) as defined by HIPAA, and a Business Associate Agreement (BAA) is not offered or required. Users must not enter patient-identifying information into the platform.
             </p>
           </section>
 

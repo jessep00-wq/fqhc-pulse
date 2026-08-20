@@ -30,10 +30,17 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
 
   return (
     <div className="min-h-screen bg-background overflow-x-clip">
-      
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
+
       <ExitIntentPlaybookDialog />
       <CartDrawer />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-4 lg:gap-6">
           <Link to="/" className="flex items-center" aria-label="MeasureWise home">
             <span className="sm:hidden"><Logo size="sm" markOnly /></span>
@@ -118,7 +125,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
         </div>
       )}
 
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>{children}</main>
 
       {/* CTA Banner */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">

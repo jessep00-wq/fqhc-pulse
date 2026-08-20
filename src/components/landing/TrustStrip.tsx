@@ -1,16 +1,22 @@
 import { Shield, Lock, BadgeCheck, Stethoscope } from "lucide-react";
+import {
+  ENCRYPTION_AT_REST,
+  FOUNDER_EXPERIENCE_SENTENCE,
+  PHI_BOUNDARY_SHORT,
+  TLS_IN_TRANSIT,
+  VENDOR_SOC2,
+} from "@/lib/siteContent";
 
 const TRUST_BADGES = [
-  { icon: Shield, label: "HIPAA-ready architecture · BAA available" },
-  { icon: Lock, label: "AES-256 at rest · TLS 1.3 in transit" },
-  { icon: BadgeCheck, label: "SOC 2 Type II certified infrastructure" },
+  { icon: Shield, label: PHI_BOUNDARY_SHORT },
+  { icon: Lock, label: `${ENCRYPTION_AT_REST} · ${TLS_IN_TRANSIT}` },
+  ...(VENDOR_SOC2.enabled ? [{ icon: BadgeCheck, label: VENDOR_SOC2.label }] : []),
 ];
 
 const PROOF_POINTS = [
   {
     stat: "Built by an FQHC quality leader",
-    detail:
-      "Designed by Jessica R. Smith, BSN — from years of running QI programs and preparing HRSA Operational Site Visits inside community health centers.",
+    detail: `Designed by Jessica R. Smith, BSN — ${FOUNDER_EXPERIENCE_SENTENCE} in community health center quality improvement, PDSA work, and HRSA Operational Site Visit preparation.`,
   },
   {
     stat: "7 core UDS clinical measures",
@@ -23,6 +29,7 @@ const PROOF_POINTS = [
       "Cycle logs, task evidence, and baseline-to-result deltas export as a print-ready HRSA Audit Binder — no reconstruction before a site visit.",
   },
 ];
+
 
 export function TrustStrip() {
   return (
