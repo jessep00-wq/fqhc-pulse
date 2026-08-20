@@ -99,7 +99,7 @@ Deno.serve(async (req) => {
       const linksHtml = fresh
         .map((l) => `<li><a href="${l.url}" style="color:#1a8a9b;font-weight:600">${l.name}</a></li>`)
         .join("");
-      await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+      const resendRes = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -112,6 +112,16 @@ Deno.serve(async (req) => {
           subject: "Your MeasureWise download links (refreshed)",
           html: `<p>Here are fresh download links for your purchase. They expire in 7 days.</p><ul>${linksHtml}</ul>`,
         }),
+      });
+      const rawBody = await resendRes.text();
+      await logEmailAttempt({
+        supabase,
+        messageId: `purchase-resend-${order.id}-${Date.now()}`,
+        templateName: "purchase-links-resend",
+        recipient: order.customer_email,
+        resendResponse: resendRes,
+        resendBody: rawBody,
+        metadata: { order_id: order.id, file_count: fresh.length },
       });
     }
 
