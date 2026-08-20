@@ -108,9 +108,18 @@ serve(async (req) => {
         },
         body: JSON.stringify({ from: fromAddress("hello"), to: [email], subject, html }),
       });
-      const sendData = await res.json();
+      const rawBody = await res.text();
+      await logEmailAttempt({
+        supabase: admin,
+        messageId: `team-invite-${inviteId}`,
+        templateName: "team-invite",
+        recipient: email,
+        resendResponse: res,
+        resendBody: rawBody,
+        metadata: { invite_id: inviteId },
+      });
       if (!res.ok) {
-        console.error("team-invite send failed", res.status, sendData);
+        console.error("team-invite send failed", res.status, rawBody);
         return json({ error: "Invitation saved, but the email could not be sent." }, 502);
       }
 
