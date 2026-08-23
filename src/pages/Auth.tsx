@@ -91,6 +91,22 @@ export default function Auth() {
     captureFromUrl(searchParams);
   }, [searchParams]);
 
+  // Strip auth tokens from the URL once Supabase has consumed them so they
+  // don't linger for analytics, history, or screenshots. Non-auth params like
+  // ?plan=, ?signup=, and ?authError= are left untouched unless an auth token
+  // is present, in which case the whole fragment is removed.
+  useEffect(() => {
+    if (!session) return;
+    const search = window.location.search;
+    const hash = window.location.hash;
+    const hasAuthToken =
+      /(?:^|[?&])(access_token|refresh_token|code)=/.test(search) ||
+      /(?:^|[#&])(access_token|refresh_token)=/.test(hash);
+    if (hasAuthToken) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [session]);
+
   // While auth or org state is still resolving for a signed-in visitor,
   // show a spinner instead of rendering the auth form (avoids flash).
   // While auth or org state is still resolving for a signed-in visitor,
