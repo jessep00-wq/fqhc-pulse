@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { trackEvent } from "@/lib/trackEvent";
+import posthog from "posthog-js";
 
 interface AuthContextType {
   user: User | null;

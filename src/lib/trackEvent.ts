@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import posthog from "posthog-js";
 
 export type EventName =
   | "login"
@@ -26,8 +27,12 @@ export type EventName =
  * Skips the org-scoped usage_events DB insert.
  */
 export function trackAnonEvent(eventName: EventName, metadata?: Record<string, unknown>) {
-  // No-op: analytics provider removed. Kept as a stable no-op so call sites
-  // don't need to change.
+  if (typeof window === "undefined") return;
+  try {
+    posthog.capture(eventName, metadata);
+  } catch {
+    // Best-effort: PostHog failure should never break the caller.
+  }
 }
 
 export async function trackEvent(
