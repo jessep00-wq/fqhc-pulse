@@ -71,6 +71,20 @@ export default function ResetPassword() {
     };
   }, []);
 
+  // Strip auth tokens from the URL once the recovery token has been consumed
+  // so they don't linger for analytics, history, or screenshots.
+  useEffect(() => {
+    if (status !== "ready") return;
+    const search = window.location.search;
+    const hash = window.location.hash;
+    const hasAuthToken =
+      /(?:^|[?&])(access_token|refresh_token|code)=/.test(search) ||
+      /(?:^|[#&])(access_token|refresh_token)=/.test(hash);
+    if (hasAuthToken) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [status]);
+
   const passwordValid = passwordRules.every((r) => r.test(password));
 
   const handleReset = async () => {
