@@ -172,11 +172,13 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <ul className="space-y-1.5 text-muted-foreground">
                 <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
                 <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                <li><Link to="/resources" className="hover:text-foreground transition-colors">Resource Library</Link></li>
                 <li><Link to="/store" className="hover:text-foreground transition-colors">Store</Link></li>
                 <li><a href="/#how-it-works" className="hover:text-foreground transition-colors">How it works</a></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">Status</Link></li>
               </ul>
             </div>
+
 
             <div className="space-y-2">
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Company</p>
