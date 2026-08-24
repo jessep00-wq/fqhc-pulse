@@ -20,10 +20,12 @@ interface PublicPageLayoutProps {
 const NAV_ITEMS = [
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
+  { to: "/resources", label: "Resources" },
   { to: "/#how-it-works", label: "How it works" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
+
 
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
