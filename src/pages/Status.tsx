@@ -77,7 +77,7 @@ export default function Status() {
         <p className="text-center text-xs text-muted-foreground">
           MeasureWise — FQHC quality improvement and clinical operations software.
           <br />
-          For support, contact <a href="mailto:support@measurewise.org" className="underline hover:text-foreground">support@measurewise.org</a>
+          For support, contact <a href="mailto:hello@measurewise.org" className="underline hover:text-foreground">hello@measurewise.org</a>
         </p>
       </main>
     </div>

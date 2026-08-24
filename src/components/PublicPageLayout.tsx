@@ -1,8 +1,10 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowLeft, ArrowRight, CheckCircle, Menu } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { BRAND, copyright } from "@/lib/brand";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 
 import { ExitIntentPlaybookDialog } from "@/components/lead-magnets/ExitIntentPlaybookDialog";
@@ -15,33 +17,39 @@ interface PublicPageLayoutProps {
   slimNav?: boolean;
 }
 
+const NAV_ITEMS = [
+  { to: "/features", label: "Features" },
+  { to: "/pricing", label: "Pricing" },
+  { to: "/#how-it-works", label: "How it works" },
+  { to: "/about", label: "About" },
+  { to: "/contact", label: "Contact" },
+];
+
 export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background overflow-x-clip">
-      
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+      >
+        Skip to main content
+      </a>
+
       <ExitIntentPlaybookDialog />
       <CartDrawer />
       <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-4 lg:gap-6">
-          <Link to="/" className="flex items-center">
-            <span className="sm:hidden"><Logo size="sm" /></span>
+          <Link to="/" className="flex items-center" aria-label="MeasureWise home">
+            <span className="sm:hidden"><Logo size="sm" markOnly /></span>
             <span className="hidden sm:inline-flex"><Logo size="md" /></span>
           </Link>
 
           {!slimNav ? (
             <nav className="justify-self-center hidden lg:flex items-center gap-1 text-sm">
-              {[
-                { to: "/features/pdsa-cycle-manager", label: "Features" },
-                { to: "/how-it-works", label: "How It Works" },
-                { to: "/case-studies", label: "Case Studies" },
-                { to: "/blog", label: "Blog" },
-                { to: "/newsletter", label: "Newsletter" },
-                { to: "/store", label: "Store" },
-                { to: "/about", label: "About" },
-                { to: "/pricing", label: "Pricing" },
-                { to: "/waitlist", label: "Waitlist" },
-
-              ].map((item) => (
+              {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.to}
                   to={item.to}
@@ -56,18 +64,54 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
           )}
 
           <div className="justify-self-end flex items-center gap-1.5 sm:gap-2">
-            <CartButton />
-            <Button variant="ghost" size="sm" asChild className="hidden sm:inline-flex">
+            <span className="hidden sm:inline-flex"><CartButton /></span>
+            <Button variant="ghost" size="sm" asChild className="px-2 sm:px-3">
               <Link to="/auth">Sign In</Link>
             </Button>
             {!slimNav && (
-              <Button size="sm" asChild className="px-3 sm:px-4 font-semibold shadow-sm whitespace-nowrap">
+              <Button size="sm" asChild className="px-2.5 sm:px-4 font-semibold shadow-sm whitespace-nowrap">
                 <Link to="/auth?signup=true">
-                  <span className="xl:hidden">Start trial</span>
+                  <span className="xl:hidden">Start free</span>
                   <span className="hidden xl:inline">Start 14-day free trial</span>
-                  <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                  <ArrowRight className="ml-1 h-3.5 w-3.5" />
                 </Link>
               </Button>
+            )}
+            {!slimNav && (
+              <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon" className="lg:hidden" aria-label="Open menu">
+                    <Menu className="h-5 w-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[85vw] max-w-xs">
+                  <nav className="mt-8 flex flex-col gap-1">
+                    {[...NAV_ITEMS, { to: "/store", label: "Store" }].map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setMenuOpen(false)}
+                        className="rounded-md px-3 py-3 text-base font-medium text-foreground hover:bg-muted transition-colors"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+                  <div className="mt-6 space-y-3 border-t border-border pt-6">
+                    <Button asChild className="w-full font-semibold" onClick={() => setMenuOpen(false)}>
+                      <Link to="/auth?signup=true">
+                        Start 14-day free trial <ArrowRight className="ml-1.5 h-4 w-4" />
+                      </Link>
+                    </Button>
+                    <Button variant="outline" asChild className="w-full" onClick={() => setMenuOpen(false)}>
+                      <Link to="/auth">Sign In</Link>
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      14 days free, no card to start.
+                    </p>
+                  </div>
+                </SheetContent>
+              </Sheet>
             )}
           </div>
         </div>
@@ -81,7 +125,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
         </div>
       )}
 
-      <main>{children}</main>
+      <main id="main-content" tabIndex={-1}>{children}</main>
 
       {/* CTA Banner */}
       <section className="py-20 px-6 bg-primary text-primary-foreground">
@@ -100,7 +144,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
-              <Link to="/how-it-works">See how it works</Link>
+              <a href="/#how-it-works">See how it works</a>
             </Button>
           </div>
         </div>
@@ -124,10 +168,10 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
             <div className="space-y-2">
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Product</p>
               <ul className="space-y-1.5 text-muted-foreground">
-                <li><Link to="/features/pdsa-cycle-manager" className="hover:text-foreground transition-colors">Features</Link></li>
+                <li><Link to="/features" className="hover:text-foreground transition-colors">Features</Link></li>
                 <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
                 <li><Link to="/store" className="hover:text-foreground transition-colors">Store</Link></li>
-                <li><Link to="/how-it-works" className="hover:text-foreground transition-colors">How it works</Link></li>
+                <li><a href="/#how-it-works" className="hover:text-foreground transition-colors">How it works</a></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">Status</Link></li>
               </ul>
             </div>
@@ -136,11 +180,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <p className="font-semibold text-foreground text-xs uppercase tracking-wide">Company</p>
               <ul className="space-y-1.5 text-muted-foreground">
                 <li><Link to="/about" className="hover:text-foreground transition-colors">About</Link></li>
-                <li><Link to="/case-studies" className="hover:text-foreground transition-colors">Case Studies</Link></li>
-                <li><Link to="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
-                <li><Link to="/newsletter" className="hover:text-foreground transition-colors">Newsletter</Link></li>
                 <li><Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link></li>
-                <li><Link to="/waitlist" className="hover:text-foreground transition-colors">Consulting Waitlist</Link></li>
                 <li><a href={`mailto:${BRAND.supportEmail}`} className="hover:text-foreground transition-colors">{BRAND.supportEmail}</a></li>
 
               </ul>

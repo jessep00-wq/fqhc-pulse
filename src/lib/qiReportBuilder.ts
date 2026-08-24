@@ -53,6 +53,7 @@ export async function buildReportSnapshot(
     .from("pdsa_cycles")
     .select("id, title, status, uds_measure, improvement_pct, next_cycle_decision, created_at")
     .eq("organization_id", organizationId)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
   if (pdsaErr) throw new Error(`PDSA cycles query failed: ${pdsaErr.message}`);
 

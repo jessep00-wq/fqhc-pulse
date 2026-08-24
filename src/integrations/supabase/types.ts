@@ -379,294 +379,6 @@ export type Database = {
         }
         Relationships: []
       }
-      blog_posts: {
-        Row: {
-          author_name: string
-          content_md: string
-          cover_emoji: string | null
-          cover_image_url: string | null
-          created_at: string
-          excerpt: string | null
-          id: string
-          published_at: string | null
-          read_time_minutes: number
-          slug: string
-          status: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          author_name?: string
-          content_md?: string
-          cover_emoji?: string | null
-          cover_image_url?: string | null
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          published_at?: string | null
-          read_time_minutes?: number
-          slug: string
-          status?: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          author_name?: string
-          content_md?: string
-          cover_emoji?: string | null
-          cover_image_url?: string | null
-          created_at?: string
-          excerpt?: string | null
-          id?: string
-          published_at?: string | null
-          read_time_minutes?: number
-          slug?: string
-          status?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      content_activity_log: {
-        Row: {
-          action: string
-          actor_label: string | null
-          actor_user_id: string | null
-          created_at: string
-          draft_id: string | null
-          id: string
-          payload: Json
-        }
-        Insert: {
-          action: string
-          actor_label?: string | null
-          actor_user_id?: string | null
-          created_at?: string
-          draft_id?: string | null
-          id?: string
-          payload?: Json
-        }
-        Update: {
-          action?: string
-          actor_label?: string | null
-          actor_user_id?: string | null
-          created_at?: string
-          draft_id?: string | null
-          id?: string
-          payload?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_activity_log_draft_id_fkey"
-            columns: ["draft_id"]
-            isOneToOne: false
-            referencedRelation: "content_drafts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      content_drafts: {
-        Row: {
-          blog_body_md: string | null
-          blog_cta: string | null
-          blog_excerpt: string | null
-          blog_meta_description: string | null
-          blog_slug: string | null
-          blog_title: string | null
-          created_at: string
-          generated_at: string
-          generation_error: string | null
-          id: string
-          linkedin_post: string | null
-          model: string | null
-          newsletter_body_md: string | null
-          newsletter_subject: string | null
-          published_at: string | null
-          published_blog_id: string | null
-          published_newsletter_id: string | null
-          rejection_reason: string | null
-          reviewed_at: string | null
-          reviewed_by: string | null
-          source_topic_id: string | null
-          status: string
-          topic: string
-          triggered_by: string
-          updated_at: string
-        }
-        Insert: {
-          blog_body_md?: string | null
-          blog_cta?: string | null
-          blog_excerpt?: string | null
-          blog_meta_description?: string | null
-          blog_slug?: string | null
-          blog_title?: string | null
-          created_at?: string
-          generated_at?: string
-          generation_error?: string | null
-          id?: string
-          linkedin_post?: string | null
-          model?: string | null
-          newsletter_body_md?: string | null
-          newsletter_subject?: string | null
-          published_at?: string | null
-          published_blog_id?: string | null
-          published_newsletter_id?: string | null
-          rejection_reason?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          source_topic_id?: string | null
-          status?: string
-          topic: string
-          triggered_by?: string
-          updated_at?: string
-        }
-        Update: {
-          blog_body_md?: string | null
-          blog_cta?: string | null
-          blog_excerpt?: string | null
-          blog_meta_description?: string | null
-          blog_slug?: string | null
-          blog_title?: string | null
-          created_at?: string
-          generated_at?: string
-          generation_error?: string | null
-          id?: string
-          linkedin_post?: string | null
-          model?: string | null
-          newsletter_body_md?: string | null
-          newsletter_subject?: string | null
-          published_at?: string | null
-          published_blog_id?: string | null
-          published_newsletter_id?: string | null
-          rejection_reason?: string | null
-          reviewed_at?: string | null
-          reviewed_by?: string | null
-          source_topic_id?: string | null
-          status?: string
-          topic?: string
-          triggered_by?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_drafts_published_blog_id_fkey"
-            columns: ["published_blog_id"]
-            isOneToOne: false
-            referencedRelation: "blog_posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_drafts_published_newsletter_id_fkey"
-            columns: ["published_newsletter_id"]
-            isOneToOne: false
-            referencedRelation: "newsletters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_drafts_source_topic_id_fkey"
-            columns: ["source_topic_id"]
-            isOneToOne: false
-            referencedRelation: "content_topics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      content_settings: {
-        Row: {
-          audience: string
-          banned_phrases: string[]
-          brand_voice_prompt: string
-          created_at: string
-          id: string
-          last_run_at: string | null
-          last_run_error: string | null
-          last_run_status: string | null
-          model: string
-          recipient_email: string
-          reference_urls: Json
-          schedule_cron: string
-          schedule_enabled: boolean
-          schedule_label: string
-          singleton: boolean
-          tone_keywords: string[]
-          updated_at: string
-        }
-        Insert: {
-          audience?: string
-          banned_phrases?: string[]
-          brand_voice_prompt?: string
-          created_at?: string
-          id?: string
-          last_run_at?: string | null
-          last_run_error?: string | null
-          last_run_status?: string | null
-          model?: string
-          recipient_email?: string
-          reference_urls?: Json
-          schedule_cron?: string
-          schedule_enabled?: boolean
-          schedule_label?: string
-          singleton?: boolean
-          tone_keywords?: string[]
-          updated_at?: string
-        }
-        Update: {
-          audience?: string
-          banned_phrases?: string[]
-          brand_voice_prompt?: string
-          created_at?: string
-          id?: string
-          last_run_at?: string | null
-          last_run_error?: string | null
-          last_run_status?: string | null
-          model?: string
-          recipient_email?: string
-          reference_urls?: Json
-          schedule_cron?: string
-          schedule_enabled?: boolean
-          schedule_label?: string
-          singleton?: boolean
-          tone_keywords?: string[]
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      content_topics: {
-        Row: {
-          angle: string | null
-          created_at: string
-          id: string
-          notes: string | null
-          priority: number
-          status: string
-          title: string
-          updated_at: string
-          used_at: string | null
-        }
-        Insert: {
-          angle?: string | null
-          created_at?: string
-          id?: string
-          notes?: string | null
-          priority?: number
-          status?: string
-          title: string
-          updated_at?: string
-          used_at?: string | null
-        }
-        Update: {
-          angle?: string | null
-          created_at?: string
-          id?: string
-          notes?: string | null
-          priority?: number
-          status?: string
-          title?: string
-          updated_at?: string
-          used_at?: string | null
-        }
-        Relationships: []
-      }
       download_log: {
         Row: {
           downloaded_at: string
@@ -783,246 +495,6 @@ export type Database = {
         }
         Relationships: []
       }
-      evidence_binder_exports: {
-        Row: {
-          export_type: string
-          file_path: string | null
-          generated_at: string
-          generated_by: string | null
-          id: string
-          included_document_ids: string[]
-          organization_id: string
-          period_end: string | null
-          period_start: string | null
-          toc: Json
-        }
-        Insert: {
-          export_type?: string
-          file_path?: string | null
-          generated_at?: string
-          generated_by?: string | null
-          id?: string
-          included_document_ids?: string[]
-          organization_id: string
-          period_end?: string | null
-          period_start?: string | null
-          toc?: Json
-        }
-        Update: {
-          export_type?: string
-          file_path?: string | null
-          generated_at?: string
-          generated_by?: string | null
-          id?: string
-          included_document_ids?: string[]
-          organization_id?: string
-          period_end?: string | null
-          period_start?: string | null
-          toc?: Json
-        }
-        Relationships: []
-      }
-      evidence_categories: {
-        Row: {
-          chapter8_reference: string | null
-          created_at: string
-          default_review_cadence_months: number
-          description: string | null
-          id: string
-          name: string
-          required_doc_types: string[]
-          slug: string
-          sort_order: number
-        }
-        Insert: {
-          chapter8_reference?: string | null
-          created_at?: string
-          default_review_cadence_months?: number
-          description?: string | null
-          id?: string
-          name: string
-          required_doc_types?: string[]
-          slug: string
-          sort_order?: number
-        }
-        Update: {
-          chapter8_reference?: string | null
-          created_at?: string
-          default_review_cadence_months?: number
-          description?: string | null
-          id?: string
-          name?: string
-          required_doc_types?: string[]
-          slug?: string
-          sort_order?: number
-        }
-        Relationships: []
-      }
-      evidence_document_versions: {
-        Row: {
-          change_note: string | null
-          document_id: string
-          file_name: string
-          file_path: string
-          id: string
-          mime_type: string | null
-          organization_id: string
-          size_bytes: number | null
-          uploaded_at: string
-          uploaded_by: string | null
-          version: number
-        }
-        Insert: {
-          change_note?: string | null
-          document_id: string
-          file_name: string
-          file_path: string
-          id?: string
-          mime_type?: string | null
-          organization_id: string
-          size_bytes?: number | null
-          uploaded_at?: string
-          uploaded_by?: string | null
-          version?: number
-        }
-        Update: {
-          change_note?: string | null
-          document_id?: string
-          file_name?: string
-          file_path?: string
-          id?: string
-          mime_type?: string | null
-          organization_id?: string
-          size_bytes?: number | null
-          uploaded_at?: string
-          uploaded_by?: string | null
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "evidence_document_versions_document_id_fkey"
-            columns: ["document_id"]
-            isOneToOne: false
-            referencedRelation: "evidence_documents"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      evidence_documents: {
-        Row: {
-          associated_measure: string | null
-          associated_requirement: string | null
-          author_name_override: string | null
-          author_user_id: string | null
-          category_id: string
-          created_at: string
-          current_version_id: string | null
-          doc_date: string | null
-          document_type: string
-          expires_at: string | null
-          id: string
-          notes: string | null
-          organization_id: string
-          review_date: string | null
-          source: string
-          source_ref_id: string | null
-          status: string
-          tags: string[]
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          associated_measure?: string | null
-          associated_requirement?: string | null
-          author_name_override?: string | null
-          author_user_id?: string | null
-          category_id: string
-          created_at?: string
-          current_version_id?: string | null
-          doc_date?: string | null
-          document_type?: string
-          expires_at?: string | null
-          id?: string
-          notes?: string | null
-          organization_id: string
-          review_date?: string | null
-          source?: string
-          source_ref_id?: string | null
-          status?: string
-          tags?: string[]
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          associated_measure?: string | null
-          associated_requirement?: string | null
-          author_name_override?: string | null
-          author_user_id?: string | null
-          category_id?: string
-          created_at?: string
-          current_version_id?: string | null
-          doc_date?: string | null
-          document_type?: string
-          expires_at?: string | null
-          id?: string
-          notes?: string | null
-          organization_id?: string
-          review_date?: string | null
-          source?: string
-          source_ref_id?: string | null
-          status?: string
-          tags?: string[]
-          title?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "evidence_documents_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "evidence_categories"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      linkedin_shares: {
-        Row: {
-          created_at: string
-          draft_id: string
-          external_url: string | null
-          id: string
-          notes: string | null
-          shared_at: string
-          shared_by: string | null
-        }
-        Insert: {
-          created_at?: string
-          draft_id: string
-          external_url?: string | null
-          id?: string
-          notes?: string | null
-          shared_at?: string
-          shared_by?: string | null
-        }
-        Update: {
-          created_at?: string
-          draft_id?: string
-          external_url?: string | null
-          id?: string
-          notes?: string | null
-          shared_at?: string
-          shared_by?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "linkedin_shares_draft_id_fkey"
-            columns: ["draft_id"]
-            isOneToOne: false
-            referencedRelation: "content_drafts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       manual_downloads: {
         Row: {
           buyer_email: string
@@ -1068,78 +540,6 @@ export type Database = {
           paid_at?: string
           stripe_session_id?: string
           token?: string
-        }
-        Relationships: []
-      }
-      newsletter_subscribers: {
-        Row: {
-          email: string
-          id: string
-          subscribed_at: string
-          token: string
-          unsubscribed_at: string | null
-        }
-        Insert: {
-          email: string
-          id?: string
-          subscribed_at?: string
-          token?: string
-          unsubscribed_at?: string | null
-        }
-        Update: {
-          email?: string
-          id?: string
-          subscribed_at?: string
-          token?: string
-          unsubscribed_at?: string | null
-        }
-        Relationships: []
-      }
-      newsletters: {
-        Row: {
-          created_at: string
-          hero_emoji: string | null
-          hero_image_url: string | null
-          hero_summary: string | null
-          id: string
-          published_at: string | null
-          sections: Json
-          sent_count: number
-          slug: string
-          status: string
-          subtitle: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          hero_emoji?: string | null
-          hero_image_url?: string | null
-          hero_summary?: string | null
-          id?: string
-          published_at?: string | null
-          sections?: Json
-          sent_count?: number
-          slug: string
-          status?: string
-          subtitle?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          hero_emoji?: string | null
-          hero_image_url?: string | null
-          hero_summary?: string | null
-          id?: string
-          published_at?: string | null
-          sections?: Json
-          sent_count?: number
-          slug?: string
-          status?: string
-          subtitle?: string | null
-          title?: string
-          updated_at?: string
         }
         Relationships: []
       }
@@ -1320,12 +720,17 @@ export type Database = {
           completeness_score: number
           created_at: string
           decision: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          doc_version: number
+          focus_area: string | null
           id: string
           improvement_pct: number | null
           intervention_description: string | null
           measurement_plan: string | null
           next_cycle_decision: string | null
           next_cycle_id: string | null
+          opened_at: string | null
           organization_id: string
           owner_user_id: string | null
           predicted_outcome: string | null
@@ -1336,11 +741,13 @@ export type Database = {
           start_date: string | null
           status: string
           study_results: string | null
+          target_end_date: string | null
           target_goal: string | null
           template_id: string | null
           test_description: string | null
           title: string
           uds_measure: string | null
+          updated_at: string
           what_didnt_work: string | null
           what_worked: string | null
         }
@@ -1355,12 +762,17 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          doc_version?: number
+          focus_area?: string | null
           id?: string
           improvement_pct?: number | null
           intervention_description?: string | null
           measurement_plan?: string | null
           next_cycle_decision?: string | null
           next_cycle_id?: string | null
+          opened_at?: string | null
           organization_id: string
           owner_user_id?: string | null
           predicted_outcome?: string | null
@@ -1371,11 +783,13 @@ export type Database = {
           start_date?: string | null
           status?: string
           study_results?: string | null
+          target_end_date?: string | null
           target_goal?: string | null
           template_id?: string | null
           test_description?: string | null
           title: string
           uds_measure?: string | null
+          updated_at?: string
           what_didnt_work?: string | null
           what_worked?: string | null
         }
@@ -1390,12 +804,17 @@ export type Database = {
           completeness_score?: number
           created_at?: string
           decision?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          doc_version?: number
+          focus_area?: string | null
           id?: string
           improvement_pct?: number | null
           intervention_description?: string | null
           measurement_plan?: string | null
           next_cycle_decision?: string | null
           next_cycle_id?: string | null
+          opened_at?: string | null
           organization_id?: string
           owner_user_id?: string | null
           predicted_outcome?: string | null
@@ -1406,11 +825,13 @@ export type Database = {
           start_date?: string | null
           status?: string
           study_results?: string | null
+          target_end_date?: string | null
           target_goal?: string | null
           template_id?: string | null
           test_description?: string | null
           title?: string
           uds_measure?: string | null
+          updated_at?: string
           what_didnt_work?: string | null
           what_worked?: string | null
         }
@@ -1430,6 +851,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      pdsa_drafts: {
+        Row: {
+          created_at: string
+          current_step: string
+          form_data: Json
+          id: string
+          organization_id: string
+          pdsa_cycle_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: string
+          form_data?: Json
+          id?: string
+          organization_id: string
+          pdsa_cycle_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: string
+          form_data?: Json
+          id?: string
+          organization_id?: string
+          pdsa_cycle_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       pdsa_evidence: {
         Row: {
@@ -1763,7 +1220,6 @@ export type Database = {
           board_sections: Json
           committee_sections: Json
           created_at: string
-          evidence_document_id: string | null
           generated_by: string | null
           id: string
           organization_id: string
@@ -1779,7 +1235,6 @@ export type Database = {
           board_sections?: Json
           committee_sections?: Json
           created_at?: string
-          evidence_document_id?: string | null
           generated_by?: string | null
           id?: string
           organization_id: string
@@ -1795,7 +1250,6 @@ export type Database = {
           board_sections?: Json
           committee_sections?: Json
           created_at?: string
-          evidence_document_id?: string | null
           generated_by?: string | null
           id?: string
           organization_id?: string
@@ -1850,6 +1304,42 @@ export type Database = {
           state?: string | null
           tier?: string
           user_agent?: string | null
+        }
+        Relationships: []
+      }
+      record_revisions: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          field_name: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          organization_id: string
+          record_id: string
+          record_type: string
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          field_name: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          organization_id: string
+          record_id: string
+          record_type: string
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          field_name?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          organization_id?: string
+          record_id?: string
+          record_type?: string
         }
         Relationships: []
       }
@@ -2206,28 +1696,43 @@ export type Database = {
       }
       team_invitations: {
         Row: {
+          accepted_at: string | null
+          accepted_by: string | null
           created_at: string
           email: string
+          email_sent_at: string | null
+          expires_at: string
           id: string
           invited_by: string | null
           organization_id: string
           status: string
+          token: string
         }
         Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string
           email: string
+          email_sent_at?: string | null
+          expires_at?: string
           id?: string
           invited_by?: string | null
           organization_id: string
           status?: string
+          token?: string
         }
         Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
           created_at?: string
           email?: string
+          email_sent_at?: string | null
+          expires_at?: string
           id?: string
           invited_by?: string | null
           organization_id?: string
           status?: string
+          token?: string
         }
         Relationships: [
           {
@@ -2356,72 +1861,6 @@ export type Database = {
         }
         Relationships: []
       }
-      waitlist_applications: {
-        Row: {
-          created_at: string
-          ehr: string | null
-          email: string
-          id: string
-          investment: string | null
-          last_sequence_sent_at: string | null
-          name: string
-          org_type: string
-          organization: string
-          phone: string
-          primary_concern: string | null
-          prompt_now: string
-          sequence_step: number
-          sites: number | null
-          state: string
-          status: string
-          timing: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          ehr?: string | null
-          email: string
-          id?: string
-          investment?: string | null
-          last_sequence_sent_at?: string | null
-          name: string
-          org_type: string
-          organization: string
-          phone: string
-          primary_concern?: string | null
-          prompt_now: string
-          sequence_step?: number
-          sites?: number | null
-          state: string
-          status?: string
-          timing?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          ehr?: string | null
-          email?: string
-          id?: string
-          investment?: string | null
-          last_sequence_sent_at?: string | null
-          name?: string
-          org_type?: string
-          organization?: string
-          phone?: string
-          primary_concern?: string | null
-          prompt_now?: string
-          sequence_step?: number
-          sites?: number | null
-          state?: string
-          status?: string
-          timing?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never
@@ -2431,9 +1870,43 @@ export type Database = {
         Args: { _org_id: string }
         Returns: undefined
       }
-      admin_delete_waitlist_application: {
-        Args: { _id: string }
-        Returns: undefined
+      admin_email_health_log: {
+        Args: {
+          p_end: string
+          p_limit?: number
+          p_offset?: number
+          p_start: string
+          p_status?: string
+          p_templates?: string[]
+        }
+        Returns: {
+          created_at: string
+          error_message: string
+          id: string
+          message_id: string
+          recipient_email: string
+          status: string
+          template_name: string
+          total_count: number
+        }[]
+      }
+      admin_email_health_stats: {
+        Args: {
+          p_end: string
+          p_start: string
+          p_status?: string
+          p_templates?: string[]
+        }
+        Returns: {
+          cnt: number
+          status: string
+        }[]
+      }
+      admin_email_templates: {
+        Args: never
+        Returns: {
+          template_name: string
+        }[]
       }
       admin_list_users: {
         Args: never
@@ -2470,6 +1943,7 @@ export type Database = {
         Returns: boolean
       }
       is_founder_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_org_admin: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string

@@ -1,24 +1,21 @@
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { logActivity } from "@/lib/activityLogger";
 import { useOrg } from "@/contexts/OrgContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
-  FlaskConical, AlertTriangle, CheckSquare, DollarSign, TrendingUp,
-  ArrowUpRight, Award, Loader2, Settings2, Info, ArrowRight, FileText,
+  FlaskConical, AlertTriangle, CheckSquare, TrendingUp,
+  ArrowUpRight, Loader2, Info, ArrowRight, FileText,
 } from "lucide-react";
 // UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
@@ -34,6 +31,10 @@ import { BoardReportDialog } from "@/components/BoardReportDialog";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
+import { useProfile } from "@/hooks/useProfile";
+import { blockersForCompletion, type PdsaCycleFields } from "@/lib/pdsaProgress";
+
+import { UDS_MEASURE_LABELS, UDS_MEASURE_LIST } from "@/data/udsMeasures";
 
 const VARIANT_BORDER: Record<string, string> = {
   default: "border-l-4 border-l-primary",
@@ -41,12 +42,7 @@ const VARIANT_BORDER: Record<string, string> = {
   success: "border-l-4 border-l-success",
 };
 
-const MEASURE_LABELS: Record<string, string> = {
-  CMS124: "Cervical Cancer Screening",
-  CMS125: "Breast Cancer Screening",
-  CMS165: "BP Control",
-  CMS122: "HbA1c Poor Control",
-};
+const MEASURE_LABELS: Record<string, string> = UDS_MEASURE_LABELS;
 
 const MetricCard = ({
   title, value, icon: Icon, description, variant = "default", onClick,
@@ -66,94 +62,6 @@ const MetricCard = ({
   </Card>
 );
 
-function FinancialsDialog({
-  open, onClose, initial, orgId,
-}: {
-  open: boolean; onClose: () => void;
-  initial: { shared_savings: number; revenue_protected: number; hrsa_quality_award: number; trend: number; grant_trend: number; period: string } | null;
-  orgId: string;
-}) {
-  const queryClient = useQueryClient();
-  const [form, setForm] = useState({
-    shared_savings: initial?.shared_savings ?? 0,
-    revenue_protected: initial?.revenue_protected ?? 0,
-    hrsa_quality_award: initial?.hrsa_quality_award ?? 0,
-    trend: initial?.trend ?? 0,
-    grant_trend: initial?.grant_trend ?? 0,
-    period: initial?.period ?? "Q1 2026",
-  });
-
-  const mutation = useMutation({
-    mutationFn: async () => {
-      if (initial) {
-        const { error } = await supabase
-          .from("org_financials")
-          .update({ ...form })
-          .eq("organization_id", orgId);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from("org_financials")
-          .insert({ ...form, organization_id: orgId });
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["org_financials", orgId] });
-      queryClient.invalidateQueries({ queryKey: ["activity_log"] });
-      logActivity(orgId, "Financial impact data configured", "success");
-      toast.success("Financial data saved");
-      onClose();
-    },
-    onError: (err: Error) => toast.error(err.message || "Failed to save"),
-  });
-
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle>Configure Financial Impact</DialogTitle>
-          <DialogDescription>Enter your organization's financial metrics for the dashboard.</DialogDescription>
-        </DialogHeader>
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label>Period</Label>
-            <Input value={form.period} onChange={(e) => setForm({ ...form, period: e.target.value })} placeholder="e.g., Q1 2026" />
-          </div>
-          <div className="space-y-1">
-            <Label>Shared Savings (ACO) $</Label>
-            <Input type="number" value={form.shared_savings} onChange={(e) => setForm({ ...form, shared_savings: Number(e.target.value) })} />
-          </div>
-          <div className="space-y-1">
-            <Label>Revenue Protected $</Label>
-            <Input type="number" value={form.revenue_protected} onChange={(e) => setForm({ ...form, revenue_protected: Number(e.target.value) })} />
-          </div>
-          <div className="space-y-1">
-            <Label>HRSA Quality Award $</Label>
-            <Input type="number" value={form.hrsa_quality_award} onChange={(e) => setForm({ ...form, hrsa_quality_award: Number(e.target.value) })} />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>ACO Trend %</Label>
-              <Input type="number" step="0.1" value={form.trend} onChange={(e) => setForm({ ...form, trend: Number(e.target.value) })} />
-            </div>
-            <div className="space-y-1">
-              <Label>Grant Trend %</Label>
-              <Input type="number" step="0.1" value={form.grant_trend} onChange={(e) => setForm({ ...form, grant_trend: Number(e.target.value) })} />
-            </div>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
-            {mutation.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : null}
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function AtRiskDialog({
   open,
@@ -221,12 +129,12 @@ import {
 } from "@/components/dashboard";
 
 export default function Dashboard() {
-  const { organization } = useOrg();
+  const { organization, isDemo } = useOrg();
   const { user } = useAuth();
+  const { firstName } = useProfile();
   const navigate = useNavigate();
   const { isAdmin } = useUserRole();
   const orgId = organization.id;
-  const [finDialogOpen, setFinDialogOpen] = useState(false);
   const [atRiskOpen, setAtRiskOpen] = useState(false);
   const [boardReportOpen, setBoardReportOpen] = useState(false);
   const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
@@ -237,7 +145,7 @@ export default function Dashboard() {
   const cyclesQuery = useQuery({
     queryKey: ["pdsa_cycles", orgId],
     queryFn: async () => {
-      const { data, error } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId);
+      const { data, error } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", orgId).is("deleted_at", null);
       if (error) throw error;
       return data || [];
     },
@@ -277,20 +185,6 @@ export default function Dashboard() {
     enabled: !!orgId,
   });
   const activity = activityQuery.data;
-
-  const { data: financials } = useQuery({
-    queryKey: ["org_financials", orgId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("org_financials")
-        .select("*")
-        .eq("organization_id", orgId)
-        .order("created_at", { ascending: false })
-        .limit(1);
-      return data?.[0] || null;
-    },
-    enabled: !!orgId,
-  });
 
   const isInitialLoading =
     cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading;
@@ -387,11 +281,30 @@ export default function Dashboard() {
   }
 
 
-  const fin = financials;
   const hasCycles = (cycles?.length ?? 0) > 0;
   const hasTrends = (trends?.length ?? 0) > 0;
-  const firstName = user?.user_metadata?.full_name?.split(" ")[0] || user?.email?.split("@")[0] || "there";
   const dateLabel = new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" });
+
+  // Site-visit readiness — same completeness rules the cycle detail enforces,
+  // so the dashboard can never disagree with the cycle it links to.
+  const readiness = (() => {
+    const list = cycles ?? [];
+    if (list.length === 0) {
+      return { total: 0, ready: 0, pct: 0, blockers: [] as { label: string; count: number }[] };
+    }
+    const blockerCounts = new Map<string, number>();
+    let ready = 0;
+    for (const c of list) {
+      const missing = blockersForCompletion(c as PdsaCycleFields);
+      if (missing.length === 0) ready += 1;
+      for (const m of missing) blockerCounts.set(m, (blockerCounts.get(m) ?? 0) + 1);
+    }
+    const blockers = [...blockerCounts.entries()]
+      .map(([label, count]) => ({ label, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    return { total: list.length, ready, pct: Math.round((ready / list.length) * 100), blockers };
+  })();
 
   // Attention strip now only carries items without a natural KPI home.
   const attentionItems: AttentionItem[] = [];
@@ -425,11 +338,11 @@ export default function Dashboard() {
     <div className="space-y-6">
       <SEO
         title="Dashboard — Quality Operations"
-        description="Your MeasureWise dashboard: active PDSA cycles, at-risk UDS measures, tasks due, and financial impact for your FQHC."
+        description="Your MeasureWise dashboard: active PDSA cycles, at-risk UDS measures, and tasks due for your FQHC."
         canonical="https://measurewise.org/dashboard"
       />
       {/* Slim sticky sample-data strip */}
-      {hasTrends && hasCycles && !sampleBannerDismissed && (
+      {hasTrends && hasCycles && !isDemo && !sampleBannerDismissed && (
         <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
           <Info className="h-3.5 w-3.5 text-primary shrink-0" />
           <p className="text-xs text-muted-foreground flex-1 truncate">
@@ -479,7 +392,7 @@ export default function Dashboard() {
         <OnboardingChecklist />
 
         {/* KPI ROW */}
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
           <KpiCard
             title="Active PDSAs"
             value={activePDSA}
@@ -518,22 +431,66 @@ export default function Dashboard() {
             badge={overdueTasks > 0 ? { label: `${overdueTasks} overdue`, tone: "destructive" } : undefined}
             onClick={() => navigate("/dashboard/staff-tasks")}
           />
-          <KpiCard
-            title="VBC Shared Savings"
-            value={fin ? `$${(fin.shared_savings / 1000).toFixed(0)}K` : "—"}
-            icon={DollarSign}
-            tone={fin ? "success" : "default"}
-            description={
-              fin
-                ? `+${fin.trend}% vs last quarter`
-                : "Configure to track financial impact"
-            }
-            onClick={() => setFinDialogOpen(true)}
-          />
         </div>
 
+        {/* SITE-VISIT READINESS */}
+        <SectionCard
+          title="Site-visit readiness"
+          description="How many cycles are fully documented to HRSA evidence standards"
+          action={
+            <Button variant="ghost" size="sm" className="text-xs h-7" onClick={() => navigate("/dashboard/pdsa-lab")}>
+              Open PDSA Lab
+            </Button>
+          }
+        >
+          {readiness.total === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No PDSA cycles yet. Your readiness score appears once you start your first cycle.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <div className="flex flex-wrap items-end gap-3">
+                <span className="text-3xl font-bold tabular-nums">{readiness.pct}%</span>
+                <span className="pb-1 text-sm text-muted-foreground">
+                  {readiness.ready} of {readiness.total} cycles fully documented
+                </span>
+                <span
+                  className={`ml-auto rounded-full px-2 py-0.5 text-xs font-medium ${
+                    readiness.pct >= 80
+                      ? "bg-success/10 text-success"
+                      : "bg-warning/10 text-warning"
+                  }`}
+                >
+                  {readiness.pct >= 80 ? "Surveyor-ready" : "Target: 80%+"}
+                </span>
+              </div>
+              <div className="relative h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className="h-full rounded-full bg-primary transition-all"
+                  style={{ width: `${readiness.pct}%` }}
+                />
+                <div
+                  className="absolute inset-y-0 w-px bg-foreground/40"
+                  style={{ left: "80%" }}
+                  aria-hidden="true"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Surveyor-ready at 80%+.
+                {readiness.blockers.length > 0 && (
+                  <>
+                    {" "}Most common gaps:{" "}
+                    {readiness.blockers.map((b) => `${b.label} (${b.count})`).join(" · ")}
+                  </>
+                )}
+              </p>
+            </div>
 
-      <FinancialsDialog open={finDialogOpen} onClose={() => setFinDialogOpen(false)} initial={fin} orgId={orgId} />
+          )}
+        </SectionCard>
+
+
+
       <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
       <BoardReportDialog
         open={boardReportOpen}
@@ -541,7 +498,6 @@ export default function Dashboard() {
         cycles={cycles || []}
         tasks={tasks || []}
         trends={trends || []}
-        financials={fin}
       />
 
       {/* FULL-WIDTH CLINICAL ANALYTICS */}
@@ -581,10 +537,20 @@ export default function Dashboard() {
                   <Legend />
                   <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
                   <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
-                  <Line yAxisId="left" type="monotone" dataKey="CMS124" stroke="hsl(215, 70%, 45%)" strokeWidth={2} dot={{ r: 3 }} name="Cervical Cancer" connectNulls />
-                  <Line yAxisId="left" type="monotone" dataKey="CMS125" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={{ r: 3 }} name="Breast Cancer" connectNulls />
-                  <Line yAxisId="left" type="monotone" dataKey="CMS165" stroke="hsl(38, 92%, 50%)" strokeWidth={2} dot={{ r: 3 }} name="BP Control" connectNulls />
-                  <Line yAxisId="right" type="monotone" dataKey="CMS122" stroke="hsl(0, 72%, 51%)" strokeWidth={2} dot={{ r: 3 }} name="HbA1c Poor Control ↓" strokeDasharray="5 2" connectNulls />
+                  {UDS_MEASURE_LIST.map((m) => (
+                    <Line
+                      key={m.id}
+                      yAxisId={m.inverse ? "right" : "left"}
+                      type="monotone"
+                      dataKey={m.id}
+                      stroke={m.color}
+                      strokeWidth={2}
+                      dot={{ r: 3 }}
+                      name={m.inverse ? `${m.short} ↓` : m.short}
+                      strokeDasharray={m.inverse ? "5 2" : undefined}
+                      connectNulls
+                    />
+                  ))}
                 </LineChart>
               </ResponsiveContainer>
             </TabsContent>
@@ -610,11 +576,17 @@ export default function Dashboard() {
               <FlaskConical className="h-5 w-5 text-primary" />
             </div>
             <div className="space-y-1">
-              <p className="text-sm font-medium">No activity yet</p>
-              <p className="text-xs text-muted-foreground">Activity appears as you run PDSA cycles, complete tasks, and update measures.</p>
+              <p className="text-sm font-medium">
+                {hasCycles ? "No recent changes logged" : "No activity yet"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {hasCycles
+                  ? "You have PDSA cycles, but nothing has been edited recently. Updates you make from here on will appear in this feed."
+                  : "Activity appears as you run PDSA cycles, complete tasks, and update measures."}
+              </p>
             </div>
             <Button size="sm" variant="outline" onClick={() => navigate("/dashboard/pdsa-lab")}>
-              Start your first PDSA <ArrowRight className="h-3 w-3 ml-1" />
+              {hasCycles ? "Open PDSA Lab" : "Start your first PDSA"} <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
         ) : (
@@ -623,52 +595,6 @@ export default function Dashboard() {
       </SectionCard>
 
 
-      {/* FINANCIAL IMPACT DETAIL (collapsible) */}
-      {fin && (
-        <SectionCard
-          title="Financial Impact"
-          description={`Period: ${fin.period}`}
-          collapsible
-          defaultOpen={false}
-          action={
-            <Button variant="ghost" size="sm" className="gap-1.5 h-7 text-xs" onClick={() => setFinDialogOpen(true)}>
-              <Settings2 className="h-3.5 w-3.5" />
-              Edit
-            </Button>
-          }
-        >
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                Value-Based Care (<JargonTooltip term="ACO" showIcon={false}>ACO</JargonTooltip>)
-              </p>
-              <div className="mt-1 text-2xl font-bold text-success">${(fin.shared_savings / 1000).toFixed(0)}K</div>
-              <StatusBadge tone="success" className="mt-2">
-                <TrendingUp className="h-3 w-3" />
-                +{fin.trend}% QoQ
-              </StatusBadge>
-            </div>
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Revenue Protected</p>
-              <div className="mt-1 text-2xl font-bold text-primary">${(fin.revenue_protected / 1000).toFixed(0)}K</div>
-              <p className="mt-2 text-xs text-muted-foreground">Grant & FFS at risk without QI</p>
-            </div>
-            <div className="rounded-lg border bg-muted/30 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                <JargonTooltip term="HRSA" showIcon={false}>HRSA</JargonTooltip> Quality Award
-              </p>
-              <div className="mt-1 flex items-center gap-2 text-2xl font-bold text-primary">
-                <Award className="h-5 w-5" />
-                ${(fin.hrsa_quality_award / 1000).toFixed(0)}K
-              </div>
-              <StatusBadge tone="info" className="mt-2">
-                <TrendingUp className="h-3 w-3" />
-                +{fin.grant_trend}% QoQ
-              </StatusBadge>
-            </div>
-          </div>
-        </SectionCard>
-      )}
       </div>
     </div>
   );

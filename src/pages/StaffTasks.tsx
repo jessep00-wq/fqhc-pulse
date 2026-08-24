@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SiteSelect, NO_SITE } from "@/components/SiteSelect";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
@@ -74,6 +75,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
   const [priority, setPriority] = useState<string>("medium");
   const [dueDate, setDueDate] = useState<Date>();
   const [pdsaCycleId, setPdsaCycleId] = useState("");
+  const [siteId, setSiteId] = useState<string>(NO_SITE);
 
   const createTask = useMutation({
     mutationFn: async () => {
@@ -83,7 +85,8 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
         assigned_role: role || null,
         priority,
         due_date: dueDate ? format(dueDate, "yyyy-MM-dd") : null,
-        pdsa_cycle_id: pdsaCycleId || null,
+        pdsa_cycle_id: pdsaCycleId && pdsaCycleId !== "none" ? pdsaCycleId : null,
+        site_id: siteId && siteId !== NO_SITE ? siteId : null,
         status: "pending",
       });
       if (error) throw error;
@@ -99,7 +102,7 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
   });
 
   const resetAndClose = () => {
-    setTitle(""); setRole(""); setPriority("medium"); setDueDate(undefined); setPdsaCycleId("");
+    setTitle(""); setRole(""); setPriority("medium"); setDueDate(undefined); setPdsaCycleId(""); setSiteId(NO_SITE);
     onClose();
   };
 
@@ -157,6 +160,11 @@ function AddTaskDialog({ open, onClose, cycles }: { open: boolean; onClose: () =
               </SelectContent>
             </Select>
           </div>
+          <SiteSelect
+            value={siteId}
+            onChange={setSiteId}
+            helpText="Tag the site this task belongs to so it rolls up in the network dashboard."
+          />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={resetAndClose}>Cancel</Button>
@@ -316,7 +324,7 @@ export default function StaffTasks() {
   const { data: cycles = [] } = useQuery({
     queryKey: ["pdsa_cycles_active", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").eq("organization_id", organization.id).neq("status", "completed");
+      const { data } = await supabase.from("pdsa_cycles").select("id, title, status").eq("organization_id", organization.id).is("deleted_at", null).neq("status", "completed");
       return data || [];
     },
     enabled: !!organization.id,

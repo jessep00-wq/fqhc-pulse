@@ -16,7 +16,7 @@ import { toast } from "sonner";
 import { Loader2, Building2, ShieldCheck, FlaskConical, AlertTriangle, ArrowRight, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { readPlanIntent, clearPlanIntent } from "@/lib/planIntent";
-import { trackAnonEvent } from "@/lib/trackEvent";
+import { trackAnonEvent, trackEvent } from "@/lib/trackEvent";
 import { getStripeEnvironment } from "@/lib/stripe";
 
 const ORG_TYPES = ["FQHC", "FQHC Look-Alike", "RHC", "Other"];
@@ -82,13 +82,8 @@ export default function Onboarding() {
   if (isAdmin) return <Navigate to="/admin" replace />;
   if (hasOrg) return <Navigate to="/dashboard" replace />;
 
-  const step1Valid =
-    name.trim().length > 0 &&
-    orgType !== "" &&
-    reportingPeriod !== "" &&
-    qualityLeadName.trim().length > 0 &&
-    qualityLeadEmail.trim().length > 0 &&
-    timezone !== "";
+  const step1Valid = name.trim().length > 0 && timezone !== "";
+
 
   const step2Valid = acknowledged;
 
@@ -101,15 +96,16 @@ export default function Onboarding() {
       const { error: orgError } = await supabase.from("organizations").insert({
         id: orgId,
         name: name.trim(),
-        npi: npi.trim() || null,
+        npi: null,
         owner_id: user.id,
-        org_type: orgType,
-        reporting_period: reportingPeriod,
-        quality_lead_name: qualityLeadName.trim(),
-        quality_lead_email: qualityLeadEmail.trim(),
+        org_type: orgType || "FQHC",
+        reporting_period: reportingPeriod || "Calendar Year (Jan–Dec)",
+        quality_lead_name: qualityLeadName.trim() || null,
+        quality_lead_email: qualityLeadEmail.trim() || user.email || null,
         timezone,
         data_mode: dataMode,
       });
+
       if (orgError) throw orgError;
 
       const { error: profileError } = await supabase
@@ -124,12 +120,33 @@ export default function Onboarding() {
       }
 
       if (dataMode === "demo") {
-        await supabase.rpc("seed_demo_data", { org_id: orgId });
+        // Never fail workspace creation on seeding, but don't fail silently
+        // either — an empty "demo" workspace looks like a broken product.
+        const { error: seedError } = await supabase.rpc("seed_demo_data", { org_id: orgId });
+        if (seedError) {
+          toast.error("Workspace created, but demo data didn't load", {
+            description: "You can seed sample data later from Settings → Facility.",
+          });
+        }
       }
 
       const intent = readPlanIntent();
-      trackAnonEvent("onboarding_completed", {
-        organization_id: orgId,
+      // Flush any pending signup_completed from the pre-auth signup step,
+      // now that this user has an organization_id.
+      try {
+        if (typeof window !== "undefined") {
+          const raw = window.localStorage.getItem("mw_pending_signup_completed");
+          if (raw !== null) {
+            let meta: Record<string, unknown> = {};
+            try { meta = JSON.parse(raw) ?? {}; } catch { /* ignore */ }
+            window.localStorage.removeItem("mw_pending_signup_completed");
+            await trackEvent("signup_completed", meta);
+          }
+        }
+      } catch {
+        // best-effort
+      }
+      await trackEvent("onboarding_completed", {
         priceId: intent?.priceId,
       });
 
@@ -221,7 +238,7 @@ export default function Onboarding() {
               className="space-y-4"
             >
               <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-2 md:col-span-2">
                   <Label htmlFor="org-name">Organization Name *</Label>
                   <Input
                     id="org-name"
@@ -229,54 +246,6 @@ export default function Onboarding() {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="org-npi">NPI (optional)</Label>
-                  <Input
-                    id="org-npi"
-                    placeholder="10-digit NPI"
-                    value={npi}
-                    onChange={(e) => setNpi(e.target.value)}
-                    maxLength={10}
-                    inputMode="numeric"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Organization Type *</Label>
-                  <Select value={orgType} onValueChange={setOrgType}>
-                    <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
-                    <SelectContent>
-                      {ORG_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Reporting Period *</Label>
-                  <Select value={reportingPeriod} onValueChange={setReportingPeriod}>
-                    <SelectTrigger><SelectValue placeholder="Select reporting period" /></SelectTrigger>
-                    <SelectContent>
-                      {REPORTING_PERIODS.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ql-name">Primary Quality Lead *</Label>
-                  <Input
-                    id="ql-name"
-                    placeholder="Full name"
-                    value={qualityLeadName}
-                    onChange={(e) => setQualityLeadName(e.target.value)}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="ql-email">Quality Lead Email *</Label>
-                  <Input
-                    id="ql-email"
-                    type="email"
-                    placeholder="lead@yourchc.org"
-                    value={qualityLeadEmail}
-                    onChange={(e) => setQualityLeadEmail(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
@@ -290,6 +259,11 @@ export default function Onboarding() {
                   <p className="text-xs text-muted-foreground">Detected: {detectedTz}</p>
                 </div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                NPI, organization type, reporting period, and quality lead can be added later in{" "}
+                <strong>Settings → Facility</strong>.
+              </p>
+
               <div className="flex justify-end pt-2">
                 <Button type="submit" disabled={!step1Valid}>
                   Continue <ArrowRight className="h-4 w-4 ml-1" />

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
+import { logEmailAttempt } from "../_shared/log-email-attempt.ts";
 import { taskDeadlineEmail } from "../_shared/email-templates.ts";
 import { verifyCronSecret } from "../_shared/verify-cron.ts";
 
@@ -98,8 +99,19 @@ serve(async (req) => {
           }),
         });
 
+        const rawBody = await response.text();
+        await logEmailAttempt({
+          supabase,
+          messageId: `task-deadline-${profile.id}-${today}`,
+          templateName: "task-deadline-reminder",
+          recipient: authUser.user.email,
+          resendResponse: response,
+          resendBody: rawBody,
+          metadata: { profile_id: profile.id, task_count: formattedTasks.length },
+        });
+
         if (response.ok) emailsSent++;
-        else console.error(`Failed to send deadline email:`, await response.text());
+        else console.error(`Failed to send deadline email:`, rawBody);
       }
     }
 

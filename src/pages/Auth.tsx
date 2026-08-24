@@ -9,11 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Check, Circle } from "lucide-react";
+import { Loader2, Check, Circle, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { BRAND } from "@/lib/brand";
 import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
+import { parsePlanSelection } from "@/lib/pricingPlans";
 import { trackAnonEvent } from "@/lib/trackEvent";
+import { authErrorMessage } from "@/lib/authLinkParams";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -44,13 +46,33 @@ export default function Auth() {
   const [staffRole, setStaffRole] = useState<StaffRole>("QI Manager");
   const [loading, setLoading] = useState(false);
   const [showForgot, setShowForgot] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
+  // Populated when an auth email link failed (expired / already used) and the
+  // landing page forwarded the failure here.
+  const [linkError, setLinkError] = useState<{ code: string; description: string } | null>(() => {
+    const code = searchParams.get("authError");
+    if (!code) return null;
+    return { code, description: searchParams.get("authErrorDescription") ?? "" };
+  });
 
   const passwordValid = useMemo(
     () => passwordRules.every((r) => r.test(password)),
     [password]
   );
+
+  // Plan context carried over from /pricing. Validated against the plan
+  // catalog — unknown values render no summary rather than a wrong one.
+  const planParam = searchParams.get("plan");
+  const billingParam = searchParams.get("billing");
+  const selectedPlan = useMemo(() => {
+    const fromUrl = parsePlanSelection(planParam, billingParam);
+    if (fromUrl) return fromUrl;
+    const stored = readPlanIntent();
+    return stored ? parsePlanSelection(stored.priceId, stored.billing) : null;
+  }, [planParam, billingParam]);
+
 
   // Preserve `?next=` for OAuth consent (MCP) or any other same-origin
   // relative return path. Reject non-relative values to avoid open redirects.
@@ -68,6 +90,22 @@ export default function Auth() {
   useEffect(() => {
     captureFromUrl(searchParams);
   }, [searchParams]);
+
+  // Strip auth tokens from the URL once Supabase has consumed them so they
+  // don't linger for analytics, history, or screenshots. Non-auth params like
+  // ?plan=, ?signup=, and ?authError= are left untouched unless an auth token
+  // is present, in which case the whole fragment is removed.
+  useEffect(() => {
+    if (!session) return;
+    const search = window.location.search;
+    const hash = window.location.hash;
+    const hasAuthToken =
+      /(?:^|[?&])(access_token|refresh_token|code)=/.test(search) ||
+      /(?:^|[#&])(access_token|refresh_token)=/.test(hash);
+    if (hasAuthToken) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }, [session]);
 
   // While auth or org state is still resolving for a signed-in visitor,
   // show a spinner instead of rendering the auth form (avoids flash).
@@ -138,6 +176,19 @@ export default function Auth() {
         priceId: intent?.priceId,
         userId: data?.user?.id,
       });
+      // Also mark this signup so AuthContext can log a DB-backed
+      // signup_completed once the user has an authenticated session
+      // (email-verify flow means no session exists here).
+      try {
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(
+            "mw_pending_signup_completed",
+            JSON.stringify({ priceId: intent?.priceId ?? null }),
+          );
+        }
+      } catch {
+        // best-effort
+      }
       // Welcome email is sent server-side by the `send-welcome-email` edge
       // function on first SIGNED_IN (see AuthContext) — do not invoke
       // `send-email` here with client-supplied HTML, which would let any
@@ -165,6 +216,26 @@ export default function Auth() {
     }
   };
 
+  const handleResendConfirmation = async () => {
+    if (!email) {
+      toast.error("Enter your email above first, then resend.");
+      return;
+    }
+    setLoading(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}${withNext("/auth")}` },
+    });
+    setLoading(false);
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("New confirmation link sent. It expires shortly — use it right away.");
+      setLinkError(null);
+    }
+  };
+
   const handleGoogleSignIn = async () => {
     // Point OAuth back to /auth so the post-login redirect logic above
     // (founder_admin → /admin, otherwise → /dashboard) runs after the
@@ -182,9 +253,16 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Helmet>
         <title>
-          {showForgot ? "Reset password — MeasureWise" : isLogin ? "Sign in — MeasureWise" : "Create your MeasureWise account"}
+          {showForgot
+            ? "Reset Password | MeasureWise"
+            : isLogin
+              ? "Sign In | MeasureWise"
+              : "Start Your Free Trial | MeasureWise"}
         </title>
-        <meta name="description" content="Sign in to MeasureWise — quality improvement and HRSA audit readiness for FQHCs." />
+        <meta
+          name="description"
+          content="Sign in or start a 14-day MeasureWise free trial — PDSA cycles, UDS measure tracking, and HRSA audit readiness for FQHC quality teams."
+        />
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       <h1 className="sr-only">
@@ -193,15 +271,78 @@ export default function Auth() {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <Logo size="md" className="justify-center" />
+            <Link to="/" aria-label="Back to MeasureWise home" className="inline-flex">
+              <Logo size="md" className="justify-center" />
+            </Link>
           </div>
           <CardTitle className="text-xl">{BRAND.name}</CardTitle>
           <CardDescription>
             {showForgot ? "Reset your password" : "Quality operations, simplified for FQHCs"}
           </CardDescription>
+          {!showForgot && !isLogin && (
+            <p className="pt-2 text-sm font-medium text-primary">
+              14 days free, no card to start.
+            </p>
+          )}
         </CardHeader>
+        {!showForgot && !isLogin && selectedPlan && (
+          <div className="px-6 -mt-2 mb-4">
+            <div className="rounded-lg border border-primary/25 bg-primary/5 p-4 text-left">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-primary">
+                    Selected plan
+                  </p>
+                  <p className="text-sm font-semibold text-foreground mt-1">
+                    {selectedPlan.plan.name} · {selectedPlan.billing === "annual" ? "Annual billing" : "Monthly billing"}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{selectedPlan.monthlyDisplay}</p>
+                </div>
+                <Link
+                  to="/pricing"
+                  className="shrink-0 text-xs font-medium text-primary underline underline-offset-2 hover:text-primary/80"
+                >
+                  Change plan
+                </Link>
+              </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                14-day free trial. No card required to start — {selectedPlan.billingTiming}. Cancel anytime before the trial ends.
+              </p>
+            </div>
+          </div>
+        )}
+
         <CardContent className="space-y-4">
+          {linkError && (
+            <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 space-y-3">
+              <div className="flex gap-2">
+                <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-destructive" />
+                <div className="space-y-1">
+                  <p className="text-sm font-semibold text-destructive">Link expired or already used</p>
+                  <p className="text-xs text-muted-foreground">
+                    {authErrorMessage(linkError.code, linkError.description)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={handleResendConfirmation} disabled={loading}>
+                  Resend confirmation email
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setShowForgot(true);
+                    setLinkError(null);
+                  }}
+                >
+                  Reset my password
+                </Button>
+              </div>
+            </div>
+          )}
           {showVerifyEmail ? (
+
             <div className="flex flex-col items-center text-center py-6 space-y-4">
               <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center">
                 <Check className="h-7 w-7 text-primary" />
@@ -219,8 +360,8 @@ export default function Auth() {
           ) : showForgot ? (
             <>
               <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@clinic.org" />
+                <Label htmlFor="reset-email">Email</Label>
+                <Input id="reset-email" name="email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@clinic.org" />
               </div>
               <Button className="w-full" onClick={handleForgotPassword} disabled={loading}>
                 {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
@@ -259,43 +400,94 @@ export default function Auth() {
 
               {!isLogin && (
                 <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Dr. Jane Smith" />
+                  <Label htmlFor="fullName">Full name</Label>
+                  <Input
+                    id="fullName"
+                    name="name"
+                    autoComplete="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Dr. Jane Smith"
+                  />
                 </div>
               )}
               <div className="space-y-2">
-                <Label>Email</Label>
-                <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@clinic.org" />
+                <Label htmlFor="email">Work email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@clinic.org"
+                />
               </div>
               <div className="space-y-2">
-                <Label>Password</Label>
-                <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-                {!isLogin && password.length > 0 && (
-                  <ul className="space-y-1 mt-2">
-                    {passwordRules.map((rule) => {
-                      const passed = rule.test(password);
-                      return (
-                        <li key={rule.label} className="flex items-center gap-2 text-xs">
-                          {passed ? (
-                            <Check className="h-3.5 w-3.5 text-green-500" />
-                          ) : (
-                            <Circle className="h-3.5 w-3.5 text-muted-foreground" />
-                          )}
-                          <span className={passed ? "text-green-600" : "text-muted-foreground"}>
-                            {rule.label}
-                          </span>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    autoComplete={isLogin ? "current-password" : "new-password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pr-11"
+                    aria-describedby={!isLogin ? "password-requirements" : undefined}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((s) => !s)}
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
+                    className="absolute inset-y-0 right-0 flex h-full w-11 items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </button>
+                </div>
+                {!isLogin && (
+                  <div id="password-requirements">
+                    <p className="sr-only">
+                      Password must be at least 8 characters and include an uppercase letter, a
+                      lowercase letter, and a number.
+                    </p>
+                    {password.length > 0 && (
+                      <ul className="space-y-1 mt-2" aria-live="polite">
+                        {passwordRules.map((rule) => {
+                          const passed = rule.test(password);
+                          return (
+                            <li key={rule.label} className="flex items-center gap-2 text-xs">
+                              {passed ? (
+                                <Check className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                              ) : (
+                                <Circle className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                              )}
+                              <span className={passed ? "text-success" : "text-muted-foreground"}>
+                                {rule.label}
+                                <span className="sr-only">{passed ? " — met" : " — not met yet"}</span>
+                              </span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
                 )}
               </div>
               {!isLogin && (
                 <>
                   <div className="space-y-2">
-                    <Label>Staff Role</Label>
+                    <Label htmlFor="staffRole">Your role</Label>
                     <Select value={staffRole} onValueChange={(v) => setStaffRole(v as StaffRole)}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectTrigger id="staffRole" aria-label="Your role">
+                        <SelectValue />
+                      </SelectTrigger>
                       <SelectContent>
                         {ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                       </SelectContent>
@@ -321,6 +513,7 @@ export default function Auth() {
                   </div>
                 </>
               )}
+
               <Button
                 className="w-full"
                 onClick={isLogin ? handleLogin : handleSignUp}

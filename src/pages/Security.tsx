@@ -2,12 +2,18 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, Lock, Database, Users, Server, AlertTriangle, FileCheck } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import {
+  ENCRYPTION_AT_REST,
+  PHI_BOUNDARY_SECURITY_PARAGRAPH,
+  TLS_IN_TRANSIT,
+  VENDOR_SOC2,
+} from "@/lib/siteContent";
 
 const sections = [
   {
     icon: Lock,
     title: "Encryption in transit and at rest",
-    body: "All traffic to MeasureWise is encrypted with TLS 1.2+. Data at rest is encrypted with AES-256 on managed Postgres infrastructure (AWS us-east via Supabase). Database backups are encrypted using the same standard.",
+    body: `All traffic to MeasureWise is encrypted with ${TLS_IN_TRANSIT}. Data at rest uses ${ENCRYPTION_AT_REST} on managed Postgres infrastructure (AWS us-east). Database backups are encrypted using the same standard.`,
   },
   {
     icon: Database,
@@ -16,37 +22,38 @@ const sections = [
   },
   {
     icon: Shield,
-    title: "PHI posture: aggregate UDS data only",
-    body: "MeasureWise stores aggregate UDS measure values, PDSA cycle notes, and quality-improvement workflow data. We do not store patient-level Protected Health Information (PHI) — no MRNs, no patient names, no clinical details about identifiable individuals. Because we do not handle PHI, MeasureWise does not require a HIPAA Business Associate Agreement (BAA) for standard use.",
+    title: "Data boundary: no PHI",
+    body: PHI_BOUNDARY_SECURITY_PARAGRAPH,
   },
   {
     icon: Users,
     title: "Authentication and access control",
-    body: "Email verification is required before sign-in. Passwords must meet complexity requirements and are checked against the Have I Been Pwned database. Optional Google SSO is available. Inside each organization, access is governed by role-based permissions (org admin, standard user).",
+    body: "Email verification is required before sign-in. Passwords must meet complexity requirements and are checked against the Have I Been Pwned database. Optional Google SSO is available. Inside each organization, access is governed by role-based access controls (org admin, standard user).",
   },
   {
     icon: Server,
-    title: "Backups and recovery",
-    body: "The database is backed up automatically every day with 7-day point-in-time recovery. Backups are stored encrypted in a separate region.",
+    title: "Hosting and backups",
+    body: `${VENDOR_SOC2.enabled ? `${VENDOR_SOC2.label}. ` : ""}MeasureWise itself does not hold a SOC 2 certification. The database is backed up automatically every day with 7-day point-in-time recovery, and backups are stored encrypted.`,
   },
   {
     icon: FileCheck,
     title: "Subprocessors",
-    body: "Supabase (database, auth, storage), Stripe (payments), Resend (transactional email), Lovable AI Gateway (AI Quality Assistant). We do not sell or share your data with third parties for marketing.",
+    body: "Managed Postgres and authentication hosting, Stripe (payments), Resend (transactional email), and Lovable AI Gateway (AI Quality Assistant). We do not sell or share your data with third parties for marketing.",
   },
   {
     icon: AlertTriangle,
     title: "Incident reporting",
-    body: "If you believe you've found a security issue, email support@measurewise.org with the subject line \"Security\". We acknowledge security reports within 1 business day.",
+    body: "If you believe you've found a security issue, email hello@measurewise.org with the subject line \"Security\". We acknowledge security reports within 1 business day.",
   },
 ];
+
 
 export default function Security() {
   return (
     <div className="min-h-screen bg-background py-12 px-6">
       <SEO
-        title="Security & Compliance — MeasureWise"
-        description="How MeasureWise protects FQHC quality data: TLS 1.2+, AES-256, Row-Level Security tenant isolation, aggregate UDS data only (no PHI)."
+        title="Security & Data Handling | MeasureWise"
+        description="How MeasureWise protects FQHC quality data: TLS 1.2+ in transit, AES-256 at rest, Row-Level Security tenant isolation, and a no-PHI data boundary."
         canonical="https://measurewise.org/security"
       />
       <div className="max-w-3xl mx-auto">
@@ -79,8 +86,8 @@ export default function Security() {
           <p className="font-semibold mb-1">Security questions or vendor-review questionnaires?</p>
           <p className="text-muted-foreground">
             Email{" "}
-            <a href="mailto:support@measurewise.org" className="text-primary hover:underline">
-              support@measurewise.org
+            <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+              hello@measurewise.org
             </a>{" "}
             and we'll respond within 1 business day.
           </p>

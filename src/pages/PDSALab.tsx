@@ -33,9 +33,14 @@ import { PhaseDots } from "@/components/pdsa/PhaseDots";
 import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
+import { SiteSelect, NO_SITE } from "@/components/SiteSelect";
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
 import { trackEvent } from "@/lib/trackEvent";
+import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDraft";
 
+const WIZARD_OPEN_KEY = "mw_pdsa_wizard_open";
+
+import { blockersForCompletion } from "@/lib/pdsaProgress";
 type PDSAStatus = "plan" | "do" | "study" | "act" | "completed";
 
 interface DBCycle {
@@ -44,6 +49,7 @@ interface DBCycle {
   title: string;
   status: string;
   uds_measure: string | null;
+  focus_area?: string | null;
   root_cause: string | null;
   target_goal: string | null;
   clinical_workflow_impact: string | null;
@@ -105,7 +111,7 @@ interface DBTask {
   due_date?: string | null;
 }
 
-function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; onClick: () => void; borderColor: string }) {
+function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCycle; tasks: DBTask[]; onGenerateBinder: (c: DBCycle) => void; borderColor: string }) {
   const cycleTasks = tasks.filter((t) => t.pdsa_cycle_id === cycle.id);
   const completedTasks = cycleTasks.filter((t) => t.status === "completed").length;
   const totalTasks = cycleTasks.length;
@@ -118,7 +124,6 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
   return (
     <Card
       className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
-      onClick={onClick}
     >
       <CardContent className="p-4 space-y-2.5">
         {/* Phase + stalled badge */}
@@ -138,10 +143,27 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
 
         <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
 
+        <p className="text-[10px] text-muted-foreground">
+          Started {format(new Date((cycle as { start_date?: string | null }).start_date ? `${(cycle as { start_date?: string | null }).start_date}T12:00:00` : cycle.created_at), "MMM d, yyyy")}
+          {" · Last updated "}
+          {format(new Date((cycle as { updated_at?: string | null }).updated_at || cycle.created_at), "MMM d, yyyy")}
+        </p>
+
         <div className="flex flex-wrap items-center gap-1.5">
-          {cycle.uds_measure && (
-            <Badge variant="outline" className="text-[10px] px-1.5 py-0">{cycle.uds_measure.split(":")[0]}</Badge>
+          {(cycle.uds_measure || cycle.focus_area) && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] px-1.5 py-0 max-w-[9rem] truncate whitespace-nowrap block"
+                >
+                  {cycle.uds_measure ? cycle.uds_measure.split(":")[0] : cycle.focus_area}
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent>{cycle.uds_measure || cycle.focus_area}</TooltipContent>
+            </Tooltip>
           )}
+
           {earliestDue && (
             <Tooltip>
               <TooltipTrigger asChild>
@@ -195,7 +217,7 @@ function PDSACard({ cycle, tasks, onGenerateBinder, onClick, borderColor }: { cy
         )}
         {cycle.status === "completed" && (
           <Button size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
-            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate OSV Binder
+            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate HRSA Audit Binder
           </Button>
         )}
       </CardContent>
@@ -275,20 +297,20 @@ function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle:
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-accent" />HRSA OSV Audit Binder</DialogTitle>
+          <DialogTitle className="flex items-center gap-2"><FileText className="h-5 w-5 text-accent" />HRSA Audit Binder</DialogTitle>
           <DialogDescription>Compiled compliance report for federal audit readiness</DialogDescription>
         </DialogHeader>
         <div ref={printRef} className="space-y-6 bg-white text-black p-4">
           <div className="text-center border-b pb-4">
             <h2 className="text-lg font-bold">{organization.name}</h2>
-            <p className="text-xs text-gray-500">NPI: {organization.npi} | HRSA OSV Audit Binder</p>
+            <p className="text-xs text-gray-500">NPI: {organization.npi} | HRSA Audit Binder</p>
             <p className="text-xs text-gray-500">Generated: {new Date().toLocaleDateString()}</p>
           </div>
           <section className="rounded-lg border p-4 space-y-2">
             <h3 className="font-semibold text-sm">1. PDSA Cycle Summary</h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div><span className="text-gray-500">Title:</span> {cycle.title}</div>
-              <div><span className="text-gray-500">UDS Measure:</span> {cycle.uds_measure}</div>
+              <div><span className="text-gray-500">Measure / focus area:</span> {cycle.uds_measure || cycle.focus_area || "—"}</div>
               <div><span className="text-gray-500">Status:</span> Completed</div>
               <div><span className="text-gray-500">Started:</span> {new Date(cycle.created_at).toLocaleDateString()}</div>
             </div>
@@ -368,6 +390,8 @@ function StepIndicator({ current, total }: { current: number; total: number }) {
 }
 
 // ─── Guided PDSA Creation Wizard ───────────────────────────────────────
+const NON_UDS_OPTION = "__none__";
+
 const WIZARD_STEPS = ["template", "aim", "prediction", "measurement", "test", "review"] as const;
 type WizardStep = typeof WIZARD_STEPS[number];
 
@@ -378,6 +402,8 @@ interface WizardData {
   prediction: string;
   measurementPlan: string;
   udsMeasure: string;
+  focusArea: string;
+  siteId: string;
   testDescription: string;
   assignedStaff: StaffRole[];
   rootCause: string;
@@ -392,6 +418,8 @@ const emptyWizard: WizardData = {
   prediction: "",
   measurementPlan: "",
   udsMeasure: "",
+  focusArea: "",
+  siteId: "",
   testDescription: "",
   assignedStaff: ["QI Manager"],
   rootCause: "",
@@ -399,35 +427,55 @@ const emptyWizard: WizardData = {
   clinicalWorkflowImpact: "",
 };
 
-function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }: {
+function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep, onDraftChange, saveState, savedAt }: {
   open: boolean;
   onClose: () => void;
   onCreate: (data: WizardData) => void;
   initialData?: Partial<WizardData>;
   initialStep?: WizardStep;
+  onDraftChange?: (step: WizardStep, data: WizardData) => void;
+  saveState?: DraftSaveState;
+  savedAt?: Date | null;
 }) {
   const [step, setStep] = useState<WizardStep>(initialStep ?? "template");
   const [data, setData] = useState<WizardData>({ ...emptyWizard, ...(initialData ?? {}) });
+  const skipNextSave = useRef(true);
 
   // When opened (or initial seed changes), reset to seeded state.
   useEffect(() => {
     if (open) {
+      skipNextSave.current = true;
       setStep(initialStep ?? "template");
       setData({ ...emptyWizard, ...(initialData ?? {}) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, initialStep, initialData?.title, initialData?.aim, initialData?.rootCause]);
 
+  // Auto-save every field / step change once past the template picker.
+  useEffect(() => {
+    if (!open) return;
+    if (skipNextSave.current) {
+      skipNextSave.current = false;
+      return;
+    }
+    if (step === "template") return;
+    onDraftChange?.(step, data);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, step, data]);
+
   const stepIndex = WIZARD_STEPS.indexOf(step);
 
   const applyTemplate = (t: PDSATemplate) => {
     setData({
+      siteId: data.siteId,
       template: t,
+
       title: t.title,
       aim: t.aim,
       prediction: t.prediction,
       measurementPlan: t.measurementPlan,
       udsMeasure: t.udsMeasure,
+      focusArea: t.focusArea ?? "",
       testDescription: t.testDescription,
       assignedStaff: t.assignedStaff,
       rootCause: t.rootCause,
@@ -469,7 +517,8 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }:
     switch (step) {
       case "aim": return data.title.trim().length > 0 && data.aim.trim().length > 0;
       case "prediction": return data.prediction.trim().length > 0;
-      case "measurement": return data.udsMeasure.length > 0;
+      case "measurement":
+        return data.udsMeasure.length > 0 || data.focusArea.trim().length > 0;
       case "test": return data.testDescription.trim().length > 0;
       default: return true;
     }
@@ -588,16 +637,42 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }:
             <div className="space-y-2">
               <Label className="text-base font-semibold">How will you know a change is an improvement?</Label>
               <CoachingTip>
-                Define what data you'll collect and how often. Link to a UDS measure if applicable — the run chart will be generated automatically.
+                Define what data you'll collect and how often. Link to a UDS measure if applicable — the run chart will be generated automatically. Not every cycle maps to UDS; pick "Not tied to a UDS measure" and name your own focus area instead.
               </CoachingTip>
             </div>
             <div className="space-y-2">
-              <Label>UDS Measure</Label>
-              <Select value={data.udsMeasure} onValueChange={(v) => setData({ ...data, udsMeasure: v })}>
+              <Label>UDS Measure (optional)</Label>
+              <Select
+                value={data.udsMeasure || NON_UDS_OPTION}
+                onValueChange={(v) =>
+                  setData({ ...data, udsMeasure: v === NON_UDS_OPTION ? "" : v })
+                }
+              >
                 <SelectTrigger><SelectValue placeholder="Select a measure" /></SelectTrigger>
-                <SelectContent>{UDS_MEASURES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}</SelectContent>
+                <SelectContent>
+                  <SelectItem value={NON_UDS_OPTION}>Not tied to a UDS measure</SelectItem>
+                  {UDS_MEASURES.map((m) => <SelectItem key={m} value={m}>{m}</SelectItem>)}
+                </SelectContent>
               </Select>
             </div>
+            <SiteSelect
+              value={data.siteId}
+              onChange={(v) => setData({ ...data, siteId: v === NO_SITE ? "" : v })}
+              helpText="Tag a site so this cycle rolls up in the network dashboard."
+            />
+            {!data.udsMeasure && (
+              <div className="space-y-2">
+                <Label>Focus area</Label>
+                <Input
+                  placeholder="e.g., Annual Wellness Visit completion, No-show rate, Referral loop closure"
+                  value={data.focusArea}
+                  onChange={(e) => setData({ ...data, focusArea: e.target.value })}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Name the operational topic this cycle improves. Counts the same as a UDS measure toward cycle completeness.
+                </p>
+              </div>
+            )}
             <div className="space-y-2">
               <Label>Measurement Plan</Label>
               <Textarea
@@ -618,17 +693,17 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }:
           </div>
         )}
 
-        {/* Step: Test Plan */}
+        {/* Step: Action */}
         {step === "test" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-base font-semibold">Describe your test — start small</Label>
+              <Label className="text-base font-semibold">Describe your action — start small</Label>
               <CoachingTip>
                 Test on a small scale first: one provider, one clinic day, or a handful of patients. You can always expand what works.
               </CoachingTip>
             </div>
             <div className="space-y-2">
-              <Label>Test Description</Label>
+              <Label>Action Description</Label>
               <Textarea
                 placeholder="Who is involved? What will they do differently? For how long? With how many patients?"
                 rows={4}
@@ -691,15 +766,15 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }:
                 <p className="text-sm">{data.prediction}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">UDS Measure</p>
-                <p className="text-sm">{data.udsMeasure || "None selected"}</p>
+                <p className="text-xs text-muted-foreground">Measure / focus area</p>
+                <p className="text-sm">{data.udsMeasure || data.focusArea || "None selected"}</p>
               </div>
               <div>
                 <p className="text-xs text-muted-foreground">Measurement Plan</p>
                 <p className="text-sm">{data.measurementPlan || "—"}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Test</p>
+                <p className="text-xs text-muted-foreground">Action</p>
                 <p className="text-sm">{data.testDescription}</p>
               </div>
               <div>
@@ -714,12 +789,19 @@ function CreatePDSAWizard({ open, onClose, onCreate, initialData, initialStep }:
 
         {/* Navigation */}
         {step !== "template" && (
-          <DialogFooter className="flex items-center justify-between sm:justify-between">
-            <Button variant="ghost" size="sm" onClick={prev}>
-              <ArrowLeft className="h-4 w-4 mr-1" />Back
-            </Button>
+          <DialogFooter className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" size="sm" onClick={prev}>
+                <ArrowLeft className="h-4 w-4 mr-1" />Back
+              </Button>
+              <span className="text-xs text-muted-foreground flex items-center gap-1" aria-live="polite">
+                {saveState === "saving" && (<><Loader2 className="h-3 w-3 animate-spin" />Saving…</>)}
+                {saveState === "saved" && (<><CheckCircle className="h-3 w-3 text-success" />Draft saved{savedAt ? ` · ${format(savedAt, "h:mm a")}` : ""}</>)}
+                {saveState === "error" && <span className="text-destructive">Saved on this device only</span>}
+              </span>
+            </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { reset(); onClose(); }}>Cancel</Button>
+              <Button variant="outline" onClick={() => { reset(); onClose(); }}>Close</Button>
               {step === "review" ? (
                 <Button onClick={handleCreate}>
                   <CheckCircle className="h-4 w-4 mr-1" />Create Cycle
@@ -749,6 +831,7 @@ export default function PDSALab() {
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const { draft, saveState, savedAt, saveDraft, markComplete, discardDraft } = usePdsaDraft(organization.id);
   const { canCreateCycle, cyclesRemaining, isFreeTier } = useTierLimits();
 
   // Responsive: narrower than 1100px → tabbed view (DnD board overflows there).
@@ -783,20 +866,54 @@ export default function PDSALab() {
     setSearchParams(sp, { replace: true });
   };
 
-  const handleNewCycle = useCallback(() => {
+  const handleNewCycle = useCallback(async () => {
     if (!canCreateCycle) {
       setUpgradeOpen(true);
       return;
     }
+    // Starting fresh replaces any unfinished draft (explicit user action).
+    await discardDraft();
     setWizardSeed(undefined);
     setWizardStartStep(undefined);
     setNewOpen(true);
-  }, [canCreateCycle]);
+  }, [canCreateCycle, discardDraft]);
+
+  const handleResumeDraft = useCallback(() => {
+    if (!draft) return;
+    setWizardSeed(draft.form_data as Partial<WizardData>);
+    setWizardStartStep((draft.current_step as WizardStep) || "aim");
+    setNewOpen(true);
+  }, [draft]);
+
+  // Safety net: if the wizard was open when the page was refreshed/closed,
+  // reopen it automatically on the saved step with all values restored.
+  const autoResumedRef = useRef(false);
+  useEffect(() => {
+    if (autoResumedRef.current || newOpen) return;
+    if (typeof window === "undefined") return;
+    if (window.sessionStorage.getItem(WIZARD_OPEN_KEY) !== "1") return;
+    const mirror = readMirror();
+    const source = draft
+      ? { form_data: draft.form_data, current_step: draft.current_step }
+      : mirror;
+    if (!source) return;
+    autoResumedRef.current = true;
+    setWizardSeed(source.form_data as Partial<WizardData>);
+    setWizardStartStep((source.current_step as WizardStep) || "aim");
+    setNewOpen(true);
+  }, [draft, newOpen]);
+
+  // Remember whether the wizard is open across refreshes.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (newOpen) window.sessionStorage.setItem(WIZARD_OPEN_KEY, "1");
+    else window.sessionStorage.removeItem(WIZARD_OPEN_KEY);
+  }, [newOpen]);
 
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
     queryFn: async () => {
-      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).order("created_at");
+      const { data } = await supabase.from("pdsa_cycles").select("*").eq("organization_id", organization.id).is("deleted_at", null).order("created_at");
       return (data || []) as DBCycle[];
     },
     enabled: !!organization.id,
@@ -867,11 +984,12 @@ export default function PDSALab() {
 
   const createCycle = useMutation({
     mutationFn: async (wizardData: WizardData) => {
-      const { error } = await supabase.from("pdsa_cycles").insert({
+      const { data, error } = await supabase.from("pdsa_cycles").insert({
         organization_id: organization.id,
         title: wizardData.title,
         status: "plan",
         uds_measure: wizardData.udsMeasure || null,
+        focus_area: wizardData.udsMeasure ? null : wizardData.focusArea.trim() || null,
         root_cause: wizardData.rootCause || null,
         target_goal: wizardData.targetGoal || null,
         clinical_workflow_impact: wizardData.clinicalWorkflowImpact || null,
@@ -881,8 +999,10 @@ export default function PDSALab() {
         measurement_plan: wizardData.measurementPlan || null,
         test_description: wizardData.testDescription || null,
         template_id: wizardData.template?.id || null,
-      });
+        site_id: wizardData.siteId || null,
+      }).select("id").single();
       if (error) throw error;
+      await markComplete(data?.id);
     },
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
@@ -902,6 +1022,15 @@ export default function PDSALab() {
     if (!destination) return;
     const newStatus = destination.droppableId;
     const cycle = cycles.find((c) => c.id === draggableId);
+    if (newStatus === "completed" && cycle) {
+      const outstanding = blockersForCompletion(cycle);
+      if (outstanding.length > 0) {
+        toast.error(
+          `Can't complete this cycle yet — still missing: ${outstanding.join(", ")}.`,
+        );
+        return;
+      }
+    }
     updateStatus.mutate({ id: draggableId, status: newStatus, title: cycle?.title });
     toast.info(`Moved to ${newStatus.charAt(0).toUpperCase() + newStatus.slice(1)}`);
   };
@@ -911,6 +1040,7 @@ export default function PDSALab() {
     const set = new Set<string>();
     cycles.forEach((c) => {
       if (c.uds_measure) set.add(c.uds_measure.split(":")[0]);
+      else if (c.focus_area) set.add(c.focus_area);
     });
     return Array.from(set).sort();
   }, [cycles]);
@@ -918,7 +1048,11 @@ export default function PDSALab() {
   const filteredCycles = useMemo(() => {
     let out = [...cycles];
     if (filters.measure !== "all") {
-      out = out.filter((c) => c.uds_measure?.split(":")[0] === filters.measure);
+      out = out.filter((c) =>
+        c.uds_measure
+          ? c.uds_measure.split(":")[0] === filters.measure
+          : c.focus_area === filters.measure,
+      );
     }
     if (filters.role !== "all") {
       out = out.filter((c) => (c.assigned_staff || []).includes(filters.role));
@@ -928,6 +1062,10 @@ export default function PDSALab() {
     }
     if (filters.sort === "oldest") {
       out.sort((a, b) => +new Date(a.created_at) - +new Date(b.created_at));
+    } else if (filters.sort === "updated" || filters.sort === "stale") {
+      const stamp = (c: DBCycle) =>
+        +new Date((c as { updated_at?: string | null }).updated_at || c.created_at);
+      out.sort((a, b) => (filters.sort === "updated" ? stamp(b) - stamp(a) : stamp(a) - stamp(b)));
     } else if (filters.sort === "due") {
       out.sort((a, b) => {
         const da = getEarliestOpenDue(a.id, tasks)?.getTime() ?? Infinity;
@@ -972,7 +1110,7 @@ export default function PDSALab() {
                       dragStartPos.current = null;
                     }}
                   >
-                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                    <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                   </div>
                 )}
               </Draggable>
@@ -996,18 +1134,40 @@ export default function PDSALab() {
       <div className="p-6 space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">PDSA Lab & Evidence Packet</h1>
+            <h1 className="text-2xl font-bold tracking-tight">PDSA Lab</h1>
             <p className="text-muted-foreground">Guided quality improvement cycles — walk into your next site visit ready</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
-              <Download className="h-4 w-4 mr-1" /> Evidence Packet
+              <Download className="h-4 w-4 mr-1" /> HRSA Audit Binder
             </Button>
             <Button onClick={handleNewCycle} aria-label="New PDSA Cycle">
               <Plus className="h-4 w-4 mr-1" /> New PDSA Cycle
             </Button>
           </div>
         </div>
+
+        {draft && !newOpen && (
+          <Card className="border-primary/30 bg-primary/5">
+            <CardContent className="p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="min-w-0">
+                <p className="text-sm font-medium flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary shrink-0" />
+                  Unfinished PDSA cycle
+                </p>
+                <p className="text-sm text-muted-foreground truncate">
+                  {((draft.form_data as Partial<WizardData>)?.title as string) || "Untitled draft"}
+                  {draft.updated_at ? ` · saved ${format(new Date(draft.updated_at), "MMM d, h:mm a")}` : ""}
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={handleResumeDraft}>Resume draft</Button>
+                <Button size="sm" variant="outline" onClick={handleNewCycle}>Start new</Button>
+                <Button size="sm" variant="ghost" onClick={() => void discardDraft()}>Discard</Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {isFreeTier && cyclesRemaining > 0 && cyclesRemaining <= 2 && (
           <UpgradeBanner message={`You have ${cyclesRemaining} free PDSA cycle${cyclesRemaining === 1 ? "" : "s"} remaining. Upgrade for unlimited cycles.`} />
@@ -1017,7 +1177,7 @@ export default function PDSALab() {
           <EmptyState
             icon={FlaskConical}
             title="No PDSA cycles yet"
-            description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Prediction → Measurement → Test → Analysis → Decision."
+            description="Start your first quality improvement cycle using a guided template. Each cycle walks you through Aim → Action → Results → Decision."
             actionLabel="Create Your First PDSA Cycle"
             onAction={handleNewCycle}
           />
@@ -1054,7 +1214,7 @@ export default function PDSALab() {
                       ) : (
                         colCycles.map((cycle) => (
                           <div key={cycle.id} onClick={() => setSelectedCycle(cycle)}>
-                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} onClick={() => {}} borderColor={col.borderColor} />
+                            <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                           </div>
                         ))
                       )}
@@ -1100,6 +1260,9 @@ export default function PDSALab() {
           onCreate={(data) => createCycle.mutate(data)}
           initialData={wizardSeed}
           initialStep={wizardStartStep}
+          onDraftChange={(step, data) => saveDraft(step, data)}
+          saveState={saveState}
+          savedAt={savedAt}
         />
         <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
         <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />

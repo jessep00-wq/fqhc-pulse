@@ -34,6 +34,7 @@ export default function AIAssistant() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSend = async (text?: string) => {
     const msg = text || input;
@@ -80,6 +81,12 @@ export default function AIAssistant() {
       setLoading(false);
     }
   };
+  const handleStartPdsa = (content: string) => {
+    savePdsaSeed(derivePdsaSeedFromAi(content));
+    toast.success("Starting a PDSA cycle from this analysis");
+    navigate("/dashboard/pdsa-lab?from=ai");
+  };
+
 
   return (
     <div className="p-6 h-[calc(100vh-3.5rem)] flex flex-col">
@@ -104,10 +111,18 @@ export default function AIAssistant() {
                   <Bot className="h-4 w-4 text-primary" />
                 </div>
               )}
-              <div className={`rounded-lg p-3 max-w-[80%] text-sm whitespace-pre-wrap ${
-                msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
-              }`}>
-                {msg.content}
+              <div className="max-w-[80%] space-y-2">
+                <div className={`rounded-lg p-3 text-sm whitespace-pre-wrap ${
+                  msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
+                }`}>
+                  {msg.content}
+                </div>
+                {msg.role === "assistant" && msg.id !== "welcome" && (
+                  <Button variant="outline" size="sm" onClick={() => handleStartPdsa(msg.content)}>
+                    <FlaskConical className="mr-2 h-4 w-4" />
+                    Start a PDSA cycle from this
+                  </Button>
+                )}
               </div>
               {msg.role === "user" && (
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary">

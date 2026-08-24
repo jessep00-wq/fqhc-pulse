@@ -102,7 +102,7 @@ export function getQIReportWorkstream(
       key: "complete",
       label: STAGE_LABEL.complete,
       status: report.status === "board_presented" ? "complete" : "not_started",
-      unlocks: "Mark as board-presented to archive and feed audit binder.",
+      unlocks: "Mark as board-presented to archive and feed HRSA Audit Binder.",
     },
   ];
 
@@ -119,13 +119,13 @@ export function getQIReportWorkstream(
       tone: approvalsComplete ? "success" : "warning",
     },
     {
-      label: "HRSA OSV audit binder",
+      label: "HRSA Audit Binder",
       readiness:
         report.status === "board_presented"
           ? "Attached as board minutes evidence"
           : "Not yet attached",
       tone: report.status === "board_presented" ? "success" : "muted",
-      href: "/dashboard/evidence-binder",
+      href: "/dashboard/audit-binder",
     },
     {
       label: "Board action register",
@@ -155,7 +155,7 @@ export function getQIReportWorkstream(
   const firstUnsatisfied = requires.find((r) => !r.satisfied);
   const nextUnlock: WorkstreamFacts["nextUnlock"] =
     report.status === "board_presented"
-      ? { sentence: "Report is presented and archived to the evidence binder." }
+      ? { sentence: "Report is presented and archived with the HRSA Audit Binder." }
       : firstUnsatisfied
         ? { sentence: `Next step: ${firstUnsatisfied.label.toLowerCase()}.` }
         : { sentence: "All prerequisites met — present to board and mark complete." };

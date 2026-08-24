@@ -20,7 +20,7 @@ import { trackAnonEvent } from "@/lib/trackEvent";
 
 const ROLES = [
   "Quality Director / Manager",
-  "PCMH Coordinator",
+  "Compliance / Survey Lead",
   "COO / Operations",
   "CMO / Medical Director",
   "CFO / Finance",
@@ -51,8 +51,8 @@ const EMRS = [
 
 const INTERESTS = [
   "UDS measure tracking",
-  "PCMH evidence",
-  "HRSA OSV audit binder",
+  "QI board reporting",
+  "HRSA Audit Binder",
   "PDSA cycles",
   "SPC charts",
   "Pricing question",

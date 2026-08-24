@@ -12,6 +12,7 @@ import { Loader2, UserPlus, Mail } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { UpgradePrompt } from "@/components/UpgradePrompt";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export function TeamInviteSection() {
   const { user } = useAuth();
@@ -20,6 +21,7 @@ export function TeamInviteSection() {
   const [email, setEmail] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { canInviteUser } = useTierLimits();
+  const { isOrgAdmin } = useUserRole();
 
   const { data: invitations = [] } = useQuery({
     queryKey: ["team-invitations", organization.id],
@@ -48,17 +50,17 @@ export function TeamInviteSection() {
 
   const inviteMutation = useMutation({
     mutationFn: async (inviteEmail: string) => {
-      const { error } = await supabase.from("team_invitations").insert({
-        organization_id: organization.id,
-        email: inviteEmail.trim().toLowerCase(),
-        invited_by: user!.id,
+      const { data, error } = await supabase.functions.invoke("team-invite", {
+        body: { action: "send", email: inviteEmail.trim().toLowerCase() },
       });
-      if (error) throw error;
+      const errText = (data as { error?: string } | null)?.error;
+      if (errText) throw new Error(errText);
+      if (error) throw new Error("We couldn't send that invitation. Please try again.");
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["team-invitations"] });
       setEmail("");
-      toast.success("Invitation sent!");
+      toast.success("Invitation email sent — the link is valid for 7 days.");
     },
     onError: (err: Error) => toast.error(err.message),
   });
@@ -101,37 +103,53 @@ export function TeamInviteSection() {
         )}
 
         {/* Invite form */}
-        <form onSubmit={handleInvite} className="flex gap-2">
-          <div className="flex-1">
-            <Input
-              type="email"
-              placeholder="colleague@healthcenter.org"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <Button type="submit" disabled={inviteMutation.isPending} size="sm">
-            {inviteMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                <Mail className="h-4 w-4 mr-1" /> Invite
-              </>
-            )}
-          </Button>
-        </form>
+        {isOrgAdmin ? (
+          <form onSubmit={handleInvite} className="flex gap-2">
+            <div className="flex-1">
+              <Input
+                type="email"
+                placeholder="colleague@healthcenter.org"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={inviteMutation.isPending} size="sm">
+              {inviteMutation.isPending ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  <Mail className="h-4 w-4 mr-1" /> Invite
+                </>
+              )}
+            </Button>
+          </form>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Only a workspace admin can invite new team members.
+          </p>
+        )}
 
         {/* Pending invitations */}
         {invitations.length > 0 && (
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Pending Invitations</Label>
+            <Label className="text-xs text-muted-foreground uppercase tracking-wider">Invitations</Label>
             <div className="space-y-1.5">
-              {invitations.map((inv) => (
-                <div key={inv.id} className="flex items-center justify-between text-sm py-1.5">
-                  <span>{inv.email}</span>
-                  <Badge variant="outline" className="text-xs capitalize">{inv.status}</Badge>
-                </div>
-              ))}
+              {invitations.map((inv) => {
+                const expired =
+                  !inv.accepted_at && inv.expires_at && new Date(inv.expires_at) < new Date();
+                const label = inv.accepted_at ? "accepted" : expired ? "expired" : "pending";
+                return (
+                  <div key={inv.id} className="flex items-center justify-between text-sm py-1.5">
+                    <span>{inv.email}</span>
+                    <Badge
+                      variant={label === "accepted" ? "secondary" : "outline"}
+                      className="text-xs capitalize"
+                    >
+                      {label}
+                    </Badge>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

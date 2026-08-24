@@ -74,7 +74,7 @@ var list_pdsa_cycles_default = defineTool2({
     const supabase = supabaseForUser2(ctx);
     let query = supabase.from("pdsa_cycles").select(
       "id, aim_statement, phase, completeness_score, improvement_pct, baseline_rate, created_at, updated_at"
-    ).order("updated_at", { ascending: false }).limit(limit);
+    ).is("deleted_at", null).order("updated_at", { ascending: false }).limit(limit);
     if (phase) query = query.eq("phase", phase);
     const { data, error } = await query;
     if (error) return { content: [{ type: "text", text: error.message }], isError: true };

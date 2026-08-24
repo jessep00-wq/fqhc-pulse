@@ -24,7 +24,6 @@ const DOMAIN_COLORS: Record<string, string> = {
   "Preventive Care": "bg-primary/15 text-primary border-primary/30",
   "Chronic Disease": "bg-warning/15 text-warning border-warning/30",
   "Behavioral Health": "bg-[hsl(270,60%,50%)]/15 text-[hsl(270,60%,50%)] border-[hsl(270,60%,50%)]/30",
-  "Financial/ACO": "bg-success/15 text-success border-success/30",
 };
 
 function getDomainColor(domain: string) {
@@ -36,7 +35,6 @@ const DOMAINS: { value: string; label: string }[] = [
   { value: "Preventive Care", label: "Preventive Care" },
   { value: "Chronic Disease", label: "Chronic Disease" },
   { value: "Behavioral Health", label: "Behavioral Health" },
-  { value: "Financial/ACO", label: "Financial / ACO" },
 ];
 
 function PlaybookGrid({ playbooks, onSelect, onQuickDeploy, deployingId }: { playbooks: UDSPlaybook[]; onSelect: (pb: UDSPlaybook) => void; onQuickDeploy: (pb: UDSPlaybook) => void; deployingId: string | null }) {
@@ -66,7 +64,6 @@ function PlaybookGrid({ playbooks, onSelect, onQuickDeploy, deployingId }: { pla
               <div className="flex items-center gap-1.5">
                 <Badge variant="outline" className={cn("text-[10px]", getDomainColor(pb.domain))}>{pb.domain}</Badge>
               </div>
-              <Badge className="bg-success/10 text-success border-success/20 text-[10px]"><TrendingUp className="h-3 w-3 mr-1" />{pb.financial_impact}</Badge>
               <div className="flex flex-col gap-1.5 pt-1">
                 <Button
                   size="sm"
@@ -125,7 +122,7 @@ export default function PlaybookLibrary() {
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">UDS & ACO Playbook Library</h1>
+        <h1 className="text-2xl font-bold tracking-tight">UDS Playbook Library</h1>
         <p className="text-muted-foreground">Pre-mapped workflow templates for common FQHC challenges</p>
       </div>
 

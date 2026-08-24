@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import { trackPostHogEvent } from "@/lib/posthog";
+import posthog from "posthog-js";
 
 export type EventName =
   | "login"
@@ -29,15 +29,16 @@ export type EventName =
   | "newsletter_subscribed";
 
 /**
- * Fire-and-forget PostHog event for pre-auth funnel steps where there is
+ * Fire-and-forget anon event for pre-auth funnel steps where there is
  * no authenticated user yet (pricing_viewed, plan_selected, signup_started).
  * Skips the org-scoped usage_events DB insert.
  */
 export function trackAnonEvent(eventName: EventName, metadata?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
   try {
-    trackPostHogEvent(eventName, metadata ?? {});
+    posthog.capture(eventName, metadata);
   } catch {
-    console.warn("Failed to track anon event:", eventName);
+    // Best-effort: PostHog failure should never break the caller.
   }
 }
 
@@ -57,15 +58,16 @@ export async function trackEvent(
 
     if (!profile?.organization_id) return;
 
-    // Mirror to PostHog
-    trackPostHogEvent(eventName, { organization_id: profile.organization_id, ...metadata });
+    const enrichedMetadata = { ...(metadata ?? {}), organization_id: profile.organization_id };
 
     await supabase.from("usage_events").insert([{
       user_id: user.id,
       organization_id: profile.organization_id,
       event_name: eventName,
-      metadata: (metadata ?? {}) as unknown as import("@/integrations/supabase/types").Json,
+      metadata: enrichedMetadata as unknown as import("@/integrations/supabase/types").Json,
     }]);
+
+    posthog.capture(eventName, enrichedMetadata);
 
     // Update last_active_at on profile
     await supabase

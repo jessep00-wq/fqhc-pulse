@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { trackEvent } from "@/lib/trackEvent";
-import { identifyUser, resetPostHog } from "@/lib/posthog";
+import posthog from "posthog-js";
 
 interface AuthContextType {
   user: User | null;
@@ -18,13 +18,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const loginTracked = useRef(false);
+  // Last server-verified user id. Used to avoid re-verifying (and re-setting a
+  // new object identity) on background TOKEN_REFRESHED events fired when the
+  // browser tab regains focus — that churn used to cascade into OrgContext
+  // reloading and unmounting the whole dashboard, wiping in-progress forms.
+  const verifiedUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         setSession(session);
-        // Optimistic: surface the JWT user immediately to avoid logged-out flash.
-        setUser(session?.user ?? null);
+        // Optimistic: surface the JWT user immediately to avoid logged-out flash,
+        // but keep the existing object identity when it's the same user so
+        // downstream effects keyed on `user` don't re-run.
+        setUser((prev) => {
+          const next = session?.user ?? null;
+          if (prev && next && prev.id === next.id) return prev;
+          return next;
+        });
         setLoading(false);
 
         // IMPORTANT: never await or call other supabase.auth.* methods synchronously
@@ -33,7 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // lock is force-stolen, producing an unhandled AbortError. Defer all
         // supabase work to a microtask via setTimeout(..., 0).
 
-        if (session) {
+        const alreadyVerified =
+          !!session?.user && verifiedUserIdRef.current === session.user.id;
+
+        if (session && !alreadyVerified) {
           setTimeout(() => {
             // Server-verify identity. session.user is decoded from the local JWT
             // and must not be trusted for authorization decisions.
@@ -41,10 +55,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               .getUser()
               .then(({ data, error }) => {
                 if (error || !data?.user) {
+                  verifiedUserIdRef.current = null;
                   setUser(null);
                   return;
                 }
-                setUser(data.user);
+                verifiedUserIdRef.current = data.user.id;
+                setUser((prev) => (prev && prev.id === data.user.id ? prev : data.user));
               })
               .catch(() => {
                 // Swallow lock-steal aborts and transient network errors —
@@ -57,10 +73,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === "SIGNED_IN" && session?.user && !loginTracked.current) {
           loginTracked.current = true;
           trackEvent("login");
-          // Identify user in PostHog
-          identifyUser(session.user.id, {
-            email: session.user.email,
-          });
+          posthog.identify(session.user.id, { email: session.user.email });
+          // Flush any pending pre-auth signup_completed into the DB now that
+          // we have an authenticated session. trackEvent no-ops if the profile
+          // has no organization_id yet — Onboarding will flush after org exists.
+          try {
+            if (typeof window !== "undefined") {
+              const raw = window.localStorage.getItem("mw_pending_signup_completed");
+              if (raw !== null) {
+                let meta: Record<string, unknown> = {};
+                try { meta = JSON.parse(raw) ?? {}; } catch { /* ignore */ }
+                // Best-effort: leave the flag in place; Onboarding removes it
+                // once it succeeds post-org-creation.
+                trackEvent("signup_completed", meta);
+              }
+            }
+          } catch {
+            // best-effort
+          }
           const userId = session.user.id;
           setTimeout(() => {
             supabase
@@ -71,13 +101,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 () => {},
                 () => {},
               );
+          }, 0);
+        }
 
-            // Send welcome email exactly once per user.
-            // Source of truth is profiles.welcome_email_sent_at (set by the
-            // edge function); localStorage is only a quick local guard so we
-            // don't fire the call on every page reload.
-            const welcomeKey = `mw_welcome_sent_${userId}`;
-            if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+        // Welcome email: run on ANY authenticated session, not just the
+        // SIGNED_IN event. Returning users only ever get INITIAL_SESSION, so
+        // gating on SIGNED_IN meant the welcome email never fired for them.
+        // Source of truth for dedup is profiles.welcome_email_sent_at (set by
+        // the edge function); localStorage is a per-browser fast path.
+        if (session?.user) {
+          const userId = session.user.id;
+          const welcomeKey = `mw_welcome_sent_${userId}`;
+          if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+            setTimeout(() => {
               supabase
                 .from("profiles")
                 .select("welcome_email_sent_at")
@@ -91,18 +127,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                   supabase.functions
                     .invoke("send-welcome-email", { body: { user_id: userId } })
                     .then(({ error }) => {
-                      if (!error) window.localStorage.setItem(welcomeKey, "1");
+                      if (error) {
+                        // Never swallow silently — this failure was invisible before.
+                        console.error("send-welcome-email failed:", error.message ?? error);
+                        return;
+                      }
+                      window.localStorage.setItem(welcomeKey, "1");
                     })
-                    .catch(() => {});
+                    .catch((e) => console.error("send-welcome-email threw:", e));
                 })
-                .then(undefined, () => {});
-            }
-          }, 0);
+                .then(undefined, (e) => console.error("welcome precheck failed:", e));
+            }, 0);
+          }
         }
+
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
-          resetPostHog();
+          verifiedUserIdRef.current = null;
+          posthog.reset();
         }
+
       }
     );
 
@@ -112,9 +156,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-
   const signOut = async () => {
-    resetPostHog();
     await supabase.auth.signOut();
   };
 

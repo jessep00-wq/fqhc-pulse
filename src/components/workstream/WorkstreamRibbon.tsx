@@ -32,6 +32,11 @@ const STATUS_STYLES: Record<
     ring: "bg-destructive/40",
     label: "text-destructive font-semibold",
   },
+  warning: {
+    dot: "bg-warning text-warning-foreground border-warning",
+    ring: "bg-warning/40",
+    label: "text-warning font-semibold",
+  },
   ready: {
     dot: "bg-warning text-warning-foreground border-warning",
     ring: "bg-warning/40",
@@ -46,7 +51,7 @@ const STATUS_STYLES: Record<
 
 function StageIcon({ status }: { status: StageStatus }) {
   if (status === "complete") return <Check className="h-3.5 w-3.5" />;
-  if (status === "blocked") return <AlertTriangle className="h-3.5 w-3.5" />;
+  if (status === "blocked" || status === "warning") return <AlertTriangle className="h-3.5 w-3.5" />;
   if (status === "in_progress") return <Clock className="h-3.5 w-3.5" />;
   if (status === "ready") return <Sparkles className="h-3.5 w-3.5" />;
   return <Circle className="h-3.5 w-3.5" />;
@@ -64,7 +69,10 @@ function StageNode({
   const s = STATUS_STYLES[stage.status];
   const navigable = stage.status === "complete" || stage.status === "in_progress";
   const content = (
-    <div className="flex flex-col items-center gap-1.5 min-w-[88px] cursor-pointer group">
+    <div
+      className="flex flex-col items-center gap-1.5 min-w-[88px] cursor-pointer group"
+      title={stage.reason ? `${stage.label} — ${stage.reason}` : stage.label}
+    >
       <div
         className={cn(
           "h-7 w-7 rounded-full border-2 flex items-center justify-center transition-transform group-hover:scale-110",

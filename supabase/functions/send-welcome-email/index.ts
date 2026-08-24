@@ -142,8 +142,14 @@ Deno.serve(async (req) => {
 
     if (!resp.ok) {
       const txt = await resp.text();
-      console.error("Resend failed", resp.status, txt);
-      return new Response(JSON.stringify({ error: "Email send failed" }), {
+      console.error("welcome email rejected", resp.status, txt);
+      await supabase.from("email_send_log").insert({
+        template_name: "welcome",
+        recipient_email: email,
+        status: "failed",
+        error_message: `[${resp.status}] ${txt}`.slice(0, 500),
+      });
+      return new Response(JSON.stringify({ error: "Email send failed", status: resp.status, details: txt }), {
         status: 502,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -155,6 +161,44 @@ Deno.serve(async (req) => {
       recipient_email: email,
       status: "sent",
     });
+
+    // Founder notification: a new trial account just activated.
+    try {
+      const signupHtml = `<div style="font-family:Arial,sans-serif;color:#0f172a">
+        <h2 style="margin:0 0 12px">New trial signup</h2>
+        <p style="margin:0 0 6px"><strong>Email:</strong> ${escapeHtml(email)}</p>
+        <p style="margin:0 0 6px"><strong>Name:</strong> ${escapeHtml((profile?.full_name as string | null) ?? "—")}</p>
+        <p style="margin:0 0 6px"><strong>User ID:</strong> ${escapeHtml(parsed.data.user_id)}</p>
+        <p style="margin:12px 0 0"><a href="https://measurewise.org/admin/users">Open admin users</a></p>
+      </div>`;
+      const adminResp = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "X-Connection-Api-Key": RESEND_API_KEY,
+        },
+        body: JSON.stringify({
+          from: "MeasureWise Alerts <hello@measurewise.org>",
+          to: ["hello@measurewise.org"],
+          reply_to: email,
+          subject: `New trial signup: ${email}`,
+          html: signupHtml,
+          tags: [{ name: "category", value: "signup_alert" }],
+        }),
+      });
+      const adminTxt = await adminResp.text().catch(() => "");
+      if (!adminResp.ok) console.error("signup alert rejected", adminResp.status, adminTxt);
+      await supabase.from("email_send_log").insert({
+        template_name: "signup-admin-notification",
+        recipient_email: "hello@measurewise.org",
+        status: adminResp.ok ? "sent" : "failed",
+        error_message: adminResp.ok ? null : `[${adminResp.status}] ${adminTxt}`.slice(0, 500),
+      });
+    } catch (alertErr) {
+      console.error("signup alert threw", alertErr);
+    }
+
     // Mark the profile so the client can skip re-invoking on every login
     // (cross-device dedup; localStorage was per-browser).
     await supabase

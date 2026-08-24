@@ -3,6 +3,9 @@
 
 export type StageKey =
   | "plan"
+  | "do"
+  | "study"
+  | "act"
   | "execute"
   | "collect_evidence"
   | "validate"
@@ -13,6 +16,7 @@ export type StageStatus =
   | "not_started"
   | "in_progress"
   | "blocked"
+  | "warning"
   | "ready"
   | "complete";
 
@@ -79,6 +83,9 @@ export const STAGE_ORDER: StageKey[] = [
 
 export const STAGE_LABEL: Record<StageKey, string> = {
   plan: "Plan",
+  do: "Do",
+  study: "Study",
+  act: "Act",
   execute: "Execute",
   collect_evidence: "Collect Evidence",
   validate: "Validate",

@@ -1,16 +1,15 @@
 # MeasureWise
 
-> Quality operations platform for Federally Qualified Health Centers (FQHCs). Plan PDSA cycles, track UDS measures on SPC charts, and export HRSA-ready audit binders.
+> Quality operations platform for Federally Qualified Health Centers (FQHCs). Plan PDSA cycles, track UDS measures on SPC charts, and export the HRSA Audit Binder.
 
-MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH recognition. Built by Jessica R. Smith, BSN — an FQHC Quality Director.
+MeasureWise links quality improvement work to UDS scores and HRSA OSV readiness. Built by Jessica R. Smith, BSN — an FQHC Quality Director.
 
 ## Pages
 
 - [Home](/): Product overview and value proposition for FQHC quality teams.
-- [How It Works](/how-it-works): Walkthrough of PDSA cycles, SPC charts, and audit binders.
+- [How It Works](/#how-it-works): Walkthrough of PDSA cycles, SPC charts, and evidence exports.
 - [Pricing](/pricing): Solo $149, Multi-Site $349, Network $699 — 14-day free trial on every plan.
 - [About](/about): Founder story and mission.
-- [Case Studies](/case-studies): Real FQHCs using MeasureWise to move UDS measures.
 - [Contact](/contact): Get in touch with the MeasureWise team.
 - [Status](/status): System uptime and incident history.
 - [Security & Compliance](/security): TLS 1.2+, AES-256, aggregate UDS data only, no PHI stored.
@@ -18,41 +17,21 @@ MeasureWise links quality improvement work to UDS scores, HRSA funding, and PCMH
 
 ## Features
 
-- [PDSA Cycle Manager](/features/pdsa-cycle-manager): Guided Plan-Do-Study-Act cycles tied to UDS measures.
-- [UDS Tracking](/features/uds-tracking): Track UDS clinical quality measures over time.
-- [SPC Charts](/features/spc-charts): Statistical process control charts on UDS measures.
-- [HRSA Audit Binder](/features/hrsa-audit-binder): One-click OSV-ready PDF export.
-- [PCMH Evidence](/features/pcmh-evidence): Automated NCQA Q-PASS evidence collection.
+- [Features](/features): One page covering PDSA cycles, UDS tracking, SPC charts, HRSA Audit Binder export, and QI/QA board reports.
 
-## For
+## Roles served
 
-- [QI Directors](/for/qi-directors): How MeasureWise supports Quality Improvement Directors.
-- [PCMH Coordinators](/for/pcmh-coordinators): How MeasureWise supports PCMH recognition work.
-- [Operations Managers](/for/operations-managers): How MeasureWise supports CHC operations.
+The homepage has anchor sections for each role we serve:
+- QI Directors (/#for-qi-directors)
+- Compliance & Survey Leads (/#for-compliance-leads)
+- CHC Operations Managers (/#for-operations-managers)
 
-## Blog
 
-- [Blog Index](/blog): Articles on FQHC quality improvement.
-- [PDSA Cycle Guide for FQHCs](/blog/pdsa-cycle-fqhc-guide): How to run cycles that move UDS measures.
-- [UDS Clinical Quality Measures 2026](/blog/uds-clinical-quality-measures-2026): What's changing in UDS reporting.
-- [HRSA Site Visit Checklist](/blog/hrsa-site-visit-checklist): Prepare for an OSV.
-- [Quality Improvement for FQHC Staff](/blog/quality-improvement-fqhc-staff): Building a QI culture.
 
-## Resources
-
-- [UDS-aligned PDSA](/resources/uds-aligned-pdsa): How to run PDSA cycles that move the UDS measure.
-- [HRSA-ready QI documentation](/resources/hrsa-ready-qi-documentation): Capture OSV-ready evidence as part of the workflow.
-- [FQHC quality improvement evidence](/resources/fqhc-quality-improvement-evidence): What counts as evidence — and what doesn't.
-- [AthenaOne documentation workflows](/resources/athenaone-documentation-workflows): UDS reporting workflows on top of athena.
-- [SPC charts for UDS measures](/resources/spc-charts-for-uds-measures): Practical SPC analysis on UDS line items.
-- [Audit binder exports](/resources/audit-binder-exports): What goes into an OSV-defensible binder.
-- [Quality committee proof](/resources/quality-committee-proof): Minutes that defend HRSA findings.
-- [Spreadsheet replacement for QI tracking](/resources/spreadsheet-replacement-qi-tracking): Moving off the Excel workbook.
 
 
 ## Optional
 
-- [Newsletter](/newsletter): Monthly FQHC quality updates.
 - [Privacy Policy](/privacy): Privacy practices.
 - [Terms of Service](/terms): Terms of use.
 - [Refund Policy](/refund-policy): Refund and cancellation terms.

@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { BRAND } from "@/lib/brand";
+import { PLANS, lookupKey, usd } from "@/lib/pricingPlans";
 import { savePlanIntent } from "@/lib/planIntent";
 import { trackAnonEvent } from "@/lib/trackEvent";
 
@@ -30,7 +31,7 @@ const pricingJsonLd = {
   name: BRAND.name,
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
-  description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA-ready audit binders.",
+  description: "Quality operations platform for FQHCs — PDSA cycles, UDS tracking, SPC charts, HRSA Audit Binders.",
   offers: [
     { "@type": "Offer", name: "Solo Clinic", price: "149", priceCurrency: "USD" },
     { "@type": "Offer", name: "Multi-Site", price: "349", priceCurrency: "USD" },
@@ -38,79 +39,22 @@ const pricingJsonLd = {
   ],
 };
 
-interface TierFeature {
-  text: string;
-  locked?: boolean;
-  lockedLabel?: string;
-}
+const getTiers = (annual: boolean) =>
+  PLANS.map((plan) => ({
+    id: plan.id,
+    name: plan.name,
+    lookupKey: lookupKey(plan.id, annual ? "annual" : "monthly"),
+    price: usd(annual ? plan.annualMonthlyPrice : plan.monthlyPrice),
+    monthlyPrice: usd(plan.monthlyPrice),
+    period: "/month",
+    annualTotal: annual ? `${usd(plan.annualTotal)}/yr` : undefined,
+    description: plan.description,
+    highlight: plan.highlight ?? false,
+    badge: plan.badge,
+    cta: "Start 14-day free trial",
+    features: plan.features,
+  }));
 
-const getTiers = (annual: boolean) => [
-  {
-    name: "Solo Clinic",
-    lookupKey: annual ? "solo_annual" : "solo_monthly",
-    price: annual ? "$124" : "$149",
-    period: "/month",
-    annualTotal: annual ? "$1,490/yr" : undefined,
-    description: "One site, unlimited everything else.",
-    highlight: false,
-    cta: "Start 14-day free trial",
-    features: [
-      { text: "1 clinic site" },
-      { text: "Unlimited users — MAs, RNs, providers, QI staff" },
-      { text: "Unlimited PDSA cycles" },
-      { text: "UDS measure dashboards & SPC charts" },
-      { text: "HRSA OSV audit binder export" },
-      { text: "Board report PDF export" },
-      { text: "PCMH Q-PASS evidence tracking" },
-      { text: "Email support" },
-      { text: "Network dashboard", locked: true, lockedLabel: "Available in Multi-Site" },
-    ] as TierFeature[],
-  },
-  {
-    name: "Multi-Site",
-    lookupKey: annual ? "multi_annual" : "multi_monthly",
-    price: annual ? "$291" : "$349",
-    period: "/month",
-    annualTotal: annual ? "$3,490/yr" : undefined,
-    description: "For health centers with 2–5 locations.",
-    highlight: true,
-    badge: "Most Popular",
-    cta: "Start 14-day free trial",
-    features: [
-      { text: "Up to 5 clinic sites" },
-      { text: "Unlimited users — no per-seat fees" },
-      { text: "Unlimited PDSA cycles" },
-      { text: "Network dashboard & cross-site comparison" },
-      { text: "UDS dashboards & SPC charts" },
-      { text: "HRSA OSV audit binder export" },
-      { text: "Board report PDF export" },
-      { text: "PCMH Q-PASS evidence tracking" },
-      { text: "Financial impact tracking" },
-      { text: "Priority support" },
-    ] as TierFeature[],
-  },
-  {
-    name: "Health Center Network",
-    lookupKey: annual ? "network_annual" : "network_monthly",
-    price: annual ? "$582" : "$699",
-    period: "/month",
-    annualTotal: annual ? "$6,990/yr" : undefined,
-    description: "For networks with 6+ sites or PCA/HCCN programs.",
-    highlight: false,
-    cta: "Start 14-day free trial",
-    features: [
-      { text: "Unlimited clinic sites" },
-      { text: "Unlimited users across the network" },
-      { text: "Unlimited PDSA cycles" },
-      { text: "Network-wide analytics & benchmarking" },
-      { text: "Cross-site measure comparison" },
-      { text: "All dashboards, charts & exports" },
-      { text: "Financial impact tracking" },
-      { text: "Dedicated onboarding" },
-      { text: "Priority support & SLA" },
-    ] as TierFeature[],
-  },
-];
 
 const differentiators = [
   {
@@ -178,7 +122,7 @@ export default function Pricing() {
   return (
     <PublicPageLayout>
       <SEO
-        title={`${BRAND.name} pricing for FQHC quality teams`}
+        title="MeasureWise Pricing | Plans for FQHC Quality Teams"
         description="Flat per-site pricing for FQHC quality ops: Solo $149, Multi-Site $349, Network $699. 14-day free trial on every plan."
         canonical={`${BRAND.url}/pricing`}
         jsonLd={pricingJsonLd}
@@ -198,17 +142,25 @@ export default function Pricing() {
             Three flat per-site monthly plans built for how Federally Qualified Health Centers actually budget for quality software. Unlimited users, unlimited PDSA cycles, and no "contact sales" wall — a QI Director can sign up without procurement approval.
           </p>
 
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
+            For context: enterprise QI and population health analytics contracts typically run
+            five or six figures a year, priced per seat and gated behind procurement. This is a
+            flat monthly number a quality director can approve.
+          </p>
+
           <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 px-5 py-2 text-sm font-medium text-primary">
-            14-day free trial — no credit card required
+            14 days free, no card to start
           </div>
 
           {/* Billing toggle */}
-          <div className="flex items-center justify-center gap-3 pt-4">
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
             <span className={`text-sm font-medium ${!annual ? "text-foreground" : "text-muted-foreground"}`}>
               Billed Monthly
             </span>
             <button
               onClick={() => setAnnual(!annual)}
+              role="switch"
+              aria-checked={annual}
               className={`relative inline-flex h-7 w-12 items-center rounded-full transition-colors ${
                 annual ? "bg-primary" : "bg-muted-foreground/30"
               }`}
@@ -223,12 +175,11 @@ export default function Pricing() {
             <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
               Billed Annually
             </span>
-            {annual && (
-              <span className="rounded-full bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-0.5 text-xs font-semibold">
-                Save 2 months
-              </span>
-            )}
+            <span className="rounded-full bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-0.5 text-xs font-semibold">
+              Save 2 months
+            </span>
           </div>
+
         </div>
       </section>
 
@@ -252,7 +203,12 @@ export default function Pricing() {
               <CardHeader className={`text-center pb-4 ${tier.highlight ? "bg-gradient-to-b from-primary/5 to-transparent rounded-t-lg" : ""}`}>
                 <CardTitle className="text-xl">{tier.name}</CardTitle>
                 <CardDescription className="text-sm">{tier.description}</CardDescription>
-                <div className="pt-4">
+                <div className="pt-4 flex items-baseline justify-center gap-2">
+                  {annual && (
+                    <span className="text-lg font-semibold text-muted-foreground line-through">
+                      {tier.monthlyPrice}
+                    </span>
+                  )}
                   <span className="text-4xl font-extrabold text-foreground">{tier.price}</span>
                   {tier.period && <span className="text-muted-foreground text-sm">{tier.period}</span>}
                 </div>
@@ -282,6 +238,7 @@ export default function Pricing() {
                   className="w-full mt-6"
                   variant={tier.highlight ? "default" : "outline"}
                   onClick={() => handleSubscribe(tier.lookupKey)}
+                  aria-label={`Start 14-day free trial for the ${tier.name} plan, billed ${annual ? "annually" : "monthly"}`}
                   disabled={loadingKey === tier.lookupKey}
                 >
                   {loadingKey === tier.lookupKey ? (

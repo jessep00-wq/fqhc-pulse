@@ -184,70 +184,6 @@ describe("StaffTasks — create task", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 3. Evidence Binder — upload / create evidence item
-//    Page : /evidence-binder/:categoryId  (src/pages/evidence-binder/CategoryDetail.tsx)
-//    Side-effect: supabase.from("evidence_items").insert(payload)
-//               + supabase.storage.from("evidence").upload(path, file)
-// ─────────────────────────────────────────────────────────────────────────────
-describe("EvidenceBinder — create evidence item", () => {
-  const insertFn = vi.fn();
-  const uploadFn = vi.fn();
-
-  const mockSupabase = {
-    from: vi.fn().mockReturnValue({ insert: insertFn }),
-    storage: {
-      from: vi.fn().mockReturnValue({ upload: uploadFn }),
-    },
-  };
-
-  beforeEach(() => {
-    vi.clearAllMocks();
-    insertFn.mockResolvedValue({ data: { id: "ev-001" }, error: null });
-    uploadFn.mockResolvedValue({ data: { path: "org-abc/ev-001.pdf" }, error: null });
-  });
-
-  it("uploads file to storage then inserts evidence_items record", async () => {
-    const fakeFile = new File(["pdf bytes"], "Q1_QI_Report.pdf", { type: "application/pdf" });
-    const storagePath = `org-abc/${Date.now()}_${fakeFile.name}`;
-
-    const uploadResult = await mockSupabase.storage.from("evidence").upload(storagePath, fakeFile);
-    expect(uploadResult.error).toBeNull();
-
-    const payload = {
-      category_id: "cat-hrsa-001",
-      organization_id: "org-abc",
-      label: fakeFile.name,
-      storage_path: uploadResult.data!.path,
-      file_type: fakeFile.type,
-    };
-    await mockSupabase.from("evidence_items").insert(payload);
-
-    expect(mockSupabase.storage.from).toHaveBeenCalledWith("evidence");
-    expect(uploadFn).toHaveBeenCalledWith(storagePath, fakeFile);
-    expect(insertFn).toHaveBeenCalledWith(
-      expect.objectContaining({ category_id: "cat-hrsa-001", storage_path: expect.any(String) })
-    );
-  });
-
-  it("does not insert evidence_items if storage upload fails", async () => {
-    uploadFn.mockResolvedValueOnce({ data: null, error: { message: "Bucket not found" } });
-    const fakeFile = new File(["x"], "bad.pdf");
-    const upload = await mockSupabase.storage.from("evidence").upload("bad/path", fakeFile);
-    if (upload.error) {
-      // Guard: do NOT call insert
-    } else {
-      await mockSupabase.from("evidence_items").insert({ storage_path: upload.data!.path });
-    }
-    expect(insertFn).not.toHaveBeenCalled();
-  });
-
-  it("enforces category_id linkage in payload", async () => {
-    const payload = { category_id: "cat-pcmh-002", organization_id: "org-abc", label: "PCMH Attestation.pdf", storage_path: "org-abc/pcmh.pdf" };
-    await mockSupabase.from("evidence_items").insert(payload);
-    expect(insertFn).toHaveBeenCalledWith(expect.objectContaining({ category_id: "cat-pcmh-002" }));
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. QI Report Wizard — draft-qi-report edge function
@@ -492,48 +428,6 @@ describe("Contact — contact-form edge function", () => {
   });
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// 7. Waitlist / Apply form — submit-waitlist-application edge function
-//    Page : /waitlist/*  (src/pages/waitlist)
-//    Side-effect: supabase.functions.invoke("submit-waitlist-application", { body })
-// ─────────────────────────────────────────────────────────────────────────────
-describe("Waitlist — submit-waitlist-application edge function", () => {
-  const invokeFn = makeFunctionsInvoke({ data: { id: "wl-001", status: "pending" }, error: null });
-  const mockSupabase = { functions: { invoke: invokeFn } };
-
-  afterEach(() => vi.clearAllMocks());
-
-  it("submits application with org, role, and contact fields", async () => {
-    const body = {
-      org_name: "Tri-County Health Center",
-      contact_name: "Maria Lopez",
-      contact_email: "mlopez@trichc.org",
-      role: "QI Director",
-      patient_panel_size: 8500,
-    };
-    await mockSupabase.functions.invoke("submit-waitlist-application", { body });
-    expect(invokeFn).toHaveBeenCalledWith(
-      "submit-waitlist-application",
-      expect.objectContaining({ body: expect.objectContaining({ org_name: "Tri-County Health Center" }) })
-    );
-  });
-
-  it("returns application id and pending status on success", async () => {
-    const result = await mockSupabase.functions.invoke("submit-waitlist-application", {
-      body: { org_name: "CHC", contact_email: "admin@chc.org" },
-    });
-    expect(result.data?.status).toBe("pending");
-    expect(result.data?.id).toBeTruthy();
-  });
-
-  it("returns 409 when org already on waitlist", async () => {
-    invokeFn.mockResolvedValueOnce({ data: null, error: { status: 409, message: "Organization already on waitlist" } });
-    const result = await mockSupabase.functions.invoke("submit-waitlist-application", {
-      body: { org_name: "Existing CHC", contact_email: "admin@existing.org" },
-    });
-    expect(result.error?.status).toBe(409);
-  });
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 8. Readiness Score — send-readiness-report edge function

@@ -25,15 +25,9 @@ project_id = "eeyigxcwewdqfeidqbxk"
     verify_jwt = false
   [functions.capture-playbook-lead]
     verify_jwt = false
-  [functions.newsletter-unsubscribe]
-    verify_jwt = false
   [functions.check-task-deadlines]
     verify_jwt = false
-  [functions.weekly-digest]
-    verify_jwt = false
   [functions.ai-root-cause]
-    verify_jwt = false
-  [functions.send-newsletter]
     verify_jwt = false
   [functions.send-playbook-followups]
     verify_jwt = false
@@ -43,10 +37,8 @@ project_id = "eeyigxcwewdqfeidqbxk"
     verify_jwt = false
   [functions.send-email]
     verify_jwt = false
-  [functions.send-waitlist-nurture]
-    verify_jwt = false
   [functions.send-readiness-report]
     verify_jwt = false
-  [functions.subscribe-newsletter]
-    verify_jwt = false
 
+  [functions.team-invite]
+    verify_jwt = false
