@@ -76,4 +76,22 @@
     <priority>0.3</priority>
   </url>
   <url><loc>https://measurewise.org/readiness</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url>
+    <loc>https://measurewise.org/resources</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <!-- Only resource articles with verified, published content are listed.
+       Articles still marked contentInReview ship noindex and stay out of this file. -->
+  <url>
+    <loc>https://measurewise.org/resources/fqhc-pdsa-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://measurewise.org/resources/fqhc-pdsa-hypertension-example</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
+

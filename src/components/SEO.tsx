@@ -8,6 +8,8 @@ interface SEOProps {
   type?: "website" | "article";
   image?: string;
   jsonLd?: Record<string, unknown> | Array<Record<string, unknown>>;
+  /** Keeps thin or unverified pages out of search results. */
+  noindex?: boolean;
   article?: {
     publishedTime?: string;
     modifiedTime?: string;
@@ -15,7 +17,7 @@ interface SEOProps {
   };
 }
 
-export function SEO({ title, description, canonical, type = "website", image, jsonLd, article }: SEOProps) {
+export function SEO({ title, description, canonical, type = "website", image, jsonLd, noindex, article }: SEOProps) {
   const fullTitle = brandTitle(title);
   const url = canonical || BRAND.url;
   const ogImage = image
@@ -26,7 +28,9 @@ export function SEO({ title, description, canonical, type = "website", image, js
     <Helmet>
       <title>{fullTitle}</title>
       <meta name="description" content={description} />
+      {noindex && <meta name="robots" content="noindex, follow" />}
       <link rel="canonical" href={url} />
+
 
       <meta property="og:site_name" content={BRAND.name} />
       <meta property="og:type" content={type} />
