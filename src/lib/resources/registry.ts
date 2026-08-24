@@ -328,37 +328,156 @@ export const RESOURCES: Resource[] = [
   {
     slug: "hrsa-osv-qi-qa-documents",
     title: "What QI/QA Documents Does HRSA Review During an Operational Site Visit?",
+    seoTitle: "HRSA OSV QI/QA Documents | FQHC Chapter 8 Guide",
     description:
-      "How to prepare the quality portion of an Operational Site Visit so requested material can be produced in order and on time.",
+      "See the QI/QA documents HRSA reviews during an FQHC Operational Site Visit, including quarterly assessments, reports, patient records, and board oversight evidence.",
     category: "HRSA & Operational Site Visits",
     published: "2026-08-24",
     updated: "2026-08-24",
-    readingMinutes: 7,
+    readingMinutes: 8,
     featured: true,
-    contentInReview: true,
     sections: [
       {
-        heading: "Preparation is an assembly problem",
-        id: "assembly",
+        heading: "Where the OSV quality review comes from",
+        id: "where-it-comes-from",
         blocks: [
           p(
-            "In most health centers the material already exists. The scramble comes from it living in a dozen places with inconsistent dates and owners. Preparation is mostly assembly, versioning, and labeling.",
+            "During an Operational Site Visit (OSV), the quality portion of the review is governed by Chapter 8: Quality Improvement/Assurance of the HRSA Health Center Program Site Visit Protocol. Chapter 8 is the review instrument that corresponds to Chapter 10: Quality Improvement/Assurance of the Health Center Program Compliance Manual, which is where the underlying requirements live.",
           ),
-          pending(
-            "The list of documents reviewed during the quality portion of an Operational Site Visit is awaiting verification against the current site visit protocol. It will be published only with a direct citation.",
+          p(
+            "That pairing matters when you prepare. Chapter 10 tells you what your health center must have in place. Chapter 8 tells you what the site visit team will ask for, who they will interview, and the specific questions they will answer about your program.",
+          ),
+          p(
+            "Chapter 8 is built around two things: the written QI/QA infrastructure — policies, procedures, position descriptions, schedules — and evidence that the program is actually operating. Reviewers request documents in advance, then use interviews and record review to confirm that what is written on paper matches how the health center runs.",
           ),
         ],
       },
       {
-        heading: "A staging pattern that works",
-        id: "staging",
+        heading: "QI/QA documents HRSA requests for a standard OSV",
+        id: "osv-documents",
         blocks: [
+          p(
+            "The current Chapter 8 \"Documents the Health Center Provides\" checklist asks for the following:",
+          ),
           list([
-            "One folder per period, named consistently",
-            "A cover index that names each artifact and its date",
-            "Measure trends exported as of a stated date",
-            "Improvement cycles exported individually, including in-progress ones",
+            "Policies that establish the QI/QA program",
+            "QI/QA-related operating procedures or processes addressing clinical guidelines, standards of care and practice; patient safety and adverse events including follow-up actions; patient satisfaction; patient grievances; periodic QI/QA assessments; and QI/QA report generation and oversight",
+            "Job or position descriptions of individuals who oversee the QI/QA program",
+            "Sample of patient satisfaction results",
+            "Documentation of any related systems that support QI/QA — for example, an event reporting system, tracking of resolutions and grievances, or dashboards",
+            "QI/QA assessment schedule or calendar",
+            "Sample of two QI/QA assessments from the past 12 months, and any related reports resulting from those assessments",
+            "Sample of 5–10 health center patient records that include clinic visit notes or summary of care",
+            "Systems (for example, certified EHRs) and record-keeping procedures for maintaining and monitoring the confidentiality, privacy, and security of patient information, including protected health information",
           ]),
+          p(
+            "Chapter 8 notes that the same sample of patient records used for other program requirement areas may also be used here, and that records may be shown through live EHR navigation, screenshots, or other formats. Health centers may provide record samples before or during the visit; if during, the protocol asks that the site visit team be told in advance so the visit is not delayed.",
+          ),
+        ],
+      },
+      {
+        heading: "What reviewers verify during the visit",
+        id: "what-reviewers-verify",
+        blocks: [
+          p(
+            "The Chapter 8 methodology pairs each document request with interviews. Reviewers interview the individuals designated to oversee the QI/QA program, along with related clinical and management staff, and review position descriptions for background on those responsibilities. The purpose is to confirm that written policy describes actual operations.",
+          ),
+          p("Across the Chapter 8 elements, the site visit team assesses whether the QI/QA program includes:"),
+          list([
+            "Adherence to current evidence-based clinical guidelines, standards of care, and standards of practice",
+            "Identification of patient safety issues and adverse events, and implementation of follow-up actions",
+            "A process to assess patient satisfaction — for example, surveys or periodic patient focus groups",
+            "A process for hearing and resolving patient grievances",
+            "Completion of periodic QI/QA assessments on at least a quarterly basis, used to inform modification of health center services as appropriate",
+            "Production and sharing of QI/QA reports, including patient satisfaction and patient safety data, with key management staff and the governing board",
+            "Assessments conducted by physicians or other licensed health care professionals using data systematically collected from patient records",
+          ]),
+          p(
+            "Chapter 8 is explicit that the health center decides how often to conduct assessments — monthly, bimonthly, or another cadence — as long as they occur at least quarterly.",
+          ),
+        ],
+      },
+      {
+        heading: "What does the governing board need to show?",
+        id: "governing-board",
+        blocks: [
+          p(
+            "Chapter 8 asks whether the health center shares QI/QA reports, including data on patient satisfaction and patient safety, with key management staff and the governing board. Reports that stay inside the quality department do not satisfy this element.",
+          ),
+          p(
+            "The protocol then asks a second, narrower question: did the health center share at least one example of how those reports support decision-making and oversight by key management staff and the governing board regarding the provision of health center services and responses to patient satisfaction and patient safety issues? One documented example is what the current protocol asks for.",
+          ),
+          p(
+            "In practice this means being able to point to a specific report, the forum where it was presented, and something that followed from it — a change in a workflow, a resource decision, a follow-up assignment, a directed re-measurement.",
+          ),
+        ],
+      },
+      {
+        heading: "OSV vs. FTCA site visit: don't mix up the document lists",
+        id: "osv-vs-ftca",
+        blocks: [
+          p(
+            "A common source of over-preparation is treating the FTCA document list as if it were the OSV list. They are separate protocols with separate purposes. The FTCA Site Visit Protocol applies to FTCA deeming and requests an expanded set of QI/QA documents beyond what Chapter 8 of the Health Center Program Site Visit Protocol asks for.",
+          ),
+          {
+            type: "callout" as const,
+            label: "These items come from the FTCA Site Visit Protocol, not the Chapter 8 OSV list",
+            text: "The FTCA Site Visit Protocol's QI/QA pre-site-visit request includes the following in addition to a QI/QA plan or policies, a QI/QA calendar, and QI/QA leadership job descriptions:",
+            items: [
+              "QI/QA Committee meeting minutes from within the last 12 months",
+              "Board minutes — the six most current governing board minutes",
+              "Health center bylaws",
+              "Governing board roster",
+              "Clinical guidelines and the references used to develop guidelines and protocols",
+              "A listing of written clinical protocols",
+              "Sample quarterly clinical performance reports presented to the QI/QA Committee(s) and board, most recent, including peer review",
+              "Minutes of provider staff meetings from within the past 6 months",
+            ],
+          },
+          p(
+            "If your health center is FTCA-deemed you will need both sets. Keep them labeled by protocol so an OSV request is answered from the Chapter 8 list and an FTCA visit is answered from the FTCA list. Presenting the FTCA list as the standard OSV requirement creates work that HRSA did not ask for in an OSV, and blurs which document belongs to which review.",
+          ),
+        ],
+      },
+      {
+        heading: "What reviewers are really testing",
+        id: "what-is-tested",
+        blocks: [
+          p(
+            "Chapter 8 is not a document-existence check. The findings questions are written to determine whether the program functions. Reading the methodology, the review tests whether:",
+          ),
+          list([
+            "The required processes are operational rather than described",
+            "Assessments actually happen on the schedule the health center set, and at least quarterly",
+            "Findings lead to action where action is warranted",
+            "Reports reach key management staff and the governing board",
+            "The organization can produce evidence from the prior 12 months on request",
+            "Written policies match what staff describe and what the records show",
+          ]),
+          p(
+            "This is why the interview step carries so much weight. A well-written QI/QA plan that no one on the floor can describe is the failure mode Chapter 8 is designed to surface.",
+          ),
+        ],
+      },
+      {
+        heading: "Practical readiness check",
+        id: "readiness-check",
+        blocks: [
+          p(
+            "The questions below are readiness guidance from our experience with quality teams, not additional HRSA requirements. They are a fast way to find out whether the Chapter 8 request would be answerable today.",
+          ),
+          list([
+            "Can we produce our QI/QA assessment calendar?",
+            "Can we produce two completed assessments from the past 12 months?",
+            "Can we show what happened after each assessment?",
+            "Can we show QI/QA reports provided to leadership and the board?",
+            "Can we show an example of a decision or action resulting from those reports?",
+            "Can designated QI/QA staff explain the process consistently?",
+            "Do our supporting systems match what our policies say?",
+          ]),
+          p(
+            "Any question you cannot answer within a day is the gap to close first — not because the document is missing, but because the connection between assessment, action, and oversight is where the review concentrates.",
+          ),
         ],
       },
     ],
@@ -370,12 +489,26 @@ export const RESOURCES: Resource[] = [
     cta: {
       label: "See the OSV export packet",
       href: "/features#audit-binder",
-      blurb: "Export a dated, indexed evidence packet instead of assembling folders by hand.",
+      blurb:
+        "MeasureWise helps FQHC quality teams maintain a continuous evidence trail connecting assessments, findings, actions, reports, and oversight, so OSV preparation starts long before the site visit notice arrives.",
     },
     sources: [
       {
-        label: "HRSA Health Center Program site visit protocol",
-        href: "https://bphc.hrsa.gov/compliance/site-visits",
+        label:
+          "HRSA Health Center Program Site Visit Protocol, Chapter 8: Quality Improvement/Assurance",
+        href: "https://bphc.hrsa.gov/compliance/site-visits/site-visit-protocol/quality-improvement-assurance",
+        note: "Documents the health center provides, site visit team methodology, and site visit finding questions.",
+      },
+      {
+        label:
+          "HRSA Health Center Program Compliance Manual, Chapter 10: Quality Improvement/Assurance",
+        href: "https://bphc.hrsa.gov/compliance/compliance-manual/chapter10",
+        note: "The underlying QI/QA requirements that Chapter 8 assesses.",
+      },
+      {
+        label: "HRSA FTCA Site Visit Protocol",
+        href: "https://bphc.hrsa.gov/compliance/ftca/site-visit-protocol",
+        note: "Separate protocol with its own expanded QI/QA requested-document list.",
       },
     ],
   },

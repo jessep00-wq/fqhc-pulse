@@ -17,9 +17,11 @@ export const RESOURCE_CATEGORIES: ResourceCategory[] = [
 
 export interface ResourceBlock {
   /** Plain paragraph of non-regulatory, operational framing copy. */
-  type: "p" | "h3" | "list" | "pending";
+  type: "p" | "h3" | "list" | "pending" | "callout";
   text?: string;
   items?: string[];
+  /** Heading for a callout block. */
+  label?: string;
 }
 
 export interface ResourceSection {

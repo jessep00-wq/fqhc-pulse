@@ -23,6 +23,27 @@ function Block({ block }: { block: ResourceBlock }) {
       </ul>
     );
   }
+  if (block.type === "callout") {
+    return (
+      <aside className="mt-6 rounded-xl border-l-4 border-l-primary border border-border bg-muted/40 p-5">
+        {block.label && (
+          <p className="text-sm font-semibold text-foreground">{block.label}</p>
+        )}
+        {block.text && (
+          <p className="mt-2 text-sm text-muted-foreground leading-relaxed">{block.text}</p>
+        )}
+        {block.items && (
+          <ul className="mt-3 space-y-2 pl-5 list-disc marker:text-primary">
+            {block.items.map((item) => (
+              <li key={item} className="text-sm text-muted-foreground leading-relaxed">
+                {item}
+              </li>
+            ))}
+          </ul>
+        )}
+      </aside>
+    );
+  }
   if (block.type === "pending") {
     return (
       <Alert className="mt-6">
