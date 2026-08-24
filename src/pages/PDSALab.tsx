@@ -34,8 +34,8 @@ import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
 import { SiteSelect, NO_SITE } from "@/components/SiteSelect";
-
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
+import { trackEvent } from "@/lib/trackEvent";
 import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDraft";
 
 const WIZARD_OPEN_KEY = "mw_pdsa_wizard_open";
@@ -973,6 +973,7 @@ export default function PDSALab() {
         const phase = result.status.charAt(0).toUpperCase() + result.status.slice(1);
         logActivity(organization.id, `PDSA cycle "${result.title}" moved to ${phase}`, result.status === "completed" ? "success" : "info");
       }
+      trackEvent("pdsa_phase_changed", { new_phase: result.status });
     },
     onError: (err: Error) => {
       toast.error(err?.message || "Couldn't move cycle. Reverting…");
@@ -1008,6 +1009,10 @@ export default function PDSALab() {
       queryClient.invalidateQueries({ queryKey: ["activity_log"] });
       logActivity(organization.id, `New PDSA cycle created: "${variables.title}"`, "success");
       toast.success("PDSA Cycle created!");
+      trackEvent("pdsa_created", {
+        uds_measure: variables.udsMeasure || null,
+        used_template: !!variables.template,
+      });
     },
     onError: (err: Error) => toast.error(err.message || "Failed to create cycle"),
   });
