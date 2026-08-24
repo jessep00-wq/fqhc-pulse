@@ -66,6 +66,10 @@ const ManualThankYou = lazy(() => import("./pages/ManualThankYou"));
 
 const ReadinessScore = lazy(() => import("./pages/ReadinessScore"));
 
+const ResourcesIndex = lazy(() => import("./pages/resources/ResourcesIndex"));
+const ResourceArticle = lazy(() => import("./pages/resources/ResourceArticle"));
+
+
 // Tab-focus must never trigger a refetch/loading flash: returning to the tab
 // should feel like un-pausing, not reloading. Data refreshes on explicit
 // invalidation after mutations, or once it is genuinely stale.
