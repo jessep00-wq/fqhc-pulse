@@ -20,58 +20,155 @@ export const RESOURCES: Resource[] = [
     title: "HRSA QI/QA Requirements for FQHCs: Chapter 10 Explained",
     seoTitle: "HRSA QI/QA Requirements for FQHCs (Chapter 10)",
     description:
-      "A plain-language orientation to the Health Center Program Compliance Manual's quality improvement and assurance chapter, and how quality teams organize evidence around it.",
+      "What Chapter 10 of the HRSA Health Center Program Compliance Manual actually requires for quality improvement and assurance, how site visit reviewers assess it, and where health centers have discretion.",
     category: "HRSA & Operational Site Visits",
     published: "2026-08-24",
     updated: "2026-08-24",
-    readingMinutes: 8,
+    readingMinutes: 9,
     featured: true,
-    contentInReview: true,
     sections: [
       {
-        heading: "Why Chapter 10 sits at the center of quality work",
-        id: "why-chapter-10",
+        heading: "What Chapter 10 covers",
+        id: "what-chapter-10-covers",
         blocks: [
           p(
-            "Most quality directors do not struggle with doing improvement work. They struggle with proving it happened in the form a reviewer expects: dated, attributable, and traceable from a measure to a decision.",
+            "Chapter 10 of the Health Center Program Compliance Manual is the quality improvement/quality assurance (QI/QA) chapter. Its authority is Section 330(k)(3)(C) of the Public Health Service Act and the implementing regulations at 42 CFR Parts 51c and 56.",
           ),
           p(
-            "This resource is written for that gap. It walks through how quality teams organize their program documentation so that the story of the year is legible without a scavenger hunt through shared drives and meeting invites.",
+            "The underlying requirement is short: the health center must have an ongoing QI/QA system that covers clinical services and clinical management and maintains the confidentiality of patient records. That system must provide organizational arrangements with a focus of responsibility, and periodic assessment of the appropriateness of utilization and the quality of services.",
           ),
-          pending(
-            "The clause-by-clause summary of the Health Center Program Compliance Manual Chapter 10 requirements is awaiting review against the current published manual text. It will be added with a direct citation rather than paraphrased from memory.",
+          p(
+            "The Manual states that those periodic assessments must be conducted by physicians or by other licensed health professionals under physician supervision, be based on the systematic collection and evaluation of patient records, assess patient satisfaction and achievement of project objectives, include a process for hearing and resolving grievances, and identify and document the necessity for change — and result in that change where indicated.",
+          ),
+          p(
+            "Everything else in this article distinguishes between what the Manual requires, how a site visit team checks it, and what is left to the health center's judgment.",
           ),
         ],
       },
       {
-        heading: "What a defensible QI/QA program looks like operationally",
-        id: "operational-shape",
+        heading: "The six things HRSA says demonstrate compliance",
+        id: "six-elements",
         blocks: [
           p(
-            "Independent of any specific citation, the operational shape reviewers tend to encounter is consistent: a written plan, a governing body that receives and acts on quality information, measures that are actually tracked over time, and improvement activity that closes the loop back to those measures.",
+            "Chapter 10 lists six items a health center would fulfill to demonstrate compliance. These are the requirements — paraphrased for readability, not reworded to change meaning:",
           ),
           list([
-            "A current, board-approved quality plan with named accountability",
-            "Measure performance tracked across periods, not a single snapshot",
-            "Improvement activity tied to a specific measure and a specific decision",
-            "Minutes or reports showing the governing body saw the results",
+            "1. A board-approved policy (or policies) establishing a QI/QA program that addresses the quality and utilization of services, patient satisfaction and grievance processes, and patient safety including adverse events.",
+            "2. A designated individual (or individuals) to oversee that program, responsible for implementing QI/QA operating procedures and assessments, monitoring outcomes, and updating procedures.",
+            "3. Operating procedures or processes covering: evidence-based clinical guidelines and standards of care; identifying, analyzing and addressing patient safety and adverse events with follow-up actions; assessing patient satisfaction; hearing and resolving grievances; completing periodic QI/QA assessments at least quarterly; and producing and sharing QI/QA reports that support decision-making and oversight by key management staff and the governing board.",
+            "4. Quarterly (or more frequent) QI/QA assessments conducted by physicians or other licensed health care professionals, using data systematically collected from patient records, covering provider adherence to guidelines and the identification of patient safety and adverse events with related follow-up.",
+            "5. A retrievable health record for each patient — for example, a certified EHR — with format and content consistent with federal and state law.",
+            "6. Implemented systems for protecting the confidentiality of patient information and safeguarding it against loss, destruction, or unauthorized use, consistent with federal and state requirements.",
           ]),
           p(
-            "If any one of those four is missing, the others become harder to defend, because the chain from data to decision breaks.",
+            "Note the split between items 3 and 4. Item 3 is about having procedures. Item 4 is about clinicians actually performing chart-based assessments at least quarterly. A health center can pass the first and fail the second.",
           ),
         ],
       },
       {
-        heading: "Where teams most often lose the thread",
-        id: "common-gaps",
+        heading: "Where health centers have discretion",
+        id: "discretion",
         blocks: [
-          h3("Improvement work that never gets written down"),
           p(
-            "Work happens in huddles and hallway conversations and never becomes a dated artifact. Six months later there is nothing to hand a reviewer.",
+            "Chapter 10 explicitly lists areas of health center discretion. This matters because a great deal of consultant guidance is presented to health centers as if it were federal requirement. According to the Manual, the health center determines:",
           ),
-          h3("Measures without a period-over-period view"),
+          list([
+            "Whether the QI/QA oversight position is full-time, part-time, or combined with another role, and whether it is an employee or filled via contract.",
+            "Whether that position is filled by a physician, another licensed health care professional (for example, an RN or NP), or another qualified individual (for example, someone with an MPH or MHA).",
+            "Which QI/QA methodology(ies) to use.",
+            "The type of patient health record system it will use.",
+            "The format, content, and focus of QI/QA reports.",
+          ]),
           p(
-            "A single number cannot show whether anything improved. See the companion guidance on assembling a quarterly view.",
+            "The Site Visit Protocol reinforces this. In its notes on periodic assessments, it states the health center determines how often to do assessments as long as they occur at least quarterly, and determines how to do them — giving peer review and Plan-Do-Study-Act as examples of acceptable approaches, not as a mandated method.",
+          ),
+          p(
+            "So: quarterly frequency, clinician involvement, and a patient-record basis are requirements. The improvement methodology, the reporting template, and the staffing structure are yours to choose.",
+          ),
+        ],
+      },
+      {
+        heading: "How the Site Visit Protocol assesses this (Chapter 8)",
+        id: "site-visit-protocol",
+        blocks: [
+          p(
+            "The Compliance Manual states the requirement; the Health Center Program Site Visit Protocol (SVP) states how a reviewer checks it. QI/QA is SVP Chapter 8, reviewed by a Clinical Expert, and it maps element-for-element to Manual Chapter 10 elements a through f.",
+          ),
+          h3("Documents the health center provides"),
+          p(
+            "The SVP checklist for Chapter 8 asks the health center to make the following available:",
+          ),
+          list([
+            "Policies that establish the QI/QA program.",
+            "QI/QA operating procedures or processes addressing clinical guidelines and standards; patient safety and adverse events including follow-up; patient satisfaction; patient grievances; periodic assessments; and report generation and oversight.",
+            "Job or position descriptions of the individuals who oversee the QI/QA program.",
+            "A sample of patient satisfaction results.",
+            "Documentation of related supporting systems (for example, event reporting, grievance tracking, dashboards).",
+            "The QI/QA assessment schedule or calendar.",
+            "A sample of two QI/QA assessments from the past 12 months, plus any resulting reports.",
+            "A sample of 5–10 patient records that include clinic visit notes or a summary of care.",
+            "Systems and record-keeping procedures for confidentiality, privacy, and security of patient information, including PHI.",
+          ]),
+          h3("The patient record sample is 5 to 10, and it is a review methodology"),
+          p(
+            "Health centers are often told they must produce \"five charts.\" The SVP asks for a sample of 5–10 patient records for the QI/QA review, and notes that the same record sample used for other program requirement areas may be reused, and that records may be provided before or during the visit using live EHR navigation, screenshots, or other formats. This is a site visit review methodology for Chapter 8 — it is not a standing requirement in Manual Chapter 10 about how you must conduct your own internal assessments.",
+          ),
+          h3("What reviewers ask beyond documents"),
+          p(
+            "The SVP findings include two questions that documentation alone rarely answers: whether QI/QA reports — including patient satisfaction and patient safety data — are shared with key management staff and the governing board, and whether the health center can share at least one concrete example of how those reports supported a decision. Reviewers also ask whether the assessments demonstrate that the center is tracking and, where necessary, addressing quality and safety issues.",
+          ),
+        ],
+      },
+      {
+        heading: "What changed in the 2025 Site Visit Protocol",
+        id: "svp-2025-updates",
+        blocks: [
+          p(
+            "HRSA publishes a summary of annual SVP updates. For Chapter 8, the 2025 summary lists two changes:",
+          ),
+          list([
+            "Element c: clarified the flexibilities the health center has in conducting periodic QI/QA assessments.",
+            "Element f: updated the reference from \"protected health information\" to \"patient information, including protected health information,\" and made the same change in the documents checklist.",
+          ]),
+          p(
+            "Neither change adds a new obligation. The Element c clarification is the source of the current language confirming that frequency above quarterly and choice of method are the health center's call.",
+          ),
+        ],
+      },
+      {
+        heading: "FTCA deeming is a separate track",
+        id: "ftca",
+        blocks: [
+          p(
+            "Chapter 10 compliance and FTCA deeming are frequently discussed together, and they are not the same thing. Chapter 10 is a Health Center Program requirement assessed through the compliance and site visit process. FTCA medical malpractice coverage is applied for separately and has its own risk management and credentialing expectations set out in HRSA's FTCA policy guidance.",
+          ),
+          p(
+            "Quality documentation often supports both, but do not assume an FTCA checklist item is a Chapter 10 requirement, or the reverse. Verify each against its own primary source before treating it as binding.",
+          ),
+        ],
+      },
+      {
+        heading: "Requirement vs. common practice: a short separation",
+        id: "requirement-vs-practice",
+        blocks: [
+          h3("Requirements, stated by HRSA"),
+          list([
+            "Board-approved QI/QA policy covering quality/utilization, satisfaction and grievances, and patient safety.",
+            "A designated individual overseeing the program.",
+            "Operating procedures across the six areas in element c.",
+            "Clinician-conducted assessments at least quarterly, based on data systematically collected from patient records.",
+            "Retrievable per-patient health record consistent with federal and state law.",
+            "Implemented confidentiality and information-safeguarding systems, with staff trained on them.",
+          ]),
+          h3("Common practice, not federal requirement"),
+          list([
+            "Using PDSA specifically — HRSA names it only as one example among acceptable methods.",
+            "A monthly QI committee cadence, a particular dashboard format, or a specific report template.",
+            "\"Five charts per provider per quarter\" as a universal rule — the 5–10 record sample is an SVP review sample, and internal audit design is left to the health center.",
+            "Accreditation or PCMH recognition — valuable, but not what Chapter 10 asks for.",
+          ]),
+          p(
+            "The practical takeaway: the requirements are about a documented, clinician-led, chart-based, at-least-quarterly loop that reaches the board and produces change when change is indicated. How you run that loop is your design decision — and the thing reviewers most often find missing is the dated evidence that the loop closed.",
           ),
         ],
       },
@@ -90,11 +187,27 @@ export const RESOURCES: Resource[] = [
     sources: [
       {
         label: "HRSA Health Center Program Compliance Manual, Chapter 10: Quality Improvement/Assurance",
-        href: "https://bphc.hrsa.gov/compliance/compliance-manual",
-        note: "Primary source to cite when the clause summary is finalized.",
+        href: "https://bphc.hrsa.gov/compliance/compliance-manual/chapter10",
+        note: "Requirements, demonstrating compliance, and areas of health center discretion.",
+      },
+      {
+        label: "HRSA Health Center Program Site Visit Protocol, Chapter 8: Quality Improvement/Assurance",
+        href: "https://bphc.hrsa.gov/compliance/site-visits/site-visit-protocol/quality-improvement-assurance",
+        note: "Documents the health center provides, site visit team methodology, and findings questions.",
+      },
+      {
+        label: "HRSA Site Visit Protocol: Summary of 2025 Updates",
+        href: "https://bphc.hrsa.gov/compliance/site-visits/site-visit-protocol/summary-updates",
+        note: "Chapter 8 changes to elements c and f.",
+      },
+      {
+        label: "HRSA Federal Tort Claims Act (FTCA) Program",
+        href: "https://bphc.hrsa.gov/initiatives/ftca",
+        note: "Separate deeming track with its own risk management requirements.",
       },
     ],
   },
+
 
   {
     slug: "hrsa-qi-qa-documentation-checklist",
