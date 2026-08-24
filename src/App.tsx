@@ -117,8 +117,13 @@ const App = () => (
                 <Route path="/about" element={<About />} />
                 <Route path="/demo" element={<PublicDemo />} />
 
+                {/* Resource Library */}
+                <Route path="/resources" element={<ResourcesIndex />} />
+                <Route path="/resources/:slug" element={<ResourceArticle />} />
+
                 {/* Features (single page with hash anchors; old slugs redirect for SEO) */}
                 <Route path="/features" element={<Features />} />
+
                 <Route path="/features/pdsa-cycle-manager" element={<Navigate to="/features#pdsa" replace />} />
                 <Route path="/features/uds-tracking" element={<Navigate to="/features#uds-tracking" replace />} />
                 <Route path="/features/hrsa-audit-binder" element={<Navigate to="/features#audit-binder" replace />} />
