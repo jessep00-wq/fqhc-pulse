@@ -24,11 +24,25 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as FeaturesIndexRouteImport } from './routes/features/index'
+import { Route as FeaturesHrsaAuditBinderRouteImport } from './routes/features/hrsa-audit-binder'
+import { Route as FeaturesPcmhEvidenceRouteImport } from './routes/features/pcmh-evidence'
+import { Route as FeaturesPdsaCycleManagerRouteImport } from './routes/features/pdsa-cycle-manager'
+import { Route as FeaturesSpcChartsRouteImport } from './routes/features/spc-charts'
+import { Route as FeaturesUdsTrackingRouteImport } from './routes/features/uds-tracking'
 import { Route as ForOperationsManagersRouteImport } from './routes/for.operations-managers'
 import { Route as ForPcmhCoordinatorsRouteImport } from './routes/for.pcmh-coordinators'
 import { Route as ForQiDirectorsRouteImport } from './routes/for.qi-directors'
 import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as ManualIndexRouteImport } from './routes/manual/index'
+import { Route as ManualThankYouRouteImport } from './routes/manual/thank-you'
+import { Route as ResourcesIndexRouteImport } from './routes/resources/index'
+import { Route as ResourcesSlugRouteImport } from './routes/resources/$slug'
+import { Route as StoreIndexRouteImport } from './routes/store/index'
+import { Route as StoreSlugRouteImport } from './routes/store/$slug'
+import { Route as StoreSuccessRouteImport } from './routes/store/success'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as StoreBundleSlugRouteImport } from './routes/store/bundle.$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -105,6 +119,37 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeaturesIndexRoute = FeaturesIndexRouteImport.update({
+  id: '/features/',
+  path: '/features/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesHrsaAuditBinderRoute = FeaturesHrsaAuditBinderRouteImport.update({
+  id: '/features/hrsa-audit-binder',
+  path: '/features/hrsa-audit-binder',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesPcmhEvidenceRoute = FeaturesPcmhEvidenceRouteImport.update({
+  id: '/features/pcmh-evidence',
+  path: '/features/pcmh-evidence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesPdsaCycleManagerRoute =
+  FeaturesPdsaCycleManagerRouteImport.update({
+    id: '/features/pdsa-cycle-manager',
+    path: '/features/pdsa-cycle-manager',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const FeaturesSpcChartsRoute = FeaturesSpcChartsRouteImport.update({
+  id: '/features/spc-charts',
+  path: '/features/spc-charts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesUdsTrackingRoute = FeaturesUdsTrackingRouteImport.update({
+  id: '/features/uds-tracking',
+  path: '/features/uds-tracking',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForOperationsManagersRoute = ForOperationsManagersRouteImport.update({
   id: '/for/operations-managers',
   path: '/for/operations-managers',
@@ -125,9 +170,49 @@ const InviteTokenRoute = InviteTokenRouteImport.update({
   path: '/invite/$token',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ManualIndexRoute = ManualIndexRouteImport.update({
+  id: '/manual/',
+  path: '/manual/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManualThankYouRoute = ManualThankYouRouteImport.update({
+  id: '/manual/thank-you',
+  path: '/manual/thank-you',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesIndexRoute = ResourcesIndexRouteImport.update({
+  id: '/resources/',
+  path: '/resources/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResourcesSlugRoute = ResourcesSlugRouteImport.update({
+  id: '/resources/$slug',
+  path: '/resources/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreIndexRoute = StoreIndexRouteImport.update({
+  id: '/store/',
+  path: '/store/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreSlugRoute = StoreSlugRouteImport.update({
+  id: '/store/$slug',
+  path: '/store/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreSuccessRoute = StoreSuccessRouteImport.update({
+  id: '/store/success',
+  path: '/store/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   id: '/.lovable/oauth/consent',
   path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoreBundleSlugRoute = StoreBundleSlugRouteImport.update({
+  id: '/store/bundle/$slug',
+  path: '/store/bundle/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 
@@ -147,11 +232,25 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
+  '/features/hrsa-audit-binder': typeof FeaturesHrsaAuditBinderRoute
+  '/features/pcmh-evidence': typeof FeaturesPcmhEvidenceRoute
+  '/features/pdsa-cycle-manager': typeof FeaturesPdsaCycleManagerRoute
+  '/features/spc-charts': typeof FeaturesSpcChartsRoute
+  '/features/uds-tracking': typeof FeaturesUdsTrackingRoute
   '/for/operations-managers': typeof ForOperationsManagersRoute
   '/for/pcmh-coordinators': typeof ForPcmhCoordinatorsRoute
   '/for/qi-directors': typeof ForQiDirectorsRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/manual/thank-you': typeof ManualThankYouRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/store/$slug': typeof StoreSlugRoute
+  '/store/success': typeof StoreSuccessRoute
+  '/features/': typeof FeaturesIndexRoute
+  '/manual/': typeof ManualIndexRoute
+  '/resources/': typeof ResourcesIndexRoute
+  '/store/': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/store/bundle/$slug': typeof StoreBundleSlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -169,11 +268,25 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
+  '/features/hrsa-audit-binder': typeof FeaturesHrsaAuditBinderRoute
+  '/features/pcmh-evidence': typeof FeaturesPcmhEvidenceRoute
+  '/features/pdsa-cycle-manager': typeof FeaturesPdsaCycleManagerRoute
+  '/features/spc-charts': typeof FeaturesSpcChartsRoute
+  '/features/uds-tracking': typeof FeaturesUdsTrackingRoute
   '/for/operations-managers': typeof ForOperationsManagersRoute
   '/for/pcmh-coordinators': typeof ForPcmhCoordinatorsRoute
   '/for/qi-directors': typeof ForQiDirectorsRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/manual/thank-you': typeof ManualThankYouRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/store/$slug': typeof StoreSlugRoute
+  '/store/success': typeof StoreSuccessRoute
+  '/features': typeof FeaturesIndexRoute
+  '/manual': typeof ManualIndexRoute
+  '/resources': typeof ResourcesIndexRoute
+  '/store': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/store/bundle/$slug': typeof StoreBundleSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -192,11 +305,25 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
+  '/features/hrsa-audit-binder': typeof FeaturesHrsaAuditBinderRoute
+  '/features/pcmh-evidence': typeof FeaturesPcmhEvidenceRoute
+  '/features/pdsa-cycle-manager': typeof FeaturesPdsaCycleManagerRoute
+  '/features/spc-charts': typeof FeaturesSpcChartsRoute
+  '/features/uds-tracking': typeof FeaturesUdsTrackingRoute
   '/for/operations-managers': typeof ForOperationsManagersRoute
   '/for/pcmh-coordinators': typeof ForPcmhCoordinatorsRoute
   '/for/qi-directors': typeof ForQiDirectorsRoute
   '/invite/$token': typeof InviteTokenRoute
+  '/manual/thank-you': typeof ManualThankYouRoute
+  '/resources/$slug': typeof ResourcesSlugRoute
+  '/store/$slug': typeof StoreSlugRoute
+  '/store/success': typeof StoreSuccessRoute
+  '/features/': typeof FeaturesIndexRoute
+  '/manual/': typeof ManualIndexRoute
+  '/resources/': typeof ResourcesIndexRoute
+  '/store/': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/store/bundle/$slug': typeof StoreBundleSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -216,11 +343,25 @@ export interface FileRouteTypes {
     | '/security'
     | '/status'
     | '/terms'
+    | '/features/hrsa-audit-binder'
+    | '/features/pcmh-evidence'
+    | '/features/pdsa-cycle-manager'
+    | '/features/spc-charts'
+    | '/features/uds-tracking'
     | '/for/operations-managers'
     | '/for/pcmh-coordinators'
     | '/for/qi-directors'
     | '/invite/$token'
+    | '/manual/thank-you'
+    | '/resources/$slug'
+    | '/store/$slug'
+    | '/store/success'
+    | '/features/'
+    | '/manual/'
+    | '/resources/'
+    | '/store/'
     | '/.lovable/oauth/consent'
+    | '/store/bundle/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -238,11 +379,25 @@ export interface FileRouteTypes {
     | '/security'
     | '/status'
     | '/terms'
+    | '/features/hrsa-audit-binder'
+    | '/features/pcmh-evidence'
+    | '/features/pdsa-cycle-manager'
+    | '/features/spc-charts'
+    | '/features/uds-tracking'
     | '/for/operations-managers'
     | '/for/pcmh-coordinators'
     | '/for/qi-directors'
     | '/invite/$token'
+    | '/manual/thank-you'
+    | '/resources/$slug'
+    | '/store/$slug'
+    | '/store/success'
+    | '/features'
+    | '/manual'
+    | '/resources'
+    | '/store'
     | '/.lovable/oauth/consent'
+    | '/store/bundle/$slug'
   id:
     | '__root__'
     | '/'
@@ -260,11 +415,25 @@ export interface FileRouteTypes {
     | '/security'
     | '/status'
     | '/terms'
+    | '/features/hrsa-audit-binder'
+    | '/features/pcmh-evidence'
+    | '/features/pdsa-cycle-manager'
+    | '/features/spc-charts'
+    | '/features/uds-tracking'
     | '/for/operations-managers'
     | '/for/pcmh-coordinators'
     | '/for/qi-directors'
     | '/invite/$token'
+    | '/manual/thank-you'
+    | '/resources/$slug'
+    | '/store/$slug'
+    | '/store/success'
+    | '/features/'
+    | '/manual/'
+    | '/resources/'
+    | '/store/'
     | '/.lovable/oauth/consent'
+    | '/store/bundle/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -283,11 +452,25 @@ export interface RootRouteChildren {
   SecurityRoute: typeof SecurityRoute
   StatusRoute: typeof StatusRoute
   TermsRoute: typeof TermsRoute
+  FeaturesHrsaAuditBinderRoute: typeof FeaturesHrsaAuditBinderRoute
+  FeaturesPcmhEvidenceRoute: typeof FeaturesPcmhEvidenceRoute
+  FeaturesPdsaCycleManagerRoute: typeof FeaturesPdsaCycleManagerRoute
+  FeaturesSpcChartsRoute: typeof FeaturesSpcChartsRoute
+  FeaturesUdsTrackingRoute: typeof FeaturesUdsTrackingRoute
   ForOperationsManagersRoute: typeof ForOperationsManagersRoute
   ForPcmhCoordinatorsRoute: typeof ForPcmhCoordinatorsRoute
   ForQiDirectorsRoute: typeof ForQiDirectorsRoute
   InviteTokenRoute: typeof InviteTokenRoute
+  ManualThankYouRoute: typeof ManualThankYouRoute
+  ResourcesSlugRoute: typeof ResourcesSlugRoute
+  StoreSlugRoute: typeof StoreSlugRoute
+  StoreSuccessRoute: typeof StoreSuccessRoute
+  FeaturesIndexRoute: typeof FeaturesIndexRoute
+  ManualIndexRoute: typeof ManualIndexRoute
+  ResourcesIndexRoute: typeof ResourcesIndexRoute
+  StoreIndexRoute: typeof StoreIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  StoreBundleSlugRoute: typeof StoreBundleSlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,6 +580,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/features/': {
+      id: '/features/'
+      path: '/features'
+      fullPath: '/features/'
+      preLoaderRoute: typeof FeaturesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/hrsa-audit-binder': {
+      id: '/features/hrsa-audit-binder'
+      path: '/features/hrsa-audit-binder'
+      fullPath: '/features/hrsa-audit-binder'
+      preLoaderRoute: typeof FeaturesHrsaAuditBinderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/pcmh-evidence': {
+      id: '/features/pcmh-evidence'
+      path: '/features/pcmh-evidence'
+      fullPath: '/features/pcmh-evidence'
+      preLoaderRoute: typeof FeaturesPcmhEvidenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/pdsa-cycle-manager': {
+      id: '/features/pdsa-cycle-manager'
+      path: '/features/pdsa-cycle-manager'
+      fullPath: '/features/pdsa-cycle-manager'
+      preLoaderRoute: typeof FeaturesPdsaCycleManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/spc-charts': {
+      id: '/features/spc-charts'
+      path: '/features/spc-charts'
+      fullPath: '/features/spc-charts'
+      preLoaderRoute: typeof FeaturesSpcChartsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features/uds-tracking': {
+      id: '/features/uds-tracking'
+      path: '/features/uds-tracking'
+      fullPath: '/features/uds-tracking'
+      preLoaderRoute: typeof FeaturesUdsTrackingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/for/operations-managers': {
       id: '/for/operations-managers'
       path: '/for/operations-managers'
@@ -425,11 +650,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InviteTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/manual/': {
+      id: '/manual/'
+      path: '/manual'
+      fullPath: '/manual/'
+      preLoaderRoute: typeof ManualIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manual/thank-you': {
+      id: '/manual/thank-you'
+      path: '/manual/thank-you'
+      fullPath: '/manual/thank-you'
+      preLoaderRoute: typeof ManualThankYouRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources/': {
+      id: '/resources/'
+      path: '/resources'
+      fullPath: '/resources/'
+      preLoaderRoute: typeof ResourcesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/resources/$slug': {
+      id: '/resources/$slug'
+      path: '/resources/$slug'
+      fullPath: '/resources/$slug'
+      preLoaderRoute: typeof ResourcesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store/': {
+      id: '/store/'
+      path: '/store'
+      fullPath: '/store/'
+      preLoaderRoute: typeof StoreIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store/$slug': {
+      id: '/store/$slug'
+      path: '/store/$slug'
+      fullPath: '/store/$slug'
+      preLoaderRoute: typeof StoreSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store/success': {
+      id: '/store/success'
+      path: '/store/success'
+      fullPath: '/store/success'
+      preLoaderRoute: typeof StoreSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/.lovable/oauth/consent': {
       id: '/.lovable/oauth/consent'
       path: '/.lovable/oauth/consent'
       fullPath: '/.lovable/oauth/consent'
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/store/bundle/$slug': {
+      id: '/store/bundle/$slug'
+      path: '/store/bundle/$slug'
+      fullPath: '/store/bundle/$slug'
+      preLoaderRoute: typeof StoreBundleSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -451,11 +732,25 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityRoute: SecurityRoute,
   StatusRoute: StatusRoute,
   TermsRoute: TermsRoute,
+  FeaturesHrsaAuditBinderRoute: FeaturesHrsaAuditBinderRoute,
+  FeaturesPcmhEvidenceRoute: FeaturesPcmhEvidenceRoute,
+  FeaturesPdsaCycleManagerRoute: FeaturesPdsaCycleManagerRoute,
+  FeaturesSpcChartsRoute: FeaturesSpcChartsRoute,
+  FeaturesUdsTrackingRoute: FeaturesUdsTrackingRoute,
   ForOperationsManagersRoute: ForOperationsManagersRoute,
   ForPcmhCoordinatorsRoute: ForPcmhCoordinatorsRoute,
   ForQiDirectorsRoute: ForQiDirectorsRoute,
   InviteTokenRoute: InviteTokenRoute,
+  ManualThankYouRoute: ManualThankYouRoute,
+  ResourcesSlugRoute: ResourcesSlugRoute,
+  StoreSlugRoute: StoreSlugRoute,
+  StoreSuccessRoute: StoreSuccessRoute,
+  FeaturesIndexRoute: FeaturesIndexRoute,
+  ManualIndexRoute: ManualIndexRoute,
+  ResourcesIndexRoute: ResourcesIndexRoute,
+  StoreIndexRoute: StoreIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  StoreBundleSlugRoute: StoreBundleSlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
