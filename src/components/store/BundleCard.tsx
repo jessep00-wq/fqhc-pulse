@@ -21,7 +21,7 @@ export function BundleCard({ bundle, includedProducts }: BundleCardProps) {
   return (
     <Link
       to={`/store/bundle/${bundle.slug}`}
-      className="group block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
+      className="group block focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring rounded-lg"
     >
       <Card className="h-full border-primary/30 bg-gradient-to-br from-primary/5 to-transparent transition-shadow hover:shadow-md">
         <CardContent className="p-6 flex flex-col h-full">

@@ -39,7 +39,7 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (!hasOrg && error) {
     return (
       <div className="flex items-center justify-center min-h-screen p-4">
-        <div className="bg-card border rounded-lg shadow-sm p-6 max-w-md w-full text-center space-y-4">
+        <div className="bg-card border rounded-lg shadow-xs p-6 max-w-md w-full text-center space-y-4">
           <p className="text-destructive font-medium">{error}</p>
           <Button onClick={refetchOrg} variant="outline">
             Retry

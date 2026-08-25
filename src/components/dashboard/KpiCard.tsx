@@ -68,10 +68,10 @@ export function KpiCard({
       type={interactive ? "button" : undefined}
       onClick={onClick}
       className={cn(
-        "group relative flex flex-col rounded-xl border border-t-2 bg-card p-5 text-left shadow-sm transition-all",
+        "group relative flex flex-col rounded-xl border border-t-2 bg-card p-5 text-left shadow-xs transition-all",
         TONE_ACCENT[tone],
         interactive &&
-          "hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.99]",
+          "hover:border-primary/40 hover:shadow-md focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-[0.99]",
         active && "border-primary/60 ring-2 ring-primary/30",
       )}
     >

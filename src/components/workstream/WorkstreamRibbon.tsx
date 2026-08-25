@@ -23,7 +23,7 @@ const STATUS_STYLES: Record<
     label: "text-muted-foreground",
   },
   in_progress: {
-    dot: "bg-primary text-primary-foreground border-primary shadow-sm",
+    dot: "bg-primary text-primary-foreground border-primary shadow-xs",
     ring: "bg-primary/40",
     label: "text-foreground font-semibold",
   },

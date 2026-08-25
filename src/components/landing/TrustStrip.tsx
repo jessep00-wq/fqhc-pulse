@@ -48,7 +48,7 @@ export function TrustStrip() {
           {PROOF_POINTS.map((p) => (
             <div
               key={p.stat}
-              className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-2"
+              className="rounded-2xl border border-border bg-card p-6 shadow-xs space-y-2"
             >
               <div className="flex items-center gap-2 text-primary">
                 <Stethoscope className="h-4 w-4 shrink-0" aria-hidden="true" />

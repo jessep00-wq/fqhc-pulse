@@ -681,7 +681,7 @@ export default function Landing() {
               Optional downloads and one-time purchases — separate from your MeasureWise subscription.
             </p>
           </div>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-sm">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl border border-border bg-card p-8 shadow-xs">
             <div className="space-y-2">
               <p className="text-xs font-bold text-primary uppercase tracking-wider">MeasureWise Store</p>
               <h3 className="text-xl font-bold text-foreground">

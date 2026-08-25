@@ -4,7 +4,7 @@ import { PlaybookLeadForm } from "./PlaybookLeadForm";
 export function PlaybookSidebarCard() {
   return (
     <aside className="hidden lg:block">
-      <div className="sticky top-24 rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className="sticky top-24 rounded-xl border border-border bg-card shadow-xs overflow-hidden">
         <div className="p-4 bg-muted/40 flex items-center gap-3">
           <img
             src={playbookCover}

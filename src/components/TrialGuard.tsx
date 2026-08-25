@@ -18,7 +18,7 @@ export function TrialGuard({ children }: TrialGuardProps) {
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex items-center justify-center p-6">
-      <div className="max-w-lg text-center space-y-5 rounded-2xl border border-border bg-card p-10 shadow-sm">
+      <div className="max-w-lg text-center space-y-5 rounded-2xl border border-border bg-card p-10 shadow-xs">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-amber-700">
           <Lock className="h-6 w-6" />
         </div>

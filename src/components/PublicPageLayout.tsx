@@ -34,14 +34,14 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
     <div className="min-h-screen bg-background overflow-x-clip">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-hidden focus:ring-2 focus:ring-ring focus:ring-offset-2"
       >
         Skip to main content
       </a>
 
       <ExitIntentPlaybookDialog />
       <CartDrawer />
-      <header className="border-b border-border bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-card/80 backdrop-blur-xs sticky top-0 z-50">
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 grid grid-cols-[auto_1fr_auto] items-center gap-3 sm:gap-4 lg:gap-6">
           <Link to="/" className="flex items-center" aria-label="MeasureWise home">
@@ -71,7 +71,7 @@ export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPa
               <Link to="/auth">Sign In</Link>
             </Button>
             {!slimNav && (
-              <Button size="sm" asChild className="px-2.5 sm:px-4 font-semibold shadow-sm whitespace-nowrap">
+              <Button size="sm" asChild className="px-2.5 sm:px-4 font-semibold shadow-xs whitespace-nowrap">
                 <Link to="/auth?signup=true">
                   <span className="xl:hidden">Start free</span>
                   <span className="hidden xl:inline">Start 14-day free trial</span>

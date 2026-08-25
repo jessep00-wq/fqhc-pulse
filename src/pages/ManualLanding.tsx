@@ -240,7 +240,7 @@ export default function ManualLanding() {
                     value={form[f.key as keyof BuyerForm]}
                     onChange={update(f.key as keyof BuyerForm)}
                     required
-                    className="w-full bg-white/5 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white outline-none focus:border-[#1A7A7A] placeholder:text-white/70 transition-colors"
+                    className="w-full bg-white/5 border border-white/20 rounded-lg px-3.5 py-2.5 text-sm text-white outline-hidden focus:border-[#1A7A7A] placeholder:text-white/70 transition-colors"
                   />
                 </div>
               ))}
