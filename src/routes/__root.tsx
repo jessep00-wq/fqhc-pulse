@@ -115,6 +115,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "preload",
         as: "image",
         href: "/dashboard-preview.webp",
+        imageSrcSet:
+          "/dashboard-preview-640.webp 640w, /dashboard-preview-960.webp 960w, /dashboard-preview.webp 1503w",
+        imageSizes: "(min-width: 1024px) 42vw, calc(100vw - 3rem)",
         type: "image/webp",
         fetchPriority: "high",
       },
