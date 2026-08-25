@@ -11,8 +11,10 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdminRouteRouteImport } from './routes/admin/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
@@ -24,6 +26,24 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as AdminIndexRouteImport } from './routes/admin/index'
+import { Route as AdminSplatRouteImport } from './routes/admin/$'
+import { Route as AdminAdoptionRouteImport } from './routes/admin/adoption'
+import { Route as AdminBillingRouteImport } from './routes/admin/billing'
+import { Route as AdminEmailRouteImport } from './routes/admin/email'
+import { Route as AdminReadinessRouteImport } from './routes/admin/readiness'
+import { Route as AdminStoreRouteImport } from './routes/admin/store'
+import { Route as AdminUsersRouteImport } from './routes/admin/users'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardSplatRouteImport } from './routes/dashboard/$'
+import { Route as DashboardAiAssistantRouteImport } from './routes/dashboard/ai-assistant'
+import { Route as DashboardAiGovernanceRouteImport } from './routes/dashboard/ai-governance'
+import { Route as DashboardAuditBinderRouteImport } from './routes/dashboard/audit-binder'
+import { Route as DashboardNetworkRouteImport } from './routes/dashboard/network'
+import { Route as DashboardPdsaLabRouteImport } from './routes/dashboard/pdsa-lab'
+import { Route as DashboardPlaybooksRouteImport } from './routes/dashboard/playbooks'
+import { Route as DashboardSettingsRouteImport } from './routes/dashboard/settings'
+import { Route as DashboardStaffTasksRouteImport } from './routes/dashboard/staff-tasks'
 import { Route as FeaturesIndexRouteImport } from './routes/features/index'
 import { Route as FeaturesHrsaAuditBinderRouteImport } from './routes/features/hrsa-audit-binder'
 import { Route as FeaturesPcmhEvidenceRouteImport } from './routes/features/pcmh-evidence'
@@ -42,6 +62,10 @@ import { Route as StoreIndexRouteImport } from './routes/store/index'
 import { Route as StoreSlugRouteImport } from './routes/store/$slug'
 import { Route as StoreSuccessRouteImport } from './routes/store/success'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
+import { Route as AdminAccountOrgIdRouteImport } from './routes/admin/account.$orgId'
+import { Route as DashboardQiReportsIndexRouteImport } from './routes/dashboard/qi-reports/index'
+import { Route as DashboardQiReportsIdRouteImport } from './routes/dashboard/qi-reports/$id'
+import { Route as DashboardQiReportsNewRouteImport } from './routes/dashboard/qi-reports/new'
 import { Route as StoreBundleSlugRouteImport } from './routes/store/bundle.$slug'
 
 const IndexRoute = IndexRouteImport.update({
@@ -54,6 +78,11 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRouteRoute = AdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -62,6 +91,11 @@ const AuthRoute = AuthRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -118,6 +152,96 @@ const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminSplatRoute = AdminSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAdoptionRoute = AdminAdoptionRouteImport.update({
+  id: '/adoption',
+  path: '/adoption',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminBillingRoute = AdminBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminEmailRoute = AdminEmailRouteImport.update({
+  id: '/email',
+  path: '/email',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminReadinessRoute = AdminReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminStoreRoute = AdminStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardSplatRoute = DashboardSplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardAiAssistantRoute = DashboardAiAssistantRouteImport.update({
+  id: '/ai-assistant',
+  path: '/ai-assistant',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardAiGovernanceRoute = DashboardAiGovernanceRouteImport.update({
+  id: '/ai-governance',
+  path: '/ai-governance',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardAuditBinderRoute = DashboardAuditBinderRouteImport.update({
+  id: '/audit-binder',
+  path: '/audit-binder',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardNetworkRoute = DashboardNetworkRouteImport.update({
+  id: '/network',
+  path: '/network',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardPdsaLabRoute = DashboardPdsaLabRouteImport.update({
+  id: '/pdsa-lab',
+  path: '/pdsa-lab',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardPlaybooksRoute = DashboardPlaybooksRouteImport.update({
+  id: '/playbooks',
+  path: '/playbooks',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardSettingsRoute = DashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardStaffTasksRoute = DashboardStaffTasksRouteImport.update({
+  id: '/staff-tasks',
+  path: '/staff-tasks',
+  getParentRoute: () => DashboardRouteRoute,
 } as any)
 const FeaturesIndexRoute = FeaturesIndexRouteImport.update({
   id: '/features/',
@@ -210,6 +334,26 @@ const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
   path: '/.lovable/oauth/consent',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminAccountOrgIdRoute = AdminAccountOrgIdRouteImport.update({
+  id: '/account/$orgId',
+  path: '/account/$orgId',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const DashboardQiReportsIndexRoute = DashboardQiReportsIndexRouteImport.update({
+  id: '/qi-reports/',
+  path: '/qi-reports/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardQiReportsIdRoute = DashboardQiReportsIdRouteImport.update({
+  id: '/qi-reports/$id',
+  path: '/qi-reports/$id',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardQiReportsNewRoute = DashboardQiReportsNewRouteImport.update({
+  id: '/qi-reports/new',
+  path: '/qi-reports/new',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
 const StoreBundleSlugRoute = StoreBundleSlugRouteImport.update({
   id: '/store/bundle/$slug',
   path: '/store/bundle/$slug',
@@ -218,6 +362,8 @@ const StoreBundleSlugRoute = StoreBundleSlugRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
@@ -232,6 +378,22 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/adoption': typeof AdminAdoptionRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/email': typeof AdminEmailRoute
+  '/admin/readiness': typeof AdminReadinessRoute
+  '/admin/store': typeof AdminStoreRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/dashboard/$': typeof DashboardSplatRoute
+  '/dashboard/ai-assistant': typeof DashboardAiAssistantRoute
+  '/dashboard/ai-governance': typeof DashboardAiGovernanceRoute
+  '/dashboard/audit-binder': typeof DashboardAuditBinderRoute
+  '/dashboard/network': typeof DashboardNetworkRoute
+  '/dashboard/pdsa-lab': typeof DashboardPdsaLabRoute
+  '/dashboard/playbooks': typeof DashboardPlaybooksRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/staff-tasks': typeof DashboardStaffTasksRoute
   '/features/hrsa-audit-binder': typeof FeaturesHrsaAuditBinderRoute
   '/features/pcmh-evidence': typeof FeaturesPcmhEvidenceRoute
   '/features/pdsa-cycle-manager': typeof FeaturesPdsaCycleManagerRoute
@@ -245,12 +407,18 @@ export interface FileRoutesByFullPath {
   '/resources/$slug': typeof ResourcesSlugRoute
   '/store/$slug': typeof StoreSlugRoute
   '/store/success': typeof StoreSuccessRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/manual/': typeof ManualIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/store/': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
+  '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
+  '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
   '/store/bundle/$slug': typeof StoreBundleSlugRoute
+  '/dashboard/qi-reports/': typeof DashboardQiReportsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -268,6 +436,22 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/adoption': typeof AdminAdoptionRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/email': typeof AdminEmailRoute
+  '/admin/readiness': typeof AdminReadinessRoute
+  '/admin/store': typeof AdminStoreRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/dashboard/$': typeof DashboardSplatRoute
+  '/dashboard/ai-assistant': typeof DashboardAiAssistantRoute
+  '/dashboard/ai-governance': typeof DashboardAiGovernanceRoute
+  '/dashboard/audit-binder': typeof DashboardAuditBinderRoute
+  '/dashboard/network': typeof DashboardNetworkRoute
+  '/dashboard/pdsa-lab': typeof DashboardPdsaLabRoute
+  '/dashboard/playbooks': typeof DashboardPlaybooksRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/staff-tasks': typeof DashboardStaffTasksRoute
   '/features/hrsa-audit-binder': typeof FeaturesHrsaAuditBinderRoute
   '/features/pcmh-evidence': typeof FeaturesPcmhEvidenceRoute
   '/features/pdsa-cycle-manager': typeof FeaturesPdsaCycleManagerRoute
@@ -281,16 +465,24 @@ export interface FileRoutesByTo {
   '/resources/$slug': typeof ResourcesSlugRoute
   '/store/$slug': typeof StoreSlugRoute
   '/store/success': typeof StoreSuccessRoute
+  '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
   '/features': typeof FeaturesIndexRoute
   '/manual': typeof ManualIndexRoute
   '/resources': typeof ResourcesIndexRoute
   '/store': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
+  '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
+  '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
   '/store/bundle/$slug': typeof StoreBundleSlugRoute
+  '/dashboard/qi-reports': typeof DashboardQiReportsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRouteRouteWithChildren
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/about': typeof AboutRoute
   '/auth': typeof AuthRoute
   '/contact': typeof ContactRoute
@@ -305,6 +497,22 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
+  '/admin/$': typeof AdminSplatRoute
+  '/admin/adoption': typeof AdminAdoptionRoute
+  '/admin/billing': typeof AdminBillingRoute
+  '/admin/email': typeof AdminEmailRoute
+  '/admin/readiness': typeof AdminReadinessRoute
+  '/admin/store': typeof AdminStoreRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/dashboard/$': typeof DashboardSplatRoute
+  '/dashboard/ai-assistant': typeof DashboardAiAssistantRoute
+  '/dashboard/ai-governance': typeof DashboardAiGovernanceRoute
+  '/dashboard/audit-binder': typeof DashboardAuditBinderRoute
+  '/dashboard/network': typeof DashboardNetworkRoute
+  '/dashboard/pdsa-lab': typeof DashboardPdsaLabRoute
+  '/dashboard/playbooks': typeof DashboardPlaybooksRoute
+  '/dashboard/settings': typeof DashboardSettingsRoute
+  '/dashboard/staff-tasks': typeof DashboardStaffTasksRoute
   '/features/hrsa-audit-binder': typeof FeaturesHrsaAuditBinderRoute
   '/features/pcmh-evidence': typeof FeaturesPcmhEvidenceRoute
   '/features/pdsa-cycle-manager': typeof FeaturesPdsaCycleManagerRoute
@@ -318,17 +526,25 @@ export interface FileRoutesById {
   '/resources/$slug': typeof ResourcesSlugRoute
   '/store/$slug': typeof StoreSlugRoute
   '/store/success': typeof StoreSuccessRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
   '/features/': typeof FeaturesIndexRoute
   '/manual/': typeof ManualIndexRoute
   '/resources/': typeof ResourcesIndexRoute
   '/store/': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+  '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
+  '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
+  '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
   '/store/bundle/$slug': typeof StoreBundleSlugRoute
+  '/dashboard/qi-reports/': typeof DashboardQiReportsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
+    | '/dashboard'
     | '/about'
     | '/auth'
     | '/contact'
@@ -343,6 +559,22 @@ export interface FileRouteTypes {
     | '/security'
     | '/status'
     | '/terms'
+    | '/admin/$'
+    | '/admin/adoption'
+    | '/admin/billing'
+    | '/admin/email'
+    | '/admin/readiness'
+    | '/admin/store'
+    | '/admin/users'
+    | '/dashboard/$'
+    | '/dashboard/ai-assistant'
+    | '/dashboard/ai-governance'
+    | '/dashboard/audit-binder'
+    | '/dashboard/network'
+    | '/dashboard/pdsa-lab'
+    | '/dashboard/playbooks'
+    | '/dashboard/settings'
+    | '/dashboard/staff-tasks'
     | '/features/hrsa-audit-binder'
     | '/features/pcmh-evidence'
     | '/features/pdsa-cycle-manager'
@@ -356,12 +588,18 @@ export interface FileRouteTypes {
     | '/resources/$slug'
     | '/store/$slug'
     | '/store/success'
+    | '/admin/'
+    | '/dashboard/'
     | '/features/'
     | '/manual/'
     | '/resources/'
     | '/store/'
     | '/.lovable/oauth/consent'
+    | '/admin/account/$orgId'
+    | '/dashboard/qi-reports/$id'
+    | '/dashboard/qi-reports/new'
     | '/store/bundle/$slug'
+    | '/dashboard/qi-reports/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -379,6 +617,22 @@ export interface FileRouteTypes {
     | '/security'
     | '/status'
     | '/terms'
+    | '/admin/$'
+    | '/admin/adoption'
+    | '/admin/billing'
+    | '/admin/email'
+    | '/admin/readiness'
+    | '/admin/store'
+    | '/admin/users'
+    | '/dashboard/$'
+    | '/dashboard/ai-assistant'
+    | '/dashboard/ai-governance'
+    | '/dashboard/audit-binder'
+    | '/dashboard/network'
+    | '/dashboard/pdsa-lab'
+    | '/dashboard/playbooks'
+    | '/dashboard/settings'
+    | '/dashboard/staff-tasks'
     | '/features/hrsa-audit-binder'
     | '/features/pcmh-evidence'
     | '/features/pdsa-cycle-manager'
@@ -392,15 +646,23 @@ export interface FileRouteTypes {
     | '/resources/$slug'
     | '/store/$slug'
     | '/store/success'
+    | '/admin'
+    | '/dashboard'
     | '/features'
     | '/manual'
     | '/resources'
     | '/store'
     | '/.lovable/oauth/consent'
+    | '/admin/account/$orgId'
+    | '/dashboard/qi-reports/$id'
+    | '/dashboard/qi-reports/new'
     | '/store/bundle/$slug'
+    | '/dashboard/qi-reports'
   id:
     | '__root__'
     | '/'
+    | '/admin'
+    | '/dashboard'
     | '/about'
     | '/auth'
     | '/contact'
@@ -415,6 +677,22 @@ export interface FileRouteTypes {
     | '/security'
     | '/status'
     | '/terms'
+    | '/admin/$'
+    | '/admin/adoption'
+    | '/admin/billing'
+    | '/admin/email'
+    | '/admin/readiness'
+    | '/admin/store'
+    | '/admin/users'
+    | '/dashboard/$'
+    | '/dashboard/ai-assistant'
+    | '/dashboard/ai-governance'
+    | '/dashboard/audit-binder'
+    | '/dashboard/network'
+    | '/dashboard/pdsa-lab'
+    | '/dashboard/playbooks'
+    | '/dashboard/settings'
+    | '/dashboard/staff-tasks'
     | '/features/hrsa-audit-binder'
     | '/features/pcmh-evidence'
     | '/features/pdsa-cycle-manager'
@@ -428,16 +706,24 @@ export interface FileRouteTypes {
     | '/resources/$slug'
     | '/store/$slug'
     | '/store/success'
+    | '/admin/'
+    | '/dashboard/'
     | '/features/'
     | '/manual/'
     | '/resources/'
     | '/store/'
     | '/.lovable/oauth/consent'
+    | '/admin/account/$orgId'
+    | '/dashboard/qi-reports/$id'
+    | '/dashboard/qi-reports/new'
     | '/store/bundle/$slug'
+    | '/dashboard/qi-reports/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRouteRoute: typeof AdminRouteRouteWithChildren
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   AboutRoute: typeof AboutRoute
   AuthRoute: typeof AuthRoute
   ContactRoute: typeof ContactRoute
@@ -489,6 +775,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -501,6 +794,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -579,6 +879,132 @@ declare module '@tanstack/react-router' {
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/$': {
+      id: '/admin/$'
+      path: '/$'
+      fullPath: '/admin/$'
+      preLoaderRoute: typeof AdminSplatRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/adoption': {
+      id: '/admin/adoption'
+      path: '/adoption'
+      fullPath: '/admin/adoption'
+      preLoaderRoute: typeof AdminAdoptionRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/billing': {
+      id: '/admin/billing'
+      path: '/billing'
+      fullPath: '/admin/billing'
+      preLoaderRoute: typeof AdminBillingRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/email': {
+      id: '/admin/email'
+      path: '/email'
+      fullPath: '/admin/email'
+      preLoaderRoute: typeof AdminEmailRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/readiness': {
+      id: '/admin/readiness'
+      path: '/readiness'
+      fullPath: '/admin/readiness'
+      preLoaderRoute: typeof AdminReadinessRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/store': {
+      id: '/admin/store'
+      path: '/store'
+      fullPath: '/admin/store'
+      preLoaderRoute: typeof AdminStoreRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/$': {
+      id: '/dashboard/$'
+      path: '/$'
+      fullPath: '/dashboard/$'
+      preLoaderRoute: typeof DashboardSplatRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/ai-assistant': {
+      id: '/dashboard/ai-assistant'
+      path: '/ai-assistant'
+      fullPath: '/dashboard/ai-assistant'
+      preLoaderRoute: typeof DashboardAiAssistantRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/ai-governance': {
+      id: '/dashboard/ai-governance'
+      path: '/ai-governance'
+      fullPath: '/dashboard/ai-governance'
+      preLoaderRoute: typeof DashboardAiGovernanceRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/audit-binder': {
+      id: '/dashboard/audit-binder'
+      path: '/audit-binder'
+      fullPath: '/dashboard/audit-binder'
+      preLoaderRoute: typeof DashboardAuditBinderRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/network': {
+      id: '/dashboard/network'
+      path: '/network'
+      fullPath: '/dashboard/network'
+      preLoaderRoute: typeof DashboardNetworkRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/pdsa-lab': {
+      id: '/dashboard/pdsa-lab'
+      path: '/pdsa-lab'
+      fullPath: '/dashboard/pdsa-lab'
+      preLoaderRoute: typeof DashboardPdsaLabRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/playbooks': {
+      id: '/dashboard/playbooks'
+      path: '/playbooks'
+      fullPath: '/dashboard/playbooks'
+      preLoaderRoute: typeof DashboardPlaybooksRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/settings': {
+      id: '/dashboard/settings'
+      path: '/settings'
+      fullPath: '/dashboard/settings'
+      preLoaderRoute: typeof DashboardSettingsRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/staff-tasks': {
+      id: '/dashboard/staff-tasks'
+      path: '/staff-tasks'
+      fullPath: '/dashboard/staff-tasks'
+      preLoaderRoute: typeof DashboardStaffTasksRouteImport
+      parentRoute: typeof DashboardRouteRoute
     }
     '/features/': {
       id: '/features/'
@@ -706,6 +1132,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DotlovableOauthConsentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/account/$orgId': {
+      id: '/admin/account/$orgId'
+      path: '/account/$orgId'
+      fullPath: '/admin/account/$orgId'
+      preLoaderRoute: typeof AdminAccountOrgIdRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/dashboard/qi-reports/': {
+      id: '/dashboard/qi-reports/'
+      path: '/qi-reports'
+      fullPath: '/dashboard/qi-reports/'
+      preLoaderRoute: typeof DashboardQiReportsIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/qi-reports/$id': {
+      id: '/dashboard/qi-reports/$id'
+      path: '/qi-reports/$id'
+      fullPath: '/dashboard/qi-reports/$id'
+      preLoaderRoute: typeof DashboardQiReportsIdRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/qi-reports/new': {
+      id: '/dashboard/qi-reports/new'
+      path: '/qi-reports/new'
+      fullPath: '/dashboard/qi-reports/new'
+      preLoaderRoute: typeof DashboardQiReportsNewRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/store/bundle/$slug': {
       id: '/store/bundle/$slug'
       path: '/store/bundle/$slug'
@@ -716,8 +1170,74 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminRouteRouteChildren {
+  AdminSplatRoute: typeof AdminSplatRoute
+  AdminAdoptionRoute: typeof AdminAdoptionRoute
+  AdminBillingRoute: typeof AdminBillingRoute
+  AdminEmailRoute: typeof AdminEmailRoute
+  AdminReadinessRoute: typeof AdminReadinessRoute
+  AdminStoreRoute: typeof AdminStoreRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+  AdminAccountOrgIdRoute: typeof AdminAccountOrgIdRoute
+}
+
+const AdminRouteRouteChildren: AdminRouteRouteChildren = {
+  AdminSplatRoute: AdminSplatRoute,
+  AdminAdoptionRoute: AdminAdoptionRoute,
+  AdminBillingRoute: AdminBillingRoute,
+  AdminEmailRoute: AdminEmailRoute,
+  AdminReadinessRoute: AdminReadinessRoute,
+  AdminStoreRoute: AdminStoreRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+  AdminAccountOrgIdRoute: AdminAccountOrgIdRoute,
+}
+
+const AdminRouteRouteWithChildren = AdminRouteRoute._addFileChildren(
+  AdminRouteRouteChildren,
+)
+
+interface DashboardRouteRouteChildren {
+  DashboardSplatRoute: typeof DashboardSplatRoute
+  DashboardAiAssistantRoute: typeof DashboardAiAssistantRoute
+  DashboardAiGovernanceRoute: typeof DashboardAiGovernanceRoute
+  DashboardAuditBinderRoute: typeof DashboardAuditBinderRoute
+  DashboardNetworkRoute: typeof DashboardNetworkRoute
+  DashboardPdsaLabRoute: typeof DashboardPdsaLabRoute
+  DashboardPlaybooksRoute: typeof DashboardPlaybooksRoute
+  DashboardSettingsRoute: typeof DashboardSettingsRoute
+  DashboardStaffTasksRoute: typeof DashboardStaffTasksRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardQiReportsIdRoute: typeof DashboardQiReportsIdRoute
+  DashboardQiReportsNewRoute: typeof DashboardQiReportsNewRoute
+  DashboardQiReportsIndexRoute: typeof DashboardQiReportsIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardSplatRoute: DashboardSplatRoute,
+  DashboardAiAssistantRoute: DashboardAiAssistantRoute,
+  DashboardAiGovernanceRoute: DashboardAiGovernanceRoute,
+  DashboardAuditBinderRoute: DashboardAuditBinderRoute,
+  DashboardNetworkRoute: DashboardNetworkRoute,
+  DashboardPdsaLabRoute: DashboardPdsaLabRoute,
+  DashboardPlaybooksRoute: DashboardPlaybooksRoute,
+  DashboardSettingsRoute: DashboardSettingsRoute,
+  DashboardStaffTasksRoute: DashboardStaffTasksRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardQiReportsIdRoute: DashboardQiReportsIdRoute,
+  DashboardQiReportsNewRoute: DashboardQiReportsNewRoute,
+  DashboardQiReportsIndexRoute: DashboardQiReportsIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRouteRoute: AdminRouteRouteWithChildren,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   AboutRoute: AboutRoute,
   AuthRoute: AuthRoute,
   ContactRoute: ContactRoute,
