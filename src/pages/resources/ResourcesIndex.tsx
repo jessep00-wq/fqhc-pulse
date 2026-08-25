@@ -95,7 +95,7 @@ export default function ResourcesIndex() {
                   <CardTitle className="text-lg leading-snug">
                     <Link
                       to={`/resources/${r.slug}`}
-                      className="hover:text-primary transition-colors focus-visible:outline-none focus-visible:underline"
+                      className="hover:text-primary transition-colors focus-visible:outline-hidden focus-visible:underline"
                     >
                       {r.title}
                     </Link>

@@ -55,7 +55,7 @@ export function PlaybookLeadMagnetSection() {
             ))}
           </ul>
 
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-xs">
             <PlaybookLeadForm variant="section" surface="homepage" />
           </div>
         </div>

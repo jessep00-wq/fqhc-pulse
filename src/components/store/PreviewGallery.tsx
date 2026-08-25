@@ -22,7 +22,7 @@ export function PreviewGallery({ images, title = "Preview" }: PreviewGalleryProp
             key={url}
             type="button"
             onClick={() => setOpen(url)}
-            className="group relative overflow-hidden rounded-lg border bg-muted aspect-[4/3] focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className="group relative overflow-hidden rounded-lg border bg-muted aspect-[4/3] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring"
           >
             <img
               src={url}

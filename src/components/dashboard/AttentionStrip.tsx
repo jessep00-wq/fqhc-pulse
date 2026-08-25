@@ -43,7 +43,7 @@ export function AttentionStrip({ items }: AttentionStripProps) {
             className={cn(
               "inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               TONE_STYLES[tone],
-              item.onClick && "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              item.onClick && "cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring",
             )}
           >
             <Icon className="h-3.5 w-3.5" />

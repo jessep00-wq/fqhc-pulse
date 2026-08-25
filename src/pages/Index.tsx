@@ -380,7 +380,7 @@ export default function Dashboard() {
             </div>
           }
           primaryAction={
-            <Button className="gap-1.5 shadow-sm" onClick={() => navigate("/dashboard/pdsa-lab")}>
+            <Button className="gap-1.5 shadow-xs" onClick={() => navigate("/dashboard/pdsa-lab")}>
               <FlaskConical className="h-4 w-4" />
               New PDSA
             </Button>

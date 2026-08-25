@@ -64,7 +64,7 @@ export default function Status() {
           <h2 className="text-sm font-semibold text-foreground">Uptime — Last 90 Days</h2>
           <div className="flex gap-0.5">
             {Array.from({ length: 90 }).map((_, i) => (
-              <div key={i} className="h-8 flex-1 rounded-sm bg-green-500/80 hover:bg-green-500 transition-colors" title={`Day ${90 - i}: 100% uptime`} />
+              <div key={i} className="h-8 flex-1 rounded-xs bg-green-500/80 hover:bg-green-500 transition-colors" title={`Day ${90 - i}: 100% uptime`} />
             ))}
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">

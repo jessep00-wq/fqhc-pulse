@@ -167,7 +167,7 @@ export default function Pricing() {
               aria-label="Toggle annual billing"
             >
               <span
-                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-sm transition-transform ${
+                className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-xs transition-transform ${
                   annual ? "translate-x-6" : "translate-x-1"
                 }`}
               />

@@ -169,7 +169,7 @@ export default function PublicDemo() {
       {/* Cycle header + stages */}
       <section className="px-6 py-14 bg-muted/30 border-y border-border">
         <div className="max-w-5xl mx-auto space-y-8">
-          <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-6 shadow-xs">
             <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
               <div className="min-w-0 space-y-1">
                 <p className="text-xs font-semibold uppercase tracking-wider text-primary">

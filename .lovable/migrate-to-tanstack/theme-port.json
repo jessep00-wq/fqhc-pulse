@@ -1,0 +1,24 @@
+{
+  "customizations": [
+    { "token": "--background (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--card / --card-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--popover / --popover-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--primary / --primary-foreground (WCAG-darkened teal, light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--secondary / --secondary-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--muted / --muted-foreground (AA-darkened, light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--accent / --accent-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--destructive / --destructive-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--border / --input / --ring (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--radius: 0.5rem", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "--sidebar-background..--sidebar-ring (8 tokens, light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css (registered as --color-sidebar*)" },
+    { "token": "--warning / --warning-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css (@theme --color-warning*)" },
+    { "token": "--success / --success-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css (@theme --color-success*)" },
+    { "token": "--info / --info-foreground (light+dark)", "source": "src/index.css", "reappliedIn": "src/styles.css (@theme --color-info*)" },
+    { "token": "body font-family Inter", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "* { border-color: border } base rule", "source": "src/index.css", "reappliedIn": "src/styles.css" },
+    { "token": "container (center, 2rem padding, 1400px max)", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css (@utility container)" },
+    { "token": "accordion-down/up keyframes + animations", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css (@theme keyframes)" },
+    { "token": "@tailwindcss/typography plugin", "source": "tailwind.config.ts", "reappliedIn": "src/styles.css (@plugin)" }
+  ]
+}

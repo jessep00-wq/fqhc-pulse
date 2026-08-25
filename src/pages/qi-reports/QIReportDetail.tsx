@@ -123,7 +123,7 @@ export default function QIReportDetail() {
   if (reportQuery.isError || !report || !committee) {
     return (
       <div className="mx-auto max-w-md p-10 text-center">
-        <div className="space-y-4 rounded-lg border bg-card p-6 shadow-sm">
+        <div className="space-y-4 rounded-lg border bg-card p-6 shadow-xs">
           <h2 className="text-lg font-semibold">We couldn't load this report</h2>
           <p className="text-sm text-muted-foreground">
             {reportQuery.isError

@@ -97,7 +97,7 @@ export function OnboardingChecklist() {
   const isNewOrg = completedItems.length === 0;
 
   return (
-    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 shadow-sm">
+    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 shadow-xs">
       <CardHeader className="pb-3">
         {isNewOrg && (
           <div className="flex items-start gap-3 mb-3 rounded-lg bg-primary/10 p-3">
