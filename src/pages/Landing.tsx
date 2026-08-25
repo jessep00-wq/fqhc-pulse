@@ -402,7 +402,7 @@ export default function Landing() {
             </ol>
             <p className="mt-5 text-sm text-muted-foreground">
               No implementation project, no IT ticket.{" "}
-              <Link to="/demo" className="text-primary hover:underline">
+              <Link to="/demo" className="text-primary underline underline-offset-4 hover:no-underline">
                 See a finished cycle first
               </Link>
               .
@@ -563,7 +563,7 @@ export default function Landing() {
             <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Download a sample HRSA Audit Binder — the same format your health center
               will generate in one click after completing a PDSA cycle. Or{" "}
-              <Link to="/demo" className="text-primary hover:underline">
+              <Link to="/demo" className="text-primary underline underline-offset-4 hover:no-underline">
                 walk through the cycle that produced it
               </Link>
               .
@@ -624,7 +624,7 @@ export default function Landing() {
           </h2>
           <p className="text-center text-sm text-muted-foreground max-w-2xl mx-auto">
             {PHI_BOUNDARY_LONG}{" "}
-            <Link to="/security" className="text-primary hover:underline">
+            <Link to="/security" className="text-primary underline underline-offset-4 hover:no-underline">
               Read the full security overview
             </Link>
             .

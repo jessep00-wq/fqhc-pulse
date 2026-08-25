@@ -86,7 +86,7 @@ export default function Security() {
           <p className="font-semibold mb-1">Security questions or vendor-review questionnaires?</p>
           <p className="text-muted-foreground">
             Email{" "}
-            <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+            <a href="mailto:hello@measurewise.org" className="text-primary underline underline-offset-4 hover:no-underline">
               hello@measurewise.org
             </a>{" "}
             and we'll respond within 1 business day.

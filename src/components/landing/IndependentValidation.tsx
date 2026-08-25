@@ -39,7 +39,7 @@ export function IndependentValidation() {
           {v.caseStudyUrl && (
             <a
               href={v.caseStudyUrl}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-primary underline underline-offset-4 hover:no-underline"
             >
               Read the case study
               <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />

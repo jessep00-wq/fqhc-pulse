@@ -26,7 +26,7 @@ export default function Contact() {
               <Mail className="h-5 w-5 text-primary mt-1 shrink-0" />
               <div>
                 <p className="font-semibold text-foreground">Email</p>
-                <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+                <a href="mailto:hello@measurewise.org" className="text-primary underline underline-offset-4 hover:no-underline">
                   hello@measurewise.org
                 </a>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -59,19 +59,19 @@ export default function Contact() {
                 <p className="font-semibold text-foreground">Security &amp; trust</p>
                 <p className="text-muted-foreground text-sm">
                   See our{" "}
-                  <Link to="/security" className="text-primary hover:underline">
+                  <Link to="/security" className="text-primary underline underline-offset-4 hover:no-underline">
                     Security &amp; Compliance
                   </Link>
                   {", "}
-                  <Link to="/privacy" className="text-primary hover:underline">
+                  <Link to="/privacy" className="text-primary underline underline-offset-4 hover:no-underline">
                     Privacy Policy
                   </Link>
                   {", "}
-                  <Link to="/terms" className="text-primary hover:underline">
+                  <Link to="/terms" className="text-primary underline underline-offset-4 hover:no-underline">
                     Terms
                   </Link>
                   {", and "}
-                  <Link to="/refund-policy" className="text-primary hover:underline">
+                  <Link to="/refund-policy" className="text-primary underline underline-offset-4 hover:no-underline">
                     Refund Policy
                   </Link>
                   .

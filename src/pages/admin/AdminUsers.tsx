@@ -198,7 +198,7 @@ export default function AdminUsers() {
                       {u.organization_id ? (
                         <Link
                           to={`/admin/account/${u.organization_id}`}
-                          className="text-primary hover:underline"
+                          className="text-primary underline underline-offset-4 hover:no-underline"
                         >
                           {u.organization_name ?? u.organization_id.slice(0, 8)}
                         </Link>
