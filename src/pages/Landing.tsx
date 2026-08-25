@@ -325,9 +325,15 @@ export default function Landing() {
             <div className="absolute -inset-6 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent rounded-3xl blur-2xl" aria-hidden="true" />
             <div className="relative rounded-xl border border-border shadow-2xl overflow-hidden bg-card">
               <picture>
-                <source srcSet="/dashboard-preview.webp" type="image/webp" />
+                <source
+                  srcSet="/dashboard-preview-640.webp 640w, /dashboard-preview-960.webp 960w, /dashboard-preview.webp 1503w"
+                  sizes="(min-width: 1024px) 42vw, calc(100vw - 3rem)"
+                  type="image/webp"
+                />
                 <img
                   src="/dashboard-preview.jpg"
+                  srcSet="/dashboard-preview-640.jpg 640w, /dashboard-preview-960.jpg 960w, /dashboard-preview.jpg 1503w"
+                  sizes="(min-width: 1024px) 42vw, calc(100vw - 3rem)"
                   alt={`${BRAND.name} dashboard showing active PDSA cycles, UDS measures at risk, tasks due this week, and an SPC control chart`}
                   className="w-full h-auto"
                   width={1503}
