@@ -119,7 +119,7 @@ export function AppSidebar() {
                     <SidebarMenuButton
                       asChild
                       tooltip="Admin Console"
-                      className="border border-primary/20 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary data-[active=true]:bg-primary/20"
+                      className="border border-sidebar-primary/20 bg-sidebar-primary/10 text-sidebar-primary hover:bg-sidebar-primary/20 hover:text-sidebar-primary data-[active=true]:bg-sidebar-primary/20"
                     >
                       <Link to="/admin" className="flex items-center">
                         <Shield className="h-4 w-4 shrink-0" />
@@ -140,7 +140,7 @@ export function AppSidebar() {
         )}
         {navGroups.map((group) => (
           <SidebarGroup key={group.label}>
-            <SidebarGroupLabel className="text-sidebar-foreground/40 text-xs uppercase tracking-wider">
+            <SidebarGroupLabel className="text-sidebar-foreground/70 text-xs uppercase tracking-wider">
               {group.label}
             </SidebarGroupLabel>
             <SidebarGroupContent>
@@ -162,7 +162,7 @@ export function AppSidebar() {
                               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
                             )}
                             {item.badge && (
-                              <span className="text-[9px] font-semibold rounded bg-primary/10 text-primary px-1.5 py-0.5 leading-none">
+                              <span className="text-[9px] font-semibold rounded bg-sidebar-primary/10 text-sidebar-primary px-1.5 py-0.5 leading-none">
                                 {item.badge}
                               </span>
                             )}
@@ -183,9 +183,9 @@ export function AppSidebar() {
         {!collapsed && isFreeTier && !isAdmin && (
           <Link
             to="/#contact"
-            className="flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground hover:bg-primary/10 transition-colors"
+            className="flex items-center gap-2 rounded-lg border border-sidebar-primary/20 bg-sidebar-primary/5 px-3 py-2 text-xs text-sidebar-foreground/80 hover:bg-sidebar-primary/10 transition-colors"
           >
-            <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+            <Sparkles className="h-3.5 w-3.5 text-sidebar-primary shrink-0" />
             <span>Free plan · Contact us to upgrade</span>
           </Link>
         )}

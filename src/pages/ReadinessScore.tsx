@@ -268,7 +268,7 @@ function ResultPanel({ result, firstName }: { result: ScoreResult; firstName: st
     result.tier === "audit_ready"
       ? "text-emerald-600 bg-emerald-50 border-emerald-200"
       : result.tier === "building"
-      ? "text-amber-700 bg-amber-50 border-amber-200"
+      ? "text-amber-800 bg-amber-50 border-amber-200"
       : "text-rose-700 bg-rose-50 border-rose-200";
 
   return (

@@ -272,7 +272,7 @@ export default function Dashboard() {
             trendsQuery.refetch();
             activityQuery.refetch();
           }}
-          className="text-sm font-medium text-primary hover:underline"
+          className="text-sm font-medium text-primary underline underline-offset-4 hover:no-underline"
         >
           Retry
         </button>

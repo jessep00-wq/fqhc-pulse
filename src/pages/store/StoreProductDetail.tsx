@@ -192,7 +192,7 @@ export default function StoreProductDetail() {
                         />
                       )}
                       {comingSoon && (
-                        <p className="text-xs text-amber-700 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md p-2 text-center">
+                        <p className="text-xs text-amber-800 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md p-2 text-center">
                           This template is launching soon. Get notified by subscribing to our newsletter.
                         </p>
                       )}

@@ -26,7 +26,7 @@ export function ProductCard({ product }: { product: StoreProduct }) {
             />
             <div className="flex flex-col items-end gap-1.5">
               {product.is_coming_soon && (
-                <Badge className="bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30">
+                <Badge className="bg-amber-500/15 text-amber-800 dark:text-amber-400 border-amber-500/30">
                   Coming soon
                 </Badge>
               )}

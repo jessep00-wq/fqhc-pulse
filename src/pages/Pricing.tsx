@@ -175,7 +175,7 @@ export default function Pricing() {
             <span className={`text-sm font-medium ${annual ? "text-foreground" : "text-muted-foreground"}`}>
               Billed Annually
             </span>
-            <span className="rounded-full bg-green-500/10 text-green-600 border border-green-500/20 px-3 py-0.5 text-xs font-semibold">
+            <span className="rounded-full bg-success/10 text-success border border-success/20 px-3 py-0.5 text-xs font-semibold">
               Save 2 months
             </span>
           </div>

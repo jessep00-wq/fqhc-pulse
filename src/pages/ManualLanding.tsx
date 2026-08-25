@@ -314,7 +314,7 @@ export default function ManualLanding() {
                 className="bg-[#1E293B] border border-white/[0.07] hover:border-[#1A7A7A]/40 rounded-2xl p-6 transition-colors"
               >
                 <p
-                  className="text-[11px] text-[#1A7A7A] font-medium tracking-widest mb-2.5"
+                  className="text-[11px] text-[#4FD1C5] font-medium tracking-widest mb-2.5"
                   style={{ fontFamily: "'DM Mono', monospace" }}
                 >
                   SECTION {c.n}

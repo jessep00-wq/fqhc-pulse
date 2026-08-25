@@ -50,7 +50,7 @@ export function AdminSidebar() {
 
   const renderGroup = (label: string, items: typeof oversight) => (
     <SidebarGroup>
-      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/40">
+      <SidebarGroupLabel className="text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/70">
         {label}
       </SidebarGroupLabel>
       <SidebarGroupContent>

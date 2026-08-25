@@ -52,7 +52,7 @@ export default function RefundPolicy() {
             <h2 className="text-xl font-semibold mb-2">How to request a refund</h2>
             <p className="text-muted-foreground leading-relaxed">
               Email{" "}
-              <a href="mailto:hello@measurewise.org" className="text-primary hover:underline">
+              <a href="mailto:hello@measurewise.org" className="text-primary underline underline-offset-4 hover:no-underline">
                 hello@measurewise.org
               </a>{" "}
               with your account email and reason for the request. Eligible refunds are processed to

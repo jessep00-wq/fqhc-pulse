@@ -45,7 +45,7 @@ const STATUS_STYLE: Record<string, string> = {
   dlq: "bg-rose-50 text-rose-700 border-rose-200",
   bounced: "bg-rose-50 text-rose-700 border-rose-200",
   complained: "bg-rose-50 text-rose-700 border-rose-200",
-  suppressed: "bg-amber-50 text-amber-700 border-amber-200",
+  suppressed: "bg-amber-50 text-amber-800 border-amber-200",
   pending: "bg-slate-50 text-slate-700 border-slate-200",
 };
 
