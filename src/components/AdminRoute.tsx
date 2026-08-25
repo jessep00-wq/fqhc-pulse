@@ -1,6 +1,6 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserRole } from "@/hooks/useUserRole";
-import { Navigate } from "react-router-dom";
+import { Navigate } from "@/lib/router-compat";
 
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { session, loading: authLoading } = useAuth();

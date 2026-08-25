@@ -17,7 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
-import { useLocation, Link } from "react-router-dom";
+import { useLocation, Link } from "@/lib/router-compat";
 import { useOrg } from "@/contexts/OrgContext";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { useUserRole } from "@/hooks/useUserRole";

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CalendarClock } from "lucide-react";
 

@@ -24,7 +24,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { CheckCircle2, Clock, AlertCircle, CircleDot, Loader2, Plus, CalendarIcon, Users } from "lucide-react";
 import { EmptyState } from "@/components/EmptyState";
 import { toast } from "sonner";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "@/lib/router-compat";
 
 type TaskStatus = "pending" | "in_progress" | "completed" | "overdue";
 type TaskPriority = "low" | "medium" | "high";

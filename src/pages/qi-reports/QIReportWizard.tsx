@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -89,7 +89,8 @@ export default function QIReportWizard() {
         throw new Error(detail);
       }
       if (data?.error) throw new Error(data.error);
-      aiData = data as typeof aiData;
+      const parsed = data as { narratives?: Record<string, string>; meta?: unknown } | null;
+      aiData = parsed;
     } catch (e) {
       console.error("draft-qi-report failed:", e);
       const msg = e instanceof Error ? e.message : "Unknown error";

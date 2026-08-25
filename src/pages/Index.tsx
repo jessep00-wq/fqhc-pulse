@@ -12,7 +12,7 @@ import { useOrg } from "@/contexts/OrgContext";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Building2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import {
   FlaskConical, AlertTriangle, CheckSquare, TrendingUp,
   ArrowUpRight, Loader2, Info, ArrowRight, FileText,
