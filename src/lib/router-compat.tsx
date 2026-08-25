@@ -158,18 +158,21 @@ export const Outlet = TSOutlet;
 type NavLinkRenderState = { isActive: boolean; isPending: boolean };
 
 export type NavLinkProps = Omit<LinkProps, "className" | "style" | "children"> & {
+  end?: boolean;
   className?: string | ((state: NavLinkRenderState) => string | undefined);
   style?: CSSProperties | ((state: NavLinkRenderState) => CSSProperties | undefined);
   children?: ReactNode | ((state: NavLinkRenderState) => ReactNode);
 };
 
 export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
-  { to, className, style, children, ...rest },
+  { to, end = false, className, style, children, ...rest },
   ref,
 ) {
   const location = tsLocation();
   const { pathname } = parseTo(to);
-  const isActive = pathname === location.pathname;
+  const isActive = end
+    ? pathname === location.pathname
+    : location.pathname === pathname || location.pathname.startsWith(`${pathname}/`);
   const state = { isActive, isPending: false };
 
   return (

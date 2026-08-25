@@ -221,7 +221,10 @@ function ProductEditorSheet({
 
   async function saveDetails() {
     const newPrice = parseInt(price, 10);
-    if (Number.isNaN(newPrice) || newPrice < 0) return toast.error("Enter a valid price in cents");
+    if (Number.isNaN(newPrice) || newPrice < 0) {
+      toast.error("Enter a valid price in cents");
+      return;
+    }
     const { error } = await supabase
       .from("store_products")
       .update({
@@ -231,7 +234,10 @@ function ProductEditorSheet({
         hero_image_url: heroImageUrl.trim() || null,
       })
       .eq("id", product.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Product updated");
     onChange();
     setOpen(false);
@@ -242,14 +248,20 @@ function ProductEditorSheet({
     const { error: upErr } = await supabase.storage
       .from("product-previews")
       .upload(path, file, { upsert: true, contentType: file.type });
-    if (upErr) return toast.error(upErr.message);
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
     const { data: pub } = supabase.storage.from("product-previews").getPublicUrl(path);
     setHeroImageUrl(pub.publicUrl);
     const { error } = await supabase
       .from("store_products")
       .update({ hero_image_url: pub.publicUrl })
       .eq("id", product.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Cover image updated");
     onChange();
   }
@@ -259,12 +271,18 @@ function ProductEditorSheet({
     const { error: upErr } = await supabase.storage
       .from("product-files")
       .upload(path, file, { upsert: true });
-    if (upErr) return toast.error(upErr.message);
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
     if (!files.includes(path)) {
       const { error: dbErr } = await supabase
         .from("store_product_files")
         .insert({ product_id: product.id, file_path: path, sort_order: files.length });
-      if (dbErr) return toast.error(dbErr.message);
+      if (dbErr) {
+        toast.error(dbErr.message);
+        return;
+      }
     }
     toast.success(`Uploaded ${file.name}`);
     onChange();
@@ -272,13 +290,19 @@ function ProductEditorSheet({
 
   async function removeFile(path: string) {
     const { error: storageErr } = await supabase.storage.from("product-files").remove([path]);
-    if (storageErr) return toast.error(storageErr.message);
+    if (storageErr) {
+      toast.error(storageErr.message);
+      return;
+    }
     const { error: dbErr } = await supabase
       .from("store_product_files")
       .delete()
       .eq("product_id", product.id)
       .eq("file_path", path);
-    if (dbErr) return toast.error(dbErr.message);
+    if (dbErr) {
+      toast.error(dbErr.message);
+      return;
+    }
     toast.success("File removed");
     onChange();
   }
@@ -288,14 +312,20 @@ function ProductEditorSheet({
     const { error: upErr } = await supabase.storage
       .from("product-previews")
       .upload(path, file, { upsert: true, contentType: file.type });
-    if (upErr) return toast.error(upErr.message);
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
     const { data: pub } = supabase.storage.from("product-previews").getPublicUrl(path);
     const newUrls = Array.from(new Set([...(product.preview_image_urls ?? []), pub.publicUrl]));
     const { error } = await supabase
       .from("store_products")
       .update({ preview_image_urls: newUrls })
       .eq("id", product.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Preview uploaded");
     onChange();
   }
@@ -306,7 +336,10 @@ function ProductEditorSheet({
       .from("store_products")
       .update({ preview_image_urls: newUrls })
       .eq("id", product.id);
-    if (error) return toast.error(error.message);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
     toast.success("Preview removed");
     onChange();
   }

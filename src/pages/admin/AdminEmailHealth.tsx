@@ -85,8 +85,8 @@ export default function AdminEmailHealth() {
     () => ({
       p_start: range.start,
       p_end: range.end,
-      p_templates: templateFilter === "all" ? null : [templateFilter],
-      p_status: statusFilter === "all" ? null : statusFilter,
+      p_templates: templateFilter === "all" ? undefined : [templateFilter],
+      p_status: statusFilter === "all" ? undefined : statusFilter,
     }),
     [range, templateFilter, statusFilter],
   );

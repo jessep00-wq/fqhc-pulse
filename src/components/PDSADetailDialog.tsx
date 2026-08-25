@@ -204,7 +204,9 @@ export default function PDSADetailDialog({
   });
 
 
-  type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at">>;
+  type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at" | "completeness_score">> & {
+    completeness_score?: number;
+  };
 
   const formatSupabaseError = (err: unknown, fallback: string) => {
     const e = err as { message?: string | null; details?: string | null; hint?: string | null; code?: string | null };

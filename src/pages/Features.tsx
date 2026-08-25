@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import type { ReactElement } from "react";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import {
@@ -31,7 +32,7 @@ type FeatureSection = {
   intro: string;
   cardsHeading: string;
   cards: FeatureCard[];
-  narrative: { heading: string; paragraphs: (string | JSX.Element)[] }[];
+  narrative: { heading: string; paragraphs: (string | ReactElement)[] }[];
 };
 
 const sections: FeatureSection[] = [
