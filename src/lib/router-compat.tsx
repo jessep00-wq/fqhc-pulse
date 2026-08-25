@@ -13,7 +13,7 @@ import {
   Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
-import { useMemo, useCallback, forwardRef, type ComponentProps, type ReactNode } from "react";
+import { useMemo, useCallback, forwardRef, type CSSProperties, type ComponentProps, type ReactNode } from "react";
 
 // ---------- shared URL parsing ----------
 
@@ -114,7 +114,7 @@ export function useSearchParams(): [URLSearchParams, (init: URLSearchParams | Re
 
 // ---------- Link ----------
 
-type LinkProps = Omit<ComponentProps<typeof TSLink>, "to"> & {
+export type LinkProps = Omit<ComponentProps<typeof TSLink>, "to"> & {
   to: string;
   replace?: boolean;
   state?: unknown;
@@ -153,6 +153,34 @@ export function Navigate({ to, replace, state }: { to: string; replace?: boolean
 
 export const Outlet = TSOutlet;
 
-// ---------- NavLink (minimal) ----------
+// ---------- NavLink ----------
 
-export const NavLink = Link;
+type NavLinkRenderState = { isActive: boolean; isPending: boolean };
+
+export type NavLinkProps = Omit<LinkProps, "className" | "style" | "children"> & {
+  className?: string | ((state: NavLinkRenderState) => string | undefined);
+  style?: CSSProperties | ((state: NavLinkRenderState) => CSSProperties | undefined);
+  children?: ReactNode | ((state: NavLinkRenderState) => ReactNode);
+};
+
+export const NavLink = forwardRef<HTMLAnchorElement, NavLinkProps>(function NavLink(
+  { to, className, style, children, ...rest },
+  ref,
+) {
+  const location = tsLocation();
+  const { pathname } = parseTo(to);
+  const isActive = pathname === location.pathname;
+  const state = { isActive, isPending: false };
+
+  return (
+    <Link
+      ref={ref}
+      to={to}
+      className={typeof className === "function" ? className(state) : className}
+      style={typeof style === "function" ? style(state) : style}
+      {...rest}
+    >
+      {typeof children === "function" ? children(state) : children}
+    </Link>
+  );
+});
