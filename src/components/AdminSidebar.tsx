@@ -9,7 +9,7 @@ import {
   Sparkles,
   Mail,
 } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation } from "@/lib/router-compat";
 import { Logo } from "@/components/Logo";
 import { NavLink } from "@/components/NavLink";
 import {

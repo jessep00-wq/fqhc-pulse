@@ -2,7 +2,7 @@ import { Mail, MapPin, Clock, ShieldCheck } from "lucide-react";
 import ContactForm from "@/components/ContactForm";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SEO } from "@/components/SEO";
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 
 export default function Contact() {
   return (

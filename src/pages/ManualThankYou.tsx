@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link } from "@/lib/router-compat";
 import { Helmet } from "react-helmet-async";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";

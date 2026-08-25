@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useOrg } from "@/contexts/OrgContext";

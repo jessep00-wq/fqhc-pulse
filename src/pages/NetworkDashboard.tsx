@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "@/lib/router-compat";
 import { useTierLimits } from "@/hooks/useTierLimits";
 import { UpgradeBanner } from "@/components/UpgradePrompt";
 import { KpiCard } from "@/components/dashboard/KpiCard";

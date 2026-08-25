@@ -1,6 +1,6 @@
 import { UDS_MEASURE_LIST, UDS_MEASURE_IDS } from "@/data/udsMeasures";
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "@/lib/router-compat";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

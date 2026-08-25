@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { CheckCircle, ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { SEO } from "@/components/SEO";

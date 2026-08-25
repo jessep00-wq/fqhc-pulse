@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Check, Circle, AlertTriangle, Clock, Sparkles } from "lucide-react";
 import {
   Popover,

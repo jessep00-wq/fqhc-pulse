@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Shield, Lock, Database, Users, Server, AlertTriangle, FileCheck } from "lucide-react";
 import { SEO } from "@/components/SEO";
