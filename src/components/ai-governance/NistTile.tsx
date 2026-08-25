@@ -10,7 +10,7 @@ interface NistTileProps {
 
 function toneFor(score: number) {
   if (score >= 80) return "text-emerald-700 bg-emerald-50 border-emerald-200";
-  if (score >= 50) return "text-amber-700 bg-amber-50 border-amber-200";
+  if (score >= 50) return "text-amber-800 bg-amber-50 border-amber-200";
   return "text-red-700 bg-red-50 border-red-200";
 }
 

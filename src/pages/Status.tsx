@@ -36,7 +36,7 @@ export default function Status() {
       <main className="mx-auto max-w-3xl px-6 py-12 space-y-8">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">System Status</h1>
-          <div className="inline-flex items-center gap-2 rounded-full bg-green-500/10 px-4 py-1.5 text-sm font-medium text-green-600">
+          <div className="inline-flex items-center gap-2 rounded-full bg-success/10 px-4 py-1.5 text-sm font-medium text-success">
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
@@ -52,7 +52,7 @@ export default function Status() {
                 <p className="text-sm font-medium text-foreground">{svc.name}</p>
                 <p className="text-xs text-muted-foreground">{svc.description}</p>
               </div>
-              <div className="flex items-center gap-1.5 text-green-600">
+              <div className="flex items-center gap-1.5 text-success">
                 <CheckCircle className="h-4 w-4" />
                 <span className="text-xs font-medium">Operational</span>
               </div>
@@ -69,7 +69,7 @@ export default function Status() {
           </div>
           <div className="flex justify-between text-xs text-muted-foreground">
             <span>90 days ago</span>
-            <span className="font-medium text-green-600">99.98% uptime</span>
+            <span className="font-medium text-success">99.98% uptime</span>
             <span>Today</span>
           </div>
         </div>

@@ -371,7 +371,7 @@ export default function Landing() {
             {howItWorksSteps.map((step) => (
               <div key={step.number} className="relative space-y-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-3xl font-extrabold text-primary/20">{step.number}</span>
+                  <span className="text-3xl font-extrabold text-primary/75" aria-hidden="true">{step.number}</span>
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <step.icon className="h-5 w-5" />
                   </div>
@@ -440,7 +440,7 @@ export default function Landing() {
                     </div>
                     <h3 className="font-semibold text-foreground">{f.title}</h3>
                   </div>
-                  <p className="text-sm font-medium text-primary/80 italic">{f.painPoint}</p>
+                  <p className="text-sm font-medium text-primary italic">{f.painPoint}</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">
                     {f.description}
                   </p>
@@ -478,13 +478,13 @@ export default function Landing() {
               <span className="text-primary">$149</span>
               <span className="text-muted-foreground text-xs">/mo</span>
             </span>
-            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <ArrowRight className="h-4 w-4 text-primary/75 hidden sm:block" aria-hidden="true" />
             <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
               <span className="text-foreground">Multi-Site</span>
               <span className="text-primary">$349</span>
               <span className="text-muted-foreground text-xs">/mo</span>
             </span>
-            <ArrowRight className="h-4 w-4 text-primary/50 hidden sm:block" />
+            <ArrowRight className="h-4 w-4 text-primary/75 hidden sm:block" aria-hidden="true" />
             <span className="inline-flex items-center gap-2 rounded-full bg-card border border-border px-4 py-2 text-sm font-semibold">
               <span className="text-foreground">Network</span>
               <span className="text-primary">$699</span>

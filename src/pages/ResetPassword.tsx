@@ -157,7 +157,7 @@ export default function ResetPassword() {
                       ) : (
                         <Circle className="h-3.5 w-3.5 text-muted-foreground" />
                       )}
-                      <span className={passed ? "text-green-600" : "text-muted-foreground"}>
+                      <span className={passed ? "text-success" : "text-muted-foreground"}>
                         {rule.label}
                       </span>
                     </li>

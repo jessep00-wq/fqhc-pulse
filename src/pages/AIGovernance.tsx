@@ -187,7 +187,7 @@ export default function AIGovernance() {
                       <Badge variant="outline" className="text-[10px]">{t.ai_category}</Badge>
                       <Badge className={
                         t.risk_tier === 3 ? "bg-red-100 text-red-700 hover:bg-red-100" :
-                        t.risk_tier === 2 ? "bg-amber-100 text-amber-700 hover:bg-amber-100" :
+                        t.risk_tier === 2 ? "bg-amber-100 text-amber-800 hover:bg-amber-100" :
                         "bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
                       }>Tier {t.risk_tier}</Badge>
                       {t.handles_phi && <Badge variant="secondary" className="text-[10px]">PHI</Badge>}
@@ -263,7 +263,7 @@ export default function AIGovernance() {
                         <Badge className={
                           i.resolution_status === "resolved" ? "bg-emerald-100 text-emerald-700" :
                           i.resolution_status === "escalated" ? "bg-red-100 text-red-700" :
-                          "bg-amber-100 text-amber-700"
+                          "bg-amber-100 text-amber-800"
                         }>{i.resolution_status}</Badge>
                         {i.patient_impact && <Badge variant="destructive">Patient impact</Badge>}
                         {i.qi_committee_reviewed && <Badge variant="secondary"><CheckCircle2 className="mr-1 h-3 w-3" />QI reviewed</Badge>}

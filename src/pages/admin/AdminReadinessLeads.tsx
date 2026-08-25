@@ -24,7 +24,7 @@ interface Submission {
 
 const TIER_COLOR: Record<string, string> = {
   audit_ready: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  building: "bg-amber-50 text-amber-700 border-amber-200",
+  building: "bg-amber-50 text-amber-800 border-amber-200",
   at_risk: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
@@ -187,7 +187,7 @@ export default function AdminReadinessLeads() {
 
 function StatCard({ label, value, tone }: { label: string; value: number | string; tone?: "rose" | "amber" | "emerald" }) {
   const toneClass =
-    tone === "rose" ? "text-rose-700" : tone === "amber" ? "text-amber-700" : tone === "emerald" ? "text-emerald-700" : "text-foreground";
+    tone === "rose" ? "text-rose-700" : tone === "amber" ? "text-amber-800" : tone === "emerald" ? "text-emerald-700" : "text-foreground";
   return (
     <Card>
       <CardContent className="pt-6">
