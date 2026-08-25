@@ -1,4 +1,4 @@
-**Subject A:** the 14-page binder reviewers actually open
+**Subject A:** the 10-page binder reviewers actually open
 **Subject B:** sample HRSA evidence packet (no signup)
 **Preview:** Sharing the binder template my last CHC used to pass OSV with zero conditions.
 
@@ -8,7 +8,7 @@ Hi {{first_name}},
 
 Following up on my note last week — no reply needed, just wanted to leave you with something useful either way.
 
-This is the actual binder export my last CHC handed reviewers during their OSV. Zero conditions, zero progressive action. 14 pages, every UDS measure tied to a PDSA cycle and a board minute. No login, no email gate:
+This is the actual binder export my last CHC handed reviewers during their OSV. Zero conditions, zero progressive action. 10 pages, every UDS measure tied to a PDSA cycle and a board minute. No login, no email gate:
 
 → https://measurewise.org/MeasureWise_Sample_Export.pdf?utm_source=cold-email&utm_campaign=osv-q1-2026
 

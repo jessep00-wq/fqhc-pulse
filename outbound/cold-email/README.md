@@ -12,7 +12,7 @@ Written for **Jessica R. Smith, BSN** → **FQHC Quality / QI Directors**.
 | Day | Email | Subject A | Subject B |
 |---|---|---|---|
 | 0 | `01-intro-osv-binder.md` | `{{first_name}}, your OSV binder question` | `audit-ready in 11 months — {{health_center}}` |
-| 4 | `02-evidence-drop.md` | `the 14-page binder reviewers actually open` | `sample HRSA evidence packet (no signup)` |
+| 4 | `02-evidence-drop.md` | `the 10-page binder reviewers actually open` | `sample HRSA evidence packet (no signup)` |
 | 11 | `03-breakup.md` | `close the loop?` | `last note from MeasureWise` |
 
 Send 9am–11am recipient-local, Tue/Wed/Thu only. Skip Mondays and Fridays.

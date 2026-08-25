@@ -18,7 +18,7 @@ Wait **2–3 days** after connection accept before DM 1. Never DM the same day �
 
 > Hi {{first_name}}, sharing something useful — no strings:
 >
-> This is the actual HRSA OSV binder template my last CHC used to pass with zero conditions. 14 pages, every UDS measure tied to a PDSA cycle and a board minute. Public link, no email gate:
+> This is the actual HRSA OSV binder template my last CHC used to pass with zero conditions. 10 pages, every UDS measure tied to a PDSA cycle and a board minute. Public link, no email gate:
 >
 > https://measurewise.org/MeasureWise_Sample_Export.pdf
 >
