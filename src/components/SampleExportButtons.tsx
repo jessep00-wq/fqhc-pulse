@@ -12,26 +12,10 @@ import {
 import { Eye, Download, Loader2, ExternalLink } from "lucide-react";
 
 const PDF_URL = "/MeasureWise_Sample_Export.pdf";
-const DOCX_URL = "/MeasureWise_Sample_Export.docx";
 
 export function SampleExportButtons() {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [downloading, setDownloading] = useState(false);
   const [iframeLoaded, setIframeLoaded] = useState(false);
-
-  const handleDocxDownload = () => {
-    setDownloading(true);
-    // Small visual delay so the user sees the click registered, then trigger.
-    setTimeout(() => {
-      const a = document.createElement("a");
-      a.href = DOCX_URL;
-      a.download = "MeasureWise_Sample_Export.docx";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      setDownloading(false);
-    }, 250);
-  };
 
   return (
     <>
@@ -99,22 +83,6 @@ export function SampleExportButtons() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-
-
-        <Button
-          size="lg"
-          variant="outline"
-          className="text-base px-8"
-          onClick={handleDocxDownload}
-          disabled={downloading}
-        >
-          {downloading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="mr-2 h-4 w-4" />
-          )}
-          {downloading ? "Preparing…" : "Download Sample Export (Word)"}
-        </Button>
       </div>
     </>
   );
