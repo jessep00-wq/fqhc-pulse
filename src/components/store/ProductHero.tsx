@@ -77,7 +77,7 @@ export function ProductHero({
       </div>
     );
   }
-  const IconComp = (icon && ICONS[icon]) || ICONS[fallbackIcon];
+  const IconComp = (icon && ICONS[icon]) || ICONS[fallbackIcon] || FileText;
   return (
     <div
       aria-hidden
