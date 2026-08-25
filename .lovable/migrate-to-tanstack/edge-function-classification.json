@@ -1,0 +1,31 @@
+{
+  "found": 24,
+  "migrated": 0,
+  "leftOnSupabase": 24,
+  "functions": [
+    { "name": "ai-root-cause", "decision": "left_on_supabase", "reason": "Streams Lovable AI responses; invoked by authenticated client with Supabase JWT verification." },
+    { "name": "auth-email-hook", "decision": "left_on_supabase", "reason": "Supabase Auth email hook — must remain a Supabase function to receive auth events." },
+    { "name": "capture-playbook-lead", "decision": "left_on_supabase", "reason": "Public lead capture endpoint with Resend delivery; stable URL referenced by clients." },
+    { "name": "check-task-deadlines", "decision": "left_on_supabase", "reason": "pg_cron-scheduled job; cron wiring targets the Supabase function URL." },
+    { "name": "compute-account-health", "decision": "left_on_supabase", "reason": "pg_cron-scheduled admin job." },
+    { "name": "contact-form", "decision": "left_on_supabase", "reason": "Public form endpoint sending via Resend with server-side secrets." },
+    { "name": "create-billing-portal", "decision": "left_on_supabase", "reason": "Stripe secret key usage; must stay server-side on the existing deployed URL." },
+    { "name": "create-checkout", "decision": "left_on_supabase", "reason": "Stripe checkout session creation with secret key." },
+    { "name": "create-subscription-checkout", "decision": "left_on_supabase", "reason": "Stripe subscription checkout with secret key." },
+    { "name": "download-watermarked-manual", "decision": "left_on_supabase", "reason": "Token-gated file delivery using service-role access." },
+    { "name": "draft-qi-report", "decision": "left_on_supabase", "reason": "Lovable AI drafting endpoint invoked by the authenticated app." },
+    { "name": "email-domain-health", "decision": "left_on_supabase", "reason": "Resend API status checks for the admin email health dashboard." },
+    { "name": "get-manual-token", "decision": "left_on_supabase", "reason": "Purchase-token issuance using service-role access." },
+    { "name": "get-order", "decision": "left_on_supabase", "reason": "Order lookup for store success page using service-role access." },
+    { "name": "mcp", "decision": "left_on_supabase", "reason": "MCP server endpoint; manifest points at the Supabase function URL." },
+    { "name": "payments-webhook", "decision": "left_on_supabase", "reason": "Stripe webhook — Stripe is configured with the Supabase function URL; moving it would break payments." },
+    { "name": "process-email-queue", "decision": "left_on_supabase", "reason": "pg_cron-scheduled email queue processor via Resend." },
+    { "name": "resend-purchase-email", "decision": "left_on_supabase", "reason": "Admin-triggered purchase email resend via Resend." },
+    { "name": "send-email", "decision": "left_on_supabase", "reason": "Shared transactional send path via Resend." },
+    { "name": "send-playbook-followups", "decision": "left_on_supabase", "reason": "pg_cron-scheduled nurture follow-ups." },
+    { "name": "send-playbook-nurture", "decision": "left_on_supabase", "reason": "pg_cron-scheduled nurture sends." },
+    { "name": "send-readiness-report", "decision": "left_on_supabase", "reason": "Readiness quiz report delivery via Resend." },
+    { "name": "send-welcome-email", "decision": "left_on_supabase", "reason": "Triggered welcome email via Resend." },
+    { "name": "team-invite", "decision": "left_on_supabase", "reason": "Service-role invite creation and email delivery." }
+  ]
+}
