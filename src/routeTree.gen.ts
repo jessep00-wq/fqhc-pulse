@@ -9,27 +9,454 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ReadinessRouteImport } from './routes/readiness'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ForOperationsManagersRouteImport } from './routes/for.operations-managers'
+import { Route as ForPcmhCoordinatorsRouteImport } from './routes/for.pcmh-coordinators'
+import { Route as ForQiDirectorsRouteImport } from './routes/for.qi-directors'
+import { Route as InviteTokenRouteImport } from './routes/invite.$token'
+import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 
-export interface FileRoutesByFullPath {}
-export interface FileRoutesByTo {}
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DemoRoute = DemoRouteImport.update({
+  id: '/demo',
+  path: '/demo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadinessRoute = ReadinessRouteImport.update({
+  id: '/readiness',
+  path: '/readiness',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForOperationsManagersRoute = ForOperationsManagersRouteImport.update({
+  id: '/for/operations-managers',
+  path: '/for/operations-managers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForPcmhCoordinatorsRoute = ForPcmhCoordinatorsRouteImport.update({
+  id: '/for/pcmh-coordinators',
+  path: '/for/pcmh-coordinators',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForQiDirectorsRoute = ForQiDirectorsRouteImport.update({
+  id: '/for/qi-directors',
+  path: '/for/qi-directors',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InviteTokenRoute = InviteTokenRouteImport.update({
+  id: '/invite/$token',
+  path: '/invite/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DotlovableOauthConsentRoute = DotlovableOauthConsentRouteImport.update({
+  id: '/.lovable/oauth/consent',
+  path: '/.lovable/oauth/consent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+export interface FileRoutesByFullPath {
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/onboarding': typeof OnboardingRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/readiness': typeof ReadinessRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security': typeof SecurityRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/for/operations-managers': typeof ForOperationsManagersRoute
+  '/for/pcmh-coordinators': typeof ForPcmhCoordinatorsRoute
+  '/for/qi-directors': typeof ForQiDirectorsRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+}
+export interface FileRoutesByTo {
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/onboarding': typeof OnboardingRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/readiness': typeof ReadinessRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security': typeof SecurityRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/for/operations-managers': typeof ForOperationsManagersRoute
+  '/for/pcmh-coordinators': typeof ForPcmhCoordinatorsRoute
+  '/for/qi-directors': typeof ForQiDirectorsRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
+}
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/auth': typeof AuthRoute
+  '/contact': typeof ContactRoute
+  '/demo': typeof DemoRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/onboarding': typeof OnboardingRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/readiness': typeof ReadinessRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/security': typeof SecurityRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/for/operations-managers': typeof ForOperationsManagersRoute
+  '/for/pcmh-coordinators': typeof ForPcmhCoordinatorsRoute
+  '/for/qi-directors': typeof ForQiDirectorsRoute
+  '/invite/$token': typeof InviteTokenRoute
+  '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: never
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/demo'
+    | '/how-it-works'
+    | '/onboarding'
+    | '/pricing'
+    | '/privacy'
+    | '/readiness'
+    | '/refund-policy'
+    | '/reset-password'
+    | '/security'
+    | '/status'
+    | '/terms'
+    | '/for/operations-managers'
+    | '/for/pcmh-coordinators'
+    | '/for/qi-directors'
+    | '/invite/$token'
+    | '/.lovable/oauth/consent'
   fileRoutesByTo: FileRoutesByTo
-  to: never
-  id: '__root__'
+  to:
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/demo'
+    | '/how-it-works'
+    | '/onboarding'
+    | '/pricing'
+    | '/privacy'
+    | '/readiness'
+    | '/refund-policy'
+    | '/reset-password'
+    | '/security'
+    | '/status'
+    | '/terms'
+    | '/for/operations-managers'
+    | '/for/pcmh-coordinators'
+    | '/for/qi-directors'
+    | '/invite/$token'
+    | '/.lovable/oauth/consent'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/auth'
+    | '/contact'
+    | '/demo'
+    | '/how-it-works'
+    | '/onboarding'
+    | '/pricing'
+    | '/privacy'
+    | '/readiness'
+    | '/refund-policy'
+    | '/reset-password'
+    | '/security'
+    | '/status'
+    | '/terms'
+    | '/for/operations-managers'
+    | '/for/pcmh-coordinators'
+    | '/for/qi-directors'
+    | '/invite/$token'
+    | '/.lovable/oauth/consent'
   fileRoutesById: FileRoutesById
 }
-export interface RootRouteChildren {}
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {}
+export interface RootRouteChildren {
+  IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  AuthRoute: typeof AuthRoute
+  ContactRoute: typeof ContactRoute
+  DemoRoute: typeof DemoRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  OnboardingRoute: typeof OnboardingRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ReadinessRoute: typeof ReadinessRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SecurityRoute: typeof SecurityRoute
+  StatusRoute: typeof StatusRoute
+  TermsRoute: typeof TermsRoute
+  ForOperationsManagersRoute: typeof ForOperationsManagersRoute
+  ForPcmhCoordinatorsRoute: typeof ForPcmhCoordinatorsRoute
+  ForQiDirectorsRoute: typeof ForQiDirectorsRoute
+  InviteTokenRoute: typeof InviteTokenRoute
+  DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
 }
 
-const rootRouteChildren: RootRouteChildren = {}
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/demo': {
+      id: '/demo'
+      path: '/demo'
+      fullPath: '/demo'
+      preLoaderRoute: typeof DemoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/readiness': {
+      id: '/readiness'
+      path: '/readiness'
+      fullPath: '/readiness'
+      preLoaderRoute: typeof ReadinessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/operations-managers': {
+      id: '/for/operations-managers'
+      path: '/for/operations-managers'
+      fullPath: '/for/operations-managers'
+      preLoaderRoute: typeof ForOperationsManagersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/pcmh-coordinators': {
+      id: '/for/pcmh-coordinators'
+      path: '/for/pcmh-coordinators'
+      fullPath: '/for/pcmh-coordinators'
+      preLoaderRoute: typeof ForPcmhCoordinatorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/for/qi-directors': {
+      id: '/for/qi-directors'
+      path: '/for/qi-directors'
+      fullPath: '/for/qi-directors'
+      preLoaderRoute: typeof ForQiDirectorsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/invite/$token': {
+      id: '/invite/$token'
+      path: '/invite/$token'
+      fullPath: '/invite/$token'
+      preLoaderRoute: typeof InviteTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.lovable/oauth/consent': {
+      id: '/.lovable/oauth/consent'
+      path: '/.lovable/oauth/consent'
+      fullPath: '/.lovable/oauth/consent'
+      preLoaderRoute: typeof DotlovableOauthConsentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
+}
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  AuthRoute: AuthRoute,
+  ContactRoute: ContactRoute,
+  DemoRoute: DemoRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  OnboardingRoute: OnboardingRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  ReadinessRoute: ReadinessRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SecurityRoute: SecurityRoute,
+  StatusRoute: StatusRoute,
+  TermsRoute: TermsRoute,
+  ForOperationsManagersRoute: ForOperationsManagersRoute,
+  ForPcmhCoordinatorsRoute: ForPcmhCoordinatorsRoute,
+  ForQiDirectorsRoute: ForQiDirectorsRoute,
+  InviteTokenRoute: InviteTokenRoute,
+  DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
