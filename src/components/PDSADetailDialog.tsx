@@ -14,6 +14,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import type { Database } from "@/integrations/supabase/types";
 import { useOrg } from "@/contexts/OrgContext";
 import { UDS_MEASURES } from "@/data/mockData";
 import { CalendarIcon, Plus, CheckCircle2, Circle, Clock, Loader2, Copy, Lightbulb, ThumbsUp, RefreshCw, X, FileText, AlertTriangle, Pencil, Trash2 } from "lucide-react";
@@ -204,9 +205,7 @@ export default function PDSADetailDialog({
   });
 
 
-  type CycleUpdate = Partial<Omit<DBCycle, "id" | "organization_id" | "created_at" | "completeness_score">> & {
-    completeness_score?: number;
-  };
+  type CycleUpdate = Database["public"]["Tables"]["pdsa_cycles"]["Update"];
 
   const formatSupabaseError = (err: unknown, fallback: string) => {
     const e = err as { message?: string | null; details?: string | null; hint?: string | null; code?: string | null };
