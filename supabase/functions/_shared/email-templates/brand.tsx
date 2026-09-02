@@ -137,7 +137,7 @@ export const BrandHeader = () => (
 
 export const Signature = () => (
   <Section style={styles.signatureWrap}>
-    <Text style={styles.sigName}>Jessica Smith, RN</Text>
+    <Text style={styles.sigName}>Jessica R. Smith, BSN</Text>
     <Text style={styles.sigTitle}>Founder, MeasureWise™</Text>
     <Text style={styles.sigContact}>
       Quality systems for FQHCs, CHCs, and PCMH teams
