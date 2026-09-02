@@ -1,0 +1,1 @@
+revoke execute on function public.notify_campaign_trial_signup() from public, anon, authenticated;
