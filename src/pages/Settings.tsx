@@ -28,6 +28,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DataModeCard } from "@/components/DataModeCard";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/trackEvent";
 
 const STAFF_ROLES = ["QI Manager", "Provider", "MA/RN", "Front Desk", "Care Coordinator", "Administrator"];
 
@@ -94,6 +95,7 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile", user?.id] });
       toast.success("Profile updated");
+      trackEvent("settings_updated", { section: "profile" });
     },
     onError: (err: Error) => toast.error(err.message || "Failed to update profile"),
   });
@@ -144,6 +146,7 @@ export default function Settings() {
     onSuccess: () => {
       refetchOrg();
       toast.success("Organization updated");
+      trackEvent("settings_updated", { section: "facility" });
     },
     onError: (err: Error) => toast.error(err.message || "Failed to update organization"),
   });
