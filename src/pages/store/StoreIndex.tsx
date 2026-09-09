@@ -42,10 +42,13 @@ export default function StoreIndex() {
     })();
   }, []);
 
-  const filteredProducts = useMemo(
-    () => (filter === "all" ? products : products.filter((p) => p.category === filter)),
-    [products, filter],
-  );
+  // Coming-soon templates always sort after everything a buyer can actually
+  // purchase, in every category filter.
+  const filteredProducts = useMemo(() => {
+    const list = filter === "all" ? products : products.filter((p) => p.category === filter);
+    const rank = (p: StoreProduct) => (p.is_coming_soon || (p.file_count ?? 0) === 0 ? 1 : 0);
+    return [...list].sort((a, b) => rank(a) - rank(b) || a.sort_order - b.sort_order);
+  }, [products, filter]);
 
   const productById = useMemo(
     () => Object.fromEntries(products.map((p) => [p.id, p])),
@@ -53,7 +56,7 @@ export default function StoreIndex() {
   );
 
   return (
-    <PublicPageLayout>
+    <PublicPageLayout secondaryHeaderCta>
       <SEO
         title="UDS Templates and FQHC Audit Tools"
         description="HRSA Audit Binder templates, FQHC PDSA cycle templates, QI committee packets, and board quality report templates — instant download, built by an FQHC Quality Director."
