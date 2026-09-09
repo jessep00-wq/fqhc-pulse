@@ -15,6 +15,10 @@ interface PublicPageLayoutProps {
   children: React.ReactNode;
   backTo?: { label: string; href: string };
   slimNav?: boolean;
+  /** Demote the header trial button so it doesn't outrank on-page actions. */
+  secondaryHeaderCta?: boolean;
+  /** Replace the closing trial band (store pages swap in related products). */
+  closingSection?: React.ReactNode;
 }
 
 const NAV_ITEMS = [
@@ -27,7 +31,13 @@ const NAV_ITEMS = [
 ];
 
 
-export function PublicPageLayout({ children, backTo, slimNav = false }: PublicPageLayoutProps) {
+export function PublicPageLayout({
+  children,
+  backTo,
+  slimNav = false,
+  secondaryHeaderCta = false,
+  closingSection,
+}: PublicPageLayoutProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
