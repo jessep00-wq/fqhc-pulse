@@ -76,12 +76,17 @@ export function PublicPageLayout({
           )}
 
           <div className="justify-self-end flex items-center gap-1.5 sm:gap-2">
-            <span className="hidden sm:inline-flex"><CartButton /></span>
+            <CartButton />
             <Button variant="ghost" size="sm" asChild className="px-2 sm:px-3">
               <Link to="/auth">Sign In</Link>
             </Button>
             {!slimNav && (
-              <Button size="sm" asChild className="px-2.5 sm:px-4 font-semibold shadow-xs whitespace-nowrap">
+              <Button
+                size="sm"
+                asChild
+                variant={secondaryHeaderCta ? "outline" : "default"}
+                className={`px-2.5 sm:px-4 whitespace-nowrap ${secondaryHeaderCta ? "font-medium" : "font-semibold shadow-xs"}`}
+              >
                 <Link to="/auth?signup=true">
                   <span className="xl:hidden">Start free</span>
                   <span className="hidden xl:inline">Start 14-day free trial</span>
