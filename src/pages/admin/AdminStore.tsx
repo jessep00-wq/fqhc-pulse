@@ -259,6 +259,12 @@ function ProductEditorSheet({
         buyer_guidance: guidance.trim() || null,
         hero_icon: heroIcon.trim() || null,
         hero_image_url: heroImageUrl.trim() || null,
+        sample_file_url: sampleUrl.trim() || null,
+        faqs: faqText
+          .split("\n")
+          .map((line) => line.split("::"))
+          .filter((parts) => parts.length >= 2 && parts[0].trim() && parts.slice(1).join("::").trim())
+          .map((parts) => ({ q: parts[0].trim(), a: parts.slice(1).join("::").trim() })),
       })
       .eq("id", product.id);
     if (error) {
