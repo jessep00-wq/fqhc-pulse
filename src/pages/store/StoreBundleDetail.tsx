@@ -283,8 +283,18 @@ export default function StoreBundleDetail() {
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground">One-time purchase · all files delivered together</p>
-                </div>
+                   <p className="text-sm text-muted-foreground">One-time purchase · all files delivered together</p>
+                  {/* TODO: this wording must stay in sync with /refund-policy. */}
+                  <p className="text-sm text-muted-foreground mt-1.5">
+                    <Link to="/refund-policy" className="underline underline-offset-2 hover:text-foreground">
+                      30-day refund
+                    </Link>{" "}
+                    if it isn't audit-ready for your center.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Templates are one-time purchases and are separate from the MeasureWise software subscription.
+                  </p>
+                 </div>
                 {(() => {
                   const totalFiles = products.reduce(
                     (n, p) => n + (p.file_count ?? 0),
@@ -296,7 +306,7 @@ export default function StoreBundleDetail() {
                       <BuyButton
                         priceId={bundle.stripe_price_id}
                         className="w-full"
-                        label={`Buy ${bundle.name}`}
+                        label={`Buy now — ${formatPrice(bundle.price_cents, bundle.currency)}`}
                         disabledReason={comingSoon ? "Coming soon" : null}
                       />
                       {!comingSoon && bundle.stripe_price_id && (
