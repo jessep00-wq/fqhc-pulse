@@ -56,8 +56,19 @@ export function BuyButton({
   const buttonLabel = disabledReason ?? label;
 
   return (
-    <Button onClick={onClick} disabled={isDisabled} size={size} variant={variant} className={className}>
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : buttonLabel}
+    <Button
+      onClick={onClick}
+      disabled={isDisabled}
+      size={size}
+      variant={variant}
+      // Defensive: a long label must never render outside the button.
+      className={`max-w-full overflow-hidden whitespace-normal text-center leading-snug ${className ?? ""}`}
+    >
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        <span className="block max-w-full truncate">{buttonLabel}</span>
+      )}
     </Button>
   );
 }

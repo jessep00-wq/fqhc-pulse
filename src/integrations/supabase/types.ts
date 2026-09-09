@@ -1472,6 +1472,7 @@ export type Database = {
           category: string
           created_at: string
           currency: string
+          faqs: Json
           file_count: number
           hero_emoji: string | null
           hero_icon: string | null
@@ -1482,6 +1483,7 @@ export type Database = {
           name: string
           preview_image_urls: string[]
           price_cents: number
+          sample_file_url: string | null
           sample_preview_url: string | null
           short_description: string | null
           slug: string
@@ -1500,6 +1502,7 @@ export type Database = {
           category: string
           created_at?: string
           currency?: string
+          faqs?: Json
           file_count?: number
           hero_emoji?: string | null
           hero_icon?: string | null
@@ -1510,6 +1513,7 @@ export type Database = {
           name: string
           preview_image_urls?: string[]
           price_cents: number
+          sample_file_url?: string | null
           sample_preview_url?: string | null
           short_description?: string | null
           slug: string
@@ -1528,6 +1532,7 @@ export type Database = {
           category?: string
           created_at?: string
           currency?: string
+          faqs?: Json
           file_count?: number
           hero_emoji?: string | null
           hero_icon?: string | null
@@ -1538,6 +1543,7 @@ export type Database = {
           name?: string
           preview_image_urls?: string[]
           price_cents?: number
+          sample_file_url?: string | null
           sample_preview_url?: string | null
           short_description?: string | null
           slug?: string
@@ -1549,6 +1555,30 @@ export type Database = {
           updated_at?: string
           whats_inside?: Json
           who_its_for?: Json
+        }
+        Relationships: []
+      }
+      store_waitlist_signups: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          intent: string
+          product_slug: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          intent?: string
+          product_slug: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          intent?: string
+          product_slug?: string
         }
         Relationships: []
       }

@@ -58,7 +58,7 @@ export function ProductCard({ product }: { product: StoreProduct }) {
                 <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span className="truncate">
                   <span className="font-medium text-foreground/80">Get:</span>{" "}
-                  {fileCount > 0 ? `${fileCount} files · ` : ""}
+                  {fileCount > 0 ? `${fileCount} ${fileCount === 1 ? "file" : "files"} · ` : ""}
                   {firstDeliverable}
                 </span>
               </div>

@@ -218,6 +218,33 @@ function ProductEditorSheet({
   const [guidance, setGuidance] = useState(product.buyer_guidance ?? "");
   const [heroIcon, setHeroIcon] = useState(product.hero_icon ?? "");
   const [heroImageUrl, setHeroImageUrl] = useState(product.hero_image_url ?? "");
+  const [sampleUrl, setSampleUrl] = useState(product.sample_file_url ?? "");
+  const [faqText, setFaqText] = useState(
+    (product.faqs ?? []).map((f) => `${f.q} :: ${f.a}`).join("\n"),
+  );
+
+  async function uploadSampleFile(file: File) {
+    const path = `samples/${product.id}-${Date.now()}-${file.name}`;
+    const { error: upErr } = await supabase.storage
+      .from("product-previews")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("product-previews").getPublicUrl(path);
+    setSampleUrl(pub.publicUrl);
+    const { error } = await supabase
+      .from("store_products")
+      .update({ sample_file_url: pub.publicUrl })
+      .eq("id", product.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Sample uploaded");
+    onChange();
+  }
 
   async function saveDetails() {
     const newPrice = parseInt(price, 10);
@@ -232,6 +259,12 @@ function ProductEditorSheet({
         buyer_guidance: guidance.trim() || null,
         hero_icon: heroIcon.trim() || null,
         hero_image_url: heroImageUrl.trim() || null,
+        sample_file_url: sampleUrl.trim() || null,
+        faqs: faqText
+          .split("\n")
+          .map((line) => line.split("::"))
+          .filter((parts) => parts.length >= 2 && parts[0].trim() && parts.slice(1).join("::").trim())
+          .map((parts) => ({ q: parts[0].trim(), a: parts.slice(1).join("::").trim() })),
       })
       .eq("id", product.id);
     if (error) {
@@ -392,6 +425,39 @@ function ProductEditorSheet({
                 onChange={(e) => setGuidance(e.target.value)}
                 placeholder="Best if you're behind on a measure"
                 className="mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Free sample file (3-page excerpt)</Label>
+              <p className="text-[11px] text-muted-foreground mt-1 mb-2">
+                Buyers give an email to download it. Leave empty to hide the sample offer.
+              </p>
+              <Input
+                type="file"
+                accept=".pdf,.docx,.xlsx"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadSampleFile(f);
+                }}
+              />
+              <Input
+                value={sampleUrl}
+                onChange={(e) => setSampleUrl(e.target.value)}
+                placeholder="https://… (or upload above)"
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Product FAQ overrides</Label>
+              <p className="text-[11px] text-muted-foreground mt-1 mb-2">
+                One per line as <code>Question :: Answer</code>. Leave empty to use the shared default FAQ.
+              </p>
+              <textarea
+                value={faqText}
+                onChange={(e) => setFaqText(e.target.value)}
+                rows={6}
+                className="w-full rounded-md border bg-background p-2 text-sm"
+                placeholder="What file formats do I get? :: Editable Word and Excel files."
               />
             </div>
             <Button onClick={saveDetails} className="w-full">Save details</Button>
