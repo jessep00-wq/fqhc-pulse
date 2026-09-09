@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "@/lib/router-compat";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
@@ -8,7 +8,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { BuyButton } from "@/components/store/BuyButton";
 import { AddToCartButton } from "@/components/store/AddToCartButton";
-import { PreviewGallery } from "@/components/store/PreviewGallery";
+import { ProductPreviewSection } from "@/components/store/ProductPreviewSection";
+import { ProductFAQ } from "@/components/store/ProductFAQ";
+import { RelatedProducts, pickRelatedProducts } from "@/components/store/RelatedProducts";
+import { NotifyMeForm } from "@/components/store/NotifyMeForm";
 import { FounderCredibilityCard } from "@/components/store/FounderCredibilityCard";
 import { CheckCircle, FileText, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { formatPrice, type StoreProduct } from "@/types/store";
@@ -18,21 +21,35 @@ import { ProductHero } from "@/components/store/ProductHero";
 export default function StoreProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [product, setProduct] = useState<StoreProduct | null>(null);
+  const [allProducts, setAllProducts] = useState<StoreProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
     (async () => {
-      const { data } = await supabase
-        .from("store_products")
-        .select("*")
-        .eq("slug", slug)
-        .eq("status", "published")
-        .maybeSingle();
+      const [{ data }, { data: all }] = await Promise.all([
+        supabase
+          .from("store_products")
+          .select("*")
+          .eq("slug", slug)
+          .eq("status", "published")
+          .maybeSingle(),
+        supabase
+          .from("store_products")
+          .select("*")
+          .eq("status", "published")
+          .order("sort_order"),
+      ]);
       setProduct(data ? mapStoreProduct(data) : null);
+      setAllProducts((all ?? []).map(mapStoreProduct));
       setLoading(false);
     })();
   }, [slug]);
+
+  const related = useMemo(
+    () => (product ? pickRelatedProducts(allProducts, product) : []),
+    [allProducts, product],
+  );
 
   if (loading) {
     return (
@@ -53,8 +70,14 @@ export default function StoreProductDetail() {
     );
   }
 
+  const comingSoon = product.is_coming_soon || (product.file_count ?? 0) === 0;
+
   return (
-    <PublicPageLayout backTo={{ label: "Back to store", href: "/store" }} slimNav>
+    <PublicPageLayout
+      backTo={{ label: "Back to store", href: "/store" }}
+      slimNav
+      closingSection={<RelatedProducts products={related} />}
+    >
       <SEO
         title={`${product.name} — MeasureWise Store`}
         description={product.short_description ?? product.name}
@@ -97,11 +120,15 @@ export default function StoreProductDetail() {
               <p className="text-lg text-muted-foreground">{product.short_description}</p>
             </header>
 
+            <ProductPreviewSection
+              images={product.preview_image_urls ?? []}
+              sampleFileUrl={product.sample_file_url}
+              productSlug={product.slug}
+            />
+
             {product.long_description && (
               <p className="text-base leading-relaxed">{product.long_description}</p>
             )}
-
-            <PreviewGallery images={product.preview_image_urls ?? []} title="What it looks like" />
 
             {product.bullets?.length > 0 && (
               <section>
@@ -156,49 +183,54 @@ export default function StoreProductDetail() {
                 </CardContent>
               </Card>
             )}
+
+            <ProductFAQ faqs={product.faqs} />
           </div>
 
           {/* Buy panel */}
           <aside className="lg:col-span-1 space-y-4">
             <Card className="lg:sticky lg:top-24">
               <CardContent className="p-6 space-y-4">
-                <div>
+                <div className="space-y-1.5">
                   <div className="text-3xl font-bold">{formatPrice(product.price_cents, product.currency)}</div>
                   <p className="text-sm text-muted-foreground">One-time purchase · instant download</p>
+                  {/* TODO: this wording must stay in sync with /refund-policy. */}
+                  <p className="text-sm text-muted-foreground">
+                    <Link to="/refund-policy" className="underline underline-offset-2 hover:text-foreground">
+                      30-day refund
+                    </Link>{" "}
+                    if it isn't audit-ready for your center.
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Templates are one-time purchases and are separate from the MeasureWise software subscription.
+                  </p>
                 </div>
-                {(() => {
-                  const comingSoon = product.is_coming_soon || (product.file_count ?? 0) === 0;
-                  return (
-                    <>
-                      <BuyButton
-                        priceId={product.stripe_price_id}
+                {comingSoon ? (
+                  <NotifyMeForm productSlug={product.slug} />
+                ) : (
+                  <>
+                    <BuyButton
+                      priceId={product.stripe_price_id}
+                      className="w-full"
+                      label={`Buy now — ${formatPrice(product.price_cents, product.currency)}`}
+                    />
+                    {product.stripe_price_id && (
+                      <AddToCartButton
                         className="w-full"
-                        label={`Buy ${product.name}`}
-                        disabledReason={comingSoon ? "Coming soon" : null}
+                        variant="outline"
+                        item={{
+                          lookupKey: product.stripe_price_id,
+                          name: product.name,
+                          priceCents: product.price_cents,
+                          currency: product.currency,
+                          kind: "product",
+                          slug: product.slug,
+                          heroEmoji: product.hero_emoji,
+                        }}
                       />
-                      {!comingSoon && product.stripe_price_id && (
-                        <AddToCartButton
-                          className="w-full"
-                          variant="outline"
-                          item={{
-                            lookupKey: product.stripe_price_id,
-                            name: product.name,
-                            priceCents: product.price_cents,
-                            currency: product.currency,
-                            kind: "product",
-                            slug: product.slug,
-                            heroEmoji: product.hero_emoji,
-                          }}
-                        />
-                      )}
-                      {comingSoon && (
-                        <p className="text-xs text-amber-800 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-md p-2 text-center">
-                          This template is launching soon. Get notified by subscribing to our newsletter.
-                        </p>
-                      )}
-                    </>
-                  );
-                })()}
+                    )}
+                  </>
+                )}
                 <Separator />
                 <ul className="text-sm space-y-1.5 text-muted-foreground">
                   <li className="flex items-center gap-2"><CheckCircle className="h-4 w-4 text-primary" /> Editable templates</li>
