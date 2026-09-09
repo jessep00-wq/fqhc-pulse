@@ -144,28 +144,31 @@ export function PublicPageLayout({
 
       <main id="main-content" tabIndex={-1}>{children}</main>
 
-      {/* CTA Banner */}
-      <section className="py-20 px-6 bg-primary text-primary-foreground">
-        <div className="max-w-3xl mx-auto text-center space-y-6">
-          <h2 className="text-3xl font-bold">Ready to link quality improvement to funding outcomes?</h2>
-          <p className="text-primary-foreground/90 text-lg">
-            Run your first PDSA cycle in under 10 minutes. No sales call, no credit card.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/90">
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> 14-day free trial</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> No sales call</span>
-            <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> HRSA-aligned</span>
+      {/* Closing band: trial CTA by default, or a page-specific replacement. */}
+      {closingSection ?? (
+        <section className="py-20 px-6 bg-primary text-primary-foreground">
+          <div className="max-w-3xl mx-auto text-center space-y-6">
+            <h2 className="text-3xl font-bold">Ready to link quality improvement to funding outcomes?</h2>
+            <p className="text-primary-foreground/90 text-lg">
+              Run your first PDSA cycle in under 10 minutes. No sales call, no credit card.
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-primary-foreground/90">
+              <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> 14-day free trial</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> No sales call</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle className="h-4 w-4" /> HRSA-aligned</span>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button size="lg" variant="secondary" asChild className="text-base px-8">
+                <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
+                <a href="/#how-it-works">See how it works</a>
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button size="lg" variant="secondary" asChild className="text-base px-8">
-              <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
-              <a href="/#how-it-works">See how it works</a>
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
+
 
       <footer className="border-t border-border bg-card/40">
         <div className="max-w-6xl mx-auto px-6 py-12">
