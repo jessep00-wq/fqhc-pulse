@@ -218,6 +218,33 @@ function ProductEditorSheet({
   const [guidance, setGuidance] = useState(product.buyer_guidance ?? "");
   const [heroIcon, setHeroIcon] = useState(product.hero_icon ?? "");
   const [heroImageUrl, setHeroImageUrl] = useState(product.hero_image_url ?? "");
+  const [sampleUrl, setSampleUrl] = useState(product.sample_file_url ?? "");
+  const [faqText, setFaqText] = useState(
+    (product.faqs ?? []).map((f) => `${f.q} :: ${f.a}`).join("\n"),
+  );
+
+  async function uploadSampleFile(file: File) {
+    const path = `samples/${product.id}-${Date.now()}-${file.name}`;
+    const { error: upErr } = await supabase.storage
+      .from("product-previews")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      toast.error(upErr.message);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("product-previews").getPublicUrl(path);
+    setSampleUrl(pub.publicUrl);
+    const { error } = await supabase
+      .from("store_products")
+      .update({ sample_file_url: pub.publicUrl })
+      .eq("id", product.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success("Sample uploaded");
+    onChange();
+  }
 
   async function saveDetails() {
     const newPrice = parseInt(price, 10);
