@@ -35,11 +35,11 @@ export function FounderCredibilityCard({ variant = "banner" }: FounderCredibilit
         </div>
         <div className="text-sm leading-relaxed">
           <p className="font-semibold text-foreground">
-            Built by Jessica — an FQHC Quality Director, not a template factory.
+            Built by Jessica R. Smith, BSN — FQHC Quality Director.
           </p>
           <p className="text-muted-foreground">
-            Every file you see here is one she's actually used in a real HRSA OSV, QI committee, or
-            board meeting. Trusted by quality teams at FQHCs across the country.
+            Every file here is one she has personally used in a real HRSA Operational Site Visit, QI
+            committee, or board meeting. [PLACEHOLDER: center name and OSV year — Jessica to fill in]
           </p>
         </div>
       </CardContent>
