@@ -17,6 +17,16 @@ function asBool(v: unknown, fallback = false): boolean {
 function asStringArray(v: unknown): string[] {
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
 }
+function asFaqs(v: unknown): { q: string; a: string }[] {
+  if (!Array.isArray(v)) return [];
+  return v.flatMap((entry) => {
+    if (!entry || typeof entry !== "object") return [];
+    const rec = entry as Record<string, unknown>;
+    const q = typeof rec.q === "string" ? rec.q : "";
+    const a = typeof rec.a === "string" ? rec.a : "";
+    return q && a ? [{ q, a }] : [];
+  });
+}
 
 export function mapStoreProduct(row: Row): StoreProduct {
   return {
@@ -43,6 +53,8 @@ export function mapStoreProduct(row: Row): StoreProduct {
     buyer_guidance: asStringOrNull(row.buyer_guidance),
     preview_image_urls: asStringArray(row.preview_image_urls),
     is_coming_soon: asBool(row.is_coming_soon),
+    sample_file_url: asStringOrNull(row.sample_file_url),
+    faqs: asFaqs(row.faqs),
   };
 }
 

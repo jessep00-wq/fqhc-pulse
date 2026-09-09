@@ -28,6 +28,10 @@ export interface StoreProduct {
   buyer_guidance: string | null;
   preview_image_urls: string[];
   is_coming_soon?: boolean;
+  /** Optional free sample (e.g. 3-page excerpt) shown in the PDP preview block. */
+  sample_file_url: string | null;
+  /** Optional per-product FAQ overrides; falls back to the shared defaults. */
+  faqs: { q: string; a: string }[];
 }
 
 export interface StoreBundle {
