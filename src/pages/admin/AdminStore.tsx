@@ -427,6 +427,39 @@ function ProductEditorSheet({
                 className="mt-1"
               />
             </div>
+            <div>
+              <Label className="text-xs">Free sample file (3-page excerpt)</Label>
+              <p className="text-[11px] text-muted-foreground mt-1 mb-2">
+                Buyers give an email to download it. Leave empty to hide the sample offer.
+              </p>
+              <Input
+                type="file"
+                accept=".pdf,.docx,.xlsx"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) void uploadSampleFile(f);
+                }}
+              />
+              <Input
+                value={sampleUrl}
+                onChange={(e) => setSampleUrl(e.target.value)}
+                placeholder="https://… (or upload above)"
+                className="mt-2"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Product FAQ overrides</Label>
+              <p className="text-[11px] text-muted-foreground mt-1 mb-2">
+                One per line as <code>Question :: Answer</code>. Leave empty to use the shared default FAQ.
+              </p>
+              <textarea
+                value={faqText}
+                onChange={(e) => setFaqText(e.target.value)}
+                rows={6}
+                className="w-full rounded-md border bg-background p-2 text-sm"
+                placeholder="What file formats do I get? :: Editable Word and Excel files."
+              />
+            </div>
             <Button onClick={saveDetails} className="w-full">Save details</Button>
           </TabsContent>
 
