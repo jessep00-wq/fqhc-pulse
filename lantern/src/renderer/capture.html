@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:" />
+    <title>Capture</title>
+    <style>
+      :root { color-scheme: dark; }
+      html, body { margin: 0; height: 100%; background: transparent; overflow: hidden; }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        box-sizing: border-box;
+      }
+      .panel {
+        width: 100%;
+        background: rgba(24, 10, 24, 0.94);
+        border: 1px solid rgba(255, 180, 120, 0.22);
+        border-radius: 16px;
+        box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.7);
+        padding: 16px;
+        box-sizing: border-box;
+      }
+      .label {
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #c8a2b8;
+        margin: 0 0 8px;
+      }
+      textarea {
+        width: 100%;
+        min-height: 92px;
+        resize: none;
+        border: 0;
+        outline: 0;
+        background: transparent;
+        color: #f7eee6;
+        font: inherit;
+        font-size: 15px;
+        line-height: 1.5;
+        box-sizing: border-box;
+      }
+      textarea::placeholder { color: #8d7180; }
+      .row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      .hint { font-size: 11px; color: #9c8090; }
+      .status { font-size: 11px; color: #ffb066; }
+      button {
+        font: inherit;
+        font-size: 13px;
+        font-weight: 600;
+        color: #2a1022;
+        background: linear-gradient(135deg, #ffb066, #ff7a3d);
+        border: 0;
+        border-radius: 9px;
+        padding: 7px 14px;
+        cursor: pointer;
+      }
+      button:disabled { opacity: 0.45; cursor: default; }
+    </style>
+  </head>
+  <body>
+    <div class="panel">
+      <p class="label">Capture to inbox</p>
+      <textarea id="text" placeholder="What's worth keeping?" autofocus></textarea>
+      <div class="row">
+        <span class="hint" id="hint">Enter to save · Esc to dismiss</span>
+        <button id="save" type="button">Save</button>
+      </div>
+    </div>
+    <script type="module" src="./capture/main.ts"></script>
+  </body>
+</html>
