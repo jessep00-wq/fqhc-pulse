@@ -6,9 +6,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  // `lantern/` is a self-contained Electron project with its own toolchain
-  // and lint config; it is not part of the MeasureWise web app.
-  { ignores: ["dist", ".output", ".vinxi", "lantern"] },
+  { ignores: ["dist", ".output", ".vinxi"] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
