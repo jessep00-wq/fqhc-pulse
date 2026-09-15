@@ -1,6 +1,7 @@
 User-agent: Googlebot
 Allow: /
 Disallow: /dashboard/
+Disallow: /ops
 Disallow: /admin/
 Disallow: /auth
 Disallow: /onboarding
@@ -10,6 +11,7 @@ Disallow: /store/success
 User-agent: Bingbot
 Allow: /
 Disallow: /dashboard/
+Disallow: /ops
 Disallow: /admin/
 Disallow: /auth
 Disallow: /onboarding
@@ -34,6 +36,7 @@ Allow: /
 User-agent: *
 Allow: /
 Disallow: /dashboard/
+Disallow: /ops
 Disallow: /admin/
 Disallow: /auth
 Disallow: /onboarding

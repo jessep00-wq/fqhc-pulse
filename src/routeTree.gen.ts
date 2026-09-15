@@ -18,6 +18,7 @@ import { Route as DashboardRouteRouteImport } from './routes/dashboard/route'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as OpsRouteImport } from './routes/ops'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as ReadinessRouteImport } from './routes/readiness'
@@ -111,6 +112,11 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OpsRoute = OpsRouteImport.update({
+  id: '/ops',
+  path: '/ops',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PricingRoute = PricingRouteImport.update({
@@ -370,6 +376,7 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
+  '/ops': typeof OpsRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/readiness': typeof ReadinessRoute
@@ -428,6 +435,7 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
+  '/ops': typeof OpsRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/readiness': typeof ReadinessRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/how-it-works': typeof HowItWorksRoute
   '/onboarding': typeof OnboardingRoute
+  '/ops': typeof OpsRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/readiness': typeof ReadinessRoute
@@ -551,6 +560,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/how-it-works'
     | '/onboarding'
+    | '/ops'
     | '/pricing'
     | '/privacy'
     | '/readiness'
@@ -609,6 +619,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/how-it-works'
     | '/onboarding'
+    | '/ops'
     | '/pricing'
     | '/privacy'
     | '/readiness'
@@ -669,6 +680,7 @@ export interface FileRouteTypes {
     | '/demo'
     | '/how-it-works'
     | '/onboarding'
+    | '/ops'
     | '/pricing'
     | '/privacy'
     | '/readiness'
@@ -730,6 +742,7 @@ export interface RootRouteChildren {
   DemoRoute: typeof DemoRoute
   HowItWorksRoute: typeof HowItWorksRoute
   OnboardingRoute: typeof OnboardingRoute
+  OpsRoute: typeof OpsRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ReadinessRoute: typeof ReadinessRoute
@@ -822,6 +835,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ops': {
+      id: '/ops'
+      path: '/ops'
+      fullPath: '/ops'
+      preLoaderRoute: typeof OpsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pricing': {
@@ -1244,6 +1264,7 @@ const rootRouteChildren: RootRouteChildren = {
   DemoRoute: DemoRoute,
   HowItWorksRoute: HowItWorksRoute,
   OnboardingRoute: OnboardingRoute,
+  OpsRoute: OpsRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ReadinessRoute: ReadinessRoute,
