@@ -522,6 +522,7 @@ export default function PDSADetailDialog({
                 <TabsTrigger value="evidence" className="text-xs h-6">Evidence</TabsTrigger>
                 <TabsTrigger value="chain" className="text-xs h-6">Chain</TabsTrigger>
                 <TabsTrigger value="history" className="text-xs h-6">History</TabsTrigger>
+                <TabsTrigger value="ai-audit" className="text-xs h-6">Evidence Audit</TabsTrigger>
               </TabsList>
             </div>
           </div>
@@ -959,6 +960,25 @@ export default function PDSADetailDialog({
               revisions={cycleRevisions}
               loading={revisionsLoading}
               names={profileNames}
+            />
+          </TabsContent>
+
+          {/* EVIDENCE AUDIT TAB */}
+          <TabsContent value="ai-audit" className="mt-4">
+            <EvidenceAuditPanel
+              cycleId={cycle.id}
+              cycleTitle={cycle.title}
+              onGoToField={(field) => {
+                const stage = STAGE_FOR_FIELD[field];
+                const tabForStage: Record<string, string> = {
+                  plan: "aim",
+                  do: "test",
+                  study: "analyze",
+                  act: "decide",
+                };
+                if (stage && tabForStage[stage]) setActiveTab(tabForStage[stage]);
+                else if (field.startsWith("evidence")) setActiveTab("evidence");
+              }}
             />
           </TabsContent>
         </Tabs>
