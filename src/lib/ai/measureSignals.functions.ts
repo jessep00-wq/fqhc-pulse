@@ -82,9 +82,9 @@ export const explainMeasureSignal = createServerFn({ method: "POST" })
             completed_at: new Date().toISOString(),
             latency_ms: Date.now() - startedAt,
             error_code: code ?? null,
-            token_usage: (model.usage as Record<string, unknown>) ?? {},
+            token_usage: (model.usage ?? {}) as never,
           })
-          .eq("id", runId);
+          .eq("id", runId ?? "");
 
       if (model.status !== 200 || !model.data) {
         await close("failed", model.error ?? String(model.status));

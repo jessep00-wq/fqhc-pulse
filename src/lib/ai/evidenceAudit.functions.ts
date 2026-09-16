@@ -232,7 +232,7 @@ export const runEvidenceAudit = createServerFn({ method: "POST" })
               latency_ms: Date.now() - startedAt,
               error_code: "persist_failed",
             })
-            .eq("id", runId);
+            .eq("id", runId ?? "");
           return {
             ok: false as const,
             status: 500,
@@ -259,7 +259,7 @@ export const runEvidenceAudit = createServerFn({ method: "POST" })
           token_usage: (usage as Record<string, unknown>) ?? {},
           error_code: errorCode,
         })
-        .eq("id", runId);
+        .eq("id", runId ?? "");
 
       return {
         ok: true as const,
