@@ -106,23 +106,24 @@ export const archiveSourceDocument = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => input)
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: profile } = await requireOrg(supabase, userId);
-    const orgId = profile?.organization_id as string | null;
-
     const { data: isFounder } = await supabase.rpc("is_founder_admin", { _user_id: userId });
+
+    const { data: existing } = await supabase
+      .from("ai_source_documents")
+      .select("organization_id")
+      .eq("id", data.id)
+      .single();
+    if (!existing) throw new Error("Source not found.");
+    if (existing.organization_id === null && !isFounder) {
+      throw new Error("Only founder administrators can archive global sources.");
+    }
 
     const { data: row, error } = await supabase
       .from("ai_source_documents")
       .update({ status: "archived" })
       .eq("id", data.id)
-      .or(`organization_id.eq.${orgId},organization_id.is.null`)
       .select()
       .single();
     if (error) throw error;
-
-    if (!row) throw new Error("Source not found or access denied.");
-    if (row.organization_id === null && !isFounder) {
-      throw new Error("Only founder administrators can archive global sources.");
-    }
     return row;
   });
