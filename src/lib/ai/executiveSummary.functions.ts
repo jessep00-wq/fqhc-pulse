@@ -1,5 +1,5 @@
-// Scaffolded for a later phase. Gated behind the disabled `ai_executive_summary`
-// feature flag and not referenced by any user interface yet.
+// AI-generated executive summaries for board-level quality-operations reports.
+// Gated behind the `ai_executive_summary` feature flag.
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
@@ -26,15 +26,49 @@ export const createAiExecutiveSummary = createServerFn({ method: "POST" })
         return { ok: false as const, status: 403, error: "Your role does not permit this action." };
       }
 
+      const now = new Date();
       const since = new Date();
       since.setMonth(since.getMonth() - data.periodMonths);
 
-      const { data: cycles } = await supabase
-        .from("pdsa_cycles")
-        .select("title,status,uds_measure,target_goal,study_results,next_cycle_decision,updated_at")
-        .is("deleted_at", null)
-        .gte("updated_at", since.toISOString())
-        .limit(50);
+      const [
+        { data: cycles },
+        { data: signals },
+        { data: trends },
+        { data: barriers },
+        { data: financials },
+      ] = await Promise.all([
+        supabase
+          .from("pdsa_cycles")
+          .select(
+            "title,status,uds_measure,focus_area,target_goal,study_results,actual_outcome,next_cycle_decision,decision,updated_at,created_at,structured_measures",
+          )
+          .is("deleted_at", null)
+          .gte("updated_at", since.toISOString())
+          .limit(50),
+        supabase
+          .from("measure_signals")
+          .select("signal_type,severity,measure_id,detection_rule,underlying_data,detected_at")
+          .eq("organization_id", ai.organizationId)
+          .in("status", ["open", "investigating"])
+          .gte("detected_at", since.toISOString())
+          .limit(100),
+        supabase
+          .from("uds_trends")
+          .select("measure_id,month,value,site_id")
+          .gte("month", since.toISOString().slice(0, 7))
+          .limit(200),
+        supabase
+          .from("barriers")
+          .select("title,affected_measure_id,affected_site_id,status,owner_user_id,first_seen")
+          .eq("organization_id", ai.organizationId)
+          .limit(50),
+        supabase
+          .from("org_financials")
+          .select("period,shared_savings,revenue_protected,hrsa_quality_award,trend,grant_trend")
+          .eq("organization_id", ai.organizationId)
+          .order("period", { ascending: false })
+          .limit(3),
+      ]);
 
       const admin = await adminClient();
       const startedAt = Date.now();
@@ -48,15 +82,24 @@ export const createAiExecutiveSummary = createServerFn({ method: "POST" })
           model_name: MODEL_NAME,
           prompt_version: PROMPT_VERSION,
           status: "running",
+          token_usage: {},
         })
         .select("id")
         .single();
       const runId = (run?.id as string | undefined) ?? null;
 
-      const model = await callModelJson(
-        SYSTEM_PROMPT,
-        JSON.stringify({ period_months: data.periodMonths, cycles: cycles ?? [] }),
-      );
+      const payload = {
+        period_months: data.periodMonths,
+        period_start: since.toISOString().slice(0, 10),
+        period_end: now.toISOString().slice(0, 10),
+        cycles: cycles ?? [],
+        signals: signals ?? [],
+        trends: trends ?? [],
+        barriers: barriers ?? [],
+        financials: financials ?? [],
+      };
+
+      const model = await callModelJson(SYSTEM_PROMPT, JSON.stringify(payload));
 
       await admin
         .from("ai_runs")
@@ -73,16 +116,50 @@ export const createAiExecutiveSummary = createServerFn({ method: "POST" })
         return { ok: false as const, status: model.status, error: "Summary could not be generated." };
       }
 
-      const parsed = model.data as { summary?: string; highlights?: string[]; risks?: string[] };
+      const parsed = model.data as {
+        summary?: string;
+        highlights?: string[];
+        risks?: string[];
+      };
       if (typeof parsed.summary !== "string") {
         return { ok: false as const, status: 422, error: "AI returned no usable summary." };
       }
 
+      const summary = parsed.summary.slice(0, 5000);
+      const highlights = (parsed.highlights ?? [])
+        .filter((x): x is string => typeof x === "string")
+        .slice(0, 8);
+      const risks = (parsed.risks ?? [])
+        .filter((x): x is string => typeof x === "string")
+        .slice(0, 8);
+
+      await admin.from("ai_executive_summaries").insert({
+        organization_id: ai.organizationId,
+        ai_run_id: runId,
+        period_start: since.toISOString().slice(0, 10),
+        period_end: now.toISOString().slice(0, 10),
+        summary,
+        highlights,
+        risks,
+        evidence_state: "organizational_data",
+        source_references: [],
+        generated_by: userId,
+      });
+
+      await admin.from("ai_audit_log").insert({
+        organization_id: ai.organizationId,
+        user_id: userId,
+        action: "create_executive_summary",
+        entity_type: "ai_executive_summaries",
+        entity_id: runId,
+        new_value: { period_months: data.periodMonths },
+      });
+
       return {
         ok: true as const,
-        summary: parsed.summary.slice(0, 5000),
-        highlights: (parsed.highlights ?? []).filter((x) => typeof x === "string").slice(0, 8),
-        risks: (parsed.risks ?? []).filter((x) => typeof x === "string").slice(0, 8),
+        summary,
+        highlights,
+        risks,
       };
     } catch (e) {
       const err = e as { status?: number; message?: string };
