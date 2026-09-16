@@ -28,15 +28,15 @@ export const listBarriers = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data: profile } = await requireOrg(supabase, userId);
     const orgId = profile?.organization_id as string | null;
-    if (!orgId) return [] as unknown[];
+    if (!orgId) return [];
 
-    const { data, error } = await supabase
+    const { data: rows, error } = await supabase
       .from("barriers")
       .select("*, affected_site:sites(name), owner:profiles(full_name)")
       .eq("organization_id", orgId)
       .order("created_at", { ascending: false });
     if (error) throw error;
-    return (data ?? []) as unknown[];
+    return rows ?? [];
   });
 
 export const getBarrier = createServerFn({ method: "GET" })
