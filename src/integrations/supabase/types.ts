@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -84,6 +84,205 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "activity_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          new_value: Json | null
+          organization_id: string
+          previous_value: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          new_value?: Json | null
+          organization_id: string
+          previous_value?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          new_value?: Json | null
+          organization_id?: string
+          previous_value?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_audit_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_feedback: {
+        Row: {
+          ai_run_id: string | null
+          comments: string | null
+          created_at: string
+          feedback_type: string | null
+          finding_id: string | null
+          id: string
+          organization_id: string
+          rating: string | null
+          recommendation_id: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_run_id?: string | null
+          comments?: string | null
+          created_at?: string
+          feedback_type?: string | null
+          finding_id?: string | null
+          id?: string
+          organization_id: string
+          rating?: string | null
+          recommendation_id?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_run_id?: string | null
+          comments?: string | null
+          created_at?: string
+          feedback_type?: string | null
+          finding_id?: string | null
+          id?: string
+          organization_id?: string
+          rating?: string | null
+          recommendation_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_feedback_ai_run_id_fkey"
+            columns: ["ai_run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_feedback_finding_id_fkey"
+            columns: ["finding_id"]
+            isOneToOne: false
+            referencedRelation: "ai_findings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_feedback_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_feedback_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "ai_recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_findings: {
+        Row: {
+          affected_field: string | null
+          ai_run_id: string | null
+          created_at: string
+          detection_rule: string | null
+          dismissal_reason: string | null
+          entity_id: string
+          entity_type: string
+          entity_version: number | null
+          evidence_state: string
+          explanation: string | null
+          finding_type: string
+          id: string
+          organization_id: string
+          recommended_action: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          source_references: Json
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_field?: string | null
+          ai_run_id?: string | null
+          created_at?: string
+          detection_rule?: string | null
+          dismissal_reason?: string | null
+          entity_id: string
+          entity_type?: string
+          entity_version?: number | null
+          evidence_state?: string
+          explanation?: string | null
+          finding_type: string
+          id?: string
+          organization_id: string
+          recommended_action?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_references?: Json
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_field?: string | null
+          ai_run_id?: string | null
+          created_at?: string
+          detection_rule?: string | null
+          dismissal_reason?: string | null
+          entity_id?: string
+          entity_type?: string
+          entity_version?: number | null
+          evidence_state?: string
+          explanation?: string | null
+          finding_type?: string
+          id?: string
+          organization_id?: string
+          recommended_action?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          source_references?: Json
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_findings_ai_run_id_fkey"
+            columns: ["ai_run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_findings_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -205,6 +404,107 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_recommendations: {
+        Row: {
+          ai_run_id: string | null
+          created_at: string
+          created_pdsa_id: string | null
+          evidence_state: string
+          id: string
+          implementation_risks: string | null
+          organization_id: string
+          proposed_balancing_measure: string | null
+          proposed_duration: string | null
+          proposed_evidence: string | null
+          proposed_owner_role: string | null
+          proposed_process_measure: string | null
+          rationale: string | null
+          recommendation_type: string
+          related_finding_id: string | null
+          related_signal_id: string | null
+          selected_at: string | null
+          selected_by: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          ai_run_id?: string | null
+          created_at?: string
+          created_pdsa_id?: string | null
+          evidence_state?: string
+          id?: string
+          implementation_risks?: string | null
+          organization_id: string
+          proposed_balancing_measure?: string | null
+          proposed_duration?: string | null
+          proposed_evidence?: string | null
+          proposed_owner_role?: string | null
+          proposed_process_measure?: string | null
+          rationale?: string | null
+          recommendation_type?: string
+          related_finding_id?: string | null
+          related_signal_id?: string | null
+          selected_at?: string | null
+          selected_by?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          ai_run_id?: string | null
+          created_at?: string
+          created_pdsa_id?: string | null
+          evidence_state?: string
+          id?: string
+          implementation_risks?: string | null
+          organization_id?: string
+          proposed_balancing_measure?: string | null
+          proposed_duration?: string | null
+          proposed_evidence?: string | null
+          proposed_owner_role?: string | null
+          proposed_process_measure?: string | null
+          rationale?: string | null
+          recommendation_type?: string
+          related_finding_id?: string | null
+          related_signal_id?: string | null
+          selected_at?: string | null
+          selected_by?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_recommendations_ai_run_id_fkey"
+            columns: ["ai_run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_recommendations_created_pdsa_id_fkey"
+            columns: ["created_pdsa_id"]
+            isOneToOne: false
+            referencedRelation: "pdsa_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_recommendations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_recommendations_related_finding_id_fkey"
+            columns: ["related_finding_id"]
+            isOneToOne: false
+            referencedRelation: "ai_findings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_review_events: {
         Row: {
           action_taken: string
@@ -246,6 +546,152 @@ export type Database = {
           reviewer_user_id?: string | null
         }
         Relationships: []
+      }
+      ai_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          entity_id: string | null
+          entity_type: string | null
+          error_code: string | null
+          estimated_cost: number | null
+          feature_type: string
+          id: string
+          input_hash: string | null
+          latency_ms: number | null
+          model_name: string | null
+          model_provider: string | null
+          model_version: string | null
+          organization_id: string
+          prompt_version: string | null
+          site_id: string | null
+          started_at: string
+          status: string
+          token_usage: Json
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          error_code?: string | null
+          estimated_cost?: number | null
+          feature_type: string
+          id?: string
+          input_hash?: string | null
+          latency_ms?: number | null
+          model_name?: string | null
+          model_provider?: string | null
+          model_version?: string | null
+          organization_id: string
+          prompt_version?: string | null
+          site_id?: string | null
+          started_at?: string
+          status?: string
+          token_usage?: Json
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          error_code?: string | null
+          estimated_cost?: number | null
+          feature_type?: string
+          id?: string
+          input_hash?: string | null
+          latency_ms?: number | null
+          model_name?: string | null
+          model_provider?: string | null
+          model_version?: string | null
+          organization_id?: string
+          prompt_version?: string | null
+          site_id?: string | null
+          started_at?: string
+          status?: string
+          token_usage?: Json
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_runs_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_source_documents: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          content_hash: string | null
+          created_at: string
+          effective_date: string | null
+          expiration_date: string | null
+          id: string
+          issuing_authority: string | null
+          organization_id: string | null
+          source_type: string
+          status: string
+          storage_reference: string | null
+          title: string
+          updated_at: string
+          version: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          content_hash?: string | null
+          created_at?: string
+          effective_date?: string | null
+          expiration_date?: string | null
+          id?: string
+          issuing_authority?: string | null
+          organization_id?: string | null
+          source_type: string
+          status?: string
+          storage_reference?: string | null
+          title: string
+          updated_at?: string
+          version?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          content_hash?: string | null
+          created_at?: string
+          effective_date?: string | null
+          expiration_date?: string | null
+          id?: string
+          issuing_authority?: string | null
+          organization_id?: string | null
+          source_type?: string
+          status?: string
+          storage_reference?: string | null
+          title?: string
+          updated_at?: string
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_source_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ai_tools: {
         Row: {
@@ -495,6 +941,47 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_flags: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          flag_key: string
+          id: string
+          min_plan: string | null
+          notes: string | null
+          organization_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          flag_key: string
+          id?: string
+          min_plan?: string | null
+          notes?: string | null
+          organization_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          flag_key?: string
+          id?: string
+          min_plan?: string | null
+          notes?: string | null
+          organization_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feature_flags_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manual_downloads: {
         Row: {
           buyer_email: string
@@ -542,6 +1029,94 @@ export type Database = {
           token?: string
         }
         Relationships: []
+      }
+      measure_signals: {
+        Row: {
+          assigned_to: string | null
+          confirmed_cause: string | null
+          created_at: string
+          detected_at: string
+          detection_rule: string
+          dismissal_reason: string | null
+          dismissed_by: string | null
+          explanation: string | null
+          id: string
+          measure_id: string | null
+          organization_id: string
+          pdsa_id: string | null
+          severity: string
+          signal_type: string
+          site_id: string | null
+          snoozed_until: string | null
+          status: string
+          underlying_data: Json
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          confirmed_cause?: string | null
+          created_at?: string
+          detected_at?: string
+          detection_rule: string
+          dismissal_reason?: string | null
+          dismissed_by?: string | null
+          explanation?: string | null
+          id?: string
+          measure_id?: string | null
+          organization_id: string
+          pdsa_id?: string | null
+          severity?: string
+          signal_type: string
+          site_id?: string | null
+          snoozed_until?: string | null
+          status?: string
+          underlying_data?: Json
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          confirmed_cause?: string | null
+          created_at?: string
+          detected_at?: string
+          detection_rule?: string
+          dismissal_reason?: string | null
+          dismissed_by?: string | null
+          explanation?: string | null
+          id?: string
+          measure_id?: string | null
+          organization_id?: string
+          pdsa_id?: string | null
+          severity?: string
+          signal_type?: string
+          site_id?: string | null
+          snoozed_until?: string | null
+          status?: string
+          underlying_data?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "measure_signals_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "measure_signals_pdsa_id_fkey"
+            columns: ["pdsa_id"]
+            isOneToOne: false
+            referencedRelation: "pdsa_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "measure_signals_site_id_fkey"
+            columns: ["site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       orders: {
         Row: {
