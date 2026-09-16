@@ -660,6 +660,46 @@ export default function PDSADetailDialog({
                 rows={2}
               />
             </div>
+            <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
+              <Label className="text-sm font-medium">Structured measures</Label>
+              <p className="text-xs text-muted-foreground">
+                Define numerator, denominator, process measure, and balancing measure so the Evidence Auditor can check completeness.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Numerator</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.numerator ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, numerator: e.target.value || null } } as CycleUpdate)}
+                    placeholder="What is counted?"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Denominator</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.denominator ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, denominator: e.target.value || null } } as CycleUpdate)}
+                    placeholder="From what population?"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Process measure</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.process_measure ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, process_measure: e.target.value || null } } as CycleUpdate)}
+                    placeholder="Is the change being carried out?"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Balancing measure</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.balancing_measure ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, balancing_measure: e.target.value || null } } as CycleUpdate)}
+                    placeholder="What could be harmed?"
+                  />
+                </div>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label>Root Cause</Label>
               <Textarea
