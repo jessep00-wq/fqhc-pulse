@@ -29,7 +29,6 @@ interface Barrier {
   first_seen: string;
   created_at: string;
   affected_site?: { name: string } | null;
-  owner?: { full_name: string } | null;
 }
 
 const STATUS_META = {
