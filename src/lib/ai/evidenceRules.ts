@@ -16,6 +16,13 @@ export type EvidenceState =
   | "user_provided"
   | "unsupported_draft";
 
+export interface StructuredMeasures {
+  numerator?: string | null;
+  denominator?: string | null;
+  process_measure?: string | null;
+  balancing_measure?: string | null;
+}
+
 export interface AuditCycle {
   id: string;
   title?: string | null;
@@ -28,6 +35,7 @@ export interface AuditCycle {
   baseline_rate?: number | null;
   target_goal?: string | null;
   measurement_plan?: string | null;
+  structured_measures?: StructuredMeasures | null;
   prediction?: string | null;
   predicted_outcome?: string | null;
   intervention_description?: string | null;
@@ -233,6 +241,7 @@ export function runEvidenceRules(input: AuditInput): AuditResult {
   }
 
   const plan = cycle.measurement_plan || "";
+  const sm = cycle.structured_measures ?? {};
   if (blank(plan)) {
     add({
       finding_type: "missing_measurement_plan",
@@ -244,48 +253,44 @@ export function runEvidenceRules(input: AuditInput): AuditResult {
         "Describe what will be counted, how often, by whom, and from which report or system.",
       evidence_state: ORG,
     });
-  } else {
-    const p = plan.toLowerCase();
-    if (!/numerator/.test(p) || !/denominator/.test(p)) {
-      add({
-        finding_type: "missing_numerator_denominator",
-        severity: "medium",
-        title: "Measurement plan does not define a numerator and denominator",
-        detection_rule:
-          "The measurement plan text does not mention both a numerator and a denominator.",
-        affected_field: "measurement_plan",
-        recommended_action:
-          "State the numerator and denominator explicitly so the measure can be reproduced by someone else.",
-        narrative_sample: plan,
-        evidence_state: ORG,
-      });
-    }
-    if (!/process measure|process metric|operational metric/.test(p)) {
-      add({
-        finding_type: "missing_process_measure",
-        severity: "medium",
-        title: "No process measure identified",
-        detection_rule: "The measurement plan does not name a process measure.",
-        affected_field: "measurement_plan",
-        recommended_action:
-          "Add a process measure that shows whether the change is actually being carried out.",
-        narrative_sample: plan,
-        evidence_state: ORG,
-      });
-    }
-    if (!/balanc/.test(p)) {
-      add({
-        finding_type: "missing_balancing_measure",
-        severity: "medium",
-        title: "No balancing measure identified",
-        detection_rule: "The measurement plan does not name a balancing measure.",
-        affected_field: "measurement_plan",
-        recommended_action:
-          "Add a balancing measure so unintended effects elsewhere in the workflow are visible.",
-        narrative_sample: plan,
-        evidence_state: ORG,
-      });
-    }
+  }
+
+  if (blank(sm.numerator) || blank(sm.denominator)) {
+    add({
+      finding_type: "missing_numerator_denominator",
+      severity: "medium",
+      title: "Numerator and denominator are not both recorded",
+      detection_rule:
+        "The structured measures do not include both a numerator and a denominator.",
+      affected_field: "structured_measures",
+      recommended_action:
+        "Record the numerator and denominator explicitly so the measure can be reproduced by someone else.",
+      evidence_state: ORG,
+    });
+  }
+  if (blank(sm.process_measure)) {
+    add({
+      finding_type: "missing_process_measure",
+      severity: "medium",
+      title: "No process measure recorded",
+      detection_rule: "The structured process measure is empty.",
+      affected_field: "structured_measures",
+      recommended_action:
+        "Add a process measure that shows whether the change is actually being carried out.",
+      evidence_state: ORG,
+    });
+  }
+  if (blank(sm.balancing_measure)) {
+    add({
+      finding_type: "missing_balancing_measure",
+      severity: "medium",
+      title: "No balancing measure recorded",
+      detection_rule: "The structured balancing measure is empty.",
+      affected_field: "structured_measures",
+      recommended_action:
+        "Add a balancing measure so unintended effects elsewhere in the workflow are visible.",
+      evidence_state: ORG,
+    });
   }
 
   if (blank(cycle.prediction) && blank(cycle.predicted_outcome)) {

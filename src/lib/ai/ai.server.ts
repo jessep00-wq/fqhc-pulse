@@ -24,6 +24,20 @@ export interface AiContext {
   /** Read-only users may view AI output but not run it. */
   canRunAi: boolean;
   isFounderAdmin: boolean;
+  dailyRunCap: number;
+}
+
+async function getOrgDailyCap(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabaseAdmin: SupabaseClient<any, any, any>,
+  organizationId: string,
+): Promise<number> {
+  const { data } = await supabaseAdmin
+    .from("ai_org_limits")
+    .select("daily_run_cap")
+    .eq("organization_id", organizationId)
+    .maybeSingle();
+  return (data?.daily_run_cap as number | undefined) ?? 100;
 }
 
 /**
@@ -81,20 +95,35 @@ export async function resolveAiContext(
     throw new AiError("This capability is not enabled for your workspace.", 403);
   }
 
-  const since = new Date(Date.now() - 3_600_000).toISOString();
-  const { count } = await supabaseAdmin
+  const hourlySince = new Date(Date.now() - 3_600_000).toISOString();
+  const { count: hourlyCount } = await supabaseAdmin
     .from("ai_runs")
     .select("id", { count: "exact", head: true })
     .eq("organization_id", organizationId)
-    .gte("created_at", since);
-  if ((count ?? 0) >= RATE_LIMIT_PER_HOUR) {
+    .gte("created_at", hourlySince);
+  if ((hourlyCount ?? 0) >= RATE_LIMIT_PER_HOUR) {
     throw new AiError(
       "Hourly AI limit reached for this workspace. Try again shortly.",
       429,
     );
   }
 
-  return { organizationId, roles, canRunAi, isFounderAdmin };
+  const dailyRunCap = await getOrgDailyCap(supabaseAdmin, organizationId);
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const { count: dailyCount } = await supabaseAdmin
+    .from("ai_runs")
+    .select("id", { count: "exact", head: true })
+    .eq("organization_id", organizationId)
+    .gte("created_at", dayStart.toISOString());
+  if ((dailyCount ?? 0) >= dailyRunCap) {
+    throw new AiError(
+      "Daily AI limit reached for this workspace. Try again tomorrow.",
+      429,
+    );
+  }
+
+  return { organizationId, roles, canRunAi, isFounderAdmin, dailyRunCap };
 }
 
 export async function adminClient() {

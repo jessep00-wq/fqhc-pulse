@@ -25,6 +25,7 @@ import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
 import { CycleChain } from "@/components/pdsa/CycleChain";
 import { getPdsaProgress, blockersForCompletion, getEditActivity, STAGE_FOR_FIELD, type PdsaWorkStage } from "@/lib/pdsaProgress";
 import { EvidenceAuditPanel } from "@/components/ai/EvidenceAuditPanel";
+import { BarriersPanel } from "@/components/ai/BarriersPanel";
 import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
@@ -68,6 +69,7 @@ interface DBCycle {
   analysis_summary?: string | null;
   decision?: string | null;
   template_id?: string | null;
+  site_id?: string | null;
   owner_user_id?: string | null;
   start_date?: string | null;
   baseline_rate?: number | null;
@@ -84,8 +86,7 @@ interface DBCycle {
   doc_version?: number | null;
   updated_at?: string | null;
   deleted_at?: string | null;
-  
-
+  structured_measures?: Record<string, string | null> | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
@@ -521,6 +522,7 @@ export default function PDSADetailDialog({
               </span>
               <TabsList className="h-8 bg-muted/60 flex-wrap">
                 <TabsTrigger value="evidence" className="text-xs h-6">Evidence</TabsTrigger>
+                <TabsTrigger value="barriers" className="text-xs h-6">Barriers</TabsTrigger>
                 <TabsTrigger value="chain" className="text-xs h-6">Chain</TabsTrigger>
                 <TabsTrigger value="history" className="text-xs h-6">History</TabsTrigger>
                 <TabsTrigger value="ai-audit" className="text-xs h-6">Evidence Audit</TabsTrigger>
@@ -658,6 +660,46 @@ export default function PDSADetailDialog({
                 placeholder="How will you know a change is an improvement? What data will you collect?"
                 rows={2}
               />
+            </div>
+            <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
+              <Label className="text-sm font-medium">Structured measures</Label>
+              <p className="text-xs text-muted-foreground">
+                Define numerator, denominator, process measure, and balancing measure so the Evidence Auditor can check completeness.
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Numerator</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.numerator ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, numerator: e.target.value || null } } as CycleUpdate)}
+                    placeholder="What is counted?"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Denominator</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.denominator ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, denominator: e.target.value || null } } as CycleUpdate)}
+                    placeholder="From what population?"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Process measure</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.process_measure ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, process_measure: e.target.value || null } } as CycleUpdate)}
+                    placeholder="Is the change being carried out?"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">Balancing measure</Label>
+                  <Input
+                    defaultValue={cycle.structured_measures?.balancing_measure ?? ""}
+                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, balancing_measure: e.target.value || null } } as CycleUpdate)}
+                    placeholder="What could be harmed?"
+                  />
+                </div>
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Root Cause</Label>
@@ -944,6 +986,10 @@ export default function PDSADetailDialog({
             <EvidencePanel cycleId={cycle.id} organizationId={cycle.organization_id} />
           </TabsContent>
 
+          {/* BARRIERS TAB */}
+          <TabsContent value="barriers" className="mt-4 space-y-4">
+            <BarriersPanel cycleId={cycle.id} measureId={cycle.uds_measure} siteId={cycle.site_id} />
+          </TabsContent>
 
           {/* CHAIN TAB */}
           <TabsContent value="chain" className="mt-4">

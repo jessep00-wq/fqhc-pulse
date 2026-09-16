@@ -21,7 +21,12 @@ export const refreshMeasureSignals = createServerFn({ method: "POST" })
         return { ok: false as const, status: 403, error: "Your role does not permit this action." };
       }
 
-      const [{ data: cycles }, { data: tasks }, { data: trends }] = await Promise.all([
+      const [
+        { data: cycles },
+        { data: tasks },
+        { data: trends },
+        { data: barriers },
+      ] = await Promise.all([
         supabase
           .from("pdsa_cycles")
           .select(
@@ -30,6 +35,9 @@ export const refreshMeasureSignals = createServerFn({ method: "POST" })
           .is("deleted_at", null),
         supabase.from("tasks").select("id,pdsa_cycle_id,status,due_date,assigned_role"),
         supabase.from("uds_trends").select("measure_id,month,value,site_id"),
+        supabase
+          .from("barriers")
+          .select("id,title,affected_measure_id,affected_site_id,related_pdsa_ids,status,owner_user_id,first_seen,created_at"),
       ]);
 
       const { data: evidence } = await supabase
@@ -48,6 +56,7 @@ export const refreshMeasureSignals = createServerFn({ method: "POST" })
         })) as never,
         (tasks ?? []) as never,
         (trends ?? []) as never,
+        (barriers ?? []) as never,
         { now: new Date() },
       );
 
@@ -56,12 +65,12 @@ export const refreshMeasureSignals = createServerFn({ method: "POST" })
       // Existing open signals keep their status, assignment and dismissal.
       const { data: existing } = await admin
         .from("measure_signals")
-        .select("id,signal_type,measure_id,pdsa_id,status")
+        .select("id,signal_type,measure_id,pdsa_id,status,scope")
         .eq("organization_id", ai.organizationId)
         .in("status", ["open", "investigating", "snoozed", "dismissed"]);
 
-      const key = (s: { signal_type: string; measure_id: string | null; pdsa_id: string | null }) =>
-        `${s.signal_type}|${s.measure_id ?? ""}|${s.pdsa_id ?? ""}`;
+      const key = (s: { signal_type: string; measure_id: string | null; pdsa_id: string | null; scope?: string }) =>
+        `${s.signal_type}|${s.measure_id ?? ""}|${s.pdsa_id ?? ""}|${s.scope ?? ""}`;
       const known = new Set((existing ?? []).map((s) => key(s as never)));
 
       const fresh = signals
@@ -73,6 +82,7 @@ export const refreshMeasureSignals = createServerFn({ method: "POST" })
           pdsa_id: s.pdsa_id,
           signal_type: s.signal_type,
           severity: s.severity,
+          scope: s.scope,
           detection_rule: s.detection_rule,
           underlying_data: s.underlying_data as never,
           detected_at: new Date().toISOString(),
@@ -82,6 +92,14 @@ export const refreshMeasureSignals = createServerFn({ method: "POST" })
       if (fresh.length > 0) {
         await admin.from("measure_signals").insert(fresh);
       }
+
+      await admin.from("ai_audit_log").insert({
+        organization_id: ai.organizationId,
+        user_id: userId,
+        action: "refresh_measure_signals",
+        entity_type: "measure_signals",
+        new_value: { detected: signals.length, created: fresh.length },
+      });
 
       return { ok: true as const, detected: signals.length, created: fresh.length };
     } catch (e) {

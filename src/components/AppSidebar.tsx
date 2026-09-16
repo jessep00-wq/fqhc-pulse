@@ -13,6 +13,8 @@ import {
   FolderArchive,
   ClipboardCheck,
   BookCheck,
+  Blocks,
+  FileText,
 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/Logo";
@@ -56,6 +58,7 @@ const navGroups: {
     label: "Quality Tools",
     items: [
       { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
+      { title: "Barriers", url: "/dashboard/barriers", icon: Blocks },
       { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
       { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
       { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
@@ -66,6 +69,7 @@ const navGroups: {
     items: [
       { title: "HRSA Audit Binder", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
       { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
+      { title: "Executive Summaries", url: "/dashboard/executive-summaries", icon: FileText, badge: "AI" },
     ],
   },
   {

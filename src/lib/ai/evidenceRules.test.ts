@@ -13,7 +13,13 @@ const baseCycle: AuditCycle = {
   baseline_rate: 40,
   target_goal: "70%",
   measurement_plan:
-    "Numerator: recall calls completed. Denominator: patients on the recall list. Process measure: calls per week. Balancing measure: front-desk wait time.",
+    "We will count completed recall calls weekly from the monthly recall list and watch front-desk wait time as a balancing measure.",
+  structured_measures: {
+    numerator: "recall calls completed",
+    denominator: "patients on the recall list",
+    process_measure: "calls completed per week",
+    balancing_measure: "front-desk wait time",
+  },
   prediction: "Assigning a named caller each week will raise completion.",
   intervention_description:
     "One care coordinator works the recall list every Tuesday afternoon for two hours.",
@@ -118,6 +124,15 @@ describe("evidence audit rules", () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(100);
     expect(result.findings.length).toBeGreaterThan(5);
+  });
+
+  it("flags missing structured numerator, denominator, process or balancing measure", () => {
+    const result = runEvidenceRules(
+      input({ structured_measures: { numerator: null, denominator: "", process_measure: null, balancing_measure: "" } }),
+    );
+    expect(types(result)).toContain("missing_numerator_denominator");
+    expect(types(result)).toContain("missing_process_measure");
+    expect(types(result)).toContain("missing_balancing_measure");
   });
 
   it("is deterministic across repeated runs", () => {

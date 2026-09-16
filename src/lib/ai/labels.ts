@@ -59,4 +59,8 @@ export const SIGNAL_TYPE_LABEL: Record<string, string> = {
   repeated_barrier: "Repeated barrier detected",
   complete_without_results: "Action marked complete without documented results",
   deadline_approaching: "Reporting deadline approaching",
+  barrier_no_owner: "Barrier has no assigned owner",
+  barrier_no_mitigation_cycle: "Barrier is not linked to a mitigation cycle",
+  measure_stalled_cycles: "Measure has multiple stalled cycles",
+  site_cycles_no_owner: "Site has cycles without owners",
 };
