@@ -44,7 +44,17 @@ serve(async (req) => {
       .eq("id", user.id)
       .maybeSingle();
     const orgId = profileRow?.organization_id as string | null | undefined;
-    if (orgId) {
+
+    // Founder admins / internal support bypass the subscription gate.
+    const { data: roleRows } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id);
+    const roles = (roleRows ?? []).map((r: { role: string }) => r.role);
+    const bypassBilling =
+      roles.includes("founder_admin") || roles.includes("internal_support");
+
+    if (orgId && !bypassBilling) {
       const { data: status } = await supabase.rpc("org_access_status", { _org_id: orgId });
       if (status === "locked") {
         return new Response(
