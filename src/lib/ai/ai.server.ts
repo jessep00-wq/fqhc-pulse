@@ -28,7 +28,8 @@ export interface AiContext {
 }
 
 async function getOrgDailyCap(
-  supabaseAdmin: SupabaseClient<Database, "public", never>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  supabaseAdmin: SupabaseClient<any, any, any>,
   organizationId: string,
 ): Promise<number> {
   const { data } = await supabaseAdmin
