@@ -15,5 +15,10 @@ export default defineConfig({
   },
   vite: {
     plugins: [mcpPlugin()],
+    // Component/hook tests render React, so they need a DOM environment.
+    test: {
+      environment: "jsdom",
+      environmentMatchGlobs: [["src/lib/**", "node"]],
+    },
   },
 });
