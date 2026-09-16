@@ -139,7 +139,6 @@ export default function BarriersPage() {
                     {b.category && <Badge variant="secondary">{b.category}</Badge>}
                     {b.affected_measure_id && <Badge variant="outline">{b.affected_measure_id}</Badge>}
                     {b.affected_site?.name && <Badge variant="outline">{b.affected_site.name}</Badge>}
-                    {b.owner?.full_name && <span className="text-muted-foreground">Owner: {b.owner.full_name}</span>}
                   </div>
                   <p className="text-xs text-muted-foreground">First seen: {b.first_seen}</p>
                 </CardContent>
