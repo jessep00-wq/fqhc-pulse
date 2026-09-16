@@ -13,7 +13,13 @@ const baseCycle: AuditCycle = {
   baseline_rate: 40,
   target_goal: "70%",
   measurement_plan:
-    "Numerator: recall calls completed. Denominator: patients on the recall list. Process measure: calls per week. Balancing measure: front-desk wait time.",
+    "We will count completed recall calls weekly from the monthly recall list and watch front-desk wait time as a balancing measure.",
+  structured_measures: {
+    numerator: "recall calls completed",
+    denominator: "patients on the recall list",
+    process_measure: "calls completed per week",
+    balancing_measure: "front-desk wait time",
+  },
   prediction: "Assigning a named caller each week will raise completion.",
   intervention_description:
     "One care coordinator works the recall list every Tuesday afternoon for two hours.",
