@@ -16,6 +16,13 @@ export type EvidenceState =
   | "user_provided"
   | "unsupported_draft";
 
+export interface StructuredMeasures {
+  numerator?: string | null;
+  denominator?: string | null;
+  process_measure?: string | null;
+  balancing_measure?: string | null;
+}
+
 export interface AuditCycle {
   id: string;
   title?: string | null;
@@ -28,6 +35,7 @@ export interface AuditCycle {
   baseline_rate?: number | null;
   target_goal?: string | null;
   measurement_plan?: string | null;
+  structured_measures?: StructuredMeasures | null;
   prediction?: string | null;
   predicted_outcome?: string | null;
   intervention_description?: string | null;
