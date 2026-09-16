@@ -57,6 +57,7 @@ const navGroups: {
     label: "Quality Tools",
     items: [
       { title: "PDSA Lab", url: "/dashboard/pdsa-lab", icon: FlaskConical, accent: true },
+      { title: "Barriers", url: "/dashboard/barriers", icon: Blocks },
       { title: "Playbook Library", url: "/dashboard/playbooks", icon: BookOpen },
       { title: "AI Assistant", url: "/dashboard/ai-assistant", icon: Bot },
       { title: "AI Governance", url: "/dashboard/ai-governance", icon: ShieldCheck, badge: "NIST" },
