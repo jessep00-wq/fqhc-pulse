@@ -95,8 +95,7 @@ export function ActionCopilotDialog({
     savePdsaSeed({
       title: option.title,
       rootCause: option.rationale ?? "",
-      aimStatement: "",
-      measurementPlan: [
+      aim: [
         option.proposed_process_measure
           ? `Process measure: ${option.proposed_process_measure}`
           : "",
@@ -107,6 +106,7 @@ export function ActionCopilotDialog({
       ]
         .filter(Boolean)
         .join("\n"),
+      source: "ai",
     });
     toast.success("Draft started — review and save it to create the cycle");
     onOpenChange(false);
@@ -142,7 +142,7 @@ export function ActionCopilotDialog({
               {phiHits.length > 0 && (
                 <p className="text-xs text-destructive">
                   This looks like it may contain patient-identifying information (
-                  {phiHits.join(", ")}). Remove it before continuing.
+                  {phiHits.map((h) => h.label).join(", ")}). Remove it before continuing.
                 </p>
               )}
             </div>

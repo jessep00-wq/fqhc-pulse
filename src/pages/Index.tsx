@@ -25,6 +25,8 @@ import {
 } from "recharts";
 import SPCChart from "@/components/SPCChart";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { MeasureSentinelSection } from "@/components/ai/MeasureSentinelSection";
+
 import { EmptyState } from "@/components/EmptyState";
 import { JargonTooltip } from "@/components/JargonTooltip";
 import { BoardReportDialog } from "@/components/BoardReportDialog";
@@ -389,7 +391,10 @@ export default function Dashboard() {
 
         <AttentionStrip items={attentionItems} />
 
+        <MeasureSentinelSection />
+
         <OnboardingChecklist />
+
 
         {/* KPI ROW */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
