@@ -124,7 +124,6 @@ export function BarriersPanel({ cycleId, measureId, siteId, readonly }: Barriers
                     </div>
                     {b.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{b.description}</p>}
                     <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-                      {b.owner?.full_name && <span>Owner: {b.owner.full_name}</span>}
                       {b.affected_site?.name && <span>Site: {b.affected_site.name}</span>}
                     </div>
                   </div>
