@@ -48,14 +48,14 @@ export const getBarrier = createServerFn({ method: "GET" })
     const orgId = profile?.organization_id as string | null;
     if (!orgId) return null;
 
-    const { data, error } = await supabase
+    const { data: row, error } = await supabase
       .from("barriers")
       .select("*")
       .eq("id", data.id)
       .eq("organization_id", orgId)
       .maybeSingle();
     if (error) throw error;
-    return data as unknown | null;
+    return row;
   });
 
 export const saveBarrier = createServerFn({ method: "POST" })
