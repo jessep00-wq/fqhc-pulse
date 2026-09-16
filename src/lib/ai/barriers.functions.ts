@@ -88,7 +88,7 @@ export const saveBarrier = createServerFn({ method: "POST" })
         .select()
         .single();
       if (error) throw error;
-      return updated as unknown;
+      return updated;
     }
 
     const { data: inserted, error } = await supabase
@@ -97,7 +97,7 @@ export const saveBarrier = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw error;
-    return inserted as unknown;
+    return inserted;
   });
 
 export const deleteBarrier = createServerFn({ method: "POST" })
