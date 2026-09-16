@@ -27,7 +27,6 @@ interface Barrier {
   owner_user_id: string | null;
   related_pdsa_ids: string[] | null;
   affected_site?: { name: string } | null;
-  owner?: { full_name: string } | null;
 }
 
 const STATUS_META = {
