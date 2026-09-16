@@ -17,7 +17,8 @@ describe("sentinel SPC helpers", () => {
   });
 
   it("detects a point beyond three sigma", () => {
-    expect(detectSpcSignal([50, 51, 49, 50, 52, 48, 51, 49, 5])).toBeTruthy();
+    const stable = Array.from({ length: 20 }, (_, i) => 50 + (i % 2 === 0 ? 1 : -1));
+    expect(detectSpcSignal([...stable, 5])).toBeTruthy();
   });
 
   it("detects a sustained run on one side of the mean", () => {
