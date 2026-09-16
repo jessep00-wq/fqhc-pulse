@@ -126,6 +126,15 @@ describe("evidence audit rules", () => {
     expect(result.findings.length).toBeGreaterThan(5);
   });
 
+  it("flags missing structured numerator, denominator, process or balancing measure", () => {
+    const result = runEvidenceRules(
+      input({ structured_measures: { numerator: null, denominator: "", process_measure: null, balancing_measure: "" } }),
+    );
+    expect(types(result)).toContain("missing_numerator_denominator");
+    expect(types(result)).toContain("missing_process_measure");
+    expect(types(result)).toContain("missing_balancing_measure");
+  });
+
   it("is deterministic across repeated runs", () => {
     expect(types(runEvidenceRules(input()))).toEqual(types(runEvidenceRules(input())));
   });
