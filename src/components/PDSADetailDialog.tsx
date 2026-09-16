@@ -946,6 +946,10 @@ export default function PDSADetailDialog({
             <EvidencePanel cycleId={cycle.id} organizationId={cycle.organization_id} />
           </TabsContent>
 
+          {/* BARRIERS TAB */}
+          <TabsContent value="barriers" className="mt-4 space-y-4">
+            <BarriersPanel cycleId={cycle.id} measureId={cycle.uds_measure} siteId={cycle.site_id} />
+          </TabsContent>
 
           {/* CHAIN TAB */}
           <TabsContent value="chain" className="mt-4">
