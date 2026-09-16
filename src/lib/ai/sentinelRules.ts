@@ -37,12 +37,25 @@ export interface SentinelTrendPoint {
   site_id: string | null;
 }
 
+export interface SentinelBarrier {
+  id: string;
+  title: string;
+  affected_measure_id: string | null;
+  affected_site_id: string | null;
+  related_pdsa_ids: string[] | null;
+  status: string;
+  owner_user_id: string | null;
+  first_seen: string;
+  created_at: string;
+}
+
 export interface SentinelSignal {
   signal_type: string;
   severity: FindingSeverity;
   measure_id: string | null;
   pdsa_id: string | null;
   site_id: string | null;
+  scope: "single_pdsa" | "measure" | "site" | "organization";
   detection_rule: string;
   underlying_data: Record<string, unknown>;
   detected_at: string;
@@ -99,6 +112,7 @@ export function detectSentinelSignals(
   cycles: SentinelCycle[],
   tasks: SentinelTask[],
   trends: SentinelTrendPoint[],
+  barriers: SentinelBarrier[],
   options: SentinelOptions = {},
 ): SentinelSignal[] {
   const now = options.now ?? new Date();
@@ -114,9 +128,13 @@ export function detectSentinelSignals(
     byMeasure.set(t.measure_id, list);
   }
 
-  const measuresWithOpenCycle = new Set(
-    cycles.filter((c) => isOpen(c.status)).map((c) => c.uds_measure).filter(Boolean) as string[],
-  );
+  const openCyclesByMeasure = new Map<string, SentinelCycle[]>();
+  for (const c of cycles) {
+    if (!isOpen(c.status) || !c.uds_measure) continue;
+    const list = openCyclesByMeasure.get(c.uds_measure) ?? [];
+    list.push(c);
+    openCyclesByMeasure.set(c.uds_measure, list);
+  }
 
   for (const [measure_id, points] of byMeasure) {
     const ordered = [...points].sort((a, b) => a.month.localeCompare(b.month));
@@ -130,6 +148,7 @@ export function detectSentinelSignals(
         measure_id,
         pdsa_id: null,
         site_id: null,
+        scope: "measure",
         detection_rule: `SPC rule: ${spc.replace(/_/g, " ")}.`,
         underlying_data: { rule: spc, points: ordered.slice(-12) },
         detected_at,
@@ -137,30 +156,29 @@ export function detectSentinelSignals(
     }
 
     const recent = values.slice(-3);
-    if (
-      recent.length === 3 &&
-      recent[0] > recent[1] &&
-      recent[1] > recent[2]
-    ) {
+    if (recent.length === 3 && recent[0] > recent[1] && recent[1] > recent[2]) {
       out.push({
         signal_type: "measure_declining",
         severity: "medium",
         measure_id,
         pdsa_id: null,
         site_id: null,
+        scope: "measure",
         detection_rule: "The measure declined in each of the last three reporting periods.",
         underlying_data: { points: ordered.slice(-3) },
         detected_at,
       });
     }
 
-    if (!measuresWithOpenCycle.has(measure_id)) {
+    const openForMeasure = openCyclesByMeasure.get(measure_id) ?? [];
+    if (openForMeasure.length === 0) {
       out.push({
         signal_type: "measure_no_cycle",
         severity: "low",
         measure_id,
         pdsa_id: null,
         site_id: null,
+        scope: "measure",
         detection_rule: "The measure has reported data but no open improvement cycle.",
         underlying_data: { latest: ordered[ordered.length - 1] ?? null },
         detected_at,
@@ -191,6 +209,7 @@ export function detectSentinelSignals(
         ...base,
         signal_type: "cycle_stalled",
         severity: "medium",
+        scope: "single_pdsa" as const,
         detection_rule: `No recorded activity on this cycle for ${days(new Date(c.updated_at), now)} days (threshold ${stalledAfterDays}).`,
         underlying_data: { last_updated: c.updated_at, threshold_days: stalledAfterDays },
       });
@@ -206,6 +225,7 @@ export function detectSentinelSignals(
         ...base,
         signal_type: "study_overdue",
         severity: "high",
+        scope: "single_pdsa" as const,
         detection_rule:
           "The target end date has passed and no study results are recorded.",
         underlying_data: { target_end_date: c.target_end_date },
@@ -224,6 +244,7 @@ export function detectSentinelSignals(
         ...base,
         signal_type: "overdue_tasks",
         severity: overdue.length > 2 ? "high" : "medium",
+        scope: "single_pdsa" as const,
         detection_rule: `${overdue.length} open task(s) on this cycle are past their due date.`,
         underlying_data: { overdue_count: overdue.length },
       });
@@ -234,6 +255,7 @@ export function detectSentinelSignals(
         ...base,
         signal_type: "cycle_no_owner",
         severity: "high",
+        scope: "single_pdsa" as const,
         detection_rule: "The cycle has no owner and no assigned staff.",
         underlying_data: {},
       });
@@ -244,6 +266,7 @@ export function detectSentinelSignals(
         ...base,
         signal_type: "cycle_missing_evidence",
         severity: "medium",
+        scope: "single_pdsa" as const,
         detection_rule: "No evidence files are attached to this cycle.",
         underlying_data: { evidence_count: 0 },
       });
@@ -257,6 +280,7 @@ export function detectSentinelSignals(
         ...base,
         signal_type: "complete_without_results",
         severity: "high",
+        scope: "single_pdsa" as const,
         detection_rule:
           "Every task on this cycle is complete but no results are documented.",
         underlying_data: { task_count: cTasks.length },
@@ -264,42 +288,146 @@ export function detectSentinelSignals(
     }
   }
 
-  // ---- repeated barriers ------------------------------------------------
-  // MeasureWise has no barrier record type; recurring wording in the recorded
-  // problem statements is used as a proxy and labelled as such.
-  const phraseCount = new Map<string, { cycles: string[]; sites: Set<string> }>();
-  for (const c of cycles) {
-    const text = (c.root_cause || "").toLowerCase();
-    if (!text) continue;
-    for (const phrase of [
-      "staffing",
-      "no-show",
-      "transportation",
-      "documentation",
-      "referral",
-      "scheduling",
-      "interpreter",
-      "ehr",
-    ]) {
-      if (!text.includes(phrase)) continue;
-      const entry = phraseCount.get(phrase) ?? { cycles: [], sites: new Set<string>() };
-      entry.cycles.push(c.id);
-      if (c.site_id) entry.sites.add(c.site_id);
-      phraseCount.set(phrase, entry);
+  // ---- barrier signals (now using real barrier records) -----------------
+  const openBarriers = barriers.filter((b) => b.status === "open");
+  const barriersByMeasure = new Map<string, SentinelBarrier[]>();
+  const barriersBySite = new Map<string, SentinelBarrier[]>();
+  for (const b of openBarriers) {
+    if (b.affected_measure_id) {
+      const list = barriersByMeasure.get(b.affected_measure_id) ?? [];
+      list.push(b);
+      barriersByMeasure.set(b.affected_measure_id, list);
+    }
+    if (b.affected_site_id) {
+      const list = barriersBySite.get(b.affected_site_id) ?? [];
+      list.push(b);
+      barriersBySite.set(b.affected_site_id, list);
     }
   }
-  for (const [phrase, entry] of phraseCount) {
-    if (entry.cycles.length < 3) continue;
-    out.push({
-      signal_type: "repeated_barrier",
-      severity: entry.sites.size > 1 ? "high" : "medium",
-      measure_id: null,
-      pdsa_id: null,
-      site_id: null,
-      detection_rule: `"${phrase}" appears in the recorded problem statement of ${entry.cycles.length} cycles${entry.sites.size > 1 ? ` across ${entry.sites.size} sites` : ""}.`,
-      underlying_data: { phrase, cycle_ids: entry.cycles, site_count: entry.sites.size },
-      detected_at,
-    });
+
+  for (const [measure_id, list] of barriersByMeasure) {
+    if (list.length >= 2) {
+      out.push({
+        signal_type: "repeated_barrier",
+        severity: "high",
+        measure_id,
+        pdsa_id: null,
+        site_id: null,
+        scope: "measure",
+        detection_rule: `${list.length} unresolved barriers are linked to this measure.`,
+        underlying_data: { barrier_ids: list.map((b) => b.id) },
+        detected_at,
+      });
+    }
+  }
+
+  for (const [site_id, list] of barriersBySite) {
+    if (list.length >= 2) {
+      out.push({
+        signal_type: "repeated_barrier",
+        severity: "medium",
+        measure_id: null,
+        pdsa_id: null,
+        site_id,
+        scope: "site",
+        detection_rule: `${list.length} unresolved barriers are linked to this site.`,
+        underlying_data: { barrier_ids: list.map((b) => b.id) },
+        detected_at,
+      });
+    }
+  }
+
+  for (const b of openBarriers) {
+    if (!b.owner_user_id) {
+      out.push({
+        signal_type: "barrier_no_owner",
+        severity: "medium",
+        measure_id: b.affected_measure_id,
+        pdsa_id: null,
+        site_id: b.affected_site_id,
+        scope: b.affected_measure_id ? "measure" : b.affected_site_id ? "site" : "organization",
+        detection_rule: "An unresolved barrier has no assigned owner.",
+        underlying_data: { barrier_id: b.id, barrier_title: b.title },
+        detected_at,
+      });
+    }
+    const linked = b.related_pdsa_ids?.length ?? 0;
+    if (linked === 0) {
+      out.push({
+        signal_type: "barrier_no_mitigation_cycle",
+        severity: "medium",
+        measure_id: b.affected_measure_id,
+        pdsa_id: null,
+        site_id: b.affected_site_id,
+        scope: b.affected_measure_id ? "measure" : b.affected_site_id ? "site" : "organization",
+        detection_rule: "An unresolved barrier is not linked to any improvement cycle.",
+        underlying_data: { barrier_id: b.id, barrier_title: b.title },
+        detected_at,
+      });
+    }
+  }
+
+  // ---- cross-cycle pattern detection ------------------------------------
+  const stalledCutoff = new Date(now);
+  stalledCutoff.setDate(stalledCutoff.getDate() - stalledAfterDays);
+  const yearAgo = new Date(now);
+  yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+
+  const stalledByMeasure = new Map<string, SentinelCycle[]>();
+  const noOwnerBySite = new Map<string, SentinelCycle[]>();
+
+  for (const c of cycles) {
+    if (!c.uds_measure) continue;
+    const updated = c.updated_at ? new Date(c.updated_at) : null;
+    const created = c.start_date ? new Date(c.start_date) : null;
+    const inWindow =
+      (updated && updated >= yearAgo) || (created && created >= yearAgo) || isOpen(c.status);
+    if (!inWindow) continue;
+
+    const isStalled = updated ? updated < stalledCutoff : isOpen(c.status);
+    if (isStalled) {
+      const list = stalledByMeasure.get(c.uds_measure) ?? [];
+      list.push(c);
+      stalledByMeasure.set(c.uds_measure, list);
+    }
+
+    if (!c.owner_user_id && (!c.assigned_staff || c.assigned_staff.length === 0) && c.site_id) {
+      const list = noOwnerBySite.get(c.site_id) ?? [];
+      list.push(c);
+      noOwnerBySite.set(c.site_id, list);
+    }
+  }
+
+  for (const [measure_id, list] of stalledByMeasure) {
+    if (list.length >= 2) {
+      out.push({
+        signal_type: "measure_stalled_cycles",
+        severity: "high",
+        measure_id,
+        pdsa_id: null,
+        site_id: null,
+        scope: "measure",
+        detection_rule: `${list.length} improvement cycles for this measure have stalled within the last year.`,
+        underlying_data: { cycle_ids: list.map((c) => c.id) },
+        detected_at,
+      });
+    }
+  }
+
+  for (const [site_id, list] of noOwnerBySite) {
+    if (list.length >= 3) {
+      out.push({
+        signal_type: "site_cycles_no_owner",
+        severity: "high",
+        measure_id: null,
+        pdsa_id: null,
+        site_id,
+        scope: "site",
+        detection_rule: `${list.length} cycles at this site have no accountable owner.`,
+        underlying_data: { cycle_ids: list.map((c) => c.id) },
+        detected_at,
+      });
+    }
   }
 
   return out;
