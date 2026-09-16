@@ -71,7 +71,7 @@ export const runEvidenceAudit = createServerFn({ method: "POST" })
       // RLS-scoped read: a cycle in another organization returns nothing.
       const { data: cycle } = await supabase
         .from("pdsa_cycles")
-        .select("*")
+        .select("*, structured_measures")
         .eq("id", data.cycleId)
         .is("deleted_at", null)
         .maybeSingle();
