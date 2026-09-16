@@ -389,7 +389,10 @@ export default function Dashboard() {
 
         <AttentionStrip items={attentionItems} />
 
+        <MeasureSentinelSection />
+
         <OnboardingChecklist />
+
 
         {/* KPI ROW */}
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
