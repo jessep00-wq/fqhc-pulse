@@ -41,6 +41,7 @@ import { Route as DashboardAiAssistantRouteImport } from './routes/dashboard/ai-
 import { Route as DashboardAiGovernanceRouteImport } from './routes/dashboard/ai-governance'
 import { Route as DashboardAuditBinderRouteImport } from './routes/dashboard/audit-binder'
 import { Route as DashboardBarriersRouteImport } from './routes/dashboard/barriers'
+import { Route as DashboardExecutiveSummariesRouteImport } from './routes/dashboard/executive-summaries'
 import { Route as DashboardNetworkRouteImport } from './routes/dashboard/network'
 import { Route as DashboardPdsaLabRouteImport } from './routes/dashboard/pdsa-lab'
 import { Route as DashboardPlaybooksRouteImport } from './routes/dashboard/playbooks'
@@ -230,6 +231,12 @@ const DashboardBarriersRoute = DashboardBarriersRouteImport.update({
   path: '/barriers',
   getParentRoute: () => DashboardRouteRoute,
 } as any)
+const DashboardExecutiveSummariesRoute =
+  DashboardExecutiveSummariesRouteImport.update({
+    id: '/executive-summaries',
+    path: '/executive-summaries',
+    getParentRoute: () => DashboardRouteRoute,
+  } as any)
 const DashboardNetworkRoute = DashboardNetworkRouteImport.update({
   id: '/network',
   path: '/network',
@@ -403,6 +410,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/ai-governance': typeof DashboardAiGovernanceRoute
   '/dashboard/audit-binder': typeof DashboardAuditBinderRoute
   '/dashboard/barriers': typeof DashboardBarriersRoute
+  '/dashboard/executive-summaries': typeof DashboardExecutiveSummariesRoute
   '/dashboard/network': typeof DashboardNetworkRoute
   '/dashboard/pdsa-lab': typeof DashboardPdsaLabRoute
   '/dashboard/playbooks': typeof DashboardPlaybooksRoute
@@ -463,6 +471,7 @@ export interface FileRoutesByTo {
   '/dashboard/ai-governance': typeof DashboardAiGovernanceRoute
   '/dashboard/audit-binder': typeof DashboardAuditBinderRoute
   '/dashboard/barriers': typeof DashboardBarriersRoute
+  '/dashboard/executive-summaries': typeof DashboardExecutiveSummariesRoute
   '/dashboard/network': typeof DashboardNetworkRoute
   '/dashboard/pdsa-lab': typeof DashboardPdsaLabRoute
   '/dashboard/playbooks': typeof DashboardPlaybooksRoute
@@ -526,6 +535,7 @@ export interface FileRoutesById {
   '/dashboard/ai-governance': typeof DashboardAiGovernanceRoute
   '/dashboard/audit-binder': typeof DashboardAuditBinderRoute
   '/dashboard/barriers': typeof DashboardBarriersRoute
+  '/dashboard/executive-summaries': typeof DashboardExecutiveSummariesRoute
   '/dashboard/network': typeof DashboardNetworkRoute
   '/dashboard/pdsa-lab': typeof DashboardPdsaLabRoute
   '/dashboard/playbooks': typeof DashboardPlaybooksRoute
@@ -590,6 +600,7 @@ export interface FileRouteTypes {
     | '/dashboard/ai-governance'
     | '/dashboard/audit-binder'
     | '/dashboard/barriers'
+    | '/dashboard/executive-summaries'
     | '/dashboard/network'
     | '/dashboard/pdsa-lab'
     | '/dashboard/playbooks'
@@ -650,6 +661,7 @@ export interface FileRouteTypes {
     | '/dashboard/ai-governance'
     | '/dashboard/audit-binder'
     | '/dashboard/barriers'
+    | '/dashboard/executive-summaries'
     | '/dashboard/network'
     | '/dashboard/pdsa-lab'
     | '/dashboard/playbooks'
@@ -712,6 +724,7 @@ export interface FileRouteTypes {
     | '/dashboard/ai-governance'
     | '/dashboard/audit-binder'
     | '/dashboard/barriers'
+    | '/dashboard/executive-summaries'
     | '/dashboard/network'
     | '/dashboard/pdsa-lab'
     | '/dashboard/playbooks'
@@ -1009,6 +1022,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardBarriersRouteImport
       parentRoute: typeof DashboardRouteRoute
     }
+    '/dashboard/executive-summaries': {
+      id: '/dashboard/executive-summaries'
+      path: '/executive-summaries'
+      fullPath: '/dashboard/executive-summaries'
+      preLoaderRoute: typeof DashboardExecutiveSummariesRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
     '/dashboard/network': {
       id: '/dashboard/network'
       path: '/network'
@@ -1244,6 +1264,7 @@ interface DashboardRouteRouteChildren {
   DashboardAiGovernanceRoute: typeof DashboardAiGovernanceRoute
   DashboardAuditBinderRoute: typeof DashboardAuditBinderRoute
   DashboardBarriersRoute: typeof DashboardBarriersRoute
+  DashboardExecutiveSummariesRoute: typeof DashboardExecutiveSummariesRoute
   DashboardNetworkRoute: typeof DashboardNetworkRoute
   DashboardPdsaLabRoute: typeof DashboardPdsaLabRoute
   DashboardPlaybooksRoute: typeof DashboardPlaybooksRoute
@@ -1261,6 +1282,7 @@ const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
   DashboardAiGovernanceRoute: DashboardAiGovernanceRoute,
   DashboardAuditBinderRoute: DashboardAuditBinderRoute,
   DashboardBarriersRoute: DashboardBarriersRoute,
+  DashboardExecutiveSummariesRoute: DashboardExecutiveSummariesRoute,
   DashboardNetworkRoute: DashboardNetworkRoute,
   DashboardPdsaLabRoute: DashboardPdsaLabRoute,
   DashboardPlaybooksRoute: DashboardPlaybooksRoute,

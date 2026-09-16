@@ -68,6 +68,7 @@ const navGroups: {
     items: [
       { title: "HRSA Audit Binder", url: "/dashboard/audit-binder", icon: BookCheck, badge: "OSV" },
       { title: "QI/QA Reports", url: "/dashboard/qi-reports", icon: ClipboardCheck, badge: "Quarterly" },
+      { title: "Executive Summaries", url: "/dashboard/executive-summaries", icon: FileText, badge: "AI" },
     ],
   },
   {
