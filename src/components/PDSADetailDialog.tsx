@@ -69,6 +69,7 @@ interface DBCycle {
   analysis_summary?: string | null;
   decision?: string | null;
   template_id?: string | null;
+  site_id?: string | null;
   owner_user_id?: string | null;
   start_date?: string | null;
   baseline_rate?: number | null;
