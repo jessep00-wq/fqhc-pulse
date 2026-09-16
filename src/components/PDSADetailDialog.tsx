@@ -85,8 +85,7 @@ interface DBCycle {
   doc_version?: number | null;
   updated_at?: string | null;
   deleted_at?: string | null;
-  
-
+  structured_measures?: Record<string, string | null> | null;
 }
 
 type TaskStatus = "pending" | "in_progress" | "completed";
