@@ -29,6 +29,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
 import { Route as AdminSplatRouteImport } from './routes/admin/$'
 import { Route as AdminAdoptionRouteImport } from './routes/admin/adoption'
+import { Route as AdminAiRouteImport } from './routes/admin/ai'
 import { Route as AdminBillingRouteImport } from './routes/admin/billing'
 import { Route as AdminEmailRouteImport } from './routes/admin/email'
 import { Route as AdminReadinessRouteImport } from './routes/admin/readiness'
@@ -166,6 +167,11 @@ const AdminSplatRoute = AdminSplatRouteImport.update({
 const AdminAdoptionRoute = AdminAdoptionRouteImport.update({
   id: '/adoption',
   path: '/adoption',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminAiRoute = AdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminBillingRoute = AdminBillingRouteImport.update({
@@ -380,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/adoption': typeof AdminAdoptionRoute
+  '/admin/ai': typeof AdminAiRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/email': typeof AdminEmailRoute
   '/admin/readiness': typeof AdminReadinessRoute
@@ -438,6 +445,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/adoption': typeof AdminAdoptionRoute
+  '/admin/ai': typeof AdminAiRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/email': typeof AdminEmailRoute
   '/admin/readiness': typeof AdminReadinessRoute
@@ -499,6 +507,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/admin/$': typeof AdminSplatRoute
   '/admin/adoption': typeof AdminAdoptionRoute
+  '/admin/ai': typeof AdminAiRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/email': typeof AdminEmailRoute
   '/admin/readiness': typeof AdminReadinessRoute
@@ -561,6 +570,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/adoption'
+    | '/admin/ai'
     | '/admin/billing'
     | '/admin/email'
     | '/admin/readiness'
@@ -619,6 +629,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/adoption'
+    | '/admin/ai'
     | '/admin/billing'
     | '/admin/email'
     | '/admin/readiness'
@@ -679,6 +690,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin/$'
     | '/admin/adoption'
+    | '/admin/ai'
     | '/admin/billing'
     | '/admin/email'
     | '/admin/readiness'
@@ -899,6 +911,13 @@ declare module '@tanstack/react-router' {
       path: '/adoption'
       fullPath: '/admin/adoption'
       preLoaderRoute: typeof AdminAdoptionRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/ai': {
+      id: '/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AdminAiRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/billing': {
@@ -1173,6 +1192,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteRouteChildren {
   AdminSplatRoute: typeof AdminSplatRoute
   AdminAdoptionRoute: typeof AdminAdoptionRoute
+  AdminAiRoute: typeof AdminAiRoute
   AdminBillingRoute: typeof AdminBillingRoute
   AdminEmailRoute: typeof AdminEmailRoute
   AdminReadinessRoute: typeof AdminReadinessRoute
@@ -1185,6 +1205,7 @@ interface AdminRouteRouteChildren {
 const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminSplatRoute: AdminSplatRoute,
   AdminAdoptionRoute: AdminAdoptionRoute,
+  AdminAiRoute: AdminAiRoute,
   AdminBillingRoute: AdminBillingRoute,
   AdminEmailRoute: AdminEmailRoute,
   AdminReadinessRoute: AdminReadinessRoute,

@@ -39,6 +39,7 @@ const content = [
 
 const tools = [
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
+  { title: "AI Activity", url: "/admin/ai", icon: Shield },
   { title: "Email Health", url: "/admin/email", icon: Mail },
 ];
 
