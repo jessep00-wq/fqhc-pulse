@@ -256,7 +256,7 @@ export const runEvidenceAudit = createServerFn({ method: "POST" })
           status: narrativeReview ? "succeeded" : "degraded",
           completed_at: new Date().toISOString(),
           latency_ms: Date.now() - startedAt,
-          token_usage: (usage as Record<string, unknown>) ?? {},
+          token_usage: (usage ?? {}) as never,
           error_code: errorCode,
         })
         .eq("id", runId ?? "");
