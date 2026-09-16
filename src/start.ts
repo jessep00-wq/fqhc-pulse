@@ -27,4 +27,7 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   requestMiddleware: [errorMiddleware, csrfMiddleware],
+  // Attaches the signed-in user's bearer token to every server-function call so
+  // `requireSupabaseAuth` can verify the caller server-side.
+  functionMiddleware: [attachSupabaseAuth],
 }));
