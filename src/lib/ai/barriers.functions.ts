@@ -127,9 +127,9 @@ export const backfillBarriers = createServerFn({ method: "POST" })
     if (!role) {
       throw new Error("Only founder administrators can run the backfill.");
     }
-    const { data, error } = await supabase.rpc("backfill_barriers_from_cycles", {
+    const { data: count, error } = await supabase.rpc("backfill_barriers_from_cycles", {
       _org_id: data.organizationId,
     });
     if (error) throw error;
-    return { inserted: Number(data ?? 0) };
+    return { inserted: Number(count ?? 0) };
   });
