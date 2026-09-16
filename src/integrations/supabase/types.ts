@@ -101,6 +101,7 @@ export type Database = {
           new_value: Json | null
           organization_id: string
           previous_value: Json | null
+          safety_event_type: string | null
           user_id: string | null
         }
         Insert: {
@@ -112,6 +113,7 @@ export type Database = {
           new_value?: Json | null
           organization_id: string
           previous_value?: Json | null
+          safety_event_type?: string | null
           user_id?: string | null
         }
         Update: {
@@ -123,11 +125,75 @@ export type Database = {
           new_value?: Json | null
           organization_id?: string
           previous_value?: Json | null
+          safety_event_type?: string | null
           user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "ai_audit_log_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_executive_summaries: {
+        Row: {
+          ai_run_id: string | null
+          created_at: string
+          evidence_state: string
+          generated_by: string | null
+          highlights: string[]
+          id: string
+          organization_id: string
+          period_end: string | null
+          period_start: string | null
+          risks: string[]
+          source_references: Json
+          summary: string
+          updated_at: string
+        }
+        Insert: {
+          ai_run_id?: string | null
+          created_at?: string
+          evidence_state?: string
+          generated_by?: string | null
+          highlights?: string[]
+          id?: string
+          organization_id: string
+          period_end?: string | null
+          period_start?: string | null
+          risks?: string[]
+          source_references?: Json
+          summary: string
+          updated_at?: string
+        }
+        Update: {
+          ai_run_id?: string | null
+          created_at?: string
+          evidence_state?: string
+          generated_by?: string | null
+          highlights?: string[]
+          id?: string
+          organization_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          risks?: string[]
+          source_references?: Json
+          summary?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_executive_summaries_ai_run_id_fkey"
+            columns: ["ai_run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_executive_summaries_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -347,6 +413,44 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_org_limits: {
+        Row: {
+          created_at: string
+          daily_run_cap: number
+          hard_cap: boolean
+          id: string
+          organization_id: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          daily_run_cap?: number
+          hard_cap?: boolean
+          id?: string
+          organization_id: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          daily_run_cap?: number
+          hard_cap?: boolean
+          id?: string
+          organization_id?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_org_limits_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_policies: {
         Row: {
           activated_at: string | null
@@ -399,6 +503,48 @@ export type Database = {
           organization_id?: string
           status?: string
           title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      ai_prompt_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          flag_key: string
+          id: string
+          is_active: boolean
+          model_name: string | null
+          model_provider: string | null
+          prompt_text: string
+          system_text: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          flag_key: string
+          id?: string
+          is_active?: boolean
+          model_name?: string | null
+          model_provider?: string | null
+          prompt_text: string
+          system_text?: string | null
+          updated_at?: string
+          version: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          flag_key?: string
+          id?: string
+          is_active?: boolean
+          model_name?: string | null
+          model_provider?: string | null
+          prompt_text?: string
+          system_text?: string | null
           updated_at?: string
           version?: number
         }
@@ -825,6 +971,72 @@ export type Database = {
         }
         Relationships: []
       }
+      barriers: {
+        Row: {
+          affected_measure_id: string | null
+          affected_site_id: string | null
+          category: string | null
+          created_at: string
+          description: string | null
+          detected_by: string | null
+          first_seen: string
+          id: string
+          organization_id: string
+          owner_user_id: string | null
+          related_pdsa_ids: string[] | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          affected_measure_id?: string | null
+          affected_site_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          detected_by?: string | null
+          first_seen?: string
+          id?: string
+          organization_id: string
+          owner_user_id?: string | null
+          related_pdsa_ids?: string[] | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          affected_measure_id?: string | null
+          affected_site_id?: string | null
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          detected_by?: string | null
+          first_seen?: string
+          id?: string
+          organization_id?: string
+          owner_user_id?: string | null
+          related_pdsa_ids?: string[] | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "barriers_affected_site_id_fkey"
+            columns: ["affected_site_id"]
+            isOneToOne: false
+            referencedRelation: "sites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "barriers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       download_log: {
         Row: {
           downloaded_at: string
@@ -1044,6 +1256,7 @@ export type Database = {
           measure_id: string | null
           organization_id: string
           pdsa_id: string | null
+          scope: string
           severity: string
           signal_type: string
           site_id: string | null
@@ -1065,6 +1278,7 @@ export type Database = {
           measure_id?: string | null
           organization_id: string
           pdsa_id?: string | null
+          scope?: string
           severity?: string
           signal_type: string
           site_id?: string | null
@@ -1086,6 +1300,7 @@ export type Database = {
           measure_id?: string | null
           organization_id?: string
           pdsa_id?: string | null
+          scope?: string
           severity?: string
           signal_type?: string
           site_id?: string | null
@@ -1303,6 +1518,7 @@ export type Database = {
           improvement_pct: number | null
           intervention_description: string | null
           measurement_plan: string | null
+          measurement_source: string | null
           next_cycle_decision: string | null
           next_cycle_id: string | null
           opened_at: string | null
@@ -1315,6 +1531,7 @@ export type Database = {
           site_id: string | null
           start_date: string | null
           status: string
+          structured_measures: Json
           study_results: string | null
           target_end_date: string | null
           target_goal: string | null
@@ -1345,6 +1562,7 @@ export type Database = {
           improvement_pct?: number | null
           intervention_description?: string | null
           measurement_plan?: string | null
+          measurement_source?: string | null
           next_cycle_decision?: string | null
           next_cycle_id?: string | null
           opened_at?: string | null
@@ -1357,6 +1575,7 @@ export type Database = {
           site_id?: string | null
           start_date?: string | null
           status?: string
+          structured_measures?: Json
           study_results?: string | null
           target_end_date?: string | null
           target_goal?: string | null
@@ -1387,6 +1606,7 @@ export type Database = {
           improvement_pct?: number | null
           intervention_description?: string | null
           measurement_plan?: string | null
+          measurement_source?: string | null
           next_cycle_decision?: string | null
           next_cycle_id?: string | null
           opened_at?: string | null
@@ -1399,6 +1619,7 @@ export type Database = {
           site_id?: string | null
           start_date?: string | null
           status?: string
+          structured_measures?: Json
           study_results?: string | null
           target_end_date?: string | null
           target_goal?: string | null
@@ -2528,6 +2749,10 @@ export type Database = {
           profile_updated_at: string
           staff_role: string
         }[]
+      }
+      backfill_barriers_from_cycles: {
+        Args: { _org_id: string }
+        Returns: number
       }
       delete_email: {
         Args: { message_id: number; queue_name: string }
