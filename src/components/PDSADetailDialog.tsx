@@ -522,6 +522,7 @@ export default function PDSADetailDialog({
               </span>
               <TabsList className="h-8 bg-muted/60 flex-wrap">
                 <TabsTrigger value="evidence" className="text-xs h-6">Evidence</TabsTrigger>
+                <TabsTrigger value="barriers" className="text-xs h-6">Barriers</TabsTrigger>
                 <TabsTrigger value="chain" className="text-xs h-6">Chain</TabsTrigger>
                 <TabsTrigger value="history" className="text-xs h-6">History</TabsTrigger>
                 <TabsTrigger value="ai-audit" className="text-xs h-6">Evidence Audit</TabsTrigger>
