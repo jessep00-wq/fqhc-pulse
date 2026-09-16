@@ -25,6 +25,7 @@ import { EvidencePanel } from "@/components/pdsa/EvidencePanel";
 import { CycleChain } from "@/components/pdsa/CycleChain";
 import { getPdsaProgress, blockersForCompletion, getEditActivity, STAGE_FOR_FIELD, type PdsaWorkStage } from "@/lib/pdsaProgress";
 import { EvidenceAuditPanel } from "@/components/ai/EvidenceAuditPanel";
+import { BarriersPanel } from "@/components/ai/BarriersPanel";
 import { WorkstreamRibbon } from "@/components/workstream/WorkstreamRibbon";
 import { DownstreamImpactPanel } from "@/components/workstream/DownstreamImpactPanel";
 import { getPdsaWorkstream } from "@/lib/workstream/pdsaWorkstream";
