@@ -25,6 +25,8 @@ import {
 } from "recharts";
 import SPCChart from "@/components/SPCChart";
 import { OnboardingChecklist } from "@/components/OnboardingChecklist";
+import { MeasureSentinelSection } from "@/components/ai/MeasureSentinelSection";
+
 import { EmptyState } from "@/components/EmptyState";
 import { JargonTooltip } from "@/components/JargonTooltip";
 import { BoardReportDialog } from "@/components/BoardReportDialog";
