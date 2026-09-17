@@ -194,3 +194,176 @@
     font-family: "Inter", system-ui, -apple-system, sans-serif;
   }
 }
+
+/* ============================================================================
+ * Just Jessica brand layer — Operations OS
+ *
+ * The Just Jessica palette (plum, coral, ivory, lavender, peach, espresso) is
+ * redefined here on `.jj-ops` rather than on `:root`, so it applies only inside
+ * the Operations OS subtree and MeasureWise keeps its teal system untouched.
+ *
+ * Because the `@theme inline` block above maps every Tailwind colour utility to
+ * `var(--primary)`, `var(--card)` and friends, re-pointing those variables on a
+ * wrapper element re-skins every shadcn component underneath it for free.
+ *
+ * Source: the Just Jessica brand kit, as implemented on justjessica.co.
+ * ==========================================================================*/
+
+.jj-ops {
+  /* Brand colours, kept as named tokens so components can reach for them. */
+  --jj-lavender-haze: #d7c4e8;
+  --jj-lavender: #c7b2d8;
+  --jj-ivory: #faf5ef;
+  --jj-plum: #6b0050;
+  --jj-plum-deep: #7a0057;
+  --jj-espresso: #2a1022;
+  --jj-coral: #ff7a1a;
+  --jj-peach: #f7b196;
+
+  --jj-display: "Anton", "Archivo Black", Impact, system-ui, sans-serif;
+  --jj-serif: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --jj-read: "Newsreader", "Source Serif 4", Georgia, serif;
+  --jj-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Semantic tokens, re-pointed at the brand. Ivory is the page ground and
+     white the card ground: on a dense console the full lavender wash is too
+     loud, so lavender arrives as a backdrop gradient and as accents instead. */
+  --background: var(--jj-ivory);
+  --foreground: var(--jj-espresso);
+  --card: #ffffff;
+  --card-foreground: var(--jj-espresso);
+  --popover: #ffffff;
+  --popover-foreground: var(--jj-espresso);
+
+  --primary: var(--jj-plum);
+  --primary-foreground: var(--jj-ivory);
+  --secondary: #efe6f5;
+  --secondary-foreground: var(--jj-plum);
+  --muted: #f3ecf7;
+  /* Plum at 62% lightness would fail AA as body text, so muted text stays a
+     desaturated espresso: 5.9:1 on ivory. */
+  --muted-foreground: #6c5766;
+
+  /* shadcn treats --accent as the subtle hover surface, so it stays a soft
+     lavender tint. Coral is a deliberate highlight, reached for as
+     var(--jj-coral): it is a fill and an indicator, never light-on-light text
+     (espresso on coral clears AA at 5.6:1; ivory on coral would not). */
+  --accent: #f0e4f6;
+  --accent-foreground: var(--jj-plum);
+
+  --destructive: #b3153c;
+  --destructive-foreground: #ffffff;
+  --border: rgba(107, 0, 80, 0.14);
+  --input: rgba(107, 0, 80, 0.22);
+  --ring: var(--jj-coral);
+
+  --success: #1d6b4f;
+  --success-foreground: #ffffff;
+  --warning: #8a4b06;
+  --warning-foreground: #ffffff;
+  --info: var(--jj-plum);
+  --info-foreground: var(--jj-ivory);
+
+  --radius: 0.875rem;
+
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: var(--jj-body);
+}
+
+/* Venture accent colours, resolved from the `data-accent` attribute so a
+   venture's colour travels with its data rather than being hard-coded in JSX. */
+.jj-ops [data-accent="plum"] {
+  --venture-accent: var(--jj-plum);
+  --venture-ink: var(--jj-ivory);
+}
+.jj-ops [data-accent="coral"] {
+  --venture-accent: var(--jj-coral);
+  --venture-ink: var(--jj-espresso);
+}
+.jj-ops [data-accent="lavender"] {
+  --venture-accent: var(--jj-lavender);
+  --venture-ink: var(--jj-espresso);
+}
+.jj-ops [data-accent="peach"] {
+  --venture-accent: var(--jj-peach);
+  --venture-ink: var(--jj-espresso);
+}
+.jj-ops [data-accent="espresso"] {
+  --venture-accent: var(--jj-espresso);
+  --venture-ink: var(--jj-ivory);
+}
+
+/* The lavender wash: brand atmosphere behind an otherwise calm ivory page. */
+.jj-ops-backdrop {
+  background-color: var(--jj-ivory);
+  background-image:
+    radial-gradient(60% 55% at 12% 0%, rgba(215, 196, 232, 0.55), transparent 70%),
+    radial-gradient(45% 45% at 92% 6%, rgba(247, 177, 150, 0.4), transparent 70%);
+  background-attachment: fixed;
+}
+
+.jj-display {
+  font-family: var(--jj-display);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  font-weight: 400;
+}
+
+.jj-serif {
+  font-family: var(--jj-serif);
+}
+
+.jj-read {
+  font-family: var(--jj-read);
+}
+
+/* Small uppercase section label, borrowed from the editorial layouts. */
+.jj-label {
+  font-family: var(--jj-body);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--muted-foreground);
+}
+
+.jj-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 40px -28px rgba(107, 0, 80, 0.45);
+}
+
+.jj-dark .jj-ops,
+.dark .jj-ops {
+  --background: var(--jj-espresso);
+  --foreground: var(--jj-ivory);
+  --card: #3a1830;
+  --card-foreground: var(--jj-ivory);
+  --popover: #3a1830;
+  --popover-foreground: var(--jj-ivory);
+  --primary: var(--jj-coral);
+  --primary-foreground: var(--jj-espresso);
+  --secondary: #4a1f3c;
+  --secondary-foreground: var(--jj-ivory);
+  --accent: #4a1f3c;
+  --accent-foreground: var(--jj-ivory);
+  --muted: #452038;
+  --muted-foreground: #d8bfd0;
+  --border: rgba(250, 245, 239, 0.14);
+  --input: rgba(250, 245, 239, 0.24);
+  --success: #5ac79b;
+  --success-foreground: var(--jj-espresso);
+  --warning: #f0b45c;
+  --warning-foreground: var(--jj-espresso);
+  --info: var(--jj-lavender);
+  --info-foreground: var(--jj-espresso);
+}
+
+.dark .jj-ops-backdrop {
+  background-color: var(--jj-espresso);
+  background-image:
+    radial-gradient(60% 55% at 12% 0%, rgba(107, 0, 80, 0.55), transparent 70%),
+    radial-gradient(45% 45% at 92% 6%, rgba(255, 122, 26, 0.16), transparent 70%);
+}
