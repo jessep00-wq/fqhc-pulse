@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Mail, RefreshCw, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { trackAnonEvent } from "@/lib/trackEvent";
 
 interface OrderInfo {
   status: string;
@@ -38,6 +39,7 @@ export default function StoreSuccess() {
       if (!error && data && data.status === "paid") {
         setOrder(data as OrderInfo);
         setLoading(false);
+        trackAnonEvent("store_purchase_completed", { item_count: (data as OrderInfo).items?.length ?? 0 });
         return;
       }
       // Webhook may take a few seconds — retry up to ~30s.

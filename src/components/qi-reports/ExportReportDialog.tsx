@@ -12,6 +12,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Download } from "lucide-react";
 import { generateQIReportPdf } from "@/lib/qiReportPdf";
+import { trackEvent } from "@/lib/trackEvent";
 import type {
   QIReport,
   QIReportApproval,
@@ -53,6 +54,7 @@ export function ExportReportDialog({
         doc.save(`${report.period_label.replace(/\s+/g, "-")}-${f}-report.pdf`);
       }
       toast({ title: "Export ready", description: "Your PDF download has started." });
+      trackEvent("report_exported", { flavor, period_label: report.period_label });
       onOpenChange(false);
     } catch (e) {
       toast({
