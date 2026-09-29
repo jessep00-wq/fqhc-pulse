@@ -17,6 +17,7 @@ import {
 import { deriveBoardSections } from "@/lib/qiReportBoardView";
 import { MeasureSnapshotTable } from "@/components/qi-reports/MeasureSnapshotTable";
 import type { CommitteeSections, QIReport } from "@/types/qiReport";
+import { trackEvent } from "@/lib/trackEvent";
 
 export default function QIReportWizard() {
   const { organization } = useOrg();
@@ -155,6 +156,7 @@ export default function QIReportWizard() {
       if (insErr) throw insErr;
       const row = inserted as QIReport;
       toast({ title: "Report drafted", description: "AI narrative ready for your review." });
+      trackEvent("qi_report_generated", { period_label: selected.label });
       navigate(`/dashboard/qi-reports/${row.id}`);
     } catch (e) {
       console.error("qi_reports insert failed:", e);
