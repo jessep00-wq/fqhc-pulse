@@ -386,8 +386,12 @@ export default function Landing() {
           <h2 id="founder-heading" className="text-2xl font-bold text-foreground">Why I built this</h2>
           <p className="text-muted-foreground leading-relaxed">
             I spent 14 years in healthcare watching good quality work disappear into email threads and old
-            spreadsheets. When the board or a site visit came, we rebuilt the story from memory. I built
-            MeasureWise so the record exists while the work is happening.
+            spreadsheets. Then the board meeting or the site visit would come, and we'd rebuild the entire
+            story from memory.
+          </p>
+          <p className="text-muted-foreground leading-relaxed">
+            I built MeasureWise so that never happens again. The record gets built while the work is
+            happening, not the night before the visit.
           </p>
           <p className="font-semibold text-foreground">{BRAND.founder.formalName}</p>
           <p className="text-sm text-muted-foreground -mt-3">{BRAND.founder.title}</p>

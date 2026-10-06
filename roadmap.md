@@ -5,7 +5,8 @@
 - [x] Check all walkthrough presets, navigation, and export previews.
 - [x] Check anonymous PDF download, print size, and page layout.
 - [x] Fix defects found in this scope and repeat the affected checks.
-- [ ] Founder note: awaiting Jessica's approval of the drafted first-person account.
+- [x] Founder note: replaced with Jessica's approved two-paragraph wording and signature.
+- [ ] Requested Day 2, 5, and 10 lead follow-up sequence: requires a dedicated marketing email service; not supported by Lovable app emails.
 
 Verification scope: recent public homepage, walkthrough, and template only. Existing contact page reached, but message delivery and calendar booking were not tested. The walkthrough is a preset example with an on-screen export preview, not an editable PDSA builder or downloadable completed record.
 
