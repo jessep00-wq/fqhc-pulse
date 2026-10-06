@@ -191,8 +191,8 @@ export default function Features() {
   return (
     <PublicPageLayout backTo={{ label: "Back to Home", href: "/" }}>
       <SEO
-        title="Features — PDSA, UDS Tracking, SPC & HRSA OSV Packets"
-        description="Everything MeasureWise does today: guided PDSA cycles, 7-measure UDS tracking, an SPC control chart, QI/QA board reports, and the HRSA Audit Binder."
+        title="Features | PDSA and QI Evidence Management for FQHCs"
+        description="What MeasureWise does today: guided PDSA cycles, monthly measure tracking, SPC charts, task evidence, board reporting, and audit-binder export."
         canonical="https://measurewise.org/features"
         jsonLd={jsonLd}
       />
@@ -206,7 +206,10 @@ export default function Features() {
             <span className="text-primary">in one place</span>
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            One workflow: run UDS-aligned PDSA cycles, watch the measures, and export the documentation HRSA asks for. Listed below is what ships today — nothing planned, nothing retired.
+            Document the intervention, assign the work, study whether it moved the measure, record the decision, and keep the evidence. Listed below is what ships today. Nothing planned, nothing retired.
+          </p>
+          <p className="mx-auto max-w-2xl rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-foreground">
+            {DATA_SCOPE_STATEMENT}
           </p>
           <nav className="flex flex-wrap justify-center gap-2 pt-2 text-sm">
             {sections.map((s) => (
