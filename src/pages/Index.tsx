@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 // UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, ReferenceLine,
@@ -189,8 +190,10 @@ export default function Dashboard() {
   });
   const activity = activityQuery.data;
 
+  // Wait for feature switches too, so the Sentinel section doesn't push the page down.
+  const { loading: flagsLoading } = useFeatureFlags();
   const isInitialLoading =
-    cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading;
+    flagsLoading || cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading;
   const hasFetchError =
     cyclesQuery.isError || tasksQuery.isError || trendsQuery.isError || activityQuery.isError;
 
@@ -406,7 +409,9 @@ export default function Dashboard() {
 
         <MeasureSentinelSection />
 
-        <OnboardingChecklist />
+        <OnboardingChecklist
+          counts={{ cycleCount: cycles?.length ?? 0, taskCount: tasks?.length ?? 0, trendCount: trends?.length ?? 0 }}
+        />
 
 
         {/* KPI ROW */}

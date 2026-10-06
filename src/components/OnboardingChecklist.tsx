@@ -50,7 +50,7 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
   },
 ];
 
-export function OnboardingChecklist() {
+export function OnboardingChecklist({ counts }: { counts?: ChecklistData } = {}) {
   const navigate = useNavigate();
   const { organization } = useOrg();
   const orgId = organization.id;
