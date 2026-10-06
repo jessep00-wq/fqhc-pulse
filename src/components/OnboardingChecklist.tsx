@@ -62,7 +62,9 @@ export function OnboardingChecklist() {
     if (localStorage.getItem(key) === "true") setDismissed(true);
   }, [orgId]);
 
-  const { data } = useQuery({
+  // When the parent already has the counts (dashboard home), reuse them:
+  // saves three requests and stops the checklist popping in after the page.
+  const { data: fetched } = useQuery({
     queryKey: ["onboarding_checklist", orgId],
     queryFn: async () => {
       const [cycles, tasks, trends] = await Promise.all([
@@ -76,8 +78,9 @@ export function OnboardingChecklist() {
         trendCount: trends.count ?? 0,
       } as ChecklistData;
     },
-    enabled: !!orgId,
+    enabled: !!orgId && !counts,
   });
+  const data = counts ?? fetched;
 
   if (dismissed || !data) return null;
 
