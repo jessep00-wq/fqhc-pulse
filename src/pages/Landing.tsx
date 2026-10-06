@@ -8,6 +8,7 @@ import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SECURITY_BULLETS, DATA_SCOPE_STATEMENT, CATEGORY_LINE } from "@/lib/siteContent";
 import { ArrowRight, CheckCircle, X, FileText, FlaskConical, FolderCheck, Shield } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import pdsaTemplate from "@/assets/pdsa-cycle-record.pdf.asset.json";
 
 const STEPS = [
   {
@@ -133,7 +134,7 @@ export default function Landing() {
         </Link>
       </Button>
       <Button size="lg" variant="outline" asChild>
-        <Link to="/contact?topic=pdsa-template">Get the free PDSA Study Template</Link>
+        <a href={pdsaTemplate.url} download="MeasureWise_PDSA_Cycle_Record.pdf">Get the free PDSA Study Template</a>
       </Button>
     </div>
   );
@@ -416,7 +417,10 @@ export default function Landing() {
             A one-page template for recording baseline, change, result, and decision. Use it with or without MeasureWise.
           </p>
           <Button size="lg" asChild>
-            <Link to="/contact?topic=pdsa-template">Send me the template</Link>
+            <a href={pdsaTemplate.url} download="MeasureWise_PDSA_Cycle_Record.pdf">Download the template (PDF)</a>
+          </Button>
+          <Button size="lg" variant="outline" asChild>
+            <a href={pdsaTemplate.url} target="_blank" rel="noopener noreferrer">Open printable template</a>
           </Button>
         </div>
       </section>
