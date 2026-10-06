@@ -58,7 +58,7 @@ export function AiPromptsPanel() {
   });
 
   const activateMutation = useMutation({
-    mutationFn: activateFn,
+    mutationFn: (d: { id: string; flag_key: string }) => activateFn({ data: d }),
     onSuccess: () => {
       toast.success("Active prompt updated");
       queryClient.invalidateQueries({ queryKey: ["admin_ai_prompt_versions"] });
