@@ -132,7 +132,10 @@ export default function ContactForm() {
     setLoading(true);
     try {
       const { error } = await supabase.functions.invoke("contact-form", {
-        body: parsed.data,
+        body: {
+          ...parsed.data,
+          topic: new URLSearchParams(window.location.search).get("topic") ?? undefined,
+        },
       });
       if (error) throw error;
       setSent(true);

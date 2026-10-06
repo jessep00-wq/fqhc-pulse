@@ -1037,6 +1037,72 @@ export type Database = {
           },
         ]
       }
+      contact_submissions: {
+        Row: {
+          admin_email_status: string | null
+          confirmation_email_status: string | null
+          created_at: string
+          email: string
+          emr: string | null
+          followed_up_at: string | null
+          fqhc_size: string | null
+          id: string
+          interests: string[]
+          last_nurture_sent_at: string | null
+          message: string | null
+          name: string
+          number_of_sites: string | null
+          nurture_step: number
+          organization_name: string | null
+          role: string | null
+          timeline: string | null
+          topic: string | null
+          unsubscribed_at: string | null
+        }
+        Insert: {
+          admin_email_status?: string | null
+          confirmation_email_status?: string | null
+          created_at?: string
+          email: string
+          emr?: string | null
+          followed_up_at?: string | null
+          fqhc_size?: string | null
+          id?: string
+          interests?: string[]
+          last_nurture_sent_at?: string | null
+          message?: string | null
+          name: string
+          number_of_sites?: string | null
+          nurture_step?: number
+          organization_name?: string | null
+          role?: string | null
+          timeline?: string | null
+          topic?: string | null
+          unsubscribed_at?: string | null
+        }
+        Update: {
+          admin_email_status?: string | null
+          confirmation_email_status?: string | null
+          created_at?: string
+          email?: string
+          emr?: string | null
+          followed_up_at?: string | null
+          fqhc_size?: string | null
+          id?: string
+          interests?: string[]
+          last_nurture_sent_at?: string | null
+          message?: string | null
+          name?: string
+          number_of_sites?: string | null
+          nurture_step?: number
+          organization_name?: string | null
+          role?: string | null
+          timeline?: string | null
+          topic?: string | null
+          unsubscribed_at?: string | null
+        }
+        Relationships: []
+      }
       download_log: {
         Row: {
           downloaded_at: string
