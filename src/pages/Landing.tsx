@@ -102,7 +102,9 @@ export default function Landing() {
           <p className="text-lg text-muted-foreground leading-relaxed">
             Your reporting tools tell you where performance sits. MeasureWise is where you manage what
             happens next. The rate, the gap list, and the providers off pace are useful. They are not a
-            quality program.
+            quality program. MeasureWise is where you document the intervention, assign the work, study
+            whether it moved the measure, record the decision, and keep the evidence for QI committee,
+            board review, and HRSA preparation.
           </p>
           <p className="rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-foreground">
             {DATA_SCOPE_STATEMENT}
