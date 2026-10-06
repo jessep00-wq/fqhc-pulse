@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet-async";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -1078,7 +1079,16 @@ export default function PDSALab() {
   }, [cycles, tasks, filters.measure, filters.role, filters.stalledOnly, filters.sort]);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-64"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>;
+    return (
+      <div role="status" aria-label="Loading PDSA board" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="space-y-3 rounded-lg border bg-card p-3">
+            <Skeleton className="h-5 w-24" />
+            {[0, 1, 2].map((j) => <Skeleton key={j} className="h-24 w-full" />)}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const renderColumnContent = (col: typeof STATUS_COLUMNS[number]) => {
