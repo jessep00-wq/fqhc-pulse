@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { ReactElement } from "react";
 import { SEO } from "@/components/SEO";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
+import { DATA_SCOPE_STATEMENT } from "@/lib/siteContent";
 import {
   FlaskConical, Target, ClipboardList, BarChart3, Users, Save,
   TrendingUp, Bell, FileCheck, LineChart,
@@ -17,7 +18,7 @@ const jsonLd = {
   applicationCategory: "HealthApplication",
   operatingSystem: "Web",
   description:
-    "Quality operations platform for FQHCs — PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA Audit Binder.",
+    "PDSA and QI evidence management for FQHCs: PDSA cycles, UDS measure tracking, SPC charts, QI/QA board reports, and the HRSA Audit Binder.",
   offers: { "@type": "Offer", price: "0", priceCurrency: "USD", description: "14-day free trial" },
 };
 
@@ -48,7 +49,7 @@ const sections: FeatureSection[] = [
     cards: [
       { icon: FlaskConical, title: "Guided 4-Phase Workflow", description: "A creation wizard walks your team through Plan → Do → Study → Act with prompts, prediction fields, and structured fields at each phase." },
       { icon: Target, title: "Linked to UDS Measures", description: "Each cycle is tied to one of the 7 core UDS clinical quality measures, with a baseline and target recorded on the cycle." },
-      { icon: ClipboardList, title: "19 Pre-Built FQHC Templates", description: "Start from templates covering diabetes control, hypertension, cervical and colorectal cancer screening, depression screening, tobacco use, and more — searchable in the wizard." },
+      { icon: ClipboardList, title: "19 Pre-Built FQHC Templates", description: "Start from templates covering diabetes control, hypertension, cervical and colorectal cancer screening, depression screening, tobacco use, and more, searchable in the wizard." },
       { icon: Users, title: "Team Task Assignment", description: "Assign cycle tasks to staff with owners and due dates, tracked on the Staff Tasks page." },
       { icon: Save, title: "Auto-Saved Drafts", description: "Progress saves as you type. Leave mid-cycle and resume from the step you left off, on desktop or mobile." },
       { icon: ClipboardCheck, title: "Completeness Tracking", description: "A completeness indicator on every card shows which phase fields are still missing before the cycle is documentation-ready." },
@@ -57,7 +58,7 @@ const sections: FeatureSection[] = [
       {
         heading: "How PDSA cycles work in MeasureWise",
         paragraphs: [
-          "When you create a cycle you pick a UDS measure — for example, Cervical Cancer Screening (CMS124) — then record your aim, baseline, and prediction.",
+          "When you create a cycle you pick a UDS measure, for example, Cervical Cancer Screening (CMS124), then record your aim, baseline, and prediction.",
           "The Plan phase defines the intervention, test population, and assigned tasks. The Do phase captures what actually happened. The Study phase records results against your prediction. The Act phase asks you to Adopt, Adapt, or Abandon. Everything you enter flows into the HRSA Audit Binder.",
         ],
       },
@@ -70,13 +71,13 @@ const sections: FeatureSection[] = [
     title: "UDS measure tracking",
     titleAccent: "for the 7 core measures",
     intro:
-      "MeasureWise tracks monthly performance for the seven core UDS clinical quality measures, so you can see which one is sliding before it shows up in your HRSA report. Measure values are entered by your team — MeasureWise does not connect to an EHR.",
+      "MeasureWise tracks monthly performance for the seven core UDS clinical quality measures, so you can see which one is sliding before it shows up in your HRSA report. Measure values are entered by your team, MeasureWise does not connect to an EHR.",
     cardsHeading: "What you can track",
     cards: [
       { icon: BarChart3, title: "7 Core UDS Measures", description: "Depression screening, tobacco use, colorectal cancer, cervical cancer, breast cancer, hypertension control, and diabetes HbA1c > 9%." },
       { icon: TrendingUp, title: "Monthly Trend View", description: "Enter monthly values and see each measure trend across the reporting year on the dashboard." },
       { icon: Target, title: "Gap-to-Target Tracking", description: "Set a target per measure and see at a glance which measures sit below goal." },
-      { icon: LineChart, title: "SPC Chart on Your Data", description: "The dashboard SPC chart is built from the same monthly measure data — no separate entry." },
+      { icon: LineChart, title: "SPC Chart on Your Data", description: "The dashboard SPC chart is built from the same monthly measure data, no separate entry." },
       { icon: Bell, title: "In-App Notifications & Task Emails", description: "A notification feed in the app plus automated email reminders when assigned tasks approach their due date." },
       { icon: FileCheck, title: "Measures in Your Exports", description: "Current measure performance is included in the HRSA Audit Binder and QI/QA board reports." },
     ],
@@ -100,7 +101,7 @@ const sections: FeatureSection[] = [
       "Was that change real, or month-to-month noise? The dashboard SPC chart plots any of the seven UDS measures against calculated control limits so your QI committee can answer with a chart instead of a hunch.",
     cardsHeading: "What the SPC chart gives you",
     cards: [
-      { icon: LineChart, title: "Generated From Your Entries", description: "The chart builds itself from the monthly UDS values your team already enters — no Excel formulas." },
+      { icon: LineChart, title: "Generated From Your Entries", description: "The chart builds itself from the monthly UDS values your team already enters, no Excel formulas." },
       { icon: Sigma, title: "Center Line and 3σ Limits", description: "Center line plus upper and lower control limits calculated at three standard deviations, labeled directly on the axis." },
       { icon: AlertTriangle, title: "Out-of-Control Points Flagged", description: "Any point falling outside the control limits is highlighted on the chart." },
       { icon: BarChart3, title: "Measure Switcher", description: "Switch between all seven core UDS measures from a single control on the dashboard." },
@@ -136,7 +137,7 @@ const sections: FeatureSection[] = [
       {
         heading: "Honest about what it is",
         paragraphs: [
-          "The packet reflects what your team has entered into MeasureWise — nothing more. Completeness depends on what's been logged for the period, which is exactly why the readiness checklist is printed at the end.",
+          "The packet reflects what your team has entered into MeasureWise, nothing more. Completeness depends on what's been logged for the period, which is exactly why the readiness checklist is printed at the end.",
           "Because the evidence is captured as you work, prep becomes review instead of reconstruction.",
         ],
       },
@@ -174,13 +175,13 @@ const sections: FeatureSection[] = [
       { icon: ShieldCheck, title: "AI Governance (NIST)", description: "Inventory the AI tools your health center uses, log vendor reviews and incidents, and score your posture against NIST AI RMF characteristics." },
       { icon: BookOpen, title: "Playbook Library", description: "Reference playbooks organized by clinical domain to start improvement work from a proven approach." },
       { icon: Users, title: "Team Roles & Staff Tasks", description: "Invite teammates, assign cycle tasks by role, and track what's due on the Staff Tasks page." },
-      { icon: Building2, title: "Network Dashboard — Network plan only", description: "Multi-site rollup comparing performance across the health centers in your network. Available on the Network plan." },
+      { icon: Building2, title: "Network Dashboard, Network plan only", description: "Multi-site rollup comparing performance across the health centers in your network. Available on the Network plan." },
     ],
     narrative: [
       {
         heading: "What MeasureWise does not do",
         paragraphs: [
-          "No EHR integration — measure values are entered by your team. No claims, billing, or financial ROI modeling. No PCMH recertification module. We would rather you know that now than discover it in week two of a trial.",
+          "No EHR integration, measure values are entered by your team. No claims, billing, or financial ROI modeling. No PCMH recertification module. We would rather you know that now than discover it in week two of a trial.",
         ],
       },
     ],
