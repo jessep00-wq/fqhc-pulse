@@ -1,5 +1,3 @@
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 interface ExportOptions {
   /** Diagonal watermark text stamped on every page (free tier / draft). */
@@ -17,6 +15,7 @@ export async function exportNodeToPdf(
   fileName: string,
   options: ExportOptions = {},
 ): Promise<number> {
+  const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
   const canvas = await html2canvas(node, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
   const pdf = new jsPDF("p", "in", "letter");
   const pdfWidth = 8.5;

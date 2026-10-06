@@ -10,8 +10,6 @@ import { FileText, Loader2, Download } from "lucide-react";
 import { useOrg } from "@/contexts/OrgContext";
 import { confirmDemoExport } from "@/lib/demoExportGate";
 import { toast } from "sonner";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 interface BoardReportDialogProps {
   open: boolean;
@@ -76,6 +74,7 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends }: Boar
     if (!confirmDemoExport(isDemo, "The board report")) return;
     setExporting(true);
     try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
       const canvas = await html2canvas(printRef.current, {
         scale: 2,
         useCORS: true,

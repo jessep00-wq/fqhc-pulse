@@ -12,8 +12,6 @@ import { useOrg } from "@/contexts/OrgContext";
 import { confirmDemoExport } from "@/lib/demoExportGate";
 import { CalendarIcon, FileText, Loader2, Download } from "lucide-react";
 import { format } from "date-fns";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import { toast } from "sonner";
 
 interface EvidenceCycle {
@@ -189,6 +187,7 @@ export default function EvidencePacketDialog({ open, onClose }: { open: boolean;
     if (!printRef.current) return;
     setExporting(true);
     try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
       const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
       const pdf = new jsPDF("p", "in", "letter");
       const pdfWidth = 8.5;
