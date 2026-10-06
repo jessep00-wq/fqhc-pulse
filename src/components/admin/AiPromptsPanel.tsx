@@ -48,7 +48,7 @@ export function AiPromptsPanel() {
   const [editing, setEditing] = useState<Partial<PromptVersion> | null>(null);
 
   const createMutation = useMutation({
-    mutationFn: createFn,
+    mutationFn: (d: Parameters<typeof createFn>[0]["data"]) => createFn({ data: d }),
     onSuccess: () => {
       toast.success("Prompt version created");
       setEditing(null);

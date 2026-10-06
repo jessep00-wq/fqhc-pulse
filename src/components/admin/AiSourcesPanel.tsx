@@ -67,7 +67,7 @@ export function AiSourcesPanel() {
   const [editing, setEditing] = useState<Partial<SourceDoc> | null>(null);
 
   const saveMutation = useMutation({
-    mutationFn: saveFn,
+    mutationFn: (d: Parameters<typeof saveFn>[0]["data"]) => saveFn({ data: d }),
     onSuccess: () => {
       toast.success("Source saved");
       setEditing(null);
