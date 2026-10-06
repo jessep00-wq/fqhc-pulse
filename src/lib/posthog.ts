@@ -1,4 +1,6 @@
-import posthog from "posthog-js";
+import type { PostHog } from "posthog-js";
+
+let loading: Promise<PostHog | null> | null = null;
 
 const SENSITIVE_KEYS = new Set([
   "access_token",
@@ -36,15 +38,16 @@ function sanitizeUrl(url: string): string {
   }
 }
 
-export function initPostHog() {
+async function loadAndInit(): Promise<PostHog | null> {
   const apiKey = import.meta.env.VITE_PUBLIC_POSTHOG_KEY;
   const apiHost = import.meta.env.VITE_PUBLIC_POSTHOG_HOST;
 
   if (!apiKey || !apiHost) {
     console.warn("PostHog is not configured; skipping initialization");
-    return;
+    return null;
   }
 
+  const { default: posthog } = await import("posthog-js");
   posthog.init(apiKey, {
     api_host: apiHost,
     capture_pageview: false,
@@ -86,4 +89,27 @@ export function initPostHog() {
       return properties;
     },
   });
+  return posthog;
+}
+
+/** Loads analytics lazily (separate chunk) and resolves to the client, or null if unconfigured. */
+export function getPostHog(): Promise<PostHog | null> {
+  if (typeof window === "undefined") return Promise.resolve(null);
+  if (!loading) loading = loadAndInit().catch(() => null);
+  return loading;
+}
+
+/** Runs fn once analytics is loaded; never blocks the caller. */
+export function withPostHog(fn: (ph: PostHog) => void) {
+  void getPostHog().then((ph) => {
+    if (ph) fn(ph);
+  });
+}
+
+/** Defers analytics loading until the browser is idle so it never competes with first paint. */
+export function initPostHog() {
+  if (typeof window === "undefined") return;
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number };
+  if (w.requestIdleCallback) w.requestIdleCallback(() => void getPostHog(), { timeout: 4000 });
+  else setTimeout(() => void getPostHog(), 2000);
 }

@@ -1,12 +1,12 @@
 import { useEffect } from "react";
 import { useLocation } from "@/lib/router-compat";
-import posthog from "posthog-js";
+import { withPostHog } from "@/lib/posthog";
 
 export function PostHogPageView() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    posthog.capture("$pageview");
+    withPostHog((ph) => ph.capture("$pageview"));
   }, [pathname]);
 
   return null;
