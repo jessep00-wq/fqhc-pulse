@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { supabase } from "@/integrations/supabase/client";
 import type { User, Session } from "@supabase/supabase-js";
 import { trackEvent } from "@/lib/trackEvent";
-import posthog from "posthog-js";
+import { withPostHog } from "@/lib/posthog";
 
 interface AuthContextType {
   user: User | null;
@@ -73,7 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === "SIGNED_IN" && session?.user && !loginTracked.current) {
           loginTracked.current = true;
           trackEvent("login");
-          posthog.identify(session.user.id, { email: session.user.email });
+          withPostHog((ph) => ph.identify(session.user.id, { email: session.user.email }));
           // Flush any pending pre-auth signup_completed into the DB now that
           // we have an authenticated session. trackEvent no-ops if the profile
           // has no organization_id yet — Onboarding will flush after org exists.
@@ -144,7 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (event === "SIGNED_OUT") {
           loginTracked.current = false;
           verifiedUserIdRef.current = null;
-          posthog.reset();
+          withPostHog((ph) => ph.reset());
         }
 
       }

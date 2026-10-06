@@ -1,5 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
-import posthog from "posthog-js";
+import { withPostHog } from "@/lib/posthog";
 
 export type EventName =
   | "login"
@@ -36,7 +36,7 @@ export type EventName =
 export function trackAnonEvent(eventName: EventName, metadata?: Record<string, unknown>) {
   if (typeof window === "undefined") return;
   try {
-    posthog.capture(eventName, metadata);
+    withPostHog((ph) => ph.capture(eventName, metadata));
   } catch {
     // Best-effort: PostHog failure should never break the caller.
   }
@@ -67,7 +67,7 @@ export async function trackEvent(
       metadata: enrichedMetadata as unknown as import("@/integrations/supabase/types").Json,
     }]);
 
-    posthog.capture(eventName, enrichedMetadata);
+    withPostHog((ph) => ph.capture(eventName, enrichedMetadata));
 
     // Update last_active_at on profile
     await supabase

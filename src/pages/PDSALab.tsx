@@ -25,8 +25,6 @@ import { EmptyState } from "@/components/EmptyState";
 import { DragDropContext, Droppable, Draggable, type DropResult } from "@hello-pangea/dnd";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 import PDSADetailDialog from "@/components/PDSADetailDialog";
 import EvidencePacketDialog from "@/components/EvidencePacketDialog";
 import { PhaseDots } from "@/components/pdsa/PhaseDots";
@@ -234,6 +232,7 @@ function AuditBinderDialog({ cycle, open, onClose, isFreeTier = true }: { cycle:
     if (!printRef.current || !cycle) return;
     setExporting(true);
     try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([import("html2canvas"), import("jspdf")]);
       const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true, backgroundColor: "#ffffff" });
       const pdf = new jsPDF("p", "in", "letter");
       const pdfWidth = 8.5;
