@@ -200,7 +200,10 @@ export default function StoreBundleDetail() {
                 <img
                   src={heroImage}
                   alt={`${bundle.name} preview`}
-                  className="w-full h-auto object-cover"
+                  width={1200}
+                  height={675}
+                  decoding="async"
+                  className="w-full aspect-video object-cover"
                 />
               </div>
             ) : (
