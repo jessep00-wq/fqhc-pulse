@@ -19,9 +19,7 @@ Deno.serve(async (req) => {
 
   // Auth: shared cron secret (matches send-waitlist-nurture pattern)
   const { data: secretData } = await supabase.rpc("get_cron_secret");
-  const cronSecret = (typeof secretData === "string" ? secretData : null)
-    ?? Deno.env.get("CRON_SECRET")
-    ?? null;
+  const cronSecret = typeof secretData === "string" && secretData.length > 0 ? secretData : null;
   if (!cronSecret || req.headers.get("x-cron-secret") !== cronSecret) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), {
       status: 401,
