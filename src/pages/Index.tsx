@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -253,9 +254,21 @@ export default function Dashboard() {
   }
 
   if (!orgId || isInitialLoading) {
+    // Page-shaped placeholder so content doesn't jump in when data arrives.
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      <div className="p-6 space-y-6" aria-busy="true" aria-label="Loading dashboard">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
+            <Skeleton className="h-7 w-64" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+          <Skeleton className="h-9 w-32" />
+        </div>
+        <Skeleton className="h-16 w-full" />
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-28 w-full" />)}
+        </div>
+        <Skeleton className="h-80 w-full" />
       </div>
     );
   }
