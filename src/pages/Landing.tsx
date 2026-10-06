@@ -7,6 +7,7 @@ import { parseAuthLink } from "@/lib/authLinkParams";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { SECURITY_BULLETS, DATA_SCOPE_STATEMENT, CATEGORY_LINE } from "@/lib/siteContent";
 import { ArrowRight, CheckCircle, X, FileText, FlaskConical, FolderCheck, Shield } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const STEPS = [
   {
@@ -42,6 +43,38 @@ const DOES_NOT = [
 ];
 
 const MEASURE_PILLS = ["CMS130", "CMS122", "CMS165", "CMS124", "CMS2", "CMS117", "Prenatal care"];
+
+const STACK = [
+  { layer: "Clinical layer", title: "Your EHR", body: "Where care is documented. MeasureWise never connects to it." },
+  { layer: "Reporting layer", title: "Your reporting tools", body: "Where rates, gap lists, and provider performance come from." },
+  { layer: "Action layer", title: "MeasureWise", body: "Where you test changes, assign the work, decide, and keep the evidence." },
+];
+
+const ROLES = [
+  {
+    id: "qi",
+    label: "QI Director",
+    points: ["See every open cycle across sites", "Know who owns each change and what is overdue", "Pull a board or committee report without rebuilding it"],
+  },
+  {
+    id: "pcmh",
+    label: "PCMH Coordinator",
+    points: ["Dated evidence of improvement work", "Decisions and history kept with each cycle", "Export records for recognition preparation"],
+  },
+  {
+    id: "ops",
+    label: "Ops / Medical Director",
+    points: ["Clear owners for every intervention", "Study results on an SPC chart, not a hunch", "Sign off on adopt, adapt, or abandon"],
+  },
+];
+
+const FAQ = [
+  { q: "Do we need a BAA or IT review?", a: "MeasureWise does not accept protected health information and does not offer a BAA. You enter monthly aggregate measure values only. Follow your own organization's review process." },
+  { q: "Does it connect to our EHR or Azara?", a: "No. You enter values from the reports you already run. There is nothing to install or integrate." },
+  { q: "Does it calculate or submit UDS?", a: "No. MeasureWise manages the improvement work on your measures. Your UDS reporting stays where it is." },
+  { q: "Can our QI committee use it?", a: "Yes. Cycles, decisions, and history can be exported for QI committee and board review." },
+  { q: "Is there a free trial?", a: "Yes. Every paid plan starts with a 14-day free trial." },
+];
 
 const SPREADSHEET = [
   "Several versions of the same tracker in email",
@@ -308,6 +341,101 @@ export default function Landing() {
               Read the full security overview
             </Link>
           </p>
+        </div>
+      </section>
+
+      {/* Tech stack */}
+      <section className="py-16 px-6" aria-labelledby="stack-heading">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <h2 id="stack-heading" className="text-3xl font-bold text-foreground text-center">
+            Where MeasureWise fits
+          </h2>
+          <ol className="grid md:grid-cols-3 gap-4">
+            {STACK.map((s, i) => (
+              <li
+                key={s.title}
+                className={`rounded-xl border p-6 space-y-2 bg-card ${i === 2 ? "border-primary" : "border-border"}`}
+              >
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{s.layer}</p>
+                <h3 className="text-lg font-semibold text-foreground">{s.title}</h3>
+                <p className="text-sm text-muted-foreground">{s.body}</p>
+              </li>
+            ))}
+          </ol>
+          <p className="text-center text-sm text-muted-foreground">
+            No integration. You enter monthly aggregate values from the reports you already run.
+          </p>
+        </div>
+      </section>
+
+      {/* Role tabs */}
+      <section className="py-16 px-6 bg-muted/30" aria-labelledby="roles-heading">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <h2 id="roles-heading" className="text-3xl font-bold text-foreground text-center">Built for your role</h2>
+          <Tabs defaultValue={ROLES[0].id}>
+            <TabsList className="flex flex-wrap h-auto justify-center">
+              {ROLES.map((r) => (
+                <TabsTrigger key={r.id} value={r.id}>{r.label}</TabsTrigger>
+              ))}
+            </TabsList>
+            {ROLES.map((r) => (
+              <TabsContent key={r.id} value={r.id} className="rounded-xl border border-border bg-card p-6">
+                <ul className="space-y-2">
+                  {r.points.map((p) => (
+                    <li key={p} className="flex gap-2 text-sm text-foreground">
+                      <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                      {p}
+                    </li>
+                  ))}
+                </ul>
+              </TabsContent>
+            ))}
+          </Tabs>
+        </div>
+      </section>
+
+      {/* Founder note */}
+      <section className="py-16 px-6" aria-labelledby="founder-heading">
+        <div className="max-w-2xl mx-auto rounded-xl border border-border bg-card p-8 space-y-4">
+          <h2 id="founder-heading" className="text-2xl font-bold text-foreground">Why I built this</h2>
+          <p className="text-muted-foreground leading-relaxed">
+            I spent 14 years in healthcare watching good quality work disappear into email threads and old
+            spreadsheets. When the board or a site visit came, we rebuilt the story from memory. I built
+            MeasureWise so the record exists while the work is happening.
+          </p>
+          <p className="font-semibold text-foreground">{BRAND.founder.formalName}</p>
+          <p className="text-sm text-muted-foreground -mt-3">{BRAND.founder.title}</p>
+        </div>
+      </section>
+
+      {/* Template lead */}
+      <section className="py-16 px-6 bg-muted/30" aria-labelledby="template-heading">
+        <div className="max-w-2xl mx-auto text-center space-y-4">
+          <h2 id="template-heading" className="text-2xl font-bold text-foreground">Get the free PDSA Study Template</h2>
+          <p className="text-muted-foreground">
+            A one-page template for recording baseline, change, result, and decision. Use it with or without MeasureWise.
+          </p>
+          <Button size="lg" asChild>
+            <Link to="/contact?topic=pdsa-template">Send me the template</Link>
+          </Button>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-16 px-6" aria-labelledby="faq-heading">
+        <div className="max-w-3xl mx-auto space-y-6">
+          <h2 id="faq-heading" className="text-3xl font-bold text-foreground text-center">Questions buyers ask</h2>
+          <div className="divide-y divide-border rounded-xl border border-border bg-card">
+            {FAQ.map((f) => (
+              <details key={f.q} className="group p-5">
+                <summary className="cursor-pointer font-semibold text-foreground list-none flex justify-between gap-4">
+                  {f.q}
+                  <span className="text-muted-foreground group-open:rotate-45 transition-transform" aria-hidden="true">+</span>
+                </summary>
+                <p className="mt-3 text-sm text-muted-foreground leading-relaxed">{f.a}</p>
+              </details>
+            ))}
+          </div>
         </div>
       </section>
 
