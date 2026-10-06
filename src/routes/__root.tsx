@@ -6,6 +6,7 @@ import {
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
+import type { ErrorComponentProps } from "@tanstack/react-router";
 import { HelmetProvider } from "react-helmet-async";
 
 import appCss from "@/styles.css?url";
@@ -176,7 +177,7 @@ function RootComponent() {
   );
 }
 
-function ErrorComponent({ error }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error }: ErrorComponentProps) {
   console.error(error);
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });

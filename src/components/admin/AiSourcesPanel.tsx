@@ -43,6 +43,7 @@ interface SourceDoc {
   approved_by: string | null;
   approved_at: string | null;
   created_at: string;
+  storage_reference?: string | null;
 }
 
 const STATUS_CLASS: Record<string, string> = {
@@ -66,7 +67,7 @@ export function AiSourcesPanel() {
   const [editing, setEditing] = useState<Partial<SourceDoc> | null>(null);
 
   const saveMutation = useMutation({
-    mutationFn: saveFn,
+    mutationFn: (d: unknown) => saveFn({ data: d }),
     onSuccess: () => {
       toast.success("Source saved");
       setEditing(null);
@@ -76,7 +77,7 @@ export function AiSourcesPanel() {
   });
 
   const approveMutation = useMutation({
-    mutationFn: approveFn,
+    mutationFn: (d: { id: string }) => approveFn({ data: d }),
     onSuccess: () => {
       toast.success("Source approved");
       queryClient.invalidateQueries({ queryKey: ["admin_ai_sources"] });
@@ -85,7 +86,7 @@ export function AiSourcesPanel() {
   });
 
   const archiveMutation = useMutation({
-    mutationFn: archiveFn,
+    mutationFn: (d: { id: string }) => archiveFn({ data: d }),
     onSuccess: () => {
       toast.success("Source archived");
       queryClient.invalidateQueries({ queryKey: ["admin_ai_sources"] });

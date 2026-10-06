@@ -4,6 +4,13 @@
 
 export const FOUNDER_EXPERIENCE_YEARS = 14;
 
+/** Product category. Never call MeasureWise "UDS software". */
+export const CATEGORY_LINE = "PDSA and QI evidence management for FQHCs";
+
+/** Required above the fold and on the features page. */
+export const DATA_SCOPE_STATEMENT =
+  "MeasureWise uses monthly aggregate measure values. No patient-level data. No EHR or Azara connection.";
+
 export const FOUNDER_EXPERIENCE_SENTENCE =
   `${FOUNDER_EXPERIENCE_YEARS} years of healthcare quality improvement and operational experience`;
 

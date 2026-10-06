@@ -48,7 +48,7 @@ export function AiPromptsPanel() {
   const [editing, setEditing] = useState<Partial<PromptVersion> | null>(null);
 
   const createMutation = useMutation({
-    mutationFn: createFn,
+    mutationFn: (d: unknown) => createFn({ data: d }),
     onSuccess: () => {
       toast.success("Prompt version created");
       setEditing(null);
@@ -58,7 +58,7 @@ export function AiPromptsPanel() {
   });
 
   const activateMutation = useMutation({
-    mutationFn: activateFn,
+    mutationFn: (d: { id: string; flag_key: string }) => activateFn({ data: d }),
     onSuccess: () => {
       toast.success("Active prompt updated");
       queryClient.invalidateQueries({ queryKey: ["admin_ai_prompt_versions"] });

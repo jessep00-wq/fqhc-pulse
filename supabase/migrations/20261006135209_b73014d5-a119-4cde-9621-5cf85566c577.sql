@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS ai_prompt_versions_select_all ON public.ai_prompt_versions;
+CREATE POLICY ai_prompt_versions_select_founder ON public.ai_prompt_versions FOR SELECT TO authenticated USING (public.is_founder_admin(auth.uid()));
