@@ -25,7 +25,7 @@ const NAV_ITEMS = [
   { to: "/features", label: "Features" },
   { to: "/pricing", label: "Pricing" },
   { to: "/resources", label: "Resources" },
-  { to: "/#how-it-works", label: "How it works" },
+  { to: "/how-it-works", label: "How it works" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
@@ -162,7 +162,7 @@ export function PublicPageLayout({
                 <Link to="/auth?signup=true">Start 14-day free trial <ArrowRight className="ml-2 h-4 w-4" /></Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="text-base px-8 bg-transparent border-primary-foreground/40 text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground">
-                <a href="/#how-it-works">See how it works</a>
+                <a href="/how-it-works">See how it works</a>
               </Button>
             </div>
           </div>
@@ -192,7 +192,7 @@ export function PublicPageLayout({
                 <li><Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
                 <li><Link to="/resources" className="hover:text-foreground transition-colors">Resource Library</Link></li>
                 <li><Link to="/store" className="hover:text-foreground transition-colors">Store</Link></li>
-                <li><a href="/#how-it-works" className="hover:text-foreground transition-colors">How it works</a></li>
+                <li><a href="/how-it-works" className="hover:text-foreground transition-colors">How it works</a></li>
                 <li><Link to="/status" className="hover:text-foreground transition-colors">Status</Link></li>
               </ul>
             </div>
