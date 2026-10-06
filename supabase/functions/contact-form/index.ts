@@ -147,7 +147,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-    const submissionId = crypto.randomUUID();
+    const topic = str(body.topic, 60);
+    const { data: saved, error: saveErr } = await supabase
+      .from("contact_submissions")
+      .insert({
+        name, email: email.toLowerCase(), organization_name: organizationName || null,
+        role: role || null, fqhc_size: fqhcSize || null, number_of_sites: numberOfSites || null,
+        emr: emrCombined || null, timeline: timeline || null, interests,
+        message: message || null, topic: topic || null,
+      })
+      .select("id")
+      .single();
+    if (saveErr) console.error("contact submission save failed", saveErr);
+    const submissionId: string = saved?.id ?? crypto.randomUUID();
+    const setStatus = async (col: string, value: string) => {
+      if (!saved?.id) return;
+      await supabase.from("contact_submissions").update({ [col]: value }).eq("id", saved.id);
+    };
     const headers = {
       "Content-Type": "application/json",
       Authorization: `Bearer ${LOVABLE_API_KEY}`,
@@ -172,6 +188,7 @@ serve(async (req) => {
       });
       const txt = await res.text().catch(() => "");
       if (!res.ok) console.error("contact admin notif rejected", res.status, txt);
+      await setStatus("admin_email_status", res.ok ? "sent" : `failed_${res.status}`);
       await logEmailAttempt({
         supabase, messageId: `contact-${submissionId}-admin`,
         templateName: "contact-admin-notification", recipient: COMPANY_INBOX,
@@ -205,6 +222,7 @@ serve(async (req) => {
       });
       const txt = await res.text().catch(() => "");
       if (!res.ok) console.error("contact confirmation rejected", res.status, txt);
+      await setStatus("confirmation_email_status", res.ok ? "sent" : `failed_${res.status}`);
       await logEmailAttempt({
         supabase, messageId: `contact-${submissionId}-confirmation`,
         templateName: "contact-confirmation", recipient: email,
