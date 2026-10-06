@@ -1,3 +1,4 @@
+import { csvCell } from "@/lib/utils";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { Download, Mail } from "lucide-react";
@@ -92,7 +93,7 @@ export default function AdminReadinessLeads() {
           r.source ?? "",
           r.email_sent_at ?? "",
         ]
-          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .map(csvCell)
           .join(","),
       ),
     );

@@ -1,3 +1,4 @@
+import { csvCell } from "@/lib/utils";
 import { useMemo, useState } from "react";
 import { useSearchParams } from "@/lib/router-compat";
 import { useQuery } from "@tanstack/react-query";
@@ -189,7 +190,7 @@ export default function AdminOverview() {
         ];
       }),
     ];
-    const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const csv = rows.map((r) => r.map(csvCell).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
