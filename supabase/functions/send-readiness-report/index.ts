@@ -89,11 +89,16 @@ Deno.serve(async (req) => {
 
     const { data: sub, error } = await supabase
       .from("readiness_submissions")
-      .select("id,email,first_name,health_center,state,score,tier,answers,email_sent_at")
+      .select("id,email,first_name,health_center,state,score,tier,answers,email_sent_at,created_at")
       .eq("id", submissionId)
       .maybeSingle();
 
-    if (error || !sub) {
+    // Only send for submissions created moments ago (the quiz calls this right
+    // after saving), so old IDs can't be replayed to email other people.
+    const tooOld = sub?.created_at
+      ? Date.now() - new Date(sub.created_at).getTime() > 15 * 60 * 1000
+      : true;
+    if (error || !sub || tooOld) {
       return new Response(JSON.stringify({ error: "Submission not found" }), {
         status: 404,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

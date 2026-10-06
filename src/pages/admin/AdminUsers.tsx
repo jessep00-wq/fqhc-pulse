@@ -55,8 +55,9 @@ function DateCell({ ts }: { ts: string | null }) {
 }
 
 function csvEscape(v: unknown) {
-  const s = v == null ? "" : String(v);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  let s = v == null ? "" : String(v);
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  return `"${s.replace(/"/g, '""')}"`;
 }
 
 export default function AdminUsers() {

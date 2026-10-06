@@ -64,7 +64,7 @@ export function printNode(node: HTMLElement, title: string) {
   const win = window.open("", "_blank", "width=900,height=1100");
   if (!win) return false;
   win.document.write(
-    `<html><head><title>${title}</title><style>
+    `<html><head><title>${title.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)}</title><style>
       @page { size: letter portrait; margin: 0.5in; }
       body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     </style></head><body>${node.innerHTML}</body></html>`,

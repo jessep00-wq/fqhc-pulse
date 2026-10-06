@@ -10,8 +10,8 @@ export async function verifyCronSecret(
   const provided = req.headers.get("x-cron-secret");
   if (!provided) return false;
 
-  const envSecret = Deno.env.get("CRON_SECRET");
-  if (envSecret && provided === envSecret) return true;
+  // Vault is the only source of truth: the env copy may still hold a value
+  // that was previously committed to source control.
 
   try {
     const { data, error } = await supabase.rpc("get_cron_secret");
