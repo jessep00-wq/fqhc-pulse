@@ -87,9 +87,10 @@ const PRESETS: Preset[] = [
 
 const STEPS = ["Pick a measure", "Baseline", "Intervention", "Owner", "30-day result", "Study", "Act", "Export preview"];
 
-export function MeasureRescueSimulator() {
-  const [step, setStep] = useState(0);
-  const [preset, setPreset] = useState<Preset | null>(null);
+export function MeasureRescueSimulator({ initialMeasure }: { initialMeasure?: string }) {
+  const initialPreset = PRESETS.find((m) => m.id === initialMeasure) ?? null;
+  const [step, setStep] = useState(initialPreset ? 1 : 0);
+  const [preset, setPreset] = useState<Preset | null>(initialPreset);
   const p = preset;
 
   const reset = () => {
@@ -118,17 +119,18 @@ export function MeasureRescueSimulator() {
             <p className="text-muted-foreground">Your report shows a measure off pace. Pick one to walk through.</p>
             <div className="grid gap-2 sm:grid-cols-2">
               {PRESETS.map((m) => (
-                <button
+                <Button
                   key={m.id}
                   type="button"
+                  variant="outline"
                   onClick={() => {
                     setPreset(m);
                     setStep(1);
                   }}
-                  className={`rounded-lg border px-4 py-3 text-left text-sm font-medium transition-colors hover:border-primary hover:bg-muted ${preset?.id === m.id ? "border-primary" : "border-border"}`}
+                  className={`h-auto justify-start whitespace-normal rounded-lg px-4 py-3 text-left text-sm font-medium hover:border-primary hover:bg-muted ${preset?.id === m.id ? "border-primary" : "border-border"}`}
                 >
                   {m.label}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -189,6 +191,7 @@ export function MeasureRescueSimulator() {
               <Row k="Change tested" v={p.intervention} />
               <Row k="Owner" v={p.owner} />
               <Row k="30-day value" v={`${p.result}%`} />
+              <Row k="Study" v={p.study} />
               <Row k="Decision" v={`${p.act}: ${p.actNote}`} />
             </dl>
             <p className="text-xs text-muted-foreground">

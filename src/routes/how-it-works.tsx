@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Link } from "@/lib/router-compat";
 import { PublicPageLayout } from "@/components/PublicPageLayout";
 import { MeasureRescueSimulator } from "@/components/simulator/MeasureRescueSimulator";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,10 @@ const DESC =
   "Walk through a PDSA cycle for an off-pace FQHC measure: baseline, intervention, owner, 30-day result, Study, Act, and the evidence record.";
 
 export const Route = createFileRoute("/how-it-works")({
+  validateSearch: (search: Record<string, unknown>): { measure?: string } => {
+    const measure = typeof search.measure === "string" ? search.measure : undefined;
+    return ["CMS130", "CMS122", "CMS165", "CMS124", "OTHER"].includes(measure ?? "") ? { measure } : {};
+  },
   head: () => ({
     meta: [
       { title: TITLE },
@@ -24,6 +29,7 @@ export const Route = createFileRoute("/how-it-works")({
 });
 
 function HowItWorksPage() {
+  const { measure } = Route.useSearch();
   return (
     <PublicPageLayout>
       <section className="px-4 py-14 sm:px-6">
@@ -37,7 +43,7 @@ function HowItWorksPage() {
       </section>
       <section className="px-4 pb-16 sm:px-6">
         <div className="mx-auto max-w-3xl">
-          <MeasureRescueSimulator />
+          <MeasureRescueSimulator key={measure ?? "choose"} initialMeasure={measure} />
         </div>
       </section>
       <section className="border-t border-border bg-muted/40 px-4 py-14 sm:px-6">
@@ -45,10 +51,10 @@ function HowItWorksPage() {
           <h2 className="text-2xl font-bold text-foreground">Want to walk through your own measure?</h2>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Button asChild size="lg">
-              <Link to="/contact" search={{ topic: "measure-rescue" } as never}>Book a 15-minute Measure Rescue call</Link>
+              <Link to="/contact?topic=measure-rescue">Book a 15-minute Measure Rescue call</Link>
             </Button>
             <Button asChild size="lg" variant="outline">
-              <Link to="/auth" search={{ signup: "true" } as never}>Start 14-day free trial</Link>
+              <Link to="/auth?signup=true">Start 14-day free trial</Link>
             </Button>
           </div>
         </div>

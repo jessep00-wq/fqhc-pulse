@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "@/lib/router-compat";
 import { Button } from "@/components/ui/button";
-import { SEO } from "@/components/SEO";
 import { BRAND } from "@/lib/brand";
 import { useEffect } from "react";
 import { parseAuthLink } from "@/lib/authLinkParams";
@@ -100,13 +99,6 @@ function RecordRow({ k, v }: { k: string; v: string }) {
   );
 }
 
-const orgJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  name: "MeasureWise",
-  url: BRAND.url,
-};
-
 export default function Landing() {
   const navigate = useNavigate();
 
@@ -141,13 +133,6 @@ export default function Landing() {
 
   return (
     <PublicPageLayout>
-      <SEO
-        title="MeasureWise | PDSA and QI Evidence Management for FQHCs"
-        description="Document the intervention, assign the work, study whether it moved the measure, and keep the evidence for QI committee, board review, and HRSA preparation."
-        canonical={`${BRAND.url}/`}
-        jsonLd={[orgJsonLd]}
-      />
-
       {/* Hero */}
       <section className="py-20 md:py-24 px-6">
         <div className="max-w-4xl mx-auto space-y-7 text-center lg:text-left">
@@ -227,7 +212,7 @@ export default function Landing() {
           <div className="flex flex-wrap justify-center gap-2">
             {["CMS130 Colorectal", "CMS122 Diabetes", "CMS165 Blood pressure", "CMS124 Cervical"].map((m) => (
               <Button key={m} variant="outline" asChild>
-                <Link to="/how-it-works">{m}</Link>
+                <Link to={`/how-it-works?measure=${m.split(" ")[0]}`}>{m}</Link>
               </Button>
             ))}
           </div>

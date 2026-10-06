@@ -34,8 +34,8 @@ export function Logo({ size = "md", className, markOnly = false, inverse = false
       >
         <defs>
           <linearGradient id="mw-tile" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="hsl(var(--primary))" />
-            <stop offset="100%" stopColor="hsl(var(--accent))" />
+            <stop offset="0%" stopColor="var(--primary)" />
+            <stop offset="100%" stopColor="var(--accent)" />
           </linearGradient>
         </defs>
         {/* Rounded tile */}
@@ -44,13 +44,13 @@ export function Logo({ size = "md", className, markOnly = false, inverse = false
         <path
           d="M9 29 V13 L20 23 L28 15"
           fill="none"
-          stroke="hsl(var(--primary-foreground))"
+          stroke="var(--primary-foreground)"
           strokeWidth="3.2"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         {/* Data-point dot at the tip of the rising stroke */}
-        <circle cx="28" cy="15" r="2.6" fill="hsl(var(--primary-foreground))" />
+        <circle cx="28" cy="15" r="2.6" fill="var(--primary-foreground)" />
       </svg>
 
       {!markOnly && (
