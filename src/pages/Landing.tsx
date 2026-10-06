@@ -41,6 +41,31 @@ const DOES_NOT = [
   "Accept protected health information (PHI)",
 ];
 
+const MEASURE_PILLS = ["CMS130", "CMS122", "CMS165", "CMS124", "CMS2", "CMS117", "Prenatal care"];
+
+const SPREADSHEET = [
+  "Several versions of the same tracker in email",
+  "No record of who decided what, or when",
+  "Run charts rebuilt by hand",
+  "A scramble to pull evidence before board or site visits",
+];
+
+const WITH_MW = [
+  "One record per cycle, with history",
+  "Named owners and due dates on every task",
+  "SPC charts from your monthly values",
+  "Export for QI committee, board, or site-visit preparation",
+];
+
+function RecordRow({ k, v }: { k: string; v: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-muted-foreground">{k}</dt>
+      <dd className="font-medium text-foreground">{v}</dd>
+    </div>
+  );
+}
+
 const orgJsonLd = {
   "@context": "https://schema.org",
   "@type": "Organization",
@@ -110,6 +135,101 @@ export default function Landing() {
             {DATA_SCOPE_STATEMENT}
           </p>
           <Ctas />
+          <ul className="flex flex-wrap gap-2 justify-center lg:justify-start pt-2" aria-label="Example measures teams track">
+            {MEASURE_PILLS.map((m) => (
+              <li key={m} className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-medium text-foreground">
+                {m}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Clean record preview */}
+      <section className="py-16 px-6 bg-muted/30" aria-labelledby="record-heading">
+        <div className="max-w-5xl mx-auto grid lg:grid-cols-2 gap-10 items-center">
+          <div className="space-y-4">
+            <h2 id="record-heading" className="text-3xl font-bold text-foreground">One clean record per cycle</h2>
+            <p className="text-muted-foreground leading-relaxed">
+              The measure, the baseline, the change you tested, who owned it, what the data showed, and what you
+              decided. All in one place, with dates and history.
+            </p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <p className="font-semibold text-foreground">PDSA cycle: FIT kit pre-ordering</p>
+              <span className="rounded-full border border-border px-2 py-0.5 text-[11px] text-muted-foreground">
+                Illustrative example, not customer data
+              </span>
+            </div>
+            <dl className="grid grid-cols-2 gap-3 text-sm">
+              <RecordRow k="Measure" v="CMS130 Colorectal screening" />
+              <RecordRow k="Owner" v="MA Team Lead" />
+              <RecordRow k="Baseline" v="41%" />
+              <RecordRow k="30-day value" v="46%" />
+            </dl>
+            <svg viewBox="0 0 300 80" className="w-full h-20" role="img" aria-label="Run chart rising after the change">
+              <line x1="0" y1="50" x2="300" y2="50" className="stroke-muted-foreground" strokeDasharray="4 4" strokeWidth="1" />
+              <polyline
+                fill="none"
+                className="stroke-primary"
+                strokeWidth="2.5"
+                points="10,56 50,52 90,58 130,54 170,55 210,40 250,34 290,30"
+              />
+            </svg>
+            <div className="flex items-center gap-2 text-sm">
+              <span className="rounded-md bg-primary px-2 py-0.5 font-medium text-primary-foreground">Adapt</span>
+              <span className="text-muted-foreground">Signed off by QI Director</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Simulator teaser */}
+      <section className="py-16 px-6" aria-labelledby="teaser-heading">
+        <div className="max-w-3xl mx-auto text-center space-y-5">
+          <h2 id="teaser-heading" className="text-3xl font-bold text-foreground">Walk through a cycle right now</h2>
+          <p className="text-muted-foreground">Pick a measure and see how one PDSA cycle gets documented, start to finish.</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {["CMS130 Colorectal", "CMS122 Diabetes", "CMS165 Blood pressure", "CMS124 Cervical"].map((m) => (
+              <Button key={m} variant="outline" asChild>
+                <Link to="/how-it-works">{m}</Link>
+              </Button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Spreadsheet vs MeasureWise */}
+      <section className="py-16 px-6 bg-muted/30" aria-labelledby="compare-heading">
+        <div className="max-w-5xl mx-auto space-y-8">
+          <h2 id="compare-heading" className="text-3xl font-bold text-foreground text-center">
+            Spreadsheets vs. MeasureWise
+          </h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="rounded-xl border border-border bg-card p-6">
+              <h3 className="font-semibold text-foreground mb-4">The spreadsheet way</h3>
+              <ul className="space-y-2">
+                {SPREADSHEET.map((d) => (
+                  <li key={d} className="flex gap-2 text-sm text-foreground">
+                    <X className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" aria-hidden="true" />
+                    {d}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="rounded-xl border border-primary/30 bg-card p-6">
+              <h3 className="font-semibold text-foreground mb-4">With MeasureWise</h3>
+              <ul className="space-y-2">
+                {WITH_MW.map((d) => (
+                  <li key={d} className="flex gap-2 text-sm text-foreground">
+                    <CheckCircle className="h-4 w-4 text-primary shrink-0 mt-0.5" aria-hidden="true" />
+                    {d}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
