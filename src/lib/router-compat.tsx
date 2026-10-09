@@ -10,7 +10,6 @@ import {
   useSearch as tsSearch,
   useRouter,
   Link as TSLink,
-  Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
 import { useMemo, useCallback, useLayoutEffect, useRef, forwardRef, type CSSProperties, type ComponentProps, type ReactNode } from "react";
