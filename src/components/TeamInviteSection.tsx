@@ -21,7 +21,18 @@ export function TeamInviteSection() {
   const [email, setEmail] = useState("");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const { canInviteUser } = useTierLimits();
-  const { isOrgAdmin } = useUserRole();
+  const { isOrgAdmin: hasAdminRole } = useUserRole();
+  // Workspaces created before the org_admin role existed have no role row for
+  // their owner; the server's is_org_admin() treats owners as admins too.
+  const { data: isOwner = false } = useQuery({
+    queryKey: ["org-owner", organization.id, user?.id],
+    enabled: !!organization.id && !!user?.id,
+    queryFn: async () => {
+      const { data } = await supabase.from("organizations").select("owner_id").eq("id", organization.id).maybeSingle();
+      return (data as { owner_id?: string } | null)?.owner_id === user?.id;
+    },
+  });
+  const isOrgAdmin = hasAdminRole || isOwner;
 
   const { data: invitations = [] } = useQuery({
     queryKey: ["team-invitations", organization.id],
