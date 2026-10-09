@@ -10,7 +10,7 @@ interface SparklineProps {
 /**
  * Inline 60x18 run chart from raw numeric series. Uses primary token by default.
  */
-export function Sparkline({ data, width = 72, height = 20, color = "hsl(var(--primary))" }: SparklineProps) {
+export function Sparkline({ data, width = 72, height = 20, color = "var(--primary)" }: SparklineProps) {
   if (!data || data.length < 2) {
     return <div style={{ width, height }} className="rounded bg-muted/50" />;
   }

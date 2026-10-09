@@ -17,7 +17,7 @@ export function PlaybookLeadMagnetSection() {
         <div className="relative flex justify-center lg:justify-end">
           <div
             aria-hidden
-            className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,hsl(var(--primary)/0.18),transparent_60%)] blur-2xl"
+            className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,color-mix(in_oklab,var(--primary)_18%,transparent),transparent_60%)] blur-2xl"
           />
           <img
             src={playbookCover}

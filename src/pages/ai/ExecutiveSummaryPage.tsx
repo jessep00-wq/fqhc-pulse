@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { EmptyState } from "@/components/EmptyState";
 import { supabase } from "@/integrations/supabase/client";
 import { useOrg } from "@/contexts/OrgContext";
+import { useFeatureFlags } from "@/hooks/useFeatureFlags";
 
 interface Summary {
   id: string;
@@ -28,6 +29,8 @@ export default function ExecutiveSummaryPage() {
   const queryClient = useQueryClient();
   const createFn = useServerFn(createAiExecutiveSummary);
   const [periodMonths, setPeriodMonths] = useState("3");
+  const { isEnabled, loading: flagsLoading } = useFeatureFlags();
+  const enabled = isEnabled("ai_executive_summary");
 
   const { data: summaries = [], isLoading } = useQuery({
     queryKey: ["ai_executive_summaries", organization?.id],
@@ -57,6 +60,15 @@ export default function ExecutiveSummaryPage() {
     onError: (e) => toast.error(`Failed: ${e?.message ?? ""}`),
   });
 
+  if (!flagsLoading && !enabled) {
+    return (
+      <div className="space-y-6 p-6 max-w-5xl mx-auto">
+        <h1 className="text-2xl font-bold tracking-tight">Executive Summaries</h1>
+        <EmptyState icon={FileText} title="Not turned on for your workspace yet" description="Executive summaries are not available on this workspace yet. Contact hello@measurewise.org if you would like access." />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 p-6 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -78,7 +90,7 @@ export default function ExecutiveSummaryPage() {
               <SelectItem value="12">Last year</SelectItem>
             </SelectContent>
           </Select>
-          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending}>
+          <Button onClick={() => mutation.mutate()} disabled={mutation.isPending || flagsLoading}>
             {mutation.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
             Generate
           </Button>

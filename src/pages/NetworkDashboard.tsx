@@ -284,7 +284,7 @@ export default function NetworkDashboard() {
                 <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                 <XAxis dataKey="name" className="text-xs" />
                 <YAxis className="text-xs" />
-                <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
+                <Tooltip contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius)" }} />
                 <Legend />
                 <Bar dataKey="avgMeasure" name="Avg UDS %" fill="hsl(192, 70%, 35%)" radius={[4, 4, 0, 0]} />
                 <Bar dataKey="activeCycles" name="Active Cycles" fill="hsl(38, 92%, 50%)" radius={[4, 4, 0, 0]} />

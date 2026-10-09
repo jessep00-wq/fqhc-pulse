@@ -18,15 +18,15 @@ export interface StoreFaq {
 export const DEFAULT_STORE_FAQS: StoreFaq[] = [
   {
     q: "What file formats do I get, and are they editable?",
-    a: "Everything is delivered as editable working files — Word and Excel documents, with PDFs where a print-ready version helps. You can rename, rebrand, and rewrite anything to match your center. [CONFIRM] exact formats vary by product; check the \"What's inside\" list above.",
+    a: "Everything is delivered as editable working files — Word and Excel documents, with PDFs where a print-ready version helps. You can rename, rebrand, and rewrite anything to match your center. Exact formats vary by product; check the \"What's inside\" list above.",
   },
   {
     q: "Can my whole team use this, or is it one person?",
-    a: "One purchase covers your quality team. Share the files internally with colleagues who work on the same reporting or QI process. [CONFIRM] please confirm this matches your intended licence terms.",
+    a: "One purchase covers your quality team. Share the files internally with colleagues who work on the same reporting or QI process.",
   },
   {
     q: "Can I use this at my health center / does my organization get a license?",
-    a: "Yes — you buy it once for your health center and use it across sites and reporting cycles. Reselling or redistributing the files outside your organization isn't permitted. [CONFIRM] wording should match the Terms of Service.",
+    a: "Yes — you buy it once for your health center and use it across sites and reporting cycles. Reselling or redistributing the files outside your organization isn't permitted.",
   },
   {
     q: "Do I get a receipt or invoice I can expense?",

@@ -264,15 +264,15 @@ export default function PublicDemo() {
                 <YAxis domain={[25, 60]} tick={{ fontSize: 11 }} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
+                    backgroundColor: "var(--card)",
+                    border: "1px solid var(--border)",
                     borderRadius: "var(--radius)",
                     fontSize: 12,
                   }}
                 />
                 <ReferenceLine y={49} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "UCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
                 <ReferenceLine y={31} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.6} label={{ value: "LCL", position: "right", style: { fontSize: 10, fill: "hsl(0, 72%, 51%)" } }} />
-                <ReferenceLine y={40} stroke="hsl(var(--muted-foreground))" strokeDasharray="4 4" strokeOpacity={0.4} label={{ value: "Mean", position: "right", style: { fontSize: 10, fill: "hsl(var(--muted-foreground))" } }} />
+                <ReferenceLine y={40} stroke="var(--muted-foreground)" strokeDasharray="4 4" strokeOpacity={0.4} label={{ value: "Mean", position: "right", style: { fontSize: 10, fill: "var(--muted-foreground)" } }} />
                 <Line
                   type="monotone"
                   dataKey="value"

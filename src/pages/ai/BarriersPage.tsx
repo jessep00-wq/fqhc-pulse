@@ -54,7 +54,7 @@ export default function BarriersPage() {
   const [filter, setFilter] = useState<"all" | "open" | "mitigated" | "escalated">("all");
 
   const saveMutation = useMutation({
-    mutationFn: saveFn,
+    mutationFn: (payload: unknown) => saveFn({ data: payload as never }),
     onSuccess: () => {
       toast.success("Barrier saved");
       setEditing(null);

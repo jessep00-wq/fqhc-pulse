@@ -95,10 +95,10 @@ export default function SPCChart({ trends }: SPCChartProps) {
                       ? `CL ${v.toFixed(1)}`
                       : v.toString();
                 const fill = isUcl || isLcl
-                  ? "hsl(var(--destructive))"
+                  ? "var(--destructive)"
                   : isMean
-                    ? "hsl(var(--success))"
-                    : "hsl(var(--muted-foreground))";
+                    ? "var(--success)"
+                    : "var(--muted-foreground)";
                 const fontWeight = isUcl || isLcl || isMean ? 600 : 400;
                 return (
                   <text
@@ -117,22 +117,22 @@ export default function SPCChart({ trends }: SPCChartProps) {
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: "hsl(var(--card))",
-                border: "1px solid hsl(var(--border))",
+                backgroundColor: "var(--card)",
+                border: "1px solid var(--border)",
                 borderRadius: "var(--radius)",
               }}
               formatter={(value: number) => [`${value.toFixed(1)}%`, measureLabel]}
             />
             <ReferenceLine
               y={ucl}
-              stroke="hsl(var(--destructive))"
+              stroke="var(--destructive)"
               strokeDasharray="6 3"
               strokeWidth={1.5}
             />
-            <ReferenceLine y={mean} stroke="hsl(var(--success))" strokeWidth={2} />
+            <ReferenceLine y={mean} stroke="var(--success)" strokeWidth={2} />
             <ReferenceLine
               y={lcl}
-              stroke="hsl(var(--destructive))"
+              stroke="var(--destructive)"
               strokeDasharray="6 3"
               strokeWidth={1.5}
             />
@@ -140,7 +140,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
             <Line
               type="monotone"
               dataKey="value"
-              stroke="hsl(var(--primary))"
+              stroke="var(--primary)"
               strokeWidth={2}
               dot={((props: any) => {
                 const { cx, cy, payload } = props;
@@ -150,8 +150,8 @@ export default function SPCChart({ trends }: SPCChartProps) {
                     cx={cx}
                     cy={cy}
                     r={payload.outOfControl ? 6 : 4}
-                    fill={payload.outOfControl ? "hsl(var(--destructive))" : "hsl(var(--primary))"}
-                    stroke={payload.outOfControl ? "hsl(var(--destructive))" : "hsl(var(--primary))"}
+                    fill={payload.outOfControl ? "var(--destructive)" : "var(--primary)"}
+                    stroke={payload.outOfControl ? "var(--destructive)" : "var(--primary)"}
                     strokeWidth={payload.outOfControl ? 2 : 1}
                   />
                 );
@@ -166,7 +166,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
           <span>Center Line (Mean)</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <div className="h-0.5 w-4 bg-destructive border-dashed" style={{ borderTop: "2px dashed hsl(var(--destructive))", height: 0 }} />
+          <div className="h-0.5 w-4 bg-destructive border-dashed" style={{ borderTop: "2px dashed var(--destructive)", height: 0 }} />
           <span>Control Limits (±3σ)</span>
         </div>
         <div className="flex items-center gap-1.5">
