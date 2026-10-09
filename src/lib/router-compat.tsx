@@ -10,10 +10,9 @@ import {
   useSearch as tsSearch,
   useRouter,
   Link as TSLink,
-  Navigate as TSNavigate,
   Outlet as TSOutlet,
 } from "@tanstack/react-router";
-import { useMemo, useCallback, forwardRef, type CSSProperties, type ComponentProps, type ReactNode } from "react";
+import { useMemo, useCallback, useLayoutEffect, useRef, forwardRef, type CSSProperties, type ComponentProps, type ReactNode } from "react";
 
 // ---------- shared URL parsing ----------
 
@@ -145,8 +144,19 @@ export const Link = forwardRef<HTMLAnchorElement, LinkProps>(function Link(
 // ---------- Navigate ----------
 
 export function Navigate({ to, replace, state }: { to: string; replace?: boolean; state?: unknown }) {
-  const { pathname, search, hash } = parseTo(to);
-  return <TSNavigate to={pathname as never} search={search as never} hash={hash} state={state as never} replace={replace} />;
+  // TanStack's <Navigate> re-navigates whenever its props object changes,
+  // i.e. on every re-render. Redirecting components often re-render while the
+  // navigation is pending, which looped forever and froze the tab. Navigate
+  // once per target instead.
+  const tsNav = tsNavigate();
+  const lastTarget = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    if (lastTarget.current === to) return;
+    lastTarget.current = to;
+    const { pathname, search, hash } = parseTo(to);
+    tsNav({ to: pathname as never, search: search as never, hash, state: state as never, replace });
+  }, [to, replace, state, tsNav]);
+  return null;
 }
 
 // ---------- Outlet ----------
