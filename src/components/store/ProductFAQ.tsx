@@ -18,7 +18,7 @@ export interface StoreFaq {
 export const DEFAULT_STORE_FAQS: StoreFaq[] = [
   {
     q: "What file formats do I get, and are they editable?",
-    a: "Everything is delivered as editable working files — Word and Excel documents, with PDFs where a print-ready version helps. You can rename, rebrand, and rewrite anything to match your center."What's inside\" list above.",
+    a: "Everything is delivered as editable working files — Word and Excel documents, with PDFs where a print-ready version helps. You can rename, rebrand, and rewrite anything to match your center. Exact formats vary by product; check the \"What's inside\" list above.",
   },
   {
     q: "Can my whole team use this, or is it one person?",
