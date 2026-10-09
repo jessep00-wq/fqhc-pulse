@@ -556,9 +556,9 @@ export default function Dashboard() {
                   <XAxis dataKey="month" className="text-xs" tickFormatter={formatMonthTick} />
                   <YAxis yAxisId="left" domain={[40, 80]} className="text-xs" />
                   <YAxis yAxisId="right" orientation="right" domain={[15, 45]} className="text-xs" />
-                  <Tooltip contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "var(--radius)" }} />
+                  <Tooltip contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "var(--radius)" }} />
                   <Legend />
-                  <ReferenceLine yAxisId="left" y={65} stroke="hsl(var(--muted-foreground))" strokeDasharray="6 3" strokeOpacity={0.5} />
+                  <ReferenceLine yAxisId="left" y={65} stroke="var(--muted-foreground)" strokeDasharray="6 3" strokeOpacity={0.5} />
                   <ReferenceLine yAxisId="right" y={25} stroke="hsl(0, 72%, 51%)" strokeDasharray="6 3" strokeOpacity={0.4} />
                   {UDS_MEASURE_LIST.map((m) => (
                     <Line

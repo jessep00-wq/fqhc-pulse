@@ -58,7 +58,7 @@ export function BarriersPanel({ cycleId, measureId, siteId, readonly }: Barriers
   const [deleting, setDeleting] = useState<string | null>(null);
 
   const saveMutation = useMutation({
-    mutationFn: saveFn,
+    mutationFn: (payload: unknown) => saveFn({ data: payload as never }),
     onSuccess: () => {
       toast.success("Barrier saved");
       setEditing(null);

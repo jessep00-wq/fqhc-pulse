@@ -28,7 +28,7 @@ export function CompletenessRing({ score, size = 36, showLabel = true, className
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="hsl(var(--muted))"
+          stroke="var(--muted)"
           strokeWidth={3}
         />
         <circle

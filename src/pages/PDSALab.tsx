@@ -75,7 +75,7 @@ const STATUS_COLUMNS: { key: PDSAStatus; label: string; color: string; borderCol
 const ROLE_INITIALS: Record<string, { initials: string; className: string }> = {
   "Front Desk": { initials: "FD", className: "bg-primary/20 text-primary" },
   "MA/RN": { initials: "MA", className: "bg-success/20 text-success" },
-  "Provider": { initials: "PR", className: "bg-[hsl(var(--accent))]/20 text-accent" },
+  "Provider": { initials: "PR", className: "bg-accent/20 text-accent" },
   "Care Coordinator": { initials: "CC", className: "bg-warning/20 text-warning" },
   "QI Manager": { initials: "QI", className: "bg-info/20 text-info" },
 };
