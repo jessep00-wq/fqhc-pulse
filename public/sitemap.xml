@@ -84,6 +84,11 @@
   <!-- Only resource articles with verified, published content are listed.
        Articles still marked contentInReview ship noindex and stay out of this file. -->
   <url>
+    <loc>https://measurewise.org/resources/fqhc-root-cause-analysis-guide</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://measurewise.org/resources/fqhc-pdsa-guide</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

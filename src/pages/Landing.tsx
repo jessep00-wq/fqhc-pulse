@@ -411,6 +411,12 @@ export default function Landing() {
           <Button size="lg" variant="outline" asChild>
             <a href={pdsaTemplate.url} target="_blank" rel="noopener noreferrer">Open printable template</a>
           </Button>
+          <p className="text-muted-foreground pt-4">
+            Also free: a fillable Root Cause Analysis worksheet (fishbone + action plan).{" "}
+            <Link to="/resources/fqhc-root-cause-analysis-guide" className="text-primary underline underline-offset-2">
+              Read the RCA guide and download it
+            </Link>
+          </p>
         </div>
       </section>
 

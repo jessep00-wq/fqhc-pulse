@@ -167,6 +167,22 @@ export default function ResourceArticle() {
               </section>
             ))}
 
+            {resource.downloads && resource.downloads.length > 0 && (
+              <section className="mt-12 rounded-xl border border-border bg-muted/40 p-6">
+                <h2 className="text-lg font-semibold text-foreground">Free download</h2>
+                <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+                  No account or email required. Print it or fill it in on screen.
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {resource.downloads.map((d, i) => (
+                    <Button key={d.href} asChild variant={i === 0 ? "default" : "outline"}>
+                      <a href={d.href} download={d.filename}>{d.label}</a>
+                    </Button>
+                  ))}
+                </div>
+              </section>
+            )}
+
             <section className="mt-12 rounded-xl border border-border bg-card p-6">
               <h2 className="text-lg font-semibold text-foreground">{resource.cta.label}</h2>
               <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
