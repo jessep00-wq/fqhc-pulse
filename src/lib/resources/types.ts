@@ -63,6 +63,8 @@ export interface Resource {
   cta: { label: string; href: string; blurb: string };
   /** Optional download that must already exist in the product. */
   download?: { label: string; href: string };
+  /** Free files offered on the article, downloadable without sign-up. */
+  downloads?: { label: string; href: string; filename: string }[];
   sources: ResourceSource[];
 }
 

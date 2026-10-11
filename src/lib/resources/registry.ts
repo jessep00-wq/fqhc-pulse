@@ -8,6 +8,8 @@
 // keeps it out of the sitemap).
 
 import type { Resource } from "./types";
+import rcaPdf from "@/assets/measurewise-rca-fillable.pdf.asset.json";
+import rcaDocx from "@/assets/measurewise-rca.docx.asset.json";
 
 const pending = (text: string) => ({ type: "pending" as const, text });
 const p = (text: string) => ({ type: "p" as const, text });
@@ -715,6 +717,168 @@ export const RESOURCES: Resource[] = [
         label: "HRSA Bureau of Primary Health Care official notices",
         href: "https://bphc.hrsa.gov/data-reporting/uds-training-and-technical-assistance",
       },
+    ],
+  },
+
+  {
+    slug: "fqhc-root-cause-analysis-guide",
+    title: "FQHC Root Cause Analysis Guide: From Problem to Corrective Action",
+    seoTitle: "FQHC Root Cause Analysis (RCA) Guide + Free Fishbone Worksheet",
+    description:
+      "A practical root cause analysis method for community health centers: define the gap, map the system, find causes with a fishbone and 5 Whys, and turn them into measurable actions. Free fillable worksheet included.",
+    category: "PDSA & Quality Improvement",
+    published: "2026-10-11",
+    updated: "2026-10-11",
+    readingMinutes: 11,
+    featured: true,
+    sections: [
+      {
+        heading: "Why hospital RCA guides miss FQHC problems",
+        id: "why-fqhc-rca-is-different",
+        blocks: [
+          p(
+            "Most published RCA guidance was written for hospitals and built around rare sentinel events: a wrong-site procedure, an inpatient fall. Health center quality teams deal with something different. Their hardest problems are slow and chronic: referrals that never close, abnormal results nobody acts on, screening rates that stay flat for years, and workflows that break every time a provider or medical assistant leaves.",
+          ),
+          p(
+            "Those problems rarely have a single dramatic cause. They come from handoffs, EHR configuration, staffing gaps, and measurement definitions working against each other. An RCA built for ambulatory care has to look at all of them at once.",
+          ),
+        ],
+      },
+      {
+        heading: "When to run an RCA, and when to skip straight to PDSA",
+        id: "when-to-run-rca",
+        blocks: [
+          p(
+            "Not every gap needs a formal RCA. If the cause is obvious and the fix is cheap to test, run a PDSA cycle. An RCA earns its time when the same problem keeps coming back, when a previous fix didn't hold, or when an event caused or nearly caused patient harm.",
+          ),
+          list([
+            "A measure has been flat or declining for several reporting periods despite effort",
+            "A safety event or near miss occurred (a missed abnormal result, a lost referral)",
+            "A previous PDSA was adopted but performance slid back",
+            "Staff disagree about why something is failing",
+          ]),
+        ],
+      },
+      {
+        heading: "Step 1: Define a specific, measurable problem",
+        id: "define-the-problem",
+        blocks: [
+          p(
+            "Write the problem as a gap, not a complaint. \"Our lab follow-up is bad\" can't be analyzed. \"38% of abnormal A1c results from Q2 had no documented follow-up within 14 days\" can.",
+          ),
+          list([
+            "Name the measure or process and the review period",
+            "State the baseline with its data source",
+            "Note what triggered the review (data trend, event report, audit)",
+          ]),
+        ],
+      },
+      {
+        heading: "Step 2: Assemble the right team",
+        id: "assemble-the-team",
+        blocks: [
+          p(
+            "Include the people who actually do the work: front desk, MAs, nurses, referral coordinators, the provider, and whoever owns EHR reporting. A facilitator keeps the session on systems rather than people. Leadership should sponsor the RCA but not dominate the discussion.",
+          ),
+        ],
+      },
+      {
+        heading: "Step 3: Map the process as it really runs",
+        id: "map-the-process",
+        blocks: [
+          p(
+            "Walk the workflow step by step, as it happens on a busy Tuesday, not as the policy says it happens. Most root causes show up at handoffs: between the lab interface and the inbox, between the provider and the care coordinator, between one site and another.",
+          ),
+        ],
+      },
+      {
+        heading: "Step 4: Find causes with a fishbone and 5 Whys",
+        id: "fishbone-and-5-whys",
+        blocks: [
+          p(
+            "The MeasureWise worksheet uses six categories so nothing gets skipped:",
+          ),
+          list([
+            "People: roles, staffing, training, communication",
+            "Process: workflow, handoffs, standard work",
+            "Technology: EHR, tools, equipment, alerts",
+            "Environment: space, workload, timing, interruptions",
+            "Policy: rules, procedures, governance",
+            "Measurement: definitions, data capture, feedback",
+          ]),
+          p(
+            "For each contributing cause, ask \"why?\" until the answer is something your team can change. Stop when you reach a system issue. If the chain ends in \"the MA forgot,\" keep going: why was forgetting possible?",
+          ),
+        ],
+      },
+      {
+        heading: "Step 5: Confirm root causes with data",
+        id: "confirm-with-data",
+        blocks: [
+          p(
+            "A fishbone generates hypotheses, not conclusions. Before you commit resources, check the top candidates against a chart pull, an EHR report, or a few days of direct observation. Causes that explain most of the gap get action first.",
+          ),
+        ],
+      },
+      {
+        heading: "Step 6: Turn causes into measurable corrective actions",
+        id: "corrective-actions",
+        blocks: [
+          p(
+            "Each confirmed root cause needs an action with an owner, a due date, and a measure that will show whether it worked. Prefer system-level fixes (a standing order, an EHR work queue, a redesigned handoff) over retraining and reminders, which tend to fade.",
+          ),
+          p(
+            "Each action then becomes a PDSA cycle: test it small, study the result, and decide to adopt, adapt, or abandon. That way the RCA leads to change you can prove instead of a report that sits in a binder.",
+          ),
+        ],
+      },
+      {
+        heading: "Illustrative example: missed abnormal-lab follow-up",
+        id: "example",
+        blocks: [
+          {
+            type: "callout" as const,
+            label: "Illustrative example (not a real health center)",
+            text: "A three-site FQHC found that about a third of abnormal results had no documented follow-up within two weeks. The fishbone surfaced several contributors:",
+            items: [
+              "Technology: results for providers who had left still routed to their inactive inboxes",
+              "Process: no defined owner for results while a provider was out",
+              "Measurement: the team tracked results reviewed, not patients contacted",
+              "Corrective action: route results to a shared team pool with a daily owner, tested at one site first as a PDSA cycle, measured weekly as percentage contacted within 14 days",
+            ],
+          },
+        ],
+      },
+      {
+        heading: "Keeping RCA records as QI documentation",
+        id: "documentation",
+        blocks: [
+          p(
+            "A completed RCA worksheet, the data you used to confirm causes, and the PDSA cycles that followed are useful evidence of an active quality improvement program. Health centers should check the current HRSA Health Center Program Compliance Manual (Chapter 10, Quality Improvement/Assurance) for what their own QI/QA program must cover.",
+          ),
+          p(
+            "MeasureWise helps you organize this documentation. It does not certify compliance, and neither does any worksheet.",
+          ),
+        ],
+      },
+    ],
+    related: ["fqhc-pdsa-guide", "fqhc-pdsa-hypertension-example", "hrsa-qi-qa-requirements-fqhc"],
+    cta: {
+      label: "See the PDSA Cycle Manager",
+      href: "/features#pdsa",
+      blurb:
+        "Turn each corrective action from your RCA into a tracked PDSA cycle with an owner, results, and a documented decision.",
+    },
+    downloads: [
+      { label: "Download fillable PDF", href: rcaPdf.url, filename: "MeasureWise_RCA_Worksheet.pdf" },
+      { label: "Download Word version", href: rcaDocx.url, filename: "MeasureWise_RCA_Worksheet.docx" },
+    ],
+    sources: [
+      { label: "AHRQ PSNet — Root Cause Analysis primer", href: "https://psnet.ahrq.gov/primer/root-cause-analysis" },
+      { label: "IHI — RCA²: Improving Root Cause Analyses and Actions to Prevent Harm", href: "https://www.ihi.org/resources/tools/rca2-improving-root-cause-analyses-and-actions-prevent-harm" },
+      { label: "VA National Center for Patient Safety — Root Cause Analysis", href: "https://www.patientsafety.va.gov/professionals/onthejob/rca.asp" },
+      { label: "CMS QAPI — Guidance for Performing Root Cause Analysis (PDF)", href: "https://www.cms.gov/medicare/provider-enrollment-and-certification/qapi/downloads/guidanceforrca.pdf" },
+      { label: "HRSA Health Center Program Compliance Manual — Chapter 10: Quality Improvement/Assurance", href: "https://bphc.hrsa.gov/compliance/compliance-manual/chapter10" },
     ],
   },
 
