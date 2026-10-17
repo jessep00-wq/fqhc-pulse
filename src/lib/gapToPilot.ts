@@ -66,7 +66,9 @@ export function buildPilotBlueprint(input: {
   const aim =
     baseline !== null && goal !== null
       ? `${dir} ${measure.short} for one provider panel from ${baseline}% to ${goal}% within ${PILOT_DAYS} days (organization target: ${target}%).`
-      : `${dir} ${measure.short} for one provider panel within ${PILOT_DAYS} days. Enter your baseline rate before starting.`;
+      : baseline !== null
+        ? `${dir} ${measure.short} for one provider panel from ${baseline}% within ${PILOT_DAYS} days. Set an organization target to size the goal.`
+        : `${dir} ${measure.short} for one provider panel within ${PILOT_DAYS} days. Enter your baseline rate before starting.`;
 
   const sampleSize = WEEKLY_SAMPLE * Math.ceil(PILOT_DAYS / 7);
   const staff = template?.assignedStaff ?? ["MA/RN", "Provider", "QI Manager"];

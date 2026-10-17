@@ -128,7 +128,7 @@ export function GapToPilotDialog({ open, onOpenChange, onCreated }: Props) {
                 <SelectContent>
                   {ranked.map((r) => (
                     <SelectItem key={r.m.id} value={r.m.id}>
-                      {r.m.short}{r.gap !== null ? ` — ${r.gap > 0 ? `${r.gap} pts from target` : "at target"}` : " — no rate yet"}
+                      {r.m.short}{r.gap !== null ? ` — ${r.gap > 0 ? `${r.gap} pts from target` : "at target"}` : r.b !== null ? " — no target set" : " — no rate yet"}
                     </SelectItem>
                   ))}
                 </SelectContent>
