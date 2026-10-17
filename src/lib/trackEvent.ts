@@ -4,6 +4,7 @@ import { withPostHog } from "@/lib/posthog";
 export type EventName =
   | "login"
   | "pdsa_created"
+  | "pilot_blueprint_launched"
   | "pdsa_updated"
   | "pdsa_phase_changed"
   | "measure_linked"

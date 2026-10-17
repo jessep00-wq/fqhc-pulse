@@ -36,6 +36,8 @@ import { SiteSelect, NO_SITE } from "@/components/SiteSelect";
 import { isStalled, getEarliestOpenDue, dueTone, readPdsaSeed, clearPdsaSeed, type PdsaSeed } from "@/lib/pdsaStatus";
 import { trackEvent } from "@/lib/trackEvent";
 import { usePdsaDraft, readMirror, type DraftSaveState } from "@/hooks/usePdsaDraft";
+import { GapToPilotDialog } from "@/components/pdsa/GapToPilotDialog";
+import { Rocket } from "lucide-react";
 
 const WIZARD_OPEN_KEY = "mw_pdsa_wizard_open";
 
@@ -910,6 +912,7 @@ export default function PDSALab() {
     else window.sessionStorage.removeItem(WIZARD_OPEN_KEY);
   }, [newOpen]);
 
+  const [pilotOpen, setPilotOpen] = useState(false);
   const { data: cycles = [], isLoading } = useQuery({
     queryKey: ["pdsa_cycles", organization.id],
     queryFn: async () => {
@@ -1150,9 +1153,13 @@ export default function PDSALab() {
             <Button variant="outline" onClick={() => setEvidenceOpen(true)}>
               <Download className="h-4 w-4 mr-1" /> HRSA Audit Binder
             </Button>
+            <Button variant="outline" onClick={() => setPilotOpen(true)}>
+              <Rocket className="h-4 w-4 mr-1" /> Launch Pilot
+            </Button>
             <Button onClick={handleNewCycle} aria-label="New PDSA Cycle">
               <Plus className="h-4 w-4 mr-1" /> New PDSA Cycle
             </Button>
+            <GapToPilotDialog open={pilotOpen} onOpenChange={setPilotOpen} />
           </div>
         </div>
 
