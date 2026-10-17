@@ -11,7 +11,10 @@ interface AuthContextType {
   signOut: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+// Reuse one context object across hot reloads; otherwise editing any module
+// this file imports re-creates the context and consumers lose the provider.
+const g = globalThis as unknown as { __mwAuthContext?: React.Context<AuthContextType | undefined> };
+const AuthContext = (g.__mwAuthContext ??= createContext<AuthContextType | undefined>(undefined));
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
