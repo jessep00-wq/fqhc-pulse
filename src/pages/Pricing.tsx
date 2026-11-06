@@ -256,6 +256,68 @@ export default function Pricing() {
         </div>
       </section>
 
+      {/* Founding Health Center Program */}
+      <section className="pb-20 px-6" aria-labelledby="founding-heading">
+        <div className="max-w-5xl mx-auto rounded-2xl border border-primary/20 bg-primary/5 p-6 md:p-10">
+          <p className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">
+            Founding Health Center Program
+          </p>
+          <h2 id="founding-heading" className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+            Be one of our first three health centers
+          </h2>
+          <p className="text-muted-foreground max-w-3xl mb-8">
+            We're opening the first three founding spots to health centers that want to shape MeasureWise with us. You pay the same annual price as everyone else. What you get on top is our time and a price that stays put.
+          </p>
+          <div className="grid md:grid-cols-2 gap-8">
+            {[
+              {
+                title: "What founding health centers get",
+                items: [
+                  "Annual plan at today's published price, paid upfront: Solo Clinic $1,490, Multi-Site $3,490, Health Center Network $6,990",
+                  "That price locked for your first two renewals, as long as you renew on time",
+                  "Onboarding done with you at no charge: your measures set up, your first PDSA cycle run, and your first Audit Binder exported together",
+                  "Direct access to the founder, not a support queue",
+                  "A quarterly roadmap call where your requests shape what we build next",
+                  "A written data-export guarantee: your data leaves with you, in a usable format, whenever you ask",
+                ],
+              },
+              {
+                title: "What we ask in return",
+                items: [
+                  "A short written case study at 90 days",
+                  "Up to one reference call a quarter with another health center",
+                  "A 30-minute feedback call each month for the first 90 days",
+                  "Permission to name your organization, only with your approval",
+                ],
+              },
+            ].map((col) => (
+              <div key={col.title}>
+                <h3 className="text-lg font-semibold text-foreground mb-4">{col.title}</h3>
+                <ul className="space-y-3">
+                  {col.items.map((item) => (
+                    <li key={item} className="flex items-start gap-2 text-sm text-foreground">
+                      <CheckCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" aria-hidden="true" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground mt-8">
+            Founding terms apply to a single health center. HCCN and PCA programs licensing for member centers are priced separately; contact us.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center gap-3">
+            <Button asChild>
+              <Link to="/contact">Ask about a founding spot</Link>
+            </Button>
+            <a href={`mailto:${BRAND.founder.email}`} className="text-sm text-primary underline-offset-4 hover:underline">
+              or email {BRAND.founder.email}
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Why per-site */}
       <section className="py-20 px-6 bg-muted/30">
         <div className="max-w-5xl mx-auto">
