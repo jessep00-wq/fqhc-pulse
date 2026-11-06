@@ -20,3 +20,6 @@ Verification scope: recent public homepage, walkthrough, and template only. Exis
 - [ ] 8. Automated Sentinel refresh + notifications.
 - [ ] 9. Tests: tenant isolation, output validation, cross-cycle rules, feature flags, rate limits.
 - [ ] 10. Regression check: PDSA, SPC, reports, store, audit binder.
+
+## Pricing page
+- [x] Founding Health Center Program section on /pricing.
