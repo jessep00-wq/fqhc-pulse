@@ -67,7 +67,7 @@ export function authErrorMessage(code: string, description: string): string {
   const normalized = (description || "").trim();
   switch (code) {
     case "otp_expired":
-      return "That link has expired. Links are single use and expire after a short time — request a new one below.";
+      return "That link has expired. Links are single use and expire after a short time. Request a new one below.";
     case "access_denied":
       return "That link has expired or was already used. Request a new one below.";
     default:
