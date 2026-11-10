@@ -213,6 +213,9 @@ export default function Auth() {
       // function on first SIGNED_IN (see AuthContext) — do not invoke
       // `send-email` here with client-supplied HTML, which would let any
       // authenticated user push arbitrary HTML through the email pipeline.
+      // The signup itself just sent an email, so the resend button starts
+      // in its cooldown (the auth service rejects resends inside 60s).
+      resendCooldown.start();
       setShowVerifyEmail(true);
     }
   };
