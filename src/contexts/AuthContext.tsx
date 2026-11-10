@@ -14,6 +14,9 @@ interface AuthContextType {
 // Reuse one context object across hot reloads; otherwise editing any module
 // this file imports re-creates the context and consumers lose the provider.
 const g = globalThis as unknown as { __mwAuthContext?: React.Context<AuthContextType | undefined> };
+// Per-page-load guard so two near-simultaneous auth events request one welcome email.
+const welcomeInFlight = new Set<string>();
+export const __resetWelcomeInFlight = () => welcomeInFlight.clear();
 const AuthContext = (g.__mwAuthContext ??= createContext<AuthContextType | undefined>(undefined));
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -138,13 +141,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                       if (error) {
                         // Never swallow silently — this failure was invisible before.
                         console.error("send-welcome-email failed:", error.message ?? error);
+                        welcomeInFlight.delete(userId);
                         return;
                       }
                       window.localStorage.setItem(welcomeKey, "1");
                     })
-                    .catch((e) => console.error("send-welcome-email threw:", e));
+                    .catch((e) => {
+                      welcomeInFlight.delete(userId);
+                      console.error("send-welcome-email threw:", e);
+                    });
                 })
-                .then(undefined, (e) => console.error("welcome precheck failed:", e));
+                .then(undefined, (e) => {
+                  welcomeInFlight.delete(userId);
+                  console.error("welcome precheck failed:", e);
+                });
             }, 0);
           }
         }
