@@ -286,7 +286,7 @@ export default function Auth() {
         </title>
         <meta
           name="description"
-          content="Sign in or start a 14-day MeasureWise free trial — PDSA cycles, UDS measure tracking, and HRSA audit readiness for FQHC quality teams."
+          content="Sign in or start a 14-day MeasureWise free trial: PDSA cycles, UDS measure tracking, and HRSA audit readiness for FQHC quality teams."
         />
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
@@ -331,7 +331,7 @@ export default function Auth() {
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                14-day free trial. No card required to start — {selectedPlan.billingTiming}. Cancel anytime before the trial ends.
+                14-day free trial. No card required to start, {selectedPlan.billingTiming}. Cancel anytime before the trial ends.
               </p>
             </div>
           </div>
@@ -516,7 +516,7 @@ export default function Auth() {
                               )}
                               <span className={passed ? "text-success" : "text-muted-foreground"}>
                                 {rule.label}
-                                <span className="sr-only">{passed ? " — met" : " — not met yet"}</span>
+                                <span className="sr-only">{passed ? ", met" : ", not met yet"}</span>
                               </span>
                             </li>
                           );
