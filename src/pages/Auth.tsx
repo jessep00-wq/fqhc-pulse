@@ -15,7 +15,8 @@ import { BRAND } from "@/lib/brand";
 import { captureFromUrl, readPlanIntent, appendPlanToUrl } from "@/lib/planIntent";
 import { parsePlanSelection } from "@/lib/pricingPlans";
 import { trackAnonEvent } from "@/lib/trackEvent";
-import { authErrorMessage } from "@/lib/authLinkParams";
+import { authErrorMessage, parseAuthLink } from "@/lib/authLinkParams";
+import { useResendCooldown } from "@/hooks/useResendCooldown";
 
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -84,6 +85,25 @@ export default function Auth() {
   }, [nextParam]);
   const withNext = (path: string) =>
     safeNext ? `${path}?next=${encodeURIComponent(safeNext)}` : path;
+  // Single source for the confirmation-link redirect so signup and every
+  // resend send people to the same place.
+  const confirmRedirectUrl = () =>
+    appendPlanToUrl(`${window.location.origin}${withNext("/auth")}`, readPlanIntent());
+
+  const resendCooldown = useResendCooldown();
+
+  // A confirmation link that is expired or already used can redirect straight
+  // to /auth with the error in the hash or query (not only via the homepage
+  // forwarder). Pick it up here and clear it from the address bar.
+  useEffect(() => {
+    if (searchParams.get("authError")) return;
+    const intent = parseAuthLink(window.location.href);
+    if (intent?.kind !== "error") return;
+    setLinkError({ code: intent.code, description: intent.description });
+    setIsLogin(true);
+    window.history.replaceState(null, "", `${window.location.pathname}${safeNext ? `?next=${encodeURIComponent(safeNext)}` : ""}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Capture incoming ?plan=&billing= from /pricing → relay through signup,
   // email verification, and onboarding so we can launch checkout afterward.
@@ -165,7 +185,7 @@ export default function Auth() {
       password,
       options: {
         data: { full_name: fullName, staff_role: staffRole },
-        emailRedirectTo: appendPlanToUrl(`${window.location.origin}${withNext("/auth")}`, intent),
+        emailRedirectTo: confirmRedirectUrl(),
       },
     });
     setLoading(false);
@@ -193,6 +213,9 @@ export default function Auth() {
       // function on first SIGNED_IN (see AuthContext) — do not invoke
       // `send-email` here with client-supplied HTML, which would let any
       // authenticated user push arbitrary HTML through the email pipeline.
+      // The signup itself just sent an email, so the resend button starts
+      // in its cooldown (the auth service rejects resends inside 60s).
+      resendCooldown.start();
       setShowVerifyEmail(true);
     }
   };
@@ -218,20 +241,22 @@ export default function Auth() {
 
   const handleResendConfirmation = async () => {
     if (!email) {
-      toast.error("Enter your email above first, then resend.");
+      toast.error("Enter your email below, then resend.");
       return;
     }
+    if (resendCooldown.coolingDown) return;
     setLoading(true);
     const { error } = await supabase.auth.resend({
       type: "signup",
       email,
-      options: { emailRedirectTo: `${window.location.origin}${withNext("/auth")}` },
+      options: { emailRedirectTo: confirmRedirectUrl() },
     });
     setLoading(false);
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("New confirmation link sent. It expires shortly — use it right away.");
+      resendCooldown.start();
+      toast.success("New confirmation email sent. Check your inbox and spam folder, and use the newest link.");
       setLinkError(null);
     }
   };
@@ -261,7 +286,7 @@ export default function Auth() {
         </title>
         <meta
           name="description"
-          content="Sign in or start a 14-day MeasureWise free trial — PDSA cycles, UDS measure tracking, and HRSA audit readiness for FQHC quality teams."
+          content="Sign in or start a 14-day MeasureWise free trial: PDSA cycles, UDS measure tracking, and HRSA audit readiness for FQHC quality teams."
         />
         <meta name="robots" content="noindex,nofollow" />
       </Helmet>
@@ -306,7 +331,7 @@ export default function Auth() {
                 </Link>
               </div>
               <p className="mt-3 text-xs text-muted-foreground">
-                14-day free trial. No card required to start — {selectedPlan.billingTiming}. Cancel anytime before the trial ends.
+                14-day free trial. No card required to start, {selectedPlan.billingTiming}. Cancel anytime before the trial ends.
               </p>
             </div>
           </div>
@@ -325,8 +350,15 @@ export default function Auth() {
                 </div>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" variant="outline" onClick={handleResendConfirmation} disabled={loading}>
-                  Resend confirmation email
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={handleResendConfirmation}
+                  disabled={loading || resendCooldown.coolingDown}
+                >
+                  {resendCooldown.coolingDown
+                    ? `Resend available in ${resendCooldown.remaining}s`
+                    : "Resend confirmation email"}
                 </Button>
                 <Button
                   size="sm"
@@ -352,6 +384,20 @@ export default function Auth() {
                 <p className="text-sm text-muted-foreground max-w-xs">
                   We sent a verification link to <span className="font-medium text-foreground">{email}</span>. Click the link to activate your account.
                 </p>
+                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
+                  Not there after a minute or two? Check your spam or junk folder for an email from MeasureWise.
+                </p>
+              </div>
+              <div className="flex flex-col items-center gap-2" aria-live="polite">
+                <Button
+                  onClick={handleResendConfirmation}
+                  disabled={loading || resendCooldown.coolingDown}
+                >
+                  {loading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                  {resendCooldown.coolingDown
+                    ? `Resend available in ${resendCooldown.remaining}s`
+                    : "Resend confirmation email"}
+                </Button>
               </div>
               <Button variant="outline" onClick={() => { setShowVerifyEmail(false); setIsLogin(true); }}>
                 Back to Sign In
@@ -470,7 +516,7 @@ export default function Auth() {
                               )}
                               <span className={passed ? "text-success" : "text-muted-foreground"}>
                                 {rule.label}
-                                <span className="sr-only">{passed ? " — met" : " — not met yet"}</span>
+                                <span className="sr-only">{passed ? ", met" : ", not met yet"}</span>
                               </span>
                             </li>
                           );

@@ -23,3 +23,10 @@ Verification scope: recent public homepage, walkthrough, and template only. Exis
 
 ## Pricing page
 - [x] Founding Health Center Program section on /pricing.
+
+## Auth emails through the MeasureWise sender
+- [x] Resend confirmation button with 60s cooldown and spam note on "Check your email".
+- [x] Expired or used link message on /auth when the link lands there directly.
+- [x] Lovable Emails re-enabled (required for the hook).
+- [ ] Auth emails reach auth-email-hook: blocked until notify.measurewise.org NS records are restored at Cloudflare and the sender shows Active.
+- [ ] Live verification (signup row, confirm link, recovery row, cleanup): rerun after the sender is Active.
