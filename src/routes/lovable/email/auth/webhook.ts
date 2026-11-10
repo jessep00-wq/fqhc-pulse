@@ -2,7 +2,6 @@ import * as React from 'react'
 import { render } from '@react-email/render'
 import { parseEmailWebhookPayload } from '@lovable.dev/email-js'
 import { WebhookError, verifyWebhookRequest } from '@lovable.dev/webhooks-js'
-import { createClient } from '@supabase/supabase-js'
 import { createFileRoute } from '@tanstack/react-router'
 import { SignupEmail } from '@/lib/email-templates/signup'
 import { InviteEmail } from '@/lib/email-templates/invite'
@@ -10,6 +9,11 @@ import { MagicLinkEmail } from '@/lib/email-templates/magic-link'
 import { RecoveryEmail } from '@/lib/email-templates/recovery'
 import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
+
+// Auth email sender for Cloud Auth. Mirrors supabase/functions/auth-email-hook:
+// verify signature, render the MeasureWise templates, send directly through the
+// Resend connector gateway from noreply@measurewise.org, and log pending/sent/failed
+// rows to email_send_log. No platform queue, no notify.measurewise.org sending.
 
 const EMAIL_SUBJECTS: Record<string, string> = {
   signup: 'Confirm your email',
@@ -20,7 +24,6 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   reauthentication: 'Your verification code',
 }
 
-// Template mapping
 const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   signup: SignupEmail,
   invite: InviteEmail,
@@ -30,11 +33,10 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
   reauthentication: ReauthenticationEmail,
 }
 
-// Configuration
-const SITE_NAME = "MeasureWise"
-const SENDER_DOMAIN = "notify.measurewise.org"
-const ROOT_DOMAIN = "measurewise.org"
-const FROM_DOMAIN = "measurewise.org"
+const SITE_NAME = 'MeasureWise'
+const ROOT_DOMAIN = 'measurewise.org'
+const FROM_DOMAIN = 'measurewise.org'
+const RESEND_GATEWAY_URL = 'https://connector-gateway.lovable.dev/resend/emails'
 
 function redactEmail(email: string | null | undefined): string {
   if (!email) return '***'
@@ -43,18 +45,14 @@ function redactEmail(email: string | null | undefined): string {
   return `${localPart[0]}***@${domain}`
 }
 
-export const Route = createFileRoute("/lovable/email/auth/webhook")({
+export const Route = createFileRoute('/lovable/email/auth/webhook')({
   server: {
     handlers: {
       POST: async ({ request }) => {
         const apiKey = process.env['LOVABLE_API_KEY']
-
         if (!apiKey) {
           console.error('LOVABLE_API_KEY not configured')
-          return Response.json(
-            { error: 'Server configuration error' },
-            { status: 500 }
-          )
+          return Response.json({ error: 'Server configuration error' }, { status: 500 })
         }
 
         // Verify signature + timestamp, then parse payload.
@@ -76,45 +74,30 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
               case 'invalid_timestamp':
               case 'stale_timestamp':
                 console.error('Invalid webhook signature', { error: error.message })
-                return Response.json(
-                  { error: 'Invalid signature' },
-                  { status: 401 }
-                )
+                return Response.json({ error: 'Invalid signature' }, { status: 401 })
               case 'invalid_payload':
               case 'invalid_json':
                 console.error('Invalid webhook payload', { error: error.message })
-                return Response.json(
-                  { error: 'Invalid webhook payload' },
-                  { status: 400 }
-                )
+                return Response.json({ error: 'Invalid webhook payload' }, { status: 400 })
             }
           }
-
           console.error('Webhook verification failed', { error })
-          return Response.json(
-            { error: 'Invalid webhook payload' },
-            { status: 400 }
-          )
+          return Response.json({ error: 'Invalid webhook payload' }, { status: 400 })
         }
 
         if (!run_id) {
           console.error('Webhook payload missing run_id')
-          return Response.json(
-            { error: 'Invalid webhook payload' },
-            { status: 400 }
-          )
+          return Response.json({ error: 'Invalid webhook payload' }, { status: 400 })
         }
 
         if (payload.version !== '1') {
           console.error('Unsupported payload version', { version: payload.version, run_id })
           return Response.json(
             { error: `Unsupported payload version: ${payload.version}` },
-            { status: 400 }
+            { status: 400 },
           )
         }
 
-        // The email action type is in payload.data.action_type (e.g., "signup", "recovery")
-        // payload.type is the hook event type ("auth")
         const emailType = payload.data.action_type
         console.log('Received auth event', {
           emailType,
@@ -125,13 +108,9 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
         const EmailTemplate = EMAIL_TEMPLATES[emailType]
         if (!EmailTemplate) {
           console.error('Unknown email type', { emailType, run_id })
-          return Response.json(
-            { error: `Unknown email type: ${emailType}` },
-            { status: 400 }
-          )
+          return Response.json({ error: `Unknown email type: ${emailType}` }, { status: 400 })
         }
 
-        // Build template props from payload.data (HookData structure)
         const templateProps = {
           siteName: SITE_NAME,
           siteUrl: `https://${ROOT_DOMAIN}`,
@@ -143,78 +122,126 @@ export const Route = createFileRoute("/lovable/email/auth/webhook")({
           newEmail: payload.data.new_email,
         }
 
-        // Render React Email to HTML and plain text
         const element = React.createElement(EmailTemplate, templateProps)
         const html = await render(element)
         const text = await render(element, { plainText: true })
 
-        // Enqueue email for async processing by the dispatcher (process-email-queue).
-        const supabaseUrl = import.meta.env['VITE_SUPABASE_URL']
-        const supabaseServiceKey = process.env['SUPABASE_SERVICE_ROLE_KEY']
-
-        if (!supabaseUrl || !supabaseServiceKey) {
-          console.error('Missing Supabase environment variables')
-          return Response.json(
-            { error: 'Server configuration error' },
-            { status: 500 }
-          )
+        // Service-role client, loaded inside the handler after the caller is verified.
+        let supabaseAdmin: any
+        try {
+          ;({ supabaseAdmin } = await import('@/integrations/supabase/client.server'))
+        } catch (err) {
+          console.error('Supabase service-role client unavailable', {
+            error: (err as Error)?.message,
+            run_id,
+          })
+          return Response.json({ error: 'Server configuration error' }, { status: 500 })
         }
 
-        const supabase = createClient(supabaseUrl, supabaseServiceKey)
         const messageId = crypto.randomUUID()
 
-        // Log pending BEFORE enqueue so we have a record even if enqueue crashes
-        await supabase.from('email_send_log').insert({
+        // Log pending BEFORE sending so we have a record even if the send crashes.
+        await supabaseAdmin.from('email_send_log').insert({
           message_id: messageId,
           template_name: emailType,
           recipient_email: payload.data.email,
           status: 'pending',
         })
 
-        const { error: enqueueError } = await supabase.rpc('enqueue_email', {
-          queue_name: 'auth_emails',
-          payload: {
-            run_id,
-            message_id: messageId,
-            to: payload.data.email,
-            from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
-            sender_domain: SENDER_DOMAIN,
-            subject: EMAIL_SUBJECTS[emailType] || 'Notification',
-            html,
-            text,
-            purpose: 'transactional',
-            label: emailType,
-            queued_at: new Date().toISOString(),
-          },
-        })
-
-        if (enqueueError) {
-          console.error('Failed to enqueue auth email', {
-            code: enqueueError.code,
-            message: enqueueError.message,
-            run_id,
-            emailType,
-          })
-          await supabase.from('email_send_log').insert({
+        const RESEND_API_KEY = process.env['RESEND_API_KEY']
+        if (!RESEND_API_KEY) {
+          console.error('RESEND_API_KEY is not configured')
+          await supabaseAdmin.from('email_send_log').insert({
             message_id: messageId,
             template_name: emailType,
             recipient_email: payload.data.email,
             status: 'failed',
-            error_message: 'Failed to enqueue email',
+            error_message: 'RESEND_API_KEY is not configured',
+          })
+          return Response.json({ error: 'Email transport not configured' }, { status: 500 })
+        }
+
+        let resendStatus = 0
+        let resendBody = ''
+        try {
+          const resp = await fetch(RESEND_GATEWAY_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${apiKey}`,
+              'X-Connection-Api-Key': RESEND_API_KEY,
+            },
+            body: JSON.stringify({
+              from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+              to: [payload.data.email],
+              reply_to: `hello@${ROOT_DOMAIN}`,
+              subject: EMAIL_SUBJECTS[emailType] || 'Notification',
+              html,
+              text,
+              tags: [{ name: 'category', value: String(emailType).replace(/_/g, '-') }],
+            }),
+          })
+          resendStatus = resp.status
+          resendBody = await resp.text().catch(() => '')
+        } catch (err) {
+          console.error('Auth email send threw', {
+            error: (err as Error)?.message,
+            run_id,
+            emailType,
+          })
+          await supabaseAdmin.from('email_send_log').insert({
+            message_id: messageId,
+            template_name: emailType,
+            recipient_email: payload.data.email,
+            status: 'failed',
+            error_message: `Exception: ${(err as Error)?.message ?? String(err)}`.slice(0, 500),
+          })
+          return Response.json({ error: 'Failed to send email' }, { status: 502 })
+        }
+
+        if (resendStatus < 200 || resendStatus >= 300) {
+          console.error('Auth email rejected by provider', {
+            resendStatus,
+            resendBody,
+            run_id,
+            emailType,
+          })
+          await supabaseAdmin.from('email_send_log').insert({
+            message_id: messageId,
+            template_name: emailType,
+            recipient_email: payload.data.email,
+            status: 'failed',
+            error_message: `Resend ${resendStatus}: ${resendBody}`.slice(0, 500),
           })
           return Response.json(
-            { error: 'Failed to enqueue email' },
-            { status: 500 }
+            { error: 'Failed to send email', status: resendStatus, details: resendBody },
+            { status: 502 },
           )
         }
 
-        console.log('Auth email enqueued', {
+        let resendId: string | null = null
+        try {
+          resendId = JSON.parse(resendBody)?.id ?? null
+        } catch {
+          /* keep null */
+        }
+
+        await supabaseAdmin.from('email_send_log').insert({
+          message_id: messageId,
+          template_name: emailType,
+          recipient_email: payload.data.email,
+          status: 'sent',
+          metadata: { provider: 'resend', resend_id: resendId, run_id },
+        })
+
+        console.log('Auth email sent', {
           emailType,
           email_redacted: redactEmail(payload.data.email),
           run_id,
+          resendId,
         })
 
-        return Response.json({ success: true, queued: true })
+        return Response.json({ success: true, sent: true })
       },
     },
   },

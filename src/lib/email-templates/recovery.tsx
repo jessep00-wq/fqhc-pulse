@@ -39,7 +39,7 @@ export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
         </Text>
         <Text style={styles.footerText}>
           If you didn't request a password reset, you can safely ignore this
-          email — your password will not be changed.
+          email. Your password will not be changed.
         </Text>
         <Signature />
       </Container>
