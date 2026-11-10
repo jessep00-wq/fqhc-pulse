@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, waitFor } from "@testing-library/react";
 
@@ -18,13 +19,14 @@ vi.mock("@/integrations/supabase/client", () => ({
     },
     from: () => ({
       update: () => ({ eq: () => ({ then: (fn: () => void) => fn() }) }),
+      select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: null }) }) }),
     }),
     functions: { invoke: h.invokeMock },
   },
 }));
 vi.mock("@/lib/trackEvent", () => ({ trackEvent: vi.fn() }));
 
-import { AuthProvider } from "./AuthContext";
+import { AuthProvider, __resetWelcomeInFlight } from "./AuthContext";
 
 const SESSION = { user: { id: "user-42", email: "x@y.z" } };
 const WELCOME_KEY = "mw_welcome_sent_user-42";
@@ -34,6 +36,7 @@ describe("AuthContext welcome email flag", () => {
     h.capturedCb = null;
     h.invokeMock.mockReset();
     window.localStorage.clear();
+    __resetWelcomeInFlight();
   });
 
   it("sets the localStorage flag ONLY after send-welcome-email resolves successfully", async () => {
@@ -64,5 +67,14 @@ describe("AuthContext welcome email flag", () => {
     await waitFor(() => expect(h.invokeMock).toHaveBeenCalled());
     await new Promise((r) => setTimeout(r, 0));
     expect(window.localStorage.getItem(WELCOME_KEY)).toBeNull();
+  });
+
+  it("two near-simultaneous auth events request the welcome email only once", async () => {
+    h.invokeMock.mockResolvedValue({ error: null });
+    render(<AuthProvider><div /></AuthProvider>);
+    h.capturedCb!("INITIAL_SESSION", SESSION);
+    h.capturedCb!("SIGNED_IN", SESSION);
+    await waitFor(() => expect(window.localStorage.getItem(WELCOME_KEY)).toBe("1"));
+    expect(h.invokeMock).toHaveBeenCalledTimes(1);
   });
 });
