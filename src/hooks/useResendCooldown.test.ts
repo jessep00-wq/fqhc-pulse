@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useResendCooldown, RESEND_COOLDOWN_SECONDS } from "./useResendCooldown";
