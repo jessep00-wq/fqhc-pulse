@@ -115,7 +115,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           const userId = session.user.id;
           const welcomeKey = `mw_welcome_sent_${userId}`;
-          if (typeof window !== "undefined" && !window.localStorage.getItem(welcomeKey)) {
+          if (
+            typeof window !== "undefined" &&
+            !window.localStorage.getItem(welcomeKey) &&
+            !welcomeInFlight.has(userId)
+          ) {
+            welcomeInFlight.add(userId);
             setTimeout(() => {
               supabase
                 .from("profiles")
