@@ -1,32 +1,25 @@
-// @vitest-environment jsdom
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useResendCooldown, RESEND_COOLDOWN_SECONDS } from "./useResendCooldown";
-
-afterEach(() => {
-  vi.useRealTimers();
-});
+import { describe, it, expect } from "vitest";
+import { cooldownRemaining, RESEND_COOLDOWN_SECONDS } from "./useResendCooldown";
 
 describe("resend confirmation cooldown", () => {
   it("is 60 seconds", () => {
     expect(RESEND_COOLDOWN_SECONDS).toBe(60);
   });
 
-  it("blocks resending for 60 seconds, then allows it again", () => {
-    vi.useFakeTimers();
-    const { result } = renderHook(() => useResendCooldown());
-    expect(result.current.coolingDown).toBe(false);
+  it("allows resending before any email was sent", () => {
+    expect(cooldownRemaining(null, 1_000_000)).toBe(0);
+  });
 
-    act(() => result.current.start());
-    expect(result.current.remaining).toBe(60);
-    expect(result.current.coolingDown).toBe(true);
+  it("blocks resending for the full 60 seconds after a send", () => {
+    const sentAt = 1_000_000;
+    expect(cooldownRemaining(sentAt, sentAt)).toBe(60);
+    expect(cooldownRemaining(sentAt, sentAt + 59_000)).toBe(1);
+    expect(cooldownRemaining(sentAt, sentAt + 59_999)).toBe(1);
+  });
 
-    for (let i = 0; i < 59; i++) act(() => { vi.advanceTimersByTime(1000); });
-    expect(result.current.remaining).toBe(1);
-    expect(result.current.coolingDown).toBe(true);
-
-    act(() => { vi.advanceTimersByTime(1000); });
-    expect(result.current.remaining).toBe(0);
-    expect(result.current.coolingDown).toBe(false);
+  it("allows resending again at 60 seconds", () => {
+    const sentAt = 1_000_000;
+    expect(cooldownRemaining(sentAt, sentAt + 60_000)).toBe(0);
+    expect(cooldownRemaining(sentAt, sentAt + 120_000)).toBe(0);
   });
 });
