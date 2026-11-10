@@ -71,6 +71,23 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Atomic claim: only the request that flips welcome_email_sent_at from
+    // null wins. Concurrent duplicates (two auth events at once) skip here.
+    const { data: claimed } = await supabase
+      .from("profiles")
+      .update({ welcome_email_sent_at: new Date().toISOString() })
+      .eq("id", parsed.data.user_id)
+      .is("welcome_email_sent_at", null)
+      .select("id");
+    if (!claimed || claimed.length === 0) {
+      return new Response(JSON.stringify({ ok: true, skipped: "already_sent" }), {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const releaseClaim = () =>
+      supabase.from("profiles").update({ welcome_email_sent_at: null }).eq("id", parsed.data.user_id);
+
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name")
@@ -82,6 +99,7 @@ Deno.serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!RESEND_API_KEY || !LOVABLE_API_KEY) {
       console.warn("send-welcome-email: missing API keys");
+      await releaseClaim();
       return new Response(JSON.stringify({ ok: true, skipped: "no_keys" }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -143,6 +161,7 @@ Deno.serve(async (req) => {
     if (!resp.ok) {
       const txt = await resp.text();
       console.error("welcome email rejected", resp.status, txt);
+      await releaseClaim();
       await supabase.from("email_send_log").insert({
         template_name: "welcome",
         recipient_email: email,
@@ -198,13 +217,6 @@ Deno.serve(async (req) => {
     } catch (alertErr) {
       console.error("signup alert threw", alertErr);
     }
-
-    // Mark the profile so the client can skip re-invoking on every login
-    // (cross-device dedup; localStorage was per-browser).
-    await supabase
-      .from("profiles")
-      .update({ welcome_email_sent_at: new Date().toISOString() })
-      .eq("id", parsed.data.user_id);
 
     return new Response(JSON.stringify({ ok: true }), {
       status: 200,
