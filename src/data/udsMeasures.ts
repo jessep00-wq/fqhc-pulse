@@ -17,11 +17,16 @@ export interface UdsMeasure {
   color: string;
   /** true when a LOWER rate is better (inverse measure) */
   inverse?: boolean;
+  /** National comparison rate used when the org hasn't set its own goal */
+  benchmark: { value: number; source: string; year: number };
 }
+
+const NATIONAL = (value: number) => ({ value, source: "HRSA UDS national average", year: 2024 });
 
 export const UDS_MEASURE_LIST: UdsMeasure[] = [
   {
     id: "CMS2",
+    benchmark: NATIONAL(73.70),
     short: "Depression Screening",
     label: "CMS2 – Screening for Depression & Follow-Up",
     value: "CMS2: Depression Screening",
@@ -29,6 +34,7 @@ export const UDS_MEASURE_LIST: UdsMeasure[] = [
   },
   {
     id: "CMS138",
+    benchmark: NATIONAL(84.24),
     short: "Tobacco Use Screening",
     label: "CMS138 – Tobacco Use Screening & Cessation",
     value: "CMS138: Tobacco Screening & Cessation",
@@ -36,6 +42,7 @@ export const UDS_MEASURE_LIST: UdsMeasure[] = [
   },
   {
     id: "CMS130",
+    benchmark: NATIONAL(42.71),
     short: "Colorectal Cancer Screening",
     label: "CMS130 – Colorectal Cancer Screening",
     value: "CMS130: Colorectal Cancer Screening",
@@ -43,6 +50,7 @@ export const UDS_MEASURE_LIST: UdsMeasure[] = [
   },
   {
     id: "CMS124",
+    benchmark: NATIONAL(55.37),
     short: "Cervical Cancer Screening",
     label: "CMS124 – Cervical Cancer Screening",
     value: "CMS124: Cervical Cancer Screening",
@@ -50,6 +58,7 @@ export const UDS_MEASURE_LIST: UdsMeasure[] = [
   },
   {
     id: "CMS125",
+    benchmark: NATIONAL(53.96),
     short: "Breast Cancer Screening",
     label: "CMS125 – Breast Cancer Screening",
     value: "CMS125: Breast Cancer Screening",
@@ -57,6 +66,7 @@ export const UDS_MEASURE_LIST: UdsMeasure[] = [
   },
   {
     id: "CMS165",
+    benchmark: NATIONAL(67.42),
     short: "Hypertension Control",
     label: "CMS165 – Controlling High Blood Pressure",
     value: "CMS165: Blood Pressure Control",
@@ -64,6 +74,7 @@ export const UDS_MEASURE_LIST: UdsMeasure[] = [
   },
   {
     id: "CMS122",
+    benchmark: NATIONAL(28.13),
     short: "Diabetes A1c > 9% or Untested",
     label: "CMS122 – Diabetes: HbA1c > 9% or Untested",
     value: "CMS122: Diabetes HbA1c Poor Control",

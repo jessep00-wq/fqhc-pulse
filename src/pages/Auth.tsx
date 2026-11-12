@@ -24,8 +24,8 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useOrg } from "@/contexts/OrgContext";
 import { Navigate, Link } from "@/lib/router-compat";
 
-type StaffRole = "Front Desk" | "MA/RN" | "Provider" | "Care Coordinator" | "QI Manager";
-const ROLES: StaffRole[] = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager"];
+type StaffRole = "Front Desk" | "MA/RN" | "Provider" | "Care Coordinator" | "QI Manager" | "Quality Director";
+const ROLES: StaffRole[] = ["Front Desk", "MA/RN", "Provider", "Care Coordinator", "QI Manager", "Quality Director"];
 
 const passwordRules = [
   { label: "At least 8 characters", test: (p: string) => p.length >= 8 },

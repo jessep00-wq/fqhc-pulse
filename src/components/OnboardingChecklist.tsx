@@ -21,6 +21,8 @@ interface ChecklistData {
   cycleCount: number;
   taskCount: number;
   trendCount: number;
+  /** Measure goals set for the current calendar year. */
+  goalCount: number;
 }
 
 const CHECKLIST_ITEMS: ChecklistItem[] = [
@@ -48,6 +50,14 @@ const CHECKLIST_ITEMS: ChecklistItem[] = [
     route: "/dashboard/staff-tasks",
     checkFn: (d) => d.taskCount > 0,
   },
+  {
+    id: "goals",
+    step: 4,
+    label: "Set your measure goals",
+    description: "Set this year's goal for each UDS measure so the dashboard judges you against your own targets.",
+    route: "/dashboard/settings#measure-goals",
+    checkFn: (d) => d.goalCount > 0,
+  },
 ];
 
 export function OnboardingChecklist({ counts }: { counts?: ChecklistData } = {}) {
@@ -67,15 +77,21 @@ export function OnboardingChecklist({ counts }: { counts?: ChecklistData } = {})
   const { data: fetched } = useQuery({
     queryKey: ["onboarding_checklist", orgId],
     queryFn: async () => {
-      const [cycles, tasks, trends] = await Promise.all([
+      const [cycles, tasks, trends, goals] = await Promise.all([
         supabase.from("pdsa_cycles").select("id", { count: "exact", head: true }).eq("organization_id", orgId).is("deleted_at", null),
         supabase.from("tasks").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
         supabase.from("uds_trends").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
+        supabase
+          .from("measure_goals")
+          .select("id", { count: "exact", head: true })
+          .eq("organization_id", orgId)
+          .eq("measurement_year", new Date().getFullYear()),
       ]);
       return {
         cycleCount: cycles.count ?? 0,
         taskCount: tasks.count ?? 0,
         trendCount: trends.count ?? 0,
+        goalCount: goals.count ?? 0,
       } as ChecklistData;
     },
     enabled: !!orgId && !counts,
@@ -108,7 +124,7 @@ export function OnboardingChecklist({ counts }: { counts?: ChecklistData } = {})
             <div>
               <p className="text-sm font-semibold text-foreground">Welcome to MeasureWise!</p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Complete these 3 steps to set up your quality improvement workspace. Each step takes about 2 minutes.
+                Complete these {CHECKLIST_ITEMS.length} steps to set up your quality improvement workspace. Each step takes about 2 minutes.
               </p>
             </div>
           </div>

@@ -29,8 +29,9 @@ import { cn } from "@/lib/utils";
 import { DataModeCard } from "@/components/DataModeCard";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/trackEvent";
+import { MeasureGoalsSection } from "@/components/settings/MeasureGoalsSection";
 
-const STAFF_ROLES = ["QI Manager", "Provider", "MA/RN", "Front Desk", "Care Coordinator", "Administrator"];
+const STAFF_ROLES = ["QI Manager", "Quality Director", "Provider", "MA/RN", "Front Desk", "Care Coordinator", "Administrator"];
 
 const UDS_MEASURES = UDS_MEASURE_LIST.map((m) => ({ id: m.id, label: m.label, short: m.short }));
 
@@ -50,6 +51,24 @@ export default function Settings() {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const activeTab = VALID_TABS.has(searchParams.get("tab") ?? "") ? (searchParams.get("tab") as string) : "account";
+
+  // Links to #measure-goals open the Clinical Data tab and scroll to the section.
+  const goalsHashRef = useRef(typeof window !== "undefined" && window.location.hash === "#measure-goals");
+  useEffect(() => {
+    if (!goalsHashRef.current) return;
+    if (activeTab !== "clinical") {
+      const next = new URLSearchParams(searchParams);
+      next.set("tab", "clinical");
+      setSearchParams(next, { replace: true });
+      return;
+    }
+    goalsHashRef.current = false;
+    const t = setTimeout(() => {
+      document.getElementById("measure-goals")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
   const currentPage = Math.max(1, parseInt(searchParams.get("page") ?? "1", 10) || 1);
   const sortKey = (searchParams.get("sort") as SortKey) || "month_desc";
 
@@ -453,6 +472,8 @@ export default function Settings() {
 
         {/* ─── Clinical Data ─── */}
         <TabsContent value="clinical" className="space-y-6 mt-6">
+          <MeasureGoalsSection trends={trends ?? []} staffRole={profile?.staff_role ?? null} />
+
           <div className="grid lg:grid-cols-2 gap-6">
             {/* Manual entry */}
             <Card>

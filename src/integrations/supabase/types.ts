@@ -1308,6 +1308,39 @@ export type Database = {
         }
         Relationships: []
       }
+      measure_goals: {
+        Row: {
+          created_at: string
+          goal_value: number
+          id: string
+          measure_id: string
+          measurement_year: number
+          organization_id: string
+          set_by: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          goal_value: number
+          id?: string
+          measure_id: string
+          measurement_year: number
+          organization_id: string
+          set_by?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          goal_value?: number
+          id?: string
+          measure_id?: string
+          measurement_year?: number
+          organization_id?: string
+          set_by?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       measure_signals: {
         Row: {
           assigned_to: string | null
@@ -2819,6 +2852,10 @@ export type Database = {
       backfill_barriers_from_cycles: {
         Args: { _org_id: string }
         Returns: number
+      }
+      can_edit_measure_goals: {
+        Args: { _org_id: string; _user_id: string }
+        Returns: boolean
       }
       delete_email: {
         Args: { message_id: number; queue_name: string }

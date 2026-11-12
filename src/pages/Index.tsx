@@ -39,6 +39,9 @@ import { useProfile } from "@/hooks/useProfile";
 import { blockersForCompletion, type PdsaCycleFields } from "@/lib/pdsaProgress";
 
 import { UDS_MEASURE_LABELS, UDS_MEASURE_LIST } from "@/data/udsMeasures";
+import { getMeasureStatus, type MeasureStatus } from "@/lib/measureStatus";
+import { useMeasureGoals } from "@/hooks/useMeasureGoals";
+import { Badge } from "@/components/ui/badge";
 
 const VARIANT_BORDER: Record<string, string> = {
   default: "border-l-4 border-l-primary",
@@ -67,44 +70,84 @@ const MetricCard = ({
 );
 
 
+type AtRiskItem = { id: string; label: string; value: number; status: MeasureStatus };
+
+const fmtPct = (n: number) => `${Number.isInteger(n) ? n : Number(n.toFixed(1))}%`;
+
 function AtRiskDialog({
   open,
   onClose,
   measures,
+  goals,
 }: {
   open: boolean;
   onClose: () => void;
-  measures: { id: string; label: string; value: number }[];
+  measures: AtRiskItem[];
+  goals: Record<string, number>;
 }) {
   const navigate = useNavigate();
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <AlertTriangle className="h-5 w-5 text-warning" />
             <JargonTooltip term="UDS">UDS</JargonTooltip> Measures Below Target
           </DialogTitle>
           <DialogDescription>
-            These measures are currently below your target. Consider starting a <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycle to address them.
+            These measures miss your goal or the national average. Consider starting a <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycle to address them.
           </DialogDescription>
-          <p className="text-xs text-muted-foreground">Default targets until you set your own goals.</p>
+          <p className="text-xs text-muted-foreground">
+            Using HRSA UDS 2024 national averages where you haven't set a goal.{" "}
+            <button
+              type="button"
+              className="font-medium text-primary underline underline-offset-4 hover:no-underline"
+              onClick={() => {
+                onClose();
+                navigate("/dashboard/settings#measure-goals");
+              }}
+            >
+              Settings &gt; Measure Goals
+            </button>
+          </p>
         </DialogHeader>
         {measures.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">All measures are on target!</p>
         ) : (
           <div className="space-y-3">
-            {measures.map((m) => (
-              <div key={m.id} className="flex items-center justify-between rounded-lg border p-3">
-                <div>
-                  <p className="text-sm font-medium">{m.label}</p>
-                  <p className="text-xs text-muted-foreground">{m.id}</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-warning">{m.value.toFixed(1)}%</span>
+            {measures.map((m) => {
+              const goal = goals[m.id];
+              const bm = m.status.benchmark;
+              const parts = [fmtPct(m.value)];
+              if (goal !== undefined) parts.push(`Goal ${fmtPct(goal)}`);
+              if (bm) parts.push(`National ${fmtPct(bm.value)} (UDS ${bm.year})`);
+              return (
+                <div key={m.id} className="flex items-start justify-between gap-3 rounded-lg border p-3">
+                  <div className="min-w-0 space-y-1">
+                    <p className="text-sm font-medium">
+                      {m.label}
+                      {m.status.inverse && (
+                        <span className="ml-1 text-xs font-normal text-muted-foreground">(lower is better)</span>
+                      )}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{parts.join(" · ")}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {m.status.missesGoal && (
+                        <Badge variant="outline" className="border-warning/40 bg-warning/10 text-warning">
+                          Misses goal
+                        </Badge>
+                      )}
+                      {m.status.missesNational && (
+                        <Badge variant="outline" className="border-warning/40 bg-warning/10 text-warning">
+                          {m.status.inverse ? "Above national avg" : "Below national avg"}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
                   <Button
                     size="sm"
                     variant="outline"
+                    className="shrink-0"
                     onClick={() => {
                       onClose();
                       navigate("/dashboard/pdsa-lab");
@@ -113,8 +156,8 @@ function AtRiskDialog({
                     Start Cycle <ArrowRight className="h-3 w-3 ml-1" />
                   </Button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </DialogContent>
@@ -190,8 +233,10 @@ export default function Dashboard() {
 
   // Wait for feature switches too, so the Sentinel section doesn't push the page down.
   const { loading: flagsLoading } = useFeatureFlags();
+  const goalsQuery = useMeasureGoals(orgId);
+  const goals = goalsQuery.data ?? {};
   const isInitialLoading =
-    flagsLoading || cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading;
+    flagsLoading || cyclesQuery.isLoading || tasksQuery.isLoading || trendsQuery.isLoading || activityQuery.isLoading || goalsQuery.isLoading;
   const hasFetchError =
     cyclesQuery.isError || tasksQuery.isError || trendsQuery.isError || activityQuery.isError;
 
@@ -203,20 +248,19 @@ export default function Dashboard() {
     return Date.now() - updated > 14 * 24 * 60 * 60 * 1000;
   }).length ?? 0;
 
-  // Default targets until the org sets its own: inverse measures (lower is
-  // better, e.g. CMS122) are at risk above 30; all others below 65.
-  const atRiskMeasures = (() => {
+  // Judged against the org's goal when set, plus the national benchmark.
+  const atRiskMeasures: AtRiskItem[] = (() => {
     if (!trends?.length) return [];
     const latest: Record<string, number> = {};
     for (const t of trends) latest[t.measure_id] = Number(t.value);
-    const inverseIds = new Set(UDS_MEASURE_LIST.filter((m) => m.inverse).map((m) => m.id));
     return Object.entries(latest)
-      .map(([id, value]) => {
-        const inverse = inverseIds.has(id);
-        const gap = inverse ? value - 30 : 65 - value;
-        return { id, label: MEASURE_LABELS[id] || id, value, gap };
-      })
-      .filter((m) => m.gap > 0);
+      .map(([id, value]) => ({
+        id,
+        label: MEASURE_LABELS[id] || id,
+        value,
+        status: getMeasureStatus({ measureId: id, value, goal: goals[id] ?? null }),
+      }))
+      .filter((m) => m.status.flagged);
   })();
 
   // Compare local-time yyyy-MM-dd strings so time zones can't shift a due date.
@@ -343,7 +387,7 @@ export default function Dashboard() {
 
   const topAtRisk = atRiskMeasures
     .slice()
-    .sort((a, b) => b.gap - a.gap)
+    .sort((a, b) => (b.status.gap ?? 0) - (a.status.gap ?? 0))
     .slice(0, 2);
 
 
@@ -403,7 +447,7 @@ export default function Dashboard() {
         <MeasureSentinelSection />
 
         <OnboardingChecklist
-          counts={{ cycleCount: cycles?.length ?? 0, taskCount: tasks?.length ?? 0, trendCount: trends?.length ?? 0 }}
+          counts={{ cycleCount: cycles?.length ?? 0, taskCount: tasks?.length ?? 0, trendCount: trends?.length ?? 0, goalCount: Object.keys(goals).length }}
         />
 
 
@@ -429,7 +473,7 @@ export default function Dashboard() {
             description={
               topAtRisk.length > 0
                 ? topAtRisk.map((m) => `${MEASURE_LABELS[m.id]?.split(" ")[0] || m.id} ${m.value.toFixed(0)}%`).join(" · ")
-                : "No measures below your target"
+                : "All measures meet your goals and national averages"
             }
             badge={
               atRiskMeasures.length > 0
@@ -508,7 +552,7 @@ export default function Dashboard() {
 
 
 
-      <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} />
+      <AtRiskDialog open={atRiskOpen} onClose={() => setAtRiskOpen(false)} measures={atRiskMeasures} goals={goals} />
       <BoardReportDialog
         open={boardReportOpen}
         onClose={() => setBoardReportOpen(false)}

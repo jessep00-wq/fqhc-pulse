@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { FileText, Loader2, Download } from "lucide-react";
 import { useOrg } from "@/contexts/OrgContext";
 import { confirmDemoExport } from "@/lib/demoExportGate";
+import { getMeasureStatus, type MeasureStatus } from "@/lib/measureStatus";
+import { useMeasureGoals } from "@/hooks/useMeasureGoals";
 import { toast } from "sonner";
 
 interface BoardReportDialogProps {
@@ -22,6 +24,15 @@ interface BoardReportDialogProps {
 const MEASURE_LABELS: Record<string, string> = UDS_MEASURE_LABELS;
 
 const currentYear = new Date().getFullYear();
+
+const fmtPct = (n: number) => `${Number.isInteger(n) ? n : Number(n.toFixed(1))}%`;
+
+/** Board status label. Inverse measures never say "Below" (lower is better). */
+function boardStatusLabel(s: MeasureStatus): string {
+  if (s.missesGoal) return s.inverse ? "Above goal" : "Misses goal";
+  if (s.missesNational) return s.inverse ? "Above national avg" : "Below national avg";
+  return "On target";
+}
 const quarters = [
   `Q1 ${currentYear}`,
   `Q2 ${currentYear}`,
@@ -38,6 +49,7 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends }: Boar
   const printRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
   const [period, setPeriod] = useState(quarters[0]);
+  const { data: goals = {} } = useMeasureGoals(organization.id);
 
   const activeCycles = cycles?.filter((c) => c.status !== "completed") || [];
   const completedCycles = cycles?.filter((c) => c.status === "completed") || [];
@@ -49,12 +61,11 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends }: Boar
     if (!trends?.length) return [];
     const latest: Record<string, number> = {};
     for (const t of trends) latest[t.measure_id] = Number(t.value);
-    return Object.entries(latest).map(([id, value]) => ({
-      id,
-      label: MEASURE_LABELS[id] || id,
-      value,
-      onTarget: id === "CMS122" ? value <= 25 : value >= 65,
-    }));
+    return Object.entries(latest).map(([id, value]) => {
+      const goal = goals[id] ?? null;
+      const status = getMeasureStatus({ measureId: id, value, goal });
+      return { id, label: MEASURE_LABELS[id] || id, value, goal, status };
+    });
   })();
 
   // Task completion by role
@@ -166,34 +177,46 @@ export function BoardReportDialog({ open, onClose, cycles, tasks, trends }: Boar
                 UDS Performance Summary
               </h3>
               {latestMeasures.length > 0 ? (
+                <>
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-2 font-semibold text-gray-700">Measure</th>
                       <th className="text-left py-2 font-semibold text-gray-700">ID</th>
                       <th className="text-right py-2 font-semibold text-gray-700">Current</th>
-                      <th className="text-right py-2 font-semibold text-gray-700">Target</th>
+                      <th className="text-right py-2 font-semibold text-gray-700">Goal</th>
+                      <th className="text-right py-2 font-semibold text-gray-700">National</th>
                       <th className="text-right py-2 font-semibold text-gray-700">Status</th>
                     </tr>
                   </thead>
                   <tbody>
                     {latestMeasures.map((m) => (
                       <tr key={m.id} className="border-b border-gray-100">
-                        <td className="py-2 text-gray-800">{m.label}</td>
+                        <td className="py-2 text-gray-800">
+                          {m.label}
+                          {m.status.inverse && <span className="text-xs text-gray-500"> (lower is better)</span>}
+                        </td>
                         <td className="py-2 text-gray-500">{m.id}</td>
                         <td className="py-2 text-right font-medium">{m.value.toFixed(1)}%</td>
                         <td className="py-2 text-right text-gray-500">
-                          {m.id === "CMS122" ? "≤25%" : "≥65%"}
+                          {m.goal !== null ? fmtPct(m.goal) : "Not set"}
+                        </td>
+                        <td className="py-2 text-right text-gray-500">
+                          {m.status.benchmark ? fmtPct(m.status.benchmark.value) : "—"}
                         </td>
                         <td className="py-2 text-right">
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${m.onTarget ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
-                            {m.onTarget ? "On Target" : "Below Target"}
+                          <span className={`px-2 py-0.5 rounded text-xs font-medium ${m.status.flagged ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}>
+                            {boardStatusLabel(m.status)}
                           </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
+                <p className="text-xs text-gray-500">
+                  National = HRSA UDS 2024 national average.
+                </p>
+                </>
               ) : (
                 <p className="text-sm text-gray-500 italic">No UDS data available.</p>
               )}
