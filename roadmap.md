@@ -30,3 +30,9 @@ Verification scope: recent public homepage, walkthrough, and template only. Exis
 - [x] Lovable Emails re-enabled (required for the hook).
 - [ ] Auth emails reach auth-email-hook: blocked until notify.measurewise.org NS records are restored at Cloudflare and the sender shows Active.
 - [ ] Live verification (signup row, confirm link, recovery row, cleanup): rerun after the sender is Active.
+
+## Barriers redesign
+- [x] 1. New barrier fields, decisions, cycle links and change idea library (schema + seeded ideas).
+- [x] 2. New barrier list: Start here, filters, why, also seen on, suggestions, linked cycles.
+- [ ] Map the 2 existing barriers to the new fields: waiting on Jessica's OK of the mapping.
+- [ ] 3-6. New record form, status modals, decision emails, owner auto-suggest in the form: waiting on Jessica's review of 1-2.

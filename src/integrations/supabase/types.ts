@@ -971,20 +971,142 @@ export type Database = {
         }
         Relationships: []
       }
+      barrier_cycles: {
+        Row: {
+          barrier_id: string
+          created_at: string
+          cycle_id: string
+          organization_id: string
+        }
+        Insert: {
+          barrier_id: string
+          created_at?: string
+          cycle_id: string
+          organization_id: string
+        }
+        Update: {
+          barrier_id?: string
+          created_at?: string
+          cycle_id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "barrier_cycles_barrier_id_fkey"
+            columns: ["barrier_id"]
+            isOneToOne: false
+            referencedRelation: "barriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "barrier_cycles_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "pdsa_cycles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "barrier_cycles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      barrier_decisions: {
+        Row: {
+          accepted_at: string | null
+          action_due_date: string | null
+          action_owner_user_id: string | null
+          already_tried: string | null
+          backup_user_id: string | null
+          barrier_id: string
+          created_at: string
+          created_by: string | null
+          decider_user_id: string
+          decision_made: string | null
+          decision_needed: string
+          due_date: string
+          id: string
+          organization_id: string
+          redirect_note: string | null
+          redirected_to_user_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          action_due_date?: string | null
+          action_owner_user_id?: string | null
+          already_tried?: string | null
+          backup_user_id?: string | null
+          barrier_id: string
+          created_at?: string
+          created_by?: string | null
+          decider_user_id: string
+          decision_made?: string | null
+          decision_needed: string
+          due_date?: string
+          id?: string
+          organization_id: string
+          redirect_note?: string | null
+          redirected_to_user_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          action_due_date?: string | null
+          action_owner_user_id?: string | null
+          already_tried?: string | null
+          backup_user_id?: string | null
+          barrier_id?: string
+          created_at?: string
+          created_by?: string | null
+          decider_user_id?: string
+          decision_made?: string | null
+          decision_needed?: string
+          due_date?: string
+          id?: string
+          organization_id?: string
+          redirect_note?: string | null
+          redirected_to_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "barrier_decisions_barrier_id_fkey"
+            columns: ["barrier_id"]
+            isOneToOne: false
+            referencedRelation: "barriers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "barrier_decisions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       barriers: {
         Row: {
           affected_measure_id: string | null
           affected_site_id: string | null
           category: string | null
+          change_made: string | null
+          closed_reason: string | null
           created_at: string
           description: string | null
           detected_by: string | null
+          est_patients: number | null
           first_seen: string
           id: string
           organization_id: string
+          owner_role: string | null
           owner_user_id: string | null
+          period: string | null
+          reasons: string[]
           related_pdsa_ids: string[] | null
           status: string
+          symptom: string | null
           title: string
           updated_at: string
         }
@@ -992,15 +1114,22 @@ export type Database = {
           affected_measure_id?: string | null
           affected_site_id?: string | null
           category?: string | null
+          change_made?: string | null
+          closed_reason?: string | null
           created_at?: string
           description?: string | null
           detected_by?: string | null
+          est_patients?: number | null
           first_seen?: string
           id?: string
           organization_id: string
+          owner_role?: string | null
           owner_user_id?: string | null
+          period?: string | null
+          reasons?: string[]
           related_pdsa_ids?: string[] | null
           status?: string
+          symptom?: string | null
           title: string
           updated_at?: string
         }
@@ -1008,15 +1137,22 @@ export type Database = {
           affected_measure_id?: string | null
           affected_site_id?: string | null
           category?: string | null
+          change_made?: string | null
+          closed_reason?: string | null
           created_at?: string
           description?: string | null
           detected_by?: string | null
+          est_patients?: number | null
           first_seen?: string
           id?: string
           organization_id?: string
+          owner_role?: string | null
           owner_user_id?: string | null
+          period?: string | null
+          reasons?: string[]
           related_pdsa_ids?: string[] | null
           status?: string
+          symptom?: string | null
           title?: string
           updated_at?: string
         }
@@ -1036,6 +1172,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      change_ideas: {
+        Row: {
+          created_at: string
+          id: string
+          measure_code: string | null
+          reason: string
+          sort_order: number
+          template_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          measure_code?: string | null
+          reason: string
+          sort_order?: number
+          template_id?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          measure_code?: string | null
+          reason?: string
+          sort_order?: number
+          template_id?: string | null
+          title?: string
+        }
+        Relationships: []
       }
       contact_submissions: {
         Row: {

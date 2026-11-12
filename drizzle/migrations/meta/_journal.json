@@ -15,6 +15,13 @@
       "when": 1794511468491,
       "tag": "0001_create_measure_goals",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794518864508,
+      "tag": "0002_barriers_redesign_schema",
+      "breakpoints": true
     }
   ]
 }

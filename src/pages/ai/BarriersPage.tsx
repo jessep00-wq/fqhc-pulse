@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { listBarriers, saveBarrier, deleteBarrier } from "@/lib/ai/barriers.functions";
+import { getBarrierBoard, saveBarrier, deleteBarrier } from "@/lib/ai/barriers.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { Plus, Pencil, Trash2, X, AlertCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
@@ -16,42 +16,102 @@ import { UDS_MEASURES } from "@/data/mockData";
 import { EmptyState } from "@/components/EmptyState";
 import { useSiteOptions } from "@/hooks/useSiteOptions";
 
+import { Link } from "@/lib/router-compat";
+import { Sparkles, FileText, Link2, Users } from "lucide-react";
+import { PDSA_TEMPLATES, type PDSATemplate } from "@/data/pdsaTemplates";
+import { UDS_MEASURE_LIST } from "@/data/udsMeasures";
+import {
+  SYMPTOM_LABEL, STATUS_LABEL, REASON_LABEL, normalizeStatus, measureCode, sortBarriers, startHereId,
+  filterBarriers, waitingOnUser, whySection, alsoSeenOn, suggestIdeas, patientsLine,
+  type BarrierFilter, type BarrierStatus, type Symptom, type Reason, type ChangeIdeaLike, type DecisionLike,
+} from "@/lib/barriers/barrierModel";
+
 interface Barrier {
   id: string;
   title: string;
   description: string | null;
   category: string | null;
-  status: "open" | "mitigated" | "escalated";
+  status: string;
   affected_measure_id: string | null;
   affected_site_id: string | null;
   owner_user_id: string | null;
   related_pdsa_ids: string[] | null;
   first_seen: string;
   created_at: string;
+  symptom: string | null;
+  est_patients: number | null;
+  period: string | null;
+  reasons: string[] | null;
+  owner_role: string | null;
   affected_site?: { name: string } | null;
 }
 
-const STATUS_META = {
-  open: { label: "Open", Icon: AlertCircle, className: "bg-warning/10 text-warning border-warning/30" },
-  mitigated: { label: "Mitigated", Icon: CheckCircle2, className: "bg-success/10 text-success border-success/30" },
-  escalated: { label: "Escalated", Icon: AlertTriangle, className: "bg-destructive/10 text-destructive border-destructive/30" },
+interface BoardData {
+  userId: string;
+  barriers: Barrier[];
+  links: { barrier_id: string; cycle_id: string; title: string }[];
+  ideas: ChangeIdeaLike[];
+  decisions: (DecisionLike & { id: string; due_date: string })[];
+}
+
+const STATUS_CLASS: Record<BarrierStatus, string> = {
+  open: "bg-warning/10 text-warning border-warning/30",
+  decision_requested: "bg-destructive/10 text-destructive border-destructive/30",
+  in_progress: "bg-primary/10 text-primary border-primary/30",
+  waiting_outside: "bg-muted text-muted-foreground border-border",
+  mitigated: "bg-success/10 text-success border-success/30",
+  closed_unresolved: "bg-muted text-muted-foreground border-border",
 };
+
+const STATUS_ICON: Record<BarrierStatus, typeof AlertCircle> = {
+  open: AlertCircle,
+  decision_requested: AlertTriangle,
+  in_progress: AlertCircle,
+  waiting_outside: AlertCircle,
+  mitigated: CheckCircle2,
+  closed_unresolved: X,
+};
+
+const FILTERS: { id: BarrierFilter; label: string }[] = [
+  { id: "active", label: "Active" },
+  { id: "waiting", label: "Waiting on you" },
+  { id: "closed", label: "Closed" },
+];
+
+function measureLabel(measure: string | null) {
+  const code = measureCode(measure);
+  if (!code) return null;
+  const m = UDS_MEASURE_LIST.find((x) => x.id === code);
+  return m ? `${m.id} · ${m.short}` : measure;
+}
+
+function ReasonPill({ reason, tone = "neutral" }: { reason: string; tone?: "neutral" | "unknown" }) {
+  const cls = tone === "unknown"
+    ? "bg-warning/10 text-warning border-warning/30"
+    : "bg-muted text-foreground border-border";
+  return (
+    <Badge variant="outline" className={`text-xs font-normal ${cls}`}>
+      {REASON_LABEL[reason as Reason] ?? reason}
+    </Badge>
+  );
+}
 
 export default function BarriersPage() {
   const queryClient = useQueryClient();
-  const listFn = useServerFn(listBarriers);
+  const boardFn = useServerFn(getBarrierBoard);
   const saveFn = useServerFn(saveBarrier);
   const deleteFn = useServerFn(deleteBarrier);
   const sites = useSiteOptions();
 
-  const { data = [], isLoading } = useQuery({
-    queryKey: ["barriers", "all"],
-    queryFn: () => listFn(),
+  const { data, isLoading } = useQuery({
+    queryKey: ["barriers", "board"],
+    queryFn: () => boardFn() as Promise<BoardData>,
   });
 
   const [editing, setEditing] = useState<Partial<Barrier> | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [filter, setFilter] = useState<"all" | "open" | "mitigated" | "escalated">("all");
+  const [filter, setFilter] = useState<BarrierFilter>("active");
+  const [template, setTemplate] = useState<PDSATemplate | null>(null);
 
   const saveMutation = useMutation({
     mutationFn: (payload: unknown) => saveFn({ data: payload as never }),
@@ -73,8 +133,19 @@ export default function BarriersPage() {
     onError: (e) => toast.error(`Failed to delete barrier: ${e?.message ?? ""}`),
   });
 
-  const barriers = data as Barrier[];
-  const filtered = filter === "all" ? barriers : barriers.filter((b) => b.status === filter);
+  const barriers = (data?.barriers ?? []) as Barrier[];
+  const decisions = data?.decisions ?? [];
+  const ideas = data?.ideas ?? [];
+  const userId = data?.userId ?? null;
+  const waitingCount = new Set(waitingOnUser(decisions, userId).map((d) => d.barrier_id)).size;
+  const startHere = startHereId(barriers);
+  const filtered = sortBarriers(filterBarriers(barriers, filter, decisions, userId));
+  const linksFor = (id: string) => (data?.links ?? []).filter((l) => l.barrier_id === id);
+
+  const openTemplate = (templateId: string | null) => {
+    const t = templateId ? PDSA_TEMPLATES.find((x) => x.id === templateId) : null;
+    if (t) setTemplate(t);
+  };
 
   return (
     <div className="space-y-6 p-6 max-w-7xl mx-auto">
@@ -90,15 +161,22 @@ export default function BarriersPage() {
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {(["all", "open", "mitigated", "escalated"] as const).map((f) => (
+      <div className="flex flex-wrap gap-2" role="group" aria-label="Filter barriers">
+        {FILTERS.map((f) => (
           <Button
-            key={f}
-            variant={filter === f ? "default" : "outline"}
+            key={f.id}
+            variant={filter === f.id ? "default" : "outline"}
             size="sm"
-            onClick={() => setFilter(f)}
+            className="rounded-full"
+            aria-pressed={filter === f.id}
+            onClick={() => setFilter(f.id)}
           >
-            {f.charAt(0).toUpperCase() + f.slice(1)}
+            {f.label}
+            {f.id === "waiting" && (
+              <span className={`ml-1.5 rounded-full px-1.5 text-xs ${filter === f.id ? "bg-primary-foreground/20" : "bg-muted"}`}>
+                {waitingCount}
+              </span>
+            )}
           </Button>
         ))}
       </div>
@@ -108,45 +186,160 @@ export default function BarriersPage() {
       ) : filtered.length === 0 ? (
         <EmptyState
           icon={AlertCircle}
-          title="No barriers found"
-          description="Record barriers from any PDSA cycle or from this page to track recurring operational blockers."
+          title={filter === "waiting" ? "Nothing is waiting on you" : filter === "closed" ? "No closed barriers yet" : "No active barriers"}
+          description={filter === "active"
+            ? "Record a barrier when the team sees a pattern blocking a measure. Never record individual patients."
+            : "Barriers will show here as they move through their lifecycle."}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filtered.map((b) => {
-            const meta = STATUS_META[b.status];
+            const status = normalizeStatus(b.status);
+            const StatusIcon = STATUS_ICON[status];
+            const why = whySection(b.reasons);
+            const seen = alsoSeenOn(b, barriers);
+            const suggestions = suggestIdeas(b, ideas);
+            const links = linksFor(b.id);
+            const estimate = patientsLine(b.est_patients, b.period);
+            const title = b.symptom ? SYMPTOM_LABEL[b.symptom as Symptom] : b.title;
+            const mLabel = measureLabel(b.affected_measure_id);
             return (
-              <Card key={b.id} className="border-l-4 border-l-warning">
-                <CardHeader className="pb-2">
+              <Card key={b.id} className={`border-l-4 ${status === "mitigated" ? "border-l-success" : status === "closed_unresolved" ? "border-l-border" : "border-l-warning"}`}>
+                <CardHeader className="pb-2 space-y-2">
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-base">{b.title}</CardTitle>
-                    <div className="flex items-center gap-1">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditing(b)}>
+                    <div className="min-w-0 space-y-1">
+                      {startHere === b.id && (
+                        <Badge className="bg-primary text-primary-foreground text-[11px] px-2 py-0">
+                          <Sparkles className="h-3 w-3 mr-1" /> Start here
+                        </Badge>
+                      )}
+                      <CardTitle className="text-base leading-snug">{title}</CardTitle>
+                      {b.symptom && b.title && b.title !== title && (
+                        <p className="text-xs text-muted-foreground truncate">{b.title}</p>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Edit barrier" onClick={() => setEditing(b)}>
                         <Pencil className="h-3.5 w-3.5" />
                       </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" onClick={() => setDeleting(b.id)}>
+                      <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" aria-label="Delete barrier" onClick={() => setDeleting(b.id)}>
                         <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   </div>
-                  <Badge variant="outline" className={meta.className}>
-                    <meta.Icon className="h-3 w-3 mr-1" /> {meta.label}
-                  </Badge>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  {b.description && <p className="text-muted-foreground">{b.description}</p>}
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    {b.category && <Badge variant="secondary">{b.category}</Badge>}
-                    {b.affected_measure_id && <Badge variant="outline">{b.affected_measure_id}</Badge>}
-                    {b.affected_site?.name && <Badge variant="outline">{b.affected_site.name}</Badge>}
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                    {mLabel && <Badge variant="secondary" className="text-xs font-normal">{mLabel}</Badge>}
+                    <Badge variant="outline" className={`text-xs font-normal ${STATUS_CLASS[status]}`}>
+                      <StatusIcon className="h-3 w-3 mr-1" /> {STATUS_LABEL[status]}
+                    </Badge>
+                    <span className="inline-flex items-center gap-1 text-muted-foreground">
+                      <Users className="h-3 w-3" /> {b.owner_role || "Owner not set"}
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">First seen: {b.first_seen}</p>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm">
+                  <div>
+                    {estimate ? (
+                      <p className="text-2xl font-semibold tracking-tight tabular-nums">{estimate}</p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Estimate not set yet</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-semibold text-muted-foreground">Why</p>
+                    {why.notYetKnown ? (
+                      <>
+                        <ReasonPill reason="not_yet_known" tone="unknown" />
+                        {why.heardFromSome.length > 0 && (
+                          <div className="space-y-1 pt-1">
+                            <p className="text-xs text-muted-foreground">Heard from some patients</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {why.heardFromSome.map((r) => <ReasonPill key={r} reason={r} />)}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="flex flex-wrap gap-1.5">
+                        {why.reasons.map((r) => <ReasonPill key={r} reason={r} />)}
+                      </div>
+                    )}
+                  </div>
+
+                  {seen.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
+                      <span className="text-muted-foreground">Also seen on</span>
+                      {seen.map((c) => <Badge key={c} variant="outline" className="text-[11px] font-normal">{c}</Badge>)}
+                    </div>
+                  )}
+
+                  <div className="space-y-2 rounded-md border bg-primary/5 p-3">
+                    <p className="text-xs font-semibold text-primary">What to test next</p>
+                    {suggestions.length === 0 ? (
+                      <p className="text-xs text-muted-foreground">
+                        No change idea yet.{" "}
+                        <Link to="/dashboard/playbooks" className="text-primary underline underline-offset-2">Browse the template library</Link>
+                      </p>
+                    ) : (
+                      <ul className="space-y-2">
+                        {suggestions.map((idea) => {
+                          const hasTemplate = !!idea.template_id && PDSA_TEMPLATES.some((t) => t.id === idea.template_id);
+                          return (
+                            <li key={idea.id} className="flex items-start justify-between gap-2">
+                              <span className="text-sm leading-snug">{idea.title}</span>
+                              {hasTemplate ? (
+                                <Button size="sm" variant="outline" className="h-7 shrink-0 text-xs" onClick={() => openTemplate(idea.template_id)}>
+                                  <FileText className="h-3 w-3 mr-1" /> Open template
+                                </Button>
+                              ) : (
+                                <Button size="sm" variant="outline" className="h-7 shrink-0 text-xs" asChild>
+                                  <Link to="/dashboard/playbooks"><FileText className="h-3 w-3 mr-1" /> Open template</Link>
+                                </Button>
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </div>
+
+                  {links.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                      <span className="inline-flex items-center gap-1 text-muted-foreground"><Link2 className="h-3 w-3" /> Linked cycles</span>
+                      {links.map((l) => (
+                        <Link key={l.cycle_id} to={`/dashboard/pdsa-lab?openCycle=${l.cycle_id}`} className="text-primary underline underline-offset-2 truncate max-w-[16rem]">
+                          {l.title}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             );
           })}
         </div>
       )}
+
+      <Dialog open={!!template} onOpenChange={(v) => !v && setTemplate(null)}>
+        <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{template?.title}</DialogTitle>
+          </DialogHeader>
+          {template && (
+            <div className="space-y-3 text-sm">
+              <p className="text-muted-foreground">{template.description}</p>
+              <div><p className="text-xs font-semibold text-muted-foreground">Aim</p><p>{template.aim}</p></div>
+              <div><p className="text-xs font-semibold text-muted-foreground">Test</p><p>{template.testDescription}</p></div>
+              <div><p className="text-xs font-semibold text-muted-foreground">Measurement plan</p><p>{template.measurementPlan}</p></div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setTemplate(null)}>Close</Button>
+            <Button asChild><Link to="/dashboard/pdsa-lab">Go to PDSA Lab</Link></Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
         <DialogContent className="max-w-lg">
@@ -165,12 +358,12 @@ export default function BarriersPage() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label>Status</Label>
-                <Select value={editing?.status ?? "open"} onValueChange={(v) => setEditing((p) => ({ ...p!, status: v as Barrier["status"] }))}>
+                <Select value={normalizeStatus(editing?.status)} onValueChange={(v) => setEditing((p) => ({ ...p!, status: v }))}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="open">Open</SelectItem>
-                    <SelectItem value="mitigated">Mitigated</SelectItem>
-                    <SelectItem value="escalated">Escalated</SelectItem>
+                    {(Object.keys(STATUS_LABEL) as BarrierStatus[]).map((st) => (
+                      <SelectItem key={st} value={st}>{STATUS_LABEL[st]}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
