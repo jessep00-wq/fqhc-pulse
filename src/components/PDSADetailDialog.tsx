@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -43,6 +43,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { fmtDateTime } from "@/lib/cycleHistory";
+import { JargonTooltip } from "@/components/JargonTooltip";
 
 
 
@@ -220,17 +221,80 @@ export default function PDSADetailDialog({
     );
   };
 
+  // Keep the id of the open cycle even while the dialog is closing, so a save
+  // fired by the blur-on-close still targets the right record.
+  const cycleIdRef = useRef<string | null>(cycle?.id ?? null);
+  if (cycle?.id) cycleIdRef.current = cycle.id;
+
+  const [justSaved, setJustSaved] = useState(false);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => {
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+  }, []);
+
+  const UPDATE_CYCLE_KEY = ["update_pdsa_cycle"] as const;
+
   const updateCycle = useMutation({
+    mutationKey: UPDATE_CYCLE_KEY,
     mutationFn: async (updates: CycleUpdate) => {
+      const id = cycleIdRef.current;
+      if (!id) throw new Error("No cycle selected");
       const { error } = await supabase
         .from("pdsa_cycles")
         .update(updates)
-        .eq("id", cycle!.id);
+        .eq("id", id);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] }),
-    onError: (err: Error) => toast.error(formatSupabaseError(err, "Failed to update")),
+    onMutate: async (updates: CycleUpdate) => {
+      const id = cycleIdRef.current;
+      // Stop in-flight refetches from overwriting the optimistic value.
+      await queryClient.cancelQueries({ queryKey: ["pdsa_cycles"] });
+      const previous = queryClient.getQueriesData({ queryKey: ["pdsa_cycles"] });
+      queryClient.setQueriesData({ queryKey: ["pdsa_cycles"] }, (old: unknown) =>
+        Array.isArray(old)
+          ? old.map((c: DBCycle) => (c && c.id === id ? { ...c, ...updates } : c))
+          : old,
+      );
+      return { previous };
+    },
+    onSuccess: () => {
+      setJustSaved(true);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+      savedTimerRef.current = setTimeout(() => setJustSaved(false), 2000);
+    },
+    onError: (err: Error, _vars, context) => {
+      context?.previous?.forEach(([key, data]) => queryClient.setQueryData(key, data));
+      toast.error(formatSupabaseError(err, "Failed to update"));
+    },
+    onSettled: () => {
+      // Refetch only once the last pending save finishes, so an early refetch
+      // can't replace a newer optimistic value.
+      if (queryClient.isMutating({ mutationKey: UPDATE_CYCLE_KEY }) <= 1) {
+        queryClient.invalidateQueries({ queryKey: ["pdsa_cycles"] });
+      }
+    },
   });
+
+  /** Freshest copy of this cycle from the query cache (falls back to the prop). */
+  const getLatestCycle = (): DBCycle | null => {
+    const id = cycleIdRef.current;
+    for (const [, data] of queryClient.getQueriesData<DBCycle[]>({ queryKey: ["pdsa_cycles"] })) {
+      if (Array.isArray(data)) {
+        const found = data.find((c) => c && c.id === id);
+        if (found) return found;
+      }
+    }
+    return cycle;
+  };
+
+  type StructuredField = "numerator" | "denominator" | "process_measure" | "balancing_measure";
+  const saveStructured = (field: StructuredField, value: string) => {
+    const latest = getLatestCycle();
+    const current = (latest?.structured_measures ?? {}) as Record<string, string | null>;
+    const next = value || null;
+    if ((current[field] ?? null) === next) return;
+    updateCycle.mutate({ structured_measures: { ...current, [field]: next } } as CycleUpdate);
+  };
 
   const createTask = useMutation({
     mutationFn: async (task: { title: string; assigned_role: string | null; due_date: string | null }) => {
@@ -431,7 +495,16 @@ export default function PDSADetailDialog({
   );
 
   return (
-    <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (v) return;
+        // Blur the focused field first so its onBlur save fires before closing.
+        const active = document.activeElement;
+        if (active instanceof HTMLElement) active.blur();
+        onClose();
+      }}
+    >
       <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-start justify-between gap-3">
@@ -449,6 +522,15 @@ export default function PDSADetailDialog({
                 Started: {cycle.start_date ? format(new Date(`${cycle.start_date}T12:00:00`), "MMM d, yyyy") : format(new Date(cycle.opened_at || cycle.created_at), "MMM d, yyyy")}
                 {" · "}
                 Last updated: {fmtDateTime(lastUpdatedAt)}
+                {updateCycle.isPending ? (
+                  <span className="ml-2 inline-flex items-center gap-1" aria-live="polite">
+                    <Loader2 className="h-3 w-3 animate-spin" /> Saving…
+                  </span>
+                ) : justSaved ? (
+                  <span className="ml-2 inline-flex items-center gap-1 text-success" aria-live="polite">
+                    <CheckCircle2 className="h-3 w-3" /> Saved
+                  </span>
+                ) : null}
               </p>
             </div>
             <div className="flex items-center gap-3 shrink-0">
@@ -547,7 +629,10 @@ export default function PDSADetailDialog({
                 <Label>Cycle Owner *</Label>
                 <Select
                   defaultValue={cycle.owner_user_id || ""}
-                  onValueChange={(v) => updateCycle.mutate({ owner_user_id: v })}
+                  onValueChange={(v) => {
+                    if (v === (cycle.owner_user_id || "")) return;
+                    updateCycle.mutate({ owner_user_id: v });
+                  }}
                 >
                   <SelectTrigger><SelectValue placeholder="Assign owner" /></SelectTrigger>
                   <SelectContent>
@@ -662,42 +747,62 @@ export default function PDSADetailDialog({
               />
             </div>
             <div className="space-y-2 rounded-lg border bg-muted/40 p-3">
-              <Label className="text-sm font-medium">Structured measures</Label>
+              <Label className="text-sm font-medium">Family of measures</Label>
               <p className="text-xs text-muted-foreground">
-                Define numerator, denominator, process measure, and balancing measure so the Evidence Auditor can check completeness.
+                Outcome is your UDS measure. Add how you'll count it and the two supporting measures surveyors look for.
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Numerator</Label>
+                  <Label className="text-xs">
+                    <JargonTooltip term="Numerator">Numerator</JargonTooltip>
+                  </Label>
                   <Input
                     defaultValue={cycle.structured_measures?.numerator ?? ""}
-                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, numerator: e.target.value || null } } as CycleUpdate)}
+                    onBlur={(e) => saveStructured("numerator", e.target.value)}
                     placeholder="What is counted?"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Patients who met the measure. Example: eligible patients with a completed colorectal screening on file.
+                  </p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Denominator</Label>
+                  <Label className="text-xs">
+                    <JargonTooltip term="Denominator">Denominator</JargonTooltip>
+                  </Label>
                   <Input
                     defaultValue={cycle.structured_measures?.denominator ?? ""}
-                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, denominator: e.target.value || null } } as CycleUpdate)}
+                    onBlur={(e) => saveStructured("denominator", e.target.value)}
                     placeholder="From what population?"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Everyone eligible for the measure. Example: patients in the measure's age range with a visit this period, minus exclusions.
+                  </p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Process measure</Label>
+                  <Label className="text-xs">
+                    <JargonTooltip term="Process measure">Process measure</JargonTooltip>
+                  </Label>
                   <Input
                     defaultValue={cycle.structured_measures?.process_measure ?? ""}
-                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, process_measure: e.target.value || null } } as CycleUpdate)}
+                    onBlur={(e) => saveStructured("process_measure", e.target.value)}
                     placeholder="Is the change being carried out?"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Is the new step actually happening? Example: % of eligible patients who left the visit with a FIT kit or colonoscopy referral.
+                  </p>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs">Balancing measure</Label>
+                  <Label className="text-xs">
+                    <JargonTooltip term="Balancing measure">Balancing measure</JargonTooltip>
+                  </Label>
                   <Input
                     defaultValue={cycle.structured_measures?.balancing_measure ?? ""}
-                    onBlur={(e) => updateCycle.mutate({ structured_measures: { ...cycle.structured_measures, balancing_measure: e.target.value || null } } as CycleUpdate)}
+                    onBlur={(e) => saveStructured("balancing_measure", e.target.value)}
                     placeholder="What could be harmed?"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    What could get worse because of this change? Example: MA rooming time, visits running late, or unreturned FIT kits.
+                  </p>
                 </div>
               </div>
             </div>

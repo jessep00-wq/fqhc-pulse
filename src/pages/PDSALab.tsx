@@ -829,7 +829,7 @@ export default function PDSALab() {
   const [newOpen, setNewOpen] = useState(false);
   const [wizardSeed, setWizardSeed] = useState<Partial<WizardData> | undefined>(undefined);
   const [wizardStartStep, setWizardStartStep] = useState<WizardStep | undefined>(undefined);
-  const [selectedCycle, setSelectedCycle] = useState<DBCycle | null>(null);
+  const [selectedCycleId, setSelectedCycleId] = useState<string | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const dragStartPos = useRef<{ x: number; y: number } | null>(null);
@@ -921,6 +921,7 @@ export default function PDSALab() {
     },
     enabled: !!organization.id,
   });
+  const selectedCycle = cycles.find((c) => c.id === selectedCycleId) ?? null;
 
   const { data: tasks = [] } = useQuery<DBTask[]>({
     queryKey: ["tasks", organization.id],
@@ -955,7 +956,7 @@ export default function PDSALab() {
     const id = searchParams.get("openCycle");
     if (id && cycles.length) {
       const found = cycles.find((c) => c.id === id);
-      if (found) setSelectedCycle(found);
+      if (found) setSelectedCycleId(found.id);
       const sp = new URLSearchParams(searchParams);
       sp.delete("openCycle");
       setSearchParams(sp, { replace: true });
@@ -1117,7 +1118,7 @@ export default function PDSALab() {
                       if (dragStartPos.current) {
                         const dx = Math.abs(e.clientX - dragStartPos.current.x);
                         const dy = Math.abs(e.clientY - dragStartPos.current.y);
-                        if (dx < 5 && dy < 5) setSelectedCycle(cycle);
+                        if (dx < 5 && dy < 5) setSelectedCycleId(cycle.id);
                       }
                       dragStartPos.current = null;
                     }}
@@ -1229,7 +1230,7 @@ export default function PDSALab() {
                         <ColumnGhostCard phase={col.key} onCreate={col.key === "plan" ? handleNewCycle : undefined} />
                       ) : (
                         colCycles.map((cycle) => (
-                          <div key={cycle.id} onClick={() => setSelectedCycle(cycle)}>
+                          <div key={cycle.id} onClick={() => setSelectedCycleId(cycle.id)}>
                             <PDSACard cycle={cycle} tasks={tasks} onGenerateBinder={setBinderCycle} borderColor={col.borderColor} />
                           </div>
                         ))
@@ -1281,7 +1282,7 @@ export default function PDSALab() {
           savedAt={savedAt}
         />
         <AuditBinderDialog cycle={binderCycle} open={!!binderCycle} onClose={() => setBinderCycle(null)} isFreeTier={isFreeTier} />
-        <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycle(null)} />
+        <PDSADetailDialog cycle={selectedCycle} open={!!selectedCycle} onClose={() => setSelectedCycleId(null)} />
         <EvidencePacketDialog open={evidenceOpen} onClose={() => setEvidenceOpen(false)} />
         <UpgradePrompt
           open={upgradeOpen}

@@ -4,11 +4,42 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronRight, History } from "lucide-react";
 import {
   CREATED_FIELD,
-  displayValue,
-  fieldLabel,
+  displayValue as baseDisplayValue,
+  fieldLabel as baseFieldLabel,
   fmtDateTime,
   type RecordRevision,
 } from "@/lib/cycleHistory";
+
+const STRUCTURED_FIELD = "structured_measures";
+const STRUCTURED_PARTS: [string, string][] = [
+  ["numerator", "Numerator"],
+  ["denominator", "Denominator"],
+  ["process_measure", "Process"],
+  ["balancing_measure", "Balancing"],
+];
+
+function fieldLabel(field: string) {
+  if (field === STRUCTURED_FIELD) return "Family of measures";
+  return baseFieldLabel(field);
+}
+
+function displayValue(field: string, value: string | null): string {
+  if (field === STRUCTURED_FIELD && value) {
+    try {
+      const parsed = JSON.parse(value);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const parts = STRUCTURED_PARTS.flatMap(([key, label]) => {
+          const v = (parsed as Record<string, unknown>)[key];
+          return typeof v === "string" && v.trim() ? [`${label}: ${v}`] : [];
+        });
+        return parts.length ? parts.join(", ") : "(empty)";
+      }
+    } catch {
+      /* not JSON: fall through */
+    }
+  }
+  return baseDisplayValue(field, value);
+}
 
 interface Props {
   revisions: RecordRevision[];

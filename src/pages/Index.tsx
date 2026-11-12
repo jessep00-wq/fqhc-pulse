@@ -16,7 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "@/lib/router-compat";
 import {
   FlaskConical, AlertTriangle, CheckSquare, TrendingUp,
-  ArrowUpRight, Loader2, Info, ArrowRight, FileText,
+  ArrowUpRight, Loader2, ArrowRight, FileText,
 } from "lucide-react";
 // UpgradeBanner moved to sidebar
 import { useTierLimits } from "@/hooks/useTierLimits";
@@ -86,8 +86,9 @@ function AtRiskDialog({
             <JargonTooltip term="UDS">UDS</JargonTooltip> Measures Below Target
           </DialogTitle>
           <DialogDescription>
-            These measures are currently below the <JargonTooltip term="HRSA">HRSA</JargonTooltip> 65% target threshold. Consider starting a <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycle to address them.
+            These measures are currently below your target. Consider starting a <JargonTooltip term="PDSA">PDSA</JargonTooltip> cycle to address them.
           </DialogDescription>
+          <p className="text-xs text-muted-foreground">Default targets until you set your own goals.</p>
         </DialogHeader>
         {measures.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">All measures are on target!</p>
@@ -133,7 +134,7 @@ import {
 } from "@/components/dashboard";
 
 export default function Dashboard() {
-  const { organization, isDemo } = useOrg();
+  const { organization } = useOrg();
   const { user } = useAuth();
   const { firstName } = useProfile();
   const navigate = useNavigate();
@@ -141,9 +142,6 @@ export default function Dashboard() {
   const orgId = organization.id;
   const [atRiskOpen, setAtRiskOpen] = useState(false);
   const [boardReportOpen, setBoardReportOpen] = useState(false);
-  const [sampleBannerDismissed, setSampleBannerDismissed] = useState(
-    () => localStorage.getItem(`sample_banner_dismissed_${organization.id}`) === "true"
-  );
   const { isFreeTier } = useTierLimits();
 
   const cyclesQuery = useQuery({
@@ -205,22 +203,35 @@ export default function Dashboard() {
     return Date.now() - updated > 14 * 24 * 60 * 60 * 1000;
   }).length ?? 0;
 
+  // Default targets until the org sets its own: inverse measures (lower is
+  // better, e.g. CMS122) are at risk above 30; all others below 65.
   const atRiskMeasures = (() => {
     if (!trends?.length) return [];
     const latest: Record<string, number> = {};
     for (const t of trends) latest[t.measure_id] = Number(t.value);
+    const inverseIds = new Set(UDS_MEASURE_LIST.filter((m) => m.inverse).map((m) => m.id));
     return Object.entries(latest)
-      .filter(([, v]) => v < 65)
-      .map(([id, value]) => ({ id, label: MEASURE_LABELS[id] || id, value }));
+      .map(([id, value]) => {
+        const inverse = inverseIds.has(id);
+        const gap = inverse ? value - 30 : 65 - value;
+        return { id, label: MEASURE_LABELS[id] || id, value, gap };
+      })
+      .filter((m) => m.gap > 0);
   })();
 
-  const now = new Date();
-  const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-  const tasksDue = tasks?.filter((t) => {
-    if (!t.due_date || t.status === "completed") return false;
-    return new Date(t.due_date) <= weekFromNow;
-  }).length ?? 0;
-  const overdueTasks = tasks?.filter((t) => t.status === "overdue").length ?? 0;
+  // Compare local-time yyyy-MM-dd strings so time zones can't shift a due date.
+  const toLocalYmd = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const todayYmd = toLocalYmd(new Date());
+  const weekOutDate = new Date();
+  weekOutDate.setDate(weekOutDate.getDate() + 7);
+  const weekOutYmd = toLocalYmd(weekOutDate);
+  const openDatedTasks = (tasks ?? []).filter((t) => t.status !== "completed" && !!t.due_date);
+  const overdueTasks = openDatedTasks.filter((t) => t.due_date!.slice(0, 10) < todayYmd).length;
+  const dueThisWeek = openDatedTasks.filter((t) => {
+    const d = t.due_date!.slice(0, 10);
+    return d >= todayYmd && d <= weekOutYmd;
+  }).length;
 
   // DB month strings are ISO "YYYY-MM"; sort lexicographically (chronological).
   const trendChart = (() => {
@@ -305,8 +316,10 @@ export default function Dashboard() {
 
   // Site-visit readiness — same completeness rules the cycle detail enforces,
   // so the dashboard can never disagree with the cycle it links to.
+  // Only completed cycles are scored; in-progress cycles are counted separately.
+  const inProgressCount = (cycles ?? []).filter((c) => c.status !== "completed").length;
   const readiness = (() => {
-    const list = cycles ?? [];
+    const list = (cycles ?? []).filter((c) => c.status === "completed");
     if (list.length === 0) {
       return { total: 0, ready: 0, pct: 0, blockers: [] as { label: string; count: number }[] };
     }
@@ -330,7 +343,7 @@ export default function Dashboard() {
 
   const topAtRisk = atRiskMeasures
     .slice()
-    .sort((a, b) => a.value - b.value)
+    .sort((a, b) => b.gap - a.gap)
     .slice(0, 2);
 
 
@@ -359,26 +372,6 @@ export default function Dashboard() {
         description="Your MeasureWise dashboard: active PDSA cycles, at-risk UDS measures, and tasks due for your FQHC."
         canonical="https://measurewise.org/dashboard"
       />
-      {/* Slim sticky sample-data strip */}
-      {hasTrends && hasCycles && !isDemo && !sampleBannerDismissed && (
-        <div className="sticky top-0 z-20 flex items-center gap-2 border-b border-l-2 border-l-primary bg-muted/70 backdrop-blur px-4 py-1.5">
-          <Info className="h-3.5 w-3.5 text-primary shrink-0" />
-          <p className="text-xs text-muted-foreground flex-1 truncate">
-            <span className="font-medium text-foreground">Sample data is active.</span>{" "}
-            Charts include demo data; your entries will replace them.
-          </p>
-          <button
-            className="text-xs text-muted-foreground hover:text-foreground shrink-0"
-            onClick={() => {
-              localStorage.setItem(`sample_banner_dismissed_${orgId}`, "true");
-              setSampleBannerDismissed(true);
-            }}
-          >
-            Dismiss
-          </button>
-        </div>
-      )}
-
       <div className="p-6 space-y-6">
         <PageHeader
           title={`Good ${new Date().getHours() < 12 ? "morning" : new Date().getHours() < 18 ? "afternoon" : "evening"}, ${firstName}`}
@@ -436,7 +429,7 @@ export default function Dashboard() {
             description={
               topAtRisk.length > 0
                 ? topAtRisk.map((m) => `${MEASURE_LABELS[m.id]?.split(" ")[0] || m.id} ${m.value.toFixed(0)}%`).join(" · ")
-                : "All measures above the HRSA 65% threshold"
+                : "No measures below your target"
             }
             badge={
               atRiskMeasures.length > 0
@@ -446,11 +439,11 @@ export default function Dashboard() {
             onClick={() => setAtRiskOpen(true)}
           />
           <KpiCard
-            title="Tasks Due This Week"
-            value={tasksDue}
+            title="Tasks Due / Overdue"
+            value={dueThisWeek + overdueTasks}
             icon={CheckSquare}
             tone={overdueTasks > 0 ? "destructive" : "default"}
-            description={`${overdueTasks} overdue · ${Math.max(tasksDue - overdueTasks, 0)} upcoming`}
+            description={`${overdueTasks} overdue · ${dueThisWeek} due this week`}
             badge={overdueTasks > 0 ? { label: `${overdueTasks} overdue`, tone: "destructive" } : undefined}
             onClick={() => navigate("/dashboard/staff-tasks")}
           />
@@ -468,14 +461,14 @@ export default function Dashboard() {
         >
           {readiness.total === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No PDSA cycles yet. Your readiness score appears once you start your first cycle.
+              No completed cycles yet. Readiness is scored when a cycle is completed.
             </p>
           ) : (
             <div className="space-y-3">
               <div className="flex flex-wrap items-end gap-3">
                 <span className="text-3xl font-bold tabular-nums">{readiness.pct}%</span>
                 <span className="pb-1 text-sm text-muted-foreground">
-                  {readiness.ready} of {readiness.total} cycles fully documented
+                  {readiness.ready} of {readiness.total} completed cycles fully documented
                 </span>
                 <span
                   className={`ml-auto rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -510,6 +503,7 @@ export default function Dashboard() {
             </div>
 
           )}
+          <p className="mt-2 text-xs text-muted-foreground">{inProgressCount} cycles in progress</p>
         </SectionCard>
 
 

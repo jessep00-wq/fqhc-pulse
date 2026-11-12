@@ -6,7 +6,27 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 
 const MEASURES = UDS_MEASURE_LIST.map((m) => ({ id: m.id, label: m.short }));
 
-const MONTH_ORDER = ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May", "Jun"];
+const SHIFT_RUN_LENGTH = 8;
+
+/** Next "YYYY-MM" month string, or null when the input isn't in that format. */
+function nextMonth(m: string): string | null {
+  const match = /^(\d{4})-(\d{2})$/.exec(m);
+  if (!match) return null;
+  let year = Number(match[1]);
+  let month = Number(match[2]) + 1;
+  if (month > 12) {
+    month = 1;
+    year += 1;
+  }
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+interface ChartPoint {
+  month: string;
+  value: number | null;
+  outOfControl: boolean;
+  shift: boolean;
+}
 
 interface UDSTrend {
   measure_id: string;
@@ -21,31 +41,62 @@ interface SPCChartProps {
 export default function SPCChart({ trends }: SPCChartProps) {
   const [measure, setMeasure] = useState("CMS124");
 
-  const { chartData, mean, ucl, lcl } = useMemo(() => {
-    if (!trends?.length) return { chartData: [], mean: 0, ucl: 0, lcl: 0 };
+  const { chartData, mean, ucl, lcl, hasShift } = useMemo(() => {
+    const empty = { chartData: [] as ChartPoint[], mean: 0, ucl: 0, lcl: 0, hasShift: false };
+    if (!trends?.length) return empty;
 
     const filtered = trends
       .filter((t) => t.measure_id === measure)
-      .sort((a, b) => MONTH_ORDER.indexOf(a.month) - MONTH_ORDER.indexOf(b.month));
+      .slice()
+      .sort((a, b) => a.month.localeCompare(b.month));
 
     const values = filtered.map((t) => Number(t.value));
-    if (values.length === 0) return { chartData: [], mean: 0, ucl: 0, lcl: 0 };
+    if (values.length < 2) return empty;
 
+    // XmR (individuals) chart: limits come from the average moving range.
     const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    const stdDev = Math.sqrt(values.reduce((sum, v) => sum + (v - avg) ** 2, 0) / values.length);
-    const upper = avg + 3 * stdDev;
-    const lower = Math.max(0, avg - 3 * stdDev);
+    let mrSum = 0;
+    for (let i = 1; i < values.length; i++) mrSum += Math.abs(values[i] - values[i - 1]);
+    const mrBar = mrSum / (values.length - 1);
+    const upper = avg + 2.66 * mrBar;
+    const lower = Math.max(0, avg - 2.66 * mrBar);
 
-    const data = filtered.map((t) => {
-      const val = Number(t.value);
-      return {
+    // Flag runs of 8+ consecutive points on the same side of the center line.
+    const shiftFlags = new Array<boolean>(values.length).fill(false);
+    let runStart = 0;
+    let runSide = 0;
+    for (let i = 0; i <= values.length; i++) {
+      const side = i < values.length ? Math.sign(values[i] - avg) : 0;
+      if (i < values.length && side !== 0 && side === runSide) continue;
+      if (runSide !== 0 && i - runStart >= SHIFT_RUN_LENGTH) {
+        for (let j = runStart; j < i; j++) shiftFlags[j] = true;
+      }
+      runStart = i;
+      runSide = side;
+    }
+
+    // Insert empty months between observations so gaps stay visible.
+    const data: ChartPoint[] = [];
+    filtered.forEach((t, i) => {
+      if (i > 0) {
+        let gap = nextMonth(filtered[i - 1].month);
+        let guard = 0;
+        while (gap && gap < t.month && guard < 240) {
+          data.push({ month: gap, value: null, outOfControl: false, shift: false });
+          gap = nextMonth(gap);
+          guard += 1;
+        }
+      }
+      const val = values[i];
+      data.push({
         month: t.month,
         value: val,
         outOfControl: val > upper || val < lower,
-      };
+        shift: shiftFlags[i],
+      });
     });
 
-    return { chartData: data, mean: avg, ucl: upper, lcl: lower };
+    return { chartData: data, mean: avg, ucl: upper, lcl: lower, hasShift: shiftFlags.some(Boolean) };
   }, [trends, measure]);
 
   const measureLabel = MEASURES.find((m) => m.id === measure)?.label || measure;
@@ -121,7 +172,7 @@ export default function SPCChart({ trends }: SPCChartProps) {
                 border: "1px solid var(--border)",
                 borderRadius: "var(--radius)",
               }}
-              formatter={(value: number) => [`${value.toFixed(1)}%`, measureLabel]}
+              formatter={(value) => [typeof value === "number" ? `${value.toFixed(1)}%` : "No data", measureLabel]}
             />
             <ReferenceLine
               y={ucl}
@@ -138,27 +189,42 @@ export default function SPCChart({ trends }: SPCChartProps) {
             />
 
             <Line
-              type="monotone"
+              type="linear"
               dataKey="value"
+              connectNulls={false}
               stroke="var(--primary)"
               strokeWidth={2}
               dot={((props: any) => {
                 const { cx, cy, payload } = props;
+                if (payload.value == null || cx == null || cy == null) {
+                  return <g key={payload.month} />;
+                }
+                const color = payload.outOfControl
+                  ? "var(--destructive)"
+                  : payload.shift
+                    ? "var(--warning)"
+                    : "var(--primary)";
+                const emphasized = payload.outOfControl || payload.shift;
                 return (
                   <circle
                     key={payload.month}
                     cx={cx}
                     cy={cy}
-                    r={payload.outOfControl ? 6 : 4}
-                    fill={payload.outOfControl ? "var(--destructive)" : "var(--primary)"}
-                    stroke={payload.outOfControl ? "var(--destructive)" : "var(--primary)"}
-                    strokeWidth={payload.outOfControl ? 2 : 1}
+                    r={emphasized ? 6 : 4}
+                    fill={color}
+                    stroke={color}
+                    strokeWidth={emphasized ? 2 : 1}
                   />
                 );
               }) as any}
             />
           </LineChart>
         </ResponsiveContainer>
+      )}
+      {chartData.length > 0 && hasShift && (
+        <p className="text-xs text-center text-warning font-medium">
+          Shift detected: 8+ points on one side of the center line.
+        </p>
       )}
       <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
@@ -172,6 +238,10 @@ export default function SPCChart({ trends }: SPCChartProps) {
         <div className="flex items-center gap-1.5">
           <div className="h-3 w-3 rounded-full bg-destructive" />
           <span>Out of Control</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <div className="h-3 w-3 rounded-full bg-warning" />
+          <span>Shift</span>
         </div>
       </div>
     </div>

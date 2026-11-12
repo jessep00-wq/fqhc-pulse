@@ -9,6 +9,10 @@ const JARGON: Record<string, string> = {
   HRSA: "Health Resources & Services Administration — the federal agency that funds and oversees FQHCs.",
   ACO: "Accountable Care Organization — a value-based payment model rewarding quality outcomes.",
   FQHC: "Federally Qualified Health Center — community-based clinics providing care to underserved populations.",
+  Numerator: "Patients who met the measure. Example: eligible patients with a completed colorectal screening on file.",
+  Denominator: "Everyone eligible for the measure. Example: patients in the measure's age range with a visit this period, minus exclusions.",
+  "Process measure": "Is the new step actually happening? Example: % of eligible patients who left the visit with a FIT kit or colonoscopy referral.",
+  "Balancing measure": "What could get worse because of this change? Example: MA rooming time, visits running late, or unreturned FIT kits.",
 };
 
 interface JargonTooltipProps {

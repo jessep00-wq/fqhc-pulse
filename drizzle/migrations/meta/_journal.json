@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794511071603,
+      "tag": "0000_track_structured_measures_history",
+      "breakpoints": true
+    }
+  ]
+}
