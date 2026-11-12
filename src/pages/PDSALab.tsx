@@ -28,7 +28,6 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import PDSADetailDialog from "@/components/PDSADetailDialog";
 import EvidencePacketDialog from "@/components/EvidencePacketDialog";
-import { PhaseDots } from "@/components/pdsa/PhaseDots";
 import { RoleChips } from "@/components/pdsa/RoleChips";
 import { PDSAFilters, type PdsaFilterState } from "@/components/pdsa/PDSAFilters";
 import { ColumnGhostCard } from "@/components/pdsa/ColumnGhostCard";
@@ -124,52 +123,34 @@ function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCy
 
   return (
     <Card
-      className={`mb-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
+      className={`mb-2 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow ${stalled ? "border-l-4 border-l-warning border-dashed" : borderColor}`}
     >
-      <CardContent className="p-4 space-y-2.5">
-        {/* Phase + stalled badge */}
-        <div className="flex items-center justify-between">
-          <PhaseDots status={cycle.status} />
-          {stalled && (
+      <CardContent className="p-3 space-y-1.5">
+        <div className="flex items-center justify-between gap-2 min-h-[18px]">
+          {(cycle.uds_measure || cycle.focus_area) ? (
             <Tooltip>
               <TooltipTrigger asChild>
-                <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 text-warning border border-warning/30 px-1.5 py-0.5 text-[10px] font-medium">
-                  <Clock className="h-3 w-3" /> Stalled
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>No activity in 14+ days. Move it forward or close it out.</TooltipContent>
-            </Tooltip>
-          )}
-        </div>
-
-        <h4 className="text-sm font-semibold leading-tight" title={cycle.title}>{cycle.title}</h4>
-
-        <p className="text-[10px] text-muted-foreground">
-          Started {format(new Date((cycle as { start_date?: string | null }).start_date ? `${(cycle as { start_date?: string | null }).start_date}T12:00:00` : cycle.created_at), "MMM d, yyyy")}
-          {" · Last updated "}
-          {format(new Date((cycle as { updated_at?: string | null }).updated_at || cycle.created_at), "MMM d, yyyy")}
-        </p>
-
-        <div className="flex flex-wrap items-center gap-1.5">
-          {(cycle.uds_measure || cycle.focus_area) && (
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Badge
-                  variant="outline"
-                  className="text-[10px] px-1.5 py-0 max-w-[9rem] truncate whitespace-nowrap block"
-                >
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0 max-w-[8rem] truncate whitespace-nowrap block">
                   {cycle.uds_measure ? cycle.uds_measure.split(":")[0] : cycle.focus_area}
                 </Badge>
               </TooltipTrigger>
               <TooltipContent>{cycle.uds_measure || cycle.focus_area}</TooltipContent>
             </Tooltip>
-          )}
-
-          {earliestDue && (
+          ) : <span />}
+          {stalled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex items-center gap-1 rounded-full bg-warning/15 text-warning border border-warning/30 px-1.5 py-0.5 text-[10px] font-medium whitespace-nowrap">
+                  <Clock className="h-3 w-3" /> Stalled
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>No activity in 14+ days. Move it forward or close it out.</TooltipContent>
+            </Tooltip>
+          ) : earliestDue ? (
             <Tooltip>
               <TooltipTrigger asChild>
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium border ${
+                  className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium border whitespace-nowrap ${
                     dueTone(earliestDue) === "destructive"
                       ? "bg-destructive/15 text-destructive border-destructive/30"
                       : dueTone(earliestDue) === "warning"
@@ -177,50 +158,70 @@ function PDSACard({ cycle, tasks, onGenerateBinder, borderColor }: { cycle: DBCy
                         : "bg-success/15 text-success border-success/30"
                   }`}
                 >
-                  <CalendarClock className="h-3 w-3" /> Due {format(earliestDue, "MMM d")}
+                  <CalendarClock className="h-3 w-3" /> {format(earliestDue, "MMM d")}
                 </span>
               </TooltipTrigger>
               <TooltipContent>Earliest open task due date</TooltipContent>
             </Tooltip>
-          )}
+          ) : null}
         </div>
 
-        {aimText && (
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <p className="text-xs text-muted-foreground line-clamp-3 cursor-help">{aimText}</p>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-sm">{aimText}</TooltipContent>
-          </Tooltip>
-        )}
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div>
+              <h4 className="text-sm font-semibold leading-tight line-clamp-2">{cycle.title}</h4>
+              {aimText && <p className="text-xs text-muted-foreground truncate mt-0.5">{aimText}</p>}
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-sm space-y-1">
+            <p className="font-medium">{cycle.title}</p>
+            {aimText && <p>{aimText}</p>}
+            <p className="text-[10px] opacity-80">
+              Started {format(new Date((cycle as { start_date?: string | null }).start_date ? `${(cycle as { start_date?: string | null }).start_date}T12:00:00` : cycle.created_at), "MMM d, yyyy")}
+              {" · Updated "}
+              {format(new Date((cycle as { updated_at?: string | null }).updated_at || cycle.created_at), "MMM d, yyyy")}
+            </p>
+          </TooltipContent>
+        </Tooltip>
 
         <div className="flex items-center justify-between gap-2">
-          <RoleChips roles={staff} max={2} />
-          {cycle.improvement_pct != null && (
-            <div className="flex items-center gap-1 text-xs text-success font-medium whitespace-nowrap">
-              <TrendingUp className="h-3 w-3" />+{cycle.improvement_pct}%
-            </div>
-          )}
-        </div>
-
-        {totalTasks > 0 && (
-          <div className="space-y-1">
-            <div className="flex items-center justify-between text-[10px] text-muted-foreground">
-              <span>Tasks</span><span>{completedTasks}/{totalTasks}</span>
-            </div>
-            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all ${progressPct < 30 ? "bg-destructive" : progressPct < 70 ? "bg-warning" : "bg-success"}`}
-                style={{ width: `${progressPct}%` }}
-              />
-            </div>
+          <div className="flex items-center gap-1.5 min-w-0">
+            <RoleChips roles={staff} max={2} />
+            {cycle.improvement_pct != null && (
+              <span className="flex items-center gap-0.5 text-[11px] text-success font-medium whitespace-nowrap">
+                <TrendingUp className="h-3 w-3" />+{cycle.improvement_pct}%
+              </span>
+            )}
           </div>
-        )}
-        {cycle.status === "completed" && (
-          <Button size="sm" className="w-full bg-accent hover:bg-accent/90 text-accent-foreground whitespace-normal h-auto py-2" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
-            <FileText className="h-3 w-3 mr-1 shrink-0" />Generate HRSA Audit Binder
-          </Button>
-        )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {cycle.status === "completed" && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" aria-label="Generate HRSA Audit Binder" onClick={(e) => { e.stopPropagation(); onGenerateBinder(cycle); }}>
+                    <FileText className="h-3.5 w-3.5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Generate HRSA Audit Binder</TooltipContent>
+              </Tooltip>
+            )}
+            {totalTasks > 0 && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 -rotate-90" aria-hidden="true">
+                      <circle cx="12" cy="12" r="9" fill="none" strokeWidth="3" className="stroke-muted" />
+                      <circle cx="12" cy="12" r="9" fill="none" strokeWidth="3" strokeLinecap="round"
+                        strokeDasharray={`${(progressPct / 100) * 56.55} 56.55`}
+                        className={progressPct < 30 ? "stroke-destructive" : progressPct < 70 ? "stroke-warning" : "stroke-success"} />
+                    </svg>
+                    {completedTasks}/{totalTasks}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>{completedTasks} of {totalTasks} tasks done</TooltipContent>
+              </Tooltip>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
