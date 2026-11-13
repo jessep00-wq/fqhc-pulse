@@ -103,7 +103,7 @@ Deno.serve(async (req) => {
         resendResponse: res, resendBody: txt, metadata: meta,
       });
       if (!res.ok) {
-        console.error("playbook nurture send failed", row.work_email, email.step, res.status);
+        console.error("playbook nurture send failed", { lead_id: row.id, step: email.step, status: res.status });
         failed++; continue;
       }
     } catch (err) {

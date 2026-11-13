@@ -3059,6 +3059,7 @@ export type Database = {
         Returns: number
       }
       org_access_status: { Args: { _org_id: string }; Returns: string }
+      org_workspace_readable: { Args: { _org_id: string }; Returns: boolean }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {

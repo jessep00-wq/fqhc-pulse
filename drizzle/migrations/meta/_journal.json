@@ -36,6 +36,13 @@
       "when": 1794534324917,
       "tag": "0004_order_gated_downloads",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794534527360,
+      "tag": "0005_gate_workspace_reads_on_subscription",
+      "breakpoints": true
     }
   ]
 }
