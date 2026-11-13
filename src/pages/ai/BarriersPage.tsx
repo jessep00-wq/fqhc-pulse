@@ -39,6 +39,7 @@ interface Barrier {
   first_seen: string;
   created_at: string;
   symptom: string | null;
+  change_made?: string | null;
   est_patients: number | null;
   period: string | null;
   reasons: string[] | null;
