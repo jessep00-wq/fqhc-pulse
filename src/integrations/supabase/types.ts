@@ -1605,7 +1605,9 @@ export type Database = {
           created_at: string
           currency: string
           customer_email: string
+          download_expires_at: string | null
           download_links: Json
+          download_token: string | null
           email_sent_at: string | null
           environment: string
           id: string
@@ -1621,7 +1623,9 @@ export type Database = {
           created_at?: string
           currency?: string
           customer_email: string
+          download_expires_at?: string | null
           download_links?: Json
+          download_token?: string | null
           email_sent_at?: string | null
           environment?: string
           id?: string
@@ -1637,7 +1641,9 @@ export type Database = {
           created_at?: string
           currency?: string
           customer_email?: string
+          download_expires_at?: string | null
           download_links?: Json
+          download_token?: string | null
           email_sent_at?: string | null
           environment?: string
           id?: string

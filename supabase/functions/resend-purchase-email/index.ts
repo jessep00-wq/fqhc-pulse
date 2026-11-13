@@ -1,4 +1,4 @@
-// Re-issues signed download links by session_id and re-sends the delivery email.
+// Re-issues download links by session_id and re-sends the delivery email.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 import { logEmailAttempt } from "../_shared/log-email-attempt.ts";
 
@@ -12,7 +12,8 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7;
+const DOWNLOAD_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+const DOWNLOAD_BASE_URL = "https://measurewise.org/api/public/order-download";
 
 // Per-IP rate limiter: max 3 resend requests per 15 minutes.
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
@@ -84,15 +85,25 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Refresh signed URLs from the original file paths
+    // Issue a fresh download token (old emailed links stop working) and a
+    // new 7-day window. Links go through the app download route, which
+    // re-checks the order on every click so a refund revokes access.
     const filePaths: string[] = (order.download_links as Array<{ path: string }> | null)?.map((l) => l.path) ?? [];
-    const fresh: Array<{ name: string; url: string; path: string }> = [];
-    for (const p of filePaths) {
-      const { data } = await supabase.storage.from("product-files").createSignedUrl(p, SIGNED_URL_TTL_SECONDS);
-      if (data?.signedUrl) fresh.push({ name: p.split("/").pop() ?? p, url: data.signedUrl, path: p });
-    }
+    const tokenBytes = new Uint8Array(32);
+    crypto.getRandomValues(tokenBytes);
+    const downloadToken = btoa(String.fromCharCode(...tokenBytes))
+      .replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const fresh = filePaths.map((p, i) => ({
+      name: p.split("/").pop() ?? p,
+      url: `${DOWNLOAD_BASE_URL}?t=${encodeURIComponent(downloadToken)}&f=${i}`,
+      path: p,
+    }));
 
-    await supabase.from("orders").update({ download_links: fresh }).eq("id", order.id);
+    await supabase.from("orders").update({
+      download_links: fresh,
+      download_token: downloadToken,
+      download_expires_at: new Date(Date.now() + DOWNLOAD_WINDOW_MS).toISOString(),
+    }).eq("id", order.id);
 
     const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");

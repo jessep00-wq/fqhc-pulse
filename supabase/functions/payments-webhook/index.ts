@@ -13,7 +13,16 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const SIGNED_URL_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
+const DOWNLOAD_WINDOW_MS = 7 * 24 * 60 * 60 * 1000; // links work for 7 days
+const DOWNLOAD_BASE_URL = "https://measurewise.org/api/public/order-download";
+
+function buildGatedLinks(paths: string[], token: string) {
+  return paths.map((path, i) => ({
+    name: path.split("/").pop() ?? path,
+    url: `${DOWNLOAD_BASE_URL}?t=${encodeURIComponent(token)}&f=${i}`,
+    path,
+  }));
+}
 
 // ─────────────────────────────  Storefront fulfillment  ─────────────────────────────
 
@@ -111,21 +120,18 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
   // Dedupe file paths.
   const uniquePaths = Array.from(new Set(filePaths));
 
-  const downloadLinks: Array<{ name: string; url: string; path: string }> = [];
-  for (const path of uniquePaths) {
-    const { data, error } = await supabase.storage
-      .from("product-files")
-      .createSignedUrl(path, SIGNED_URL_TTL_SECONDS);
-    if (data?.signedUrl) {
-      downloadLinks.push({
-        name: path.split("/").pop() ?? path,
-        url: data.signedUrl,
-        path,
-      });
-    } else if (error) {
-      console.warn("signed url error", path, error.message);
-    }
-  }
+  // Emailed links point at the app download route, which re-checks the
+  // order on every click (paid + not expired) and only then issues a
+  // 60-second signed URL. A refund flips status and revokes access at once.
+  // Reuse the token on webhook retries so earlier links keep working.
+  const { data: existing } = await supabase
+    .from("orders")
+    .select("download_token")
+    .eq("stripe_session_id", session.id)
+    .maybeSingle();
+  const downloadToken = (existing?.download_token as string | null) ?? generateToken();
+  const downloadExpiresAt = new Date(Date.now() + DOWNLOAD_WINDOW_MS).toISOString();
+  const downloadLinks = buildGatedLinks(uniquePaths, downloadToken);
 
   const { data: orderRow } = await supabase
     .from("orders")
@@ -143,6 +149,8 @@ async function fulfillOrder(env: StripeEnv, sessionId: string) {
         currency: session.currency ?? "usd",
         status: "paid",
         download_links: downloadLinks,
+        download_token: downloadToken,
+        download_expires_at: downloadExpiresAt,
         environment: env,
       },
       { onConflict: "stripe_session_id" },

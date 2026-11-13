@@ -66,6 +66,7 @@ import { Route as StoreSlugRouteImport } from './routes/store/$slug'
 import { Route as StoreSuccessRouteImport } from './routes/store/success'
 import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.oauth.consent'
 import { Route as AdminAccountOrgIdRouteImport } from './routes/admin/account.$orgId'
+import { Route as ApiPublicOrderDownloadRouteImport } from './routes/api/public/order-download'
 import { Route as ApiPublicTrialNurtureRouteImport } from './routes/api/public/trial-nurture'
 import { Route as DashboardQiReportsIndexRouteImport } from './routes/dashboard/qi-reports/index'
 import { Route as DashboardQiReportsIdRouteImport } from './routes/dashboard/qi-reports/$id'
@@ -361,6 +362,11 @@ const AdminAccountOrgIdRoute = AdminAccountOrgIdRouteImport.update({
   path: '/account/$orgId',
   getParentRoute: () => AdminRouteRoute,
 } as any)
+const ApiPublicOrderDownloadRoute = ApiPublicOrderDownloadRouteImport.update({
+  id: '/api/public/order-download',
+  path: '/api/public/order-download',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicTrialNurtureRoute = ApiPublicTrialNurtureRouteImport.update({
   id: '/api/public/trial-nurture',
   path: '/api/public/trial-nurture',
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/store/': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
+  '/api/public/order-download': typeof ApiPublicOrderDownloadRoute
   '/api/public/trial-nurture': typeof ApiPublicTrialNurtureRoute
   '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
   '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
@@ -519,6 +526,7 @@ export interface FileRoutesByTo {
   '/store': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
+  '/api/public/order-download': typeof ApiPublicOrderDownloadRoute
   '/api/public/trial-nurture': typeof ApiPublicTrialNurtureRoute
   '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
   '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
@@ -586,6 +594,7 @@ export interface FileRoutesById {
   '/store/': typeof StoreIndexRoute
   '/.lovable/oauth/consent': typeof DotlovableOauthConsentRoute
   '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
+  '/api/public/order-download': typeof ApiPublicOrderDownloadRoute
   '/api/public/trial-nurture': typeof ApiPublicTrialNurtureRoute
   '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
   '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
@@ -654,6 +663,7 @@ export interface FileRouteTypes {
     | '/store/'
     | '/.lovable/oauth/consent'
     | '/admin/account/$orgId'
+    | '/api/public/order-download'
     | '/api/public/trial-nurture'
     | '/dashboard/qi-reports/$id'
     | '/dashboard/qi-reports/new'
@@ -718,6 +728,7 @@ export interface FileRouteTypes {
     | '/store'
     | '/.lovable/oauth/consent'
     | '/admin/account/$orgId'
+    | '/api/public/order-download'
     | '/api/public/trial-nurture'
     | '/dashboard/qi-reports/$id'
     | '/dashboard/qi-reports/new'
@@ -784,6 +795,7 @@ export interface FileRouteTypes {
     | '/store/'
     | '/.lovable/oauth/consent'
     | '/admin/account/$orgId'
+    | '/api/public/order-download'
     | '/api/public/trial-nurture'
     | '/dashboard/qi-reports/$id'
     | '/dashboard/qi-reports/new'
@@ -829,6 +841,7 @@ export interface RootRouteChildren {
   ResourcesIndexRoute: typeof ResourcesIndexRoute
   StoreIndexRoute: typeof StoreIndexRoute
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
+  ApiPublicOrderDownloadRoute: typeof ApiPublicOrderDownloadRoute
   ApiPublicTrialNurtureRoute: typeof ApiPublicTrialNurtureRoute
   StoreBundleSlugRoute: typeof StoreBundleSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
@@ -1236,6 +1249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAccountOrgIdRouteImport
       parentRoute: typeof AdminRouteRoute
     }
+    '/api/public/order-download': {
+      id: '/api/public/order-download'
+      path: '/api/public/order-download'
+      fullPath: '/api/public/order-download'
+      preLoaderRoute: typeof ApiPublicOrderDownloadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/trial-nurture': {
       id: '/api/public/trial-nurture'
       path: '/api/public/trial-nurture'
@@ -1394,6 +1414,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResourcesIndexRoute: ResourcesIndexRoute,
   StoreIndexRoute: StoreIndexRoute,
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
+  ApiPublicOrderDownloadRoute: ApiPublicOrderDownloadRoute,
   ApiPublicTrialNurtureRoute: ApiPublicTrialNurtureRoute,
   StoreBundleSlugRoute: StoreBundleSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,

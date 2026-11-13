@@ -29,6 +29,13 @@
       "when": 1794533413351,
       "tag": "0003_restrict_change_ideas_read",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794534324917,
+      "tag": "0004_order_gated_downloads",
+      "breakpoints": true
     }
   ]
 }
