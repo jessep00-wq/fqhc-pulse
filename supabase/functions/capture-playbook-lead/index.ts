@@ -121,25 +121,12 @@ Deno.serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
         "Content-Type": "application/json",
       };
-      const [firstName, ...rest] = full_name.split(/\s+/);
-      const lastName = rest.join(" ");
+      const [firstName] = full_name.split(/\s+/);
 
-      // Tag contact in Resend default audience (best-effort, not logged)
-      try {
-        await fetch("https://connector-gateway.lovable.dev/resend/audiences", { headers: gatewayHeaders })
-          .then((r) => r.json())
-          .then(async (data) => {
-            const audienceId = data?.data?.[0]?.id;
-            if (!audienceId) return;
-            await fetch(`https://connector-gateway.lovable.dev/resend/audiences/${audienceId}/contacts`, {
-              method: "POST",
-              headers: gatewayHeaders,
-              body: JSON.stringify({ email: work_email, first_name: firstName, last_name: lastName, unsubscribed: false }),
-            });
-          });
-      } catch (err) {
-        console.warn("Resend audience tag failed (non-blocking)", err);
-      }
+      // Do not enroll the submitted address in any Resend marketing audience.
+      // The address is visitor-supplied and unverified, so adding it to a
+      // mailing list would let anyone subscribe someone else. Only the
+      // requested playbook delivery email and the internal admin alert go out.
 
       // 1) Delivery email to the lead
       const deliverySubject = "Your AthenaOne Optimization Playbook";
