@@ -12,6 +12,7 @@ const barrierSchema = z.object({
   related_pdsa_ids: z.array(z.string()).default([]),
   status: z.enum(["open", "decision_requested", "in_progress", "waiting_outside", "mitigated", "closed_unresolved", "escalated"]).default("open"),
   owner_user_id: z.string().nullable().optional(),
+  change_made: z.string().max(1000).nullable().optional(),
 });
 
 function requireOrg(supabase: any, userId: string) {
@@ -136,6 +137,7 @@ export const saveBarrier = createServerFn({ method: "POST" })
       related_pdsa_ids: data.related_pdsa_ids,
       status: data.status,
       owner_user_id: data.owner_user_id,
+      change_made: data.change_made?.trim() || null,
     };
 
     if (data.id) {

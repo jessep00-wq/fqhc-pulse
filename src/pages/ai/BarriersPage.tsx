@@ -198,122 +198,57 @@ export default function BarriersPage() {
             const StatusIcon = STATUS_ICON[status];
             const why = whySection(b.reasons);
             const seen = alsoSeenOn(b, barriers);
-            const suggestions = suggestIdeas(b, ideas);
             const links = linksFor(b.id);
             const estimate = patientsLine(b.est_patients, b.period);
             const title = b.symptom ? SYMPTOM_LABEL[b.symptom as Symptom] : b.title;
             const mLabel = measureLabel(b.affected_measure_id);
             return (
               <Card key={b.id} className={`border-l-4 ${status === "mitigated" ? "border-l-success" : status === "closed_unresolved" ? "border-l-border" : "border-l-warning"}`}>
-                <CardHeader className="pb-2 space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0 space-y-1">
+                <CardContent className="p-3 space-y-2 text-sm">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                      {mLabel && <Badge variant="secondary" className="text-[11px] font-normal">{measureCode(mLabel) || mLabel}</Badge>}
+                      <Badge variant="outline" className={`text-[11px] font-normal ${STATUS_CLASS[status]}`}>
+                        <StatusIcon className="h-3 w-3 mr-1" /> {STATUS_LABEL[status]}
+                      </Badge>
                       {startHere === b.id && (
-                        <Badge className="bg-primary text-primary-foreground text-[11px] px-2 py-0">
-                          <Sparkles className="h-3 w-3 mr-1" /> Start here
-                        </Badge>
-                      )}
-                      <CardTitle className="text-base leading-snug">{title}</CardTitle>
-                      {b.symptom && b.title && b.title !== title && (
-                        <p className="text-xs text-muted-foreground truncate">{b.title}</p>
+                        <Badge className="bg-primary text-primary-foreground text-[11px] px-1.5 py-0"><Sparkles className="h-3 w-3 mr-1" /> Start here</Badge>
                       )}
                     </div>
                     <div className="flex items-center gap-1 shrink-0">
-                      <Button size="icon" variant="ghost" className="h-7 w-7" aria-label="Edit barrier" onClick={() => setEditing(b)}>
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive" aria-label="Delete barrier" onClick={() => setDeleting(b.id)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      <span className="hidden sm:inline-flex items-center gap-1 text-xs text-muted-foreground"><Users className="h-3 w-3" /> {b.owner_role || "No owner"}</span>
+                      <Button size="icon" variant="ghost" className="h-6 w-6" aria-label="Edit barrier" onClick={() => setEditing(b)}><Pencil className="h-3 w-3" /></Button>
+                      <Button size="icon" variant="ghost" className="h-6 w-6 text-destructive" aria-label="Delete barrier" onClick={() => setDeleting(b.id)}><Trash2 className="h-3 w-3" /></Button>
                     </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                    {mLabel && <Badge variant="secondary" className="text-xs font-normal">{mLabel}</Badge>}
-                    <Badge variant="outline" className={`text-xs font-normal ${STATUS_CLASS[status]}`}>
-                      <StatusIcon className="h-3 w-3 mr-1" /> {STATUS_LABEL[status]}
-                    </Badge>
-                    <span className="inline-flex items-center gap-1 text-muted-foreground">
-                      <Users className="h-3 w-3" /> {b.owner_role || "Owner not set"}
-                    </span>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-1">
+                      <p className="font-semibold leading-snug line-clamp-2" title={b.title ?? undefined}>{title}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {why.notYetKnown ? <ReasonPill reason="not_yet_known" tone="unknown" /> : why.reasons.map((r) => <ReasonPill key={r} reason={r} />)}
+                        {seen.length > 0 && <span className="text-[11px] text-muted-foreground self-center">Also on {seen.join(", ")}</span>}
+                      </div>
+                    </div>
+                    <p className="shrink-0 text-right text-sm font-semibold tabular-nums">{estimate || <span className="text-xs font-normal text-muted-foreground">No estimate</span>}</p>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm">
-                  <div>
-                    {estimate ? (
-                      <p className="text-2xl font-semibold tracking-tight tabular-nums">{estimate}</p>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">Estimate not set yet</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <p className="text-xs font-semibold text-muted-foreground">Why</p>
-                    {why.notYetKnown ? (
-                      <>
-                        <ReasonPill reason="not_yet_known" tone="unknown" />
-                        {why.heardFromSome.length > 0 && (
-                          <div className="space-y-1 pt-1">
-                            <p className="text-xs text-muted-foreground">Heard from some patients</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {why.heardFromSome.map((r) => <ReasonPill key={r} reason={r} />)}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    ) : (
-                      <div className="flex flex-wrap gap-1.5">
-                        {why.reasons.map((r) => <ReasonPill key={r} reason={r} />)}
+                  <div className="flex flex-col gap-1 border-t pt-2 text-xs">
+                    {links.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-x-2 truncate">
+                        <span className="inline-flex items-center gap-1 text-muted-foreground"><Link2 className="h-3 w-3" /> Surfaced in</span>
+                        {links.map((l) => (
+                          <Link key={l.cycle_id} to={`/dashboard/pdsa-lab?openCycle=${l.cycle_id}`} className="text-primary underline underline-offset-2 truncate max-w-[14rem]">{l.title}</Link>
+                        ))}
                       </div>
                     )}
-                  </div>
-
-                  {seen.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-1.5 text-xs">
-                      <span className="text-muted-foreground">Also seen on</span>
-                      {seen.map((c) => <Badge key={c} variant="outline" className="text-[11px] font-normal">{c}</Badge>)}
-                    </div>
-                  )}
-
-                  <div className="space-y-2 rounded-md border bg-primary/5 p-3">
-                    <p className="text-xs font-semibold text-primary">What to test next</p>
-                    {suggestions.length === 0 ? (
-                      <p className="text-xs text-muted-foreground">
-                        No change idea yet.{" "}
-                        <Link to="/dashboard/playbooks" className="text-primary underline underline-offset-2">Browse the template library</Link>
-                      </p>
+                    {status === "decision_requested" && (
+                      <p><span className="font-semibold">Decision needed:</span> Clinical Quality Director</p>
+                    )}
+                    {b.change_made ? (
+                      <p className="line-clamp-2"><span className="font-semibold">Change made:</span> {b.change_made}</p>
                     ) : (
-                      <ul className="space-y-2">
-                        {suggestions.map((idea) => {
-                          const hasTemplate = !!idea.template_id && PDSA_TEMPLATES.some((t) => t.id === idea.template_id);
-                          return (
-                            <li key={idea.id} className="flex items-start justify-between gap-2">
-                              <span className="text-sm leading-snug">{idea.title}</span>
-                              {hasTemplate ? (
-                                <Button size="sm" variant="outline" className="h-7 shrink-0 text-xs" onClick={() => openTemplate(idea.template_id)}>
-                                  <FileText className="h-3 w-3 mr-1" /> Open template
-                                </Button>
-                              ) : (
-                                <Button size="sm" variant="outline" className="h-7 shrink-0 text-xs" asChild>
-                                  <Link to="/dashboard/playbooks"><FileText className="h-3 w-3 mr-1" /> Open template</Link>
-                                </Button>
-                              )}
-                            </li>
-                          );
-                        })}
-                      </ul>
+                      <button type="button" className="text-left text-muted-foreground hover:text-primary" onClick={() => setEditing(b)}>+ Record the change your team made</button>
                     )}
                   </div>
-
-                  {links.length > 0 && (
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-                      <span className="inline-flex items-center gap-1 text-muted-foreground"><Link2 className="h-3 w-3" /> Linked cycles</span>
-                      {links.map((l) => (
-                        <Link key={l.cycle_id} to={`/dashboard/pdsa-lab?openCycle=${l.cycle_id}`} className="text-primary underline underline-offset-2 truncate max-w-[16rem]">
-                          {l.title}
-                        </Link>
-                      ))}
-                    </div>
-                  )}
                 </CardContent>
               </Card>
             );
@@ -354,6 +289,10 @@ export default function BarriersPage() {
             <div className="space-y-1.5">
               <Label>Description</Label>
               <Textarea value={editing?.description ?? ""} onChange={(e) => setEditing((p) => ({ ...p!, description: e.target.value }))} placeholder="How is this blocking progress?" rows={3} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Change made</Label>
+              <Textarea value={editing?.change_made ?? ""} onChange={(e) => setEditing((p) => ({ ...p!, change_made: e.target.value }))} placeholder="What did your team actually change to work around this?" rows={2} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
