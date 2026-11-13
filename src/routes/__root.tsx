@@ -78,11 +78,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
-      { title: "MeasureWise — PDSA & UDS Quality Software for FQHCs" },
+      { title: "MeasureWise | PDSA and QI Evidence Management for FQHCs" },
       {
         name: "description",
         content:
-          "Link every PDSA cycle to a UDS measure, track impact with SPC charts, and export an HRSA Audit Binder. Built for FQHC quality teams.",
+          "Document interventions, study results, and keep QI evidence. Download the free one-page PDSA template for your FQHC.",
       },
       { name: "author", content: "MeasureWise" },
       { name: "theme-color", content: "#1a7a7a" },
@@ -91,11 +91,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "n-ysn4TPhqqJbgMsd55MuAjsg-b_f1tsOGsiYTNvFhE",
       },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "MeasureWise — PDSA & UDS Quality Software for FQHCs" },
+      { property: "og:title", content: "MeasureWise | PDSA and QI Evidence Management for FQHCs" },
       {
         property: "og:description",
         content:
-          "Link every PDSA cycle to a UDS measure, track impact with SPC charts, and export an HRSA Audit Binder. Built for FQHC quality teams.",
+          "Document interventions, study results, and keep QI evidence. Download the free one-page PDSA template for your FQHC.",
       },
       { property: "og:image", content: "https://measurewise.org/og-image.jpg" },
       { property: "og:image:width", content: "1200" },

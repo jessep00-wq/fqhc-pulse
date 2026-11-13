@@ -137,12 +137,16 @@ export default function Landing() {
       <section className="py-20 md:py-24 px-6">
         <div className="max-w-4xl mx-auto space-y-7 text-center lg:text-left">
           <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary uppercase tracking-wide">
-            {CATEGORY_LINE}
+            MeasureWise for FQHC quality teams
           </span>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-foreground leading-[1.1]">
+            {CATEGORY_LINE.charAt(0).toUpperCase() + CATEGORY_LINE.slice(1)}: one clean record for every
+            improvement cycle
+          </h1>
+          <blockquote className="border-l-4 border-primary/40 pl-4 text-lg italic text-foreground/80 text-left">
             "We have quality work happening everywhere, and I cannot produce one clean record showing
             what we tried, who owned it, whether it worked, and what we decided."
-          </h1>
+          </blockquote>
           <p className="text-lg text-muted-foreground leading-relaxed">
             Your reporting tools tell you where performance sits. MeasureWise is where you manage what
             happens next. The rate, the gap list, and the providers off pace are useful. They are not a
