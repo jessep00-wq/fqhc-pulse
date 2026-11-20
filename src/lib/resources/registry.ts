@@ -20,15 +20,26 @@ export const RESOURCES: Resource[] = [
   {
     slug: "hrsa-qi-qa-requirements-fqhc",
     title: "HRSA QI/QA Requirements for FQHCs: Chapter 10 Explained",
-    seoTitle: "HRSA QI/QA Requirements for FQHCs (Chapter 10)",
+    seoTitle: "HRSA QI/QA Requirements for FQHCs: Chapter 10 and 2025 SVP",
     description:
-      "What Chapter 10 of the HRSA Health Center Program Compliance Manual actually requires for quality improvement and assurance, how site visit reviewers assess it, and where health centers have discretion.",
+      "The 6 things HRSA Chapter 10 requires for FQHC quality improvement, the documents site visit reviewers ask for (including the 5 to 10 chart sample), and what is left to you.",
     category: "HRSA & Operational Site Visits",
     published: "2026-08-24",
-    updated: "2026-08-24",
-    readingMinutes: 9,
+    updated: "2026-11-20",
+    readingMinutes: 11,
     featured: true,
     sections: [
+      {
+        heading: "Quick answer",
+        id: "quick-answer",
+        blocks: [
+          {
+            type: "callout" as const,
+            label: "What HRSA requires, in one paragraph",
+            text: "Chapter 10 of the HRSA Compliance Manual requires a board-approved QI/QA policy, a named person overseeing the program, written procedures, clinician-led assessments of patient records at least quarterly, a retrievable health record for every patient, and systems that protect patient information. Reports must reach key management and the board. How often beyond quarterly, which method (PDSA, peer review or another), and who fills the oversight role are your choice.",
+          },
+        ],
+      },
       {
         heading: "What Chapter 10 covers",
         id: "what-chapter-10-covers",
@@ -40,7 +51,7 @@ export const RESOURCES: Resource[] = [
             "The underlying requirement is short: the health center must have an ongoing QI/QA system that covers clinical services and clinical management and maintains the confidentiality of patient records. That system must provide organizational arrangements with a focus of responsibility, and periodic assessment of the appropriateness of utilization and the quality of services.",
           ),
           p(
-            "The Manual states that those periodic assessments must be conducted by physicians or by other licensed health professionals under physician supervision, be based on the systematic collection and evaluation of patient records, assess patient satisfaction and achievement of project objectives, include a process for hearing and resolving grievances, and identify and document the necessity for change — and result in that change where indicated.",
+            "The Manual states that those periodic assessments must be conducted by physicians or by other licensed health professionals under physician supervision, be based on the systematic collection and evaluation of patient records, assess patient satisfaction and achievement of project objectives, include a process for hearing and resolving grievances, and identify and document the necessity for change, and result in that change where indicated.",
           ),
           p(
             "Everything else in this article distinguishes between what the Manual requires, how a site visit team checks it, and what is left to the health center's judgment.",
@@ -52,14 +63,14 @@ export const RESOURCES: Resource[] = [
         id: "six-elements",
         blocks: [
           p(
-            "Chapter 10 lists six items a health center would fulfill to demonstrate compliance. These are the requirements — paraphrased for readability, not reworded to change meaning:",
+            "Chapter 10 lists six items a health center would fulfill to demonstrate compliance. These are the requirements, paraphrased for readability, not reworded to change meaning:",
           ),
           list([
             "1. A board-approved policy (or policies) establishing a QI/QA program that addresses the quality and utilization of services, patient satisfaction and grievance processes, and patient safety including adverse events.",
             "2. A designated individual (or individuals) to oversee that program, responsible for implementing QI/QA operating procedures and assessments, monitoring outcomes, and updating procedures.",
             "3. Operating procedures or processes covering: evidence-based clinical guidelines and standards of care; identifying, analyzing and addressing patient safety and adverse events with follow-up actions; assessing patient satisfaction; hearing and resolving grievances; completing periodic QI/QA assessments at least quarterly; and producing and sharing QI/QA reports that support decision-making and oversight by key management staff and the governing board.",
             "4. Quarterly (or more frequent) QI/QA assessments conducted by physicians or other licensed health care professionals, using data systematically collected from patient records, covering provider adherence to guidelines and the identification of patient safety and adverse events with related follow-up.",
-            "5. A retrievable health record for each patient — for example, a certified EHR — with format and content consistent with federal and state law.",
+            "5. A retrievable health record for each patient (for example, a certified EHR) with format and content consistent with federal and state law.",
             "6. Implemented systems for protecting the confidentiality of patient information and safeguarding it against loss, destruction, or unauthorized use, consistent with federal and state requirements.",
           ]),
           p(
@@ -82,7 +93,7 @@ export const RESOURCES: Resource[] = [
             "The format, content, and focus of QI/QA reports.",
           ]),
           p(
-            "The Site Visit Protocol reinforces this. In its notes on periodic assessments, it states the health center determines how often to do assessments as long as they occur at least quarterly, and determines how to do them — giving peer review and Plan-Do-Study-Act as examples of acceptable approaches, not as a mandated method.",
+            "The Site Visit Protocol reinforces this. In its notes on periodic assessments, it states the health center determines how often to do assessments as long as they occur at least quarterly, and determines how to do them, giving peer review and Plan-Do-Study-Act as examples of acceptable approaches, not as a mandated method.",
           ),
           p(
             "So: quarterly frequency, clinician involvement, and a patient-record basis are requirements. The improvement methodology, the reporting template, and the staffing structure are yours to choose.",
@@ -108,16 +119,16 @@ export const RESOURCES: Resource[] = [
             "Documentation of related supporting systems (for example, event reporting, grievance tracking, dashboards).",
             "The QI/QA assessment schedule or calendar.",
             "A sample of two QI/QA assessments from the past 12 months, plus any resulting reports.",
-            "A sample of 5–10 patient records that include clinic visit notes or a summary of care.",
+            "A sample of 5 to 10 patient records that include clinic visit notes or a summary of care.",
             "Systems and record-keeping procedures for confidentiality, privacy, and security of patient information, including PHI.",
           ]),
           h3("The patient record sample is 5 to 10, and it is a review methodology"),
           p(
-            "Health centers are often told they must produce \"five charts.\" The SVP asks for a sample of 5–10 patient records for the QI/QA review, and notes that the same record sample used for other program requirement areas may be reused, and that records may be provided before or during the visit using live EHR navigation, screenshots, or other formats. This is a site visit review methodology for Chapter 8 — it is not a standing requirement in Manual Chapter 10 about how you must conduct your own internal assessments.",
+            "Health centers are often told they must produce \"five charts.\" The SVP asks for a sample of 5 to 10 patient records for the QI/QA review, and notes that the same record sample used for other program requirement areas may be reused, and that records may be provided before or during the visit using live EHR navigation, screenshots, or other formats. This is a site visit review methodology for Chapter 8. It is not a standing requirement in Manual Chapter 10 about how you must conduct your own internal assessments.",
           ),
           h3("What reviewers ask beyond documents"),
           p(
-            "The SVP findings include two questions that documentation alone rarely answers: whether QI/QA reports — including patient satisfaction and patient safety data — are shared with key management staff and the governing board, and whether the health center can share at least one concrete example of how those reports supported a decision. Reviewers also ask whether the assessments demonstrate that the center is tracking and, where necessary, addressing quality and safety issues.",
+            "The SVP findings include two questions that documentation alone rarely answers: whether QI/QA reports (including patient satisfaction and patient safety data) are shared with key management staff and the governing board, and whether the health center can share at least one concrete example of how those reports supported a decision. Reviewers also ask whether the assessments demonstrate that the center is tracking and, where necessary, addressing quality and safety issues.",
           ),
         ],
       },
@@ -164,13 +175,61 @@ export const RESOURCES: Resource[] = [
           ]),
           h3("Common practice, not federal requirement"),
           list([
-            "Using PDSA specifically — HRSA names it only as one example among acceptable methods.",
+            "Using PDSA specifically: HRSA names it only as one example among acceptable methods.",
             "A monthly QI committee cadence, a particular dashboard format, or a specific report template.",
-            "\"Five charts per provider per quarter\" as a universal rule — the 5–10 record sample is an SVP review sample, and internal audit design is left to the health center.",
-            "Accreditation or PCMH recognition — valuable, but not what Chapter 10 asks for.",
+            "\"Five charts per provider per quarter\" as a universal rule. The 5 to 10 record sample is an SVP review sample, and internal audit design is left to the health center.",
+            "Accreditation or PCMH recognition: valuable, but not what Chapter 10 asks for.",
           ]),
           p(
-            "The practical takeaway: the requirements are about a documented, clinician-led, chart-based, at-least-quarterly loop that reaches the board and produces change when change is indicated. How you run that loop is your design decision — and the thing reviewers most often find missing is the dated evidence that the loop closed.",
+            "The practical takeaway: the requirements are about a documented, clinician-led, chart-based, at-least-quarterly loop that reaches the board and produces change when change is indicated. How you run that loop is your design decision, and the thing reviewers most often find missing is the dated evidence that the loop closed.",
+          ),
+        ],
+      },
+      {
+        heading: "Site visit self-check: 8 questions",
+        id: "self-check",
+        blocks: [
+          p(
+            "Every question below comes straight from the documents and findings questions in Site Visit Protocol Chapter 8. If you can answer yes and point to a dated document for each, you are in good shape for the QI/QA portion of an Operational Site Visit.",
+          ),
+          list([
+            "1. Is your QI/QA policy board-approved, and does it cover quality and utilization, patient satisfaction, grievances, and patient safety?",
+            "2. Is there a job description naming who oversees the QI/QA program?",
+            "3. Do you have written procedures for clinical guidelines, adverse events and follow-up, satisfaction, grievances, periodic assessments, and reporting?",
+            "4. Do you have a QI/QA assessment calendar showing at least quarterly assessments?",
+            "5. Can you produce two QI/QA assessments from the past 12 months, plus the reports that came out of them?",
+            "6. Can you pull 5 to 10 patient records with visit notes or a summary of care, live in the EHR or as screenshots?",
+            "7. Do your board and management minutes show QI/QA reports, including satisfaction and safety data, being shared?",
+            "8. Can you name at least one decision those reports supported?",
+          ]),
+          p(
+            "Question 8 is the one health centers most often struggle with, because the decision usually happened in a meeting but was never written down next to the data that drove it. For a scored version of this check, take the free 10-question OSV readiness self-assessment at measurewise.org/readiness.",
+          ),
+        ],
+      },
+      {
+        heading: "Common questions",
+        id: "faq",
+        blocks: [
+          h3("Is PDSA required by HRSA?"),
+          p(
+            "No. The Site Visit Protocol names Plan-Do-Study-Act and peer review as examples of acceptable approaches. Chapter 10 lists the QI/QA methodology as an area of health center discretion.",
+          ),
+          h3("How often must QI/QA assessments happen?"),
+          p(
+            "At least quarterly. The health center may choose to assess more often.",
+          ),
+          h3("Does the QI/QA director have to be a physician?"),
+          p(
+            "No. Chapter 10 says the oversight role can be filled by a physician, another licensed professional such as an RN or NP, or another qualified individual such as someone with an MPH or MHA. It can be full-time, part-time, combined with another role, or contracted. The assessments themselves must be conducted by physicians or other licensed health care professionals.",
+          ),
+          h3("How many charts will site visit reviewers look at?"),
+          p(
+            "The Site Visit Protocol asks for a sample of 5 to 10 patient records for the QI/QA review, and that sample can be shared with other review areas. It is a review method for the visit, not a rule for how many charts your own audits must pull.",
+          ),
+          h3("Is Chapter 10 the same as FTCA deeming?"),
+          p(
+            "No. FTCA deeming is a separate application with its own risk management and credentialing expectations. Check each requirement against its own source.",
           ),
         ],
       },
@@ -181,10 +240,10 @@ export const RESOURCES: Resource[] = [
       "hrsa-osv-qi-qa-documents",
     ],
     cta: {
-      label: "See the HRSA Audit Binder",
-      href: "/features#audit-binder",
+      label: "Take the free OSV readiness self-assessment",
+      href: "/readiness",
       blurb:
-        "MeasureWise assembles dated QI/QA evidence — cycles, measures, and decisions — into one exportable binder.",
+        "Ten questions and a scored report. See where your QI/QA program stands before site visit reviewers arrive.",
     },
     sources: [
       {
