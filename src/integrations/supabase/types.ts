@@ -1474,6 +1474,51 @@ export type Database = {
         }
         Relationships: []
       }
+      marketing_posts: {
+        Row: {
+          body: string
+          channel: string
+          created_at: string
+          created_by: string | null
+          hashtags: string[]
+          hook: string
+          id: string
+          link_url: string | null
+          posted_at: string | null
+          status: string
+          topic: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          hashtags?: string[]
+          hook?: string
+          id?: string
+          link_url?: string | null
+          posted_at?: string | null
+          status?: string
+          topic: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string
+          channel?: string
+          created_at?: string
+          created_by?: string | null
+          hashtags?: string[]
+          hook?: string
+          id?: string
+          link_url?: string | null
+          posted_at?: string | null
+          status?: string
+          topic?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       measure_goals: {
         Row: {
           created_at: string

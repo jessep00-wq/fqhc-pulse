@@ -8,3 +8,4 @@
 - Judge every UDS measure through `getMeasureStatus` in `src/lib/measureStatus.ts` (org goal from `measure_goals`, else the benchmark in `src/data/udsMeasures.ts`) so the dashboard, board report and settings never disagree.
 - Trial follow-up emails (Day 3/7/10/13) are sent by the daily cron-called route `src/routes/api/public/trial-nurture.ts` (cron-secret auth, Resend gateway, dedupe via `email_send_log` template `trial-nurture-dayN`), because new Supabase edge functions are not allowed on this stack.
 - Keep Barriers tab rules (status groups, sort, "Start here", suggestions, suggested owner) in `src/lib/barriers/barrierModel.ts` as pure functions, so the page, decision flow and tests share one definition.
+- Keep marketing-agent drafts in `marketing_posts` (founder_admin-only RLS) and generate them through `src/lib/marketing/*.functions.ts` using the shared `callModelJson` helper, so all AI posts are reviewed before anything is published.

@@ -43,6 +43,13 @@
       "when": 1794534527360,
       "tag": "0005_gate_workspace_reads_on_subscription",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795187274036,
+      "tag": "0006_create_marketing_posts",
+      "breakpoints": true
     }
   ]
 }

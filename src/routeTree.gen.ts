@@ -32,6 +32,7 @@ import { Route as AdminAdoptionRouteImport } from './routes/admin/adoption'
 import { Route as AdminAiRouteImport } from './routes/admin/ai'
 import { Route as AdminBillingRouteImport } from './routes/admin/billing'
 import { Route as AdminEmailRouteImport } from './routes/admin/email'
+import { Route as AdminMarketingRouteImport } from './routes/admin/marketing'
 import { Route as AdminReadinessRouteImport } from './routes/admin/readiness'
 import { Route as AdminStoreRouteImport } from './routes/admin/store'
 import { Route as AdminUsersRouteImport } from './routes/admin/users'
@@ -188,6 +189,11 @@ const AdminBillingRoute = AdminBillingRouteImport.update({
 const AdminEmailRoute = AdminEmailRouteImport.update({
   id: '/email',
   path: '/email',
+  getParentRoute: () => AdminRouteRoute,
+} as any)
+const AdminMarketingRoute = AdminMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
   getParentRoute: () => AdminRouteRoute,
 } as any)
 const AdminReadinessRoute = AdminReadinessRouteImport.update({
@@ -426,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/admin/ai': typeof AdminAiRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/email': typeof AdminEmailRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/readiness': typeof AdminReadinessRoute
   '/admin/store': typeof AdminStoreRoute
   '/admin/users': typeof AdminUsersRoute
@@ -491,6 +498,7 @@ export interface FileRoutesByTo {
   '/admin/ai': typeof AdminAiRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/email': typeof AdminEmailRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/readiness': typeof AdminReadinessRoute
   '/admin/store': typeof AdminStoreRoute
   '/admin/users': typeof AdminUsersRoute
@@ -559,6 +567,7 @@ export interface FileRoutesById {
   '/admin/ai': typeof AdminAiRoute
   '/admin/billing': typeof AdminBillingRoute
   '/admin/email': typeof AdminEmailRoute
+  '/admin/marketing': typeof AdminMarketingRoute
   '/admin/readiness': typeof AdminReadinessRoute
   '/admin/store': typeof AdminStoreRoute
   '/admin/users': typeof AdminUsersRoute
@@ -628,6 +637,7 @@ export interface FileRouteTypes {
     | '/admin/ai'
     | '/admin/billing'
     | '/admin/email'
+    | '/admin/marketing'
     | '/admin/readiness'
     | '/admin/store'
     | '/admin/users'
@@ -693,6 +703,7 @@ export interface FileRouteTypes {
     | '/admin/ai'
     | '/admin/billing'
     | '/admin/email'
+    | '/admin/marketing'
     | '/admin/readiness'
     | '/admin/store'
     | '/admin/users'
@@ -760,6 +771,7 @@ export interface FileRouteTypes {
     | '/admin/ai'
     | '/admin/billing'
     | '/admin/email'
+    | '/admin/marketing'
     | '/admin/readiness'
     | '/admin/store'
     | '/admin/users'
@@ -1009,6 +1021,13 @@ declare module '@tanstack/react-router' {
       path: '/email'
       fullPath: '/admin/email'
       preLoaderRoute: typeof AdminEmailRouteImport
+      parentRoute: typeof AdminRouteRoute
+    }
+    '/admin/marketing': {
+      id: '/admin/marketing'
+      path: '/marketing'
+      fullPath: '/admin/marketing'
+      preLoaderRoute: typeof AdminMarketingRouteImport
       parentRoute: typeof AdminRouteRoute
     }
     '/admin/readiness': {
@@ -1314,6 +1333,7 @@ interface AdminRouteRouteChildren {
   AdminAiRoute: typeof AdminAiRoute
   AdminBillingRoute: typeof AdminBillingRoute
   AdminEmailRoute: typeof AdminEmailRoute
+  AdminMarketingRoute: typeof AdminMarketingRoute
   AdminReadinessRoute: typeof AdminReadinessRoute
   AdminStoreRoute: typeof AdminStoreRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -1327,6 +1347,7 @@ const AdminRouteRouteChildren: AdminRouteRouteChildren = {
   AdminAiRoute: AdminAiRoute,
   AdminBillingRoute: AdminBillingRoute,
   AdminEmailRoute: AdminEmailRoute,
+  AdminMarketingRoute: AdminMarketingRoute,
   AdminReadinessRoute: AdminReadinessRoute,
   AdminStoreRoute: AdminStoreRoute,
   AdminUsersRoute: AdminUsersRoute,

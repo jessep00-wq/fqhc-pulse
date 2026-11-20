@@ -8,6 +8,7 @@ import {
   Shield,
   Sparkles,
   Mail,
+  Megaphone,
 } from "lucide-react";
 import { Link, useLocation } from "@/lib/router-compat";
 import { Logo } from "@/components/Logo";
@@ -38,6 +39,7 @@ const content = [
 ];
 
 const tools = [
+  { title: "Marketing Agent", url: "/admin/marketing", icon: Megaphone },
   { title: "Readiness Leads", url: "/admin/readiness", icon: Sparkles },
   { title: "AI Activity", url: "/admin/ai", icon: Shield },
   { title: "Email Health", url: "/admin/email", icon: Mail },
