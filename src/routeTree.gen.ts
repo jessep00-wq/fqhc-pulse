@@ -69,6 +69,7 @@ import { Route as DotlovableOauthConsentRouteImport } from './routes/[.]lovable.
 import { Route as AdminAccountOrgIdRouteImport } from './routes/admin/account.$orgId'
 import { Route as ApiPublicOrderDownloadRouteImport } from './routes/api/public/order-download'
 import { Route as ApiPublicTrialNurtureRouteImport } from './routes/api/public/trial-nurture'
+import { Route as ApiPublicWeeklyLinkedinDraftsRouteImport } from './routes/api/public/weekly-linkedin-drafts'
 import { Route as DashboardQiReportsIndexRouteImport } from './routes/dashboard/qi-reports/index'
 import { Route as DashboardQiReportsIdRouteImport } from './routes/dashboard/qi-reports/$id'
 import { Route as DashboardQiReportsNewRouteImport } from './routes/dashboard/qi-reports/new'
@@ -378,6 +379,12 @@ const ApiPublicTrialNurtureRoute = ApiPublicTrialNurtureRouteImport.update({
   path: '/api/public/trial-nurture',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWeeklyLinkedinDraftsRoute =
+  ApiPublicWeeklyLinkedinDraftsRouteImport.update({
+    id: '/api/public/weekly-linkedin-drafts',
+    path: '/api/public/weekly-linkedin-drafts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DashboardQiReportsIndexRoute = DashboardQiReportsIndexRouteImport.update({
   id: '/qi-reports/',
   path: '/qi-reports/',
@@ -470,6 +477,7 @@ export interface FileRoutesByFullPath {
   '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
   '/api/public/order-download': typeof ApiPublicOrderDownloadRoute
   '/api/public/trial-nurture': typeof ApiPublicTrialNurtureRoute
+  '/api/public/weekly-linkedin-drafts': typeof ApiPublicWeeklyLinkedinDraftsRoute
   '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
   '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
   '/store/bundle/$slug': typeof StoreBundleSlugRoute
@@ -536,6 +544,7 @@ export interface FileRoutesByTo {
   '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
   '/api/public/order-download': typeof ApiPublicOrderDownloadRoute
   '/api/public/trial-nurture': typeof ApiPublicTrialNurtureRoute
+  '/api/public/weekly-linkedin-drafts': typeof ApiPublicWeeklyLinkedinDraftsRoute
   '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
   '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
   '/store/bundle/$slug': typeof StoreBundleSlugRoute
@@ -605,6 +614,7 @@ export interface FileRoutesById {
   '/admin/account/$orgId': typeof AdminAccountOrgIdRoute
   '/api/public/order-download': typeof ApiPublicOrderDownloadRoute
   '/api/public/trial-nurture': typeof ApiPublicTrialNurtureRoute
+  '/api/public/weekly-linkedin-drafts': typeof ApiPublicWeeklyLinkedinDraftsRoute
   '/dashboard/qi-reports/$id': typeof DashboardQiReportsIdRoute
   '/dashboard/qi-reports/new': typeof DashboardQiReportsNewRoute
   '/store/bundle/$slug': typeof StoreBundleSlugRoute
@@ -675,6 +685,7 @@ export interface FileRouteTypes {
     | '/admin/account/$orgId'
     | '/api/public/order-download'
     | '/api/public/trial-nurture'
+    | '/api/public/weekly-linkedin-drafts'
     | '/dashboard/qi-reports/$id'
     | '/dashboard/qi-reports/new'
     | '/store/bundle/$slug'
@@ -741,6 +752,7 @@ export interface FileRouteTypes {
     | '/admin/account/$orgId'
     | '/api/public/order-download'
     | '/api/public/trial-nurture'
+    | '/api/public/weekly-linkedin-drafts'
     | '/dashboard/qi-reports/$id'
     | '/dashboard/qi-reports/new'
     | '/store/bundle/$slug'
@@ -809,6 +821,7 @@ export interface FileRouteTypes {
     | '/admin/account/$orgId'
     | '/api/public/order-download'
     | '/api/public/trial-nurture'
+    | '/api/public/weekly-linkedin-drafts'
     | '/dashboard/qi-reports/$id'
     | '/dashboard/qi-reports/new'
     | '/store/bundle/$slug'
@@ -855,6 +868,7 @@ export interface RootRouteChildren {
   DotlovableOauthConsentRoute: typeof DotlovableOauthConsentRoute
   ApiPublicOrderDownloadRoute: typeof ApiPublicOrderDownloadRoute
   ApiPublicTrialNurtureRoute: typeof ApiPublicTrialNurtureRoute
+  ApiPublicWeeklyLinkedinDraftsRoute: typeof ApiPublicWeeklyLinkedinDraftsRoute
   StoreBundleSlugRoute: typeof StoreBundleSlugRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1282,6 +1296,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTrialNurtureRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/weekly-linkedin-drafts': {
+      id: '/api/public/weekly-linkedin-drafts'
+      path: '/api/public/weekly-linkedin-drafts'
+      fullPath: '/api/public/weekly-linkedin-drafts'
+      preLoaderRoute: typeof ApiPublicWeeklyLinkedinDraftsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard/qi-reports/': {
       id: '/dashboard/qi-reports/'
       path: '/qi-reports'
@@ -1437,6 +1458,7 @@ const rootRouteChildren: RootRouteChildren = {
   DotlovableOauthConsentRoute: DotlovableOauthConsentRoute,
   ApiPublicOrderDownloadRoute: ApiPublicOrderDownloadRoute,
   ApiPublicTrialNurtureRoute: ApiPublicTrialNurtureRoute,
+  ApiPublicWeeklyLinkedinDraftsRoute: ApiPublicWeeklyLinkedinDraftsRoute,
   StoreBundleSlugRoute: StoreBundleSlugRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

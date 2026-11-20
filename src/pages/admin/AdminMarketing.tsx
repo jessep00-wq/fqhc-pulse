@@ -5,6 +5,7 @@ import { Copy, Loader2, Megaphone, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { generateLinkedInPosts, TOPICS } from "@/lib/marketing/linkedinAgent.functions";
+import { OutreachGenerator } from "@/components/admin/OutreachGenerator";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,7 +75,7 @@ export default function AdminMarketing() {
     <div className="space-y-6 max-w-5xl">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2"><Megaphone className="h-6 w-6 text-primary" /> LinkedIn Content Agent</h1>
-        <p className="text-sm text-muted-foreground">Drafts posts in your voice. Nothing is posted until you copy it to LinkedIn.</p>
+        <p className="text-sm text-muted-foreground">Drafts posts in your voice. 3 new drafts arrive every Monday morning automatically. Nothing is posted until you copy it to LinkedIn.</p>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
@@ -97,6 +98,8 @@ export default function AdminMarketing() {
           </Button>
         </CardContent>
       </Card>
+
+      <OutreachGenerator />
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as Status)}>
         <TabsList>

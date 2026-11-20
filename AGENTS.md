@@ -9,3 +9,4 @@
 - Trial follow-up emails (Day 3/7/10/13) are sent by the daily cron-called route `src/routes/api/public/trial-nurture.ts` (cron-secret auth, Resend gateway, dedupe via `email_send_log` template `trial-nurture-dayN`), because new Supabase edge functions are not allowed on this stack.
 - Keep Barriers tab rules (status groups, sort, "Start here", suggestions, suggested owner) in `src/lib/barriers/barrierModel.ts` as pure functions, so the page, decision flow and tests share one definition.
 - Keep marketing-agent drafts in `marketing_posts` (founder_admin-only RLS) and generate them through `src/lib/marketing/*.functions.ts` using the shared `callModelJson` helper, so all AI posts are reviewed before anything is published.
+- Weekly LinkedIn drafts come from the Monday cron route `src/routes/api/public/weekly-linkedin-drafts.ts` (cron-secret auth, skips if a "Weekly:" batch exists in 6 days) reusing `linkedinAgent.server.ts`, so the button and the job share one prompt.
