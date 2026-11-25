@@ -57,6 +57,13 @@
       "when": 1795628296065,
       "tag": "0007_harden_admin_delete_organization",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1795631768833,
+      "tag": "0008_guard_admin_organization_delete_coverage",
+      "breakpoints": true
     }
   ]
 }

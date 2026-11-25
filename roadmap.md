@@ -1,5 +1,10 @@
 # Phase 2 Implementation Roadmap
 
+## Health center deletion safeguard
+- [x] Add founder-only coverage check before any deletion writes.
+- [x] Verify live coverage and grants, missing-table refusal before writes, successful disposable-fixture deletion, and founder authorization (6 tests passed).
+- [x] Record the same-change coverage rule for future health center tables.
+
 ## Homepage verification
 - [x] Check homepage sections, role tabs, FAQs, links, and mobile layout.
 - [x] Check all walkthrough presets, navigation, and export previews.

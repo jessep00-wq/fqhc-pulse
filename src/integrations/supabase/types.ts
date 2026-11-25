@@ -3066,6 +3066,12 @@ export type Database = {
           staff_role: string
         }[]
       }
+      admin_org_delete_coverage: {
+        Args: never
+        Returns: {
+          table_name: string
+        }[]
+      }
       backfill_barriers_from_cycles: {
         Args: { _org_id: string }
         Returns: number
