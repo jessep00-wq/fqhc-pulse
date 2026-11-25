@@ -50,6 +50,13 @@
       "when": 1795187274036,
       "tag": "0006_create_marketing_posts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795628296065,
+      "tag": "0007_harden_admin_delete_organization",
+      "breakpoints": true
     }
   ]
 }
